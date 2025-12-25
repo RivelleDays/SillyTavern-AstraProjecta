@@ -1,0 +1,87 @@
+/* =============================================================
+   Segmented tabs component (non-swipe)
+   ============================================================= */
+
+.segmented-tabs-root {
+    display: flex;
+    flex-direction: column;
+}
+.segmented-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--button-base);
+    gap: 4px;
+    margin: 12px;
+    padding: 0 4px;
+    background: var(--surface-base-t20);
+    border: 1px solid var(--color-base-t20);
+    border-radius: 12px;
+    font-weight: var(--font-weight-medium);
+    transition: all 0.3s ease-in-out;
+}
+.segmented-tab {
+    background-color: transparent;
+    appearance: none;
+    border: none;
+    padding: 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: var(--text-sm);
+    color: var(--color-base);
+    font-weight: var(--font-weight-semibold);
+    position: relative;
+    isolation: isolate;
+    transition: all 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: -webkit-fill-available;
+    min-width: 0;
+    opacity: 0.5;
+}
+.segmented-tab i {
+    font-size: var(--text-xs);
+}
+.segmented-tab span {
+    display: inline-block;
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.segmented-tab[data-tab-id="logprobs"] {
+    width: 60%;
+}
+.segmented-tab[data-tab-id="cfg"] {
+    width: 40%;
+}
+.segmented-tab:hover {
+    background: transparent;
+    opacity: 1;
+}
+.segmented-tab.active {
+    background: var(--color-base-t10);
+    color: var(--color-base);
+    opacity: 1;
+}
+.segmented-tab::after {
+    content: none;
+}
+.segmented-tabpanels {
+    flex: 1;
+    min-height: 0;
+    padding-top: 6px;
+}
+.segmented-tabpanel {
+    display: none;
+    overflow: auto;
+    padding: 12px 16px;
+}
+.segmented-tabpanel.active {
+    display: block;
+}

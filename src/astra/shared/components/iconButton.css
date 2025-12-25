@@ -1,0 +1,41 @@
+/* =============================================================
+   Icon button base styles
+   ============================================================= */
+
+.icon-button {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-base);
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: all 0.3s ease-in-out;
+}
+.icon-button svg {
+    stroke-width: 1.7;
+    width: 20px;
+    height: 20px;
+}
+
+.icon-button:hover {
+    opacity: 1;
+}
+
+.icon-button.active {
+    background: var(--color-base-t10);
+    border-color: var(--color-base-t20);
+    opacity: 1;
+}
+
+.icon-button i {
+    font-size: var(--text-xs);
+    line-height: 1;
+    pointer-events: none;
+}

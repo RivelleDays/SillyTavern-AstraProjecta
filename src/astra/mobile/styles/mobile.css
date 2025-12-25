@@ -1,0 +1,11 @@
+/* =============================================================
+    Mobile overrides (aggregated)
+   ============================================================= */
+
+@import "./mobile/structure.css";
+@import "./mobile/sidebar.css";
+@import "./mobile/chat.css";
+@import "./mobile/chat-header.css";
+@import "./mobile/overlays.css";
+@import "./mobile/rightSidebarDrawer.css";
+@import "./mobile/home-identity.css";

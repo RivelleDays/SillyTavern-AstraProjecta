@@ -1,0 +1,41 @@
+@media screen and (max-width: 600px) {
+    #astraMobileHomeIdentity {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    #astraMobileHomeIdentity[hidden] {
+        display: none !important;
+    }
+
+    .astra-mobile-home-identity__avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: var(--radius-full);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        border: 1px solid var(--border-color-base);
+        flex-shrink: 0;
+    }
+
+    .astra-mobile-home-identity__text {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        min-width: 0;
+    }
+
+    .astra-mobile-home-identity__name {
+        font-size: var(--text-base);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-base);
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}

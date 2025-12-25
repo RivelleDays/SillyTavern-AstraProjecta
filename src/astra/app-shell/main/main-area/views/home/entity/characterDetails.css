@@ -1,0 +1,547 @@
+.astra-home-details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    padding-bottom: var(--space-6);
+}
+
+.astra-home-details__actionButton {
+    white-space: nowrap;
+}
+
+.astra-home-details__error {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: var(--radius-base);
+    border: 1px solid var(--color-error-t40);
+    background: var(--color-error-t10);
+    color: var(--color-error);
+    font-size: var(--text-sm);
+}
+
+.astra-home-details__section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.astra-home-details__section:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+.astra-home-details__sectionTitle {
+    margin: 0;
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-base);
+}
+
+.astra-home-details__sectionBody {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.astra-home-details__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.astra-home-details__fieldHeader {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-1);
+}
+
+.astra-home-details__fieldLabelRow {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.astra-home-details__fieldHeaderActions {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.astra-home-details__fieldLabel {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-base);
+}
+
+.astra-home-details__controlShell {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.astra-home-details__helper {
+    margin: 0;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+}
+
+.astra-home-details__helperPopover {
+    padding: 0;
+    width: min(520px, 94vw);
+}
+
+.astra-home-details__helperDrawer {
+    padding: 0;
+    color: var(--color-base);
+    background: var(--surface-base);
+}
+
+.astra-home-details__control {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.astra-home-details__input {
+    width: -webkit-fill-available;
+    margin: 1px;
+    font: inherit;
+}
+
+.astra-home-details__input[readonly] {
+    background: var(--surface-base-t10);
+    border-color: var(--border-color-muted);
+    color: var(--color-base);
+}
+
+.astra-home-details__input--textarea {
+    min-height: 140px;
+    max-height: 60dvh;
+    height: auto;
+    field-sizing: content;
+    resize: vertical;
+    font: inherit;
+    overflow-y: auto;
+    border: none;
+}
+
+.astra-home-details__fieldRow {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.astra-home-details__splitFields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.astra-home-details__sliderShell {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.astra-home-details__sliderRefs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+.astra-home-details__inputIconShell {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.astra-home-details__inputIcon {
+    position: absolute;
+    inset-block: 0;
+    left: 10px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-muted);
+    pointer-events: none;
+}
+
+.astra-home-details__input--iconPadding {
+    padding-inline-start: 32px;
+}
+
+.astra-home-details__input--noSpinner {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.astra-home-details__input--noSpinner::-webkit-inner-spin-button,
+.astra-home-details__input--noSpinner::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.astra-home-details__select {
+    width: 100%;
+}
+
+.astra-home-details__selectButton {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    min-height: 38px;
+    text-align: left;
+    gap: 8px;
+    padding-inline: 12px;
+    justify-content: space-between;
+}
+
+.astra-home-details__selectButton:hover {
+    background: var(--color-base-t5);
+}
+
+.astra-home-details__selectChevron {
+    width: 14px;
+    height: 14px;
+    color: var(--color-muted);
+    flex-shrink: 0;
+}
+
+.astra-home-details__roleDropdown {
+    width: clamp(160px, var(--radix-dropdown-menu-trigger-width), var(--radix-dropdown-menu-content-available-width));
+}
+
+.astra-home-details__tagsShell {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.astra-home-details__tagInputRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.astra-home-details__tagInput {
+    flex: 1;
+}
+
+.astra-home-details__tagAddButton {
+    white-space: nowrap;
+}
+
+.astra-home-details__tagList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.astra-home-details__tagChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: var(--radius-base);
+    border: 1px solid var(--border-color-base);
+    background: var(--surface-base-t5);
+    color: var(--color-base);
+    font-size: var(--text-xs);
+}
+
+.astra-home-details__tagRemove {
+    background: none;
+    border: none;
+    padding: 0 4px;
+    color: var(--color-muted);
+    cursor: pointer;
+    font-size: var(--text-sm);
+    line-height: 1;
+}
+
+.astra-home-details__tagRemove:hover {
+    color: var(--color-base);
+}
+
+.astra-home-details__tagRemove:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.astra-home-details__noteMeta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.astra-home-details__noteMetaField {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.astra-home-details__noteMetaLabel {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.astra-home-details__noteMetaValue {
+    padding: 8px 12px;
+    border-radius: var(--radius-base);
+    border: 1px solid var(--border-color-base);
+    background: var(--surface-muted);
+    color: var(--color-base);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+}
+
+.astra-home-details__altGreetingsViewer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.astra-home-details__accordionRoot {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.astra-home-details__accordionRoot--empty {
+    display: none;
+    border: 1px dashed var(--border-color-base);
+    border-radius: var(--radius-base);
+    padding: 12px;
+    background: var(--surface-base-t5);
+}
+
+.astra-home-details__accordionItem {
+    border: 1px solid var(--border-color-base);
+    border-radius: var(--radius-base);
+    background: var(--surface-base-t5);
+    overflow: visible;
+}
+
+.astra-home-details__accordionTrigger {
+    padding: 12px 16px;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-base);
+    width: 100%;
+}
+
+.astra-home-details__accordionTrigger:hover {
+    text-decoration: none;
+}
+
+.astra-home-details__accordionTriggerRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    width: 100%;
+}
+
+.astra-home-details__accordionMeta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    justify-content: space-between;
+}
+
+.astra-home-details__accordionLabel {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-base);
+    font-size: var(--text-sm);
+}
+
+.astra-home-details__accordionContent {
+    padding: 0;
+
+    .astra-tokenized-textarea {
+        border: none;
+        border-radius: 0;
+        border-top: 1px solid var(--border-color-base);
+    }
+}
+
+.astra-home-details__altGreetingsEditor {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.astra-home-details__accordionActions {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    font-size: var(--text-sm);
+}
+
+.astra-home-details__accordionActions .astra-home-details__actionButton {
+    width: 100%;
+    justify-content: center;
+    font-size: var(--text-sm);
+    height: 36px;
+}
+
+.astra-home-details__altGreetingRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.astra-home-details__altGreetingInput {
+    min-height: 68px;
+}
+
+.astra-home-details__altGreetingActions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.astra-home-details__altGreetingAction {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: color 120ms ease, background-color 120ms ease;
+}
+
+.astra-home-details__altGreetingAction:hover {
+    color: var(--color-base);
+    background: var(--surface-base-t10);
+}
+
+.astra-home-details__altGreetingAction:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.astra-home-details__altGreetingAction[data-disabled="true"] {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.astra-home-details__altGreetingAction--danger:hover {
+    color: var(--color-error);
+    background: var(--color-error-t10);
+}
+
+.astra-home-details__greetingTokenRow {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
+.astra-home-details__tokenPill {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    white-space: nowrap;
+}
+
+.astra-home-details__altGreetingButton {
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-muted);
+}
+
+.astra-home-details__altGreetingButton:hover {
+    color: var(--color-base);
+}
+
+.astra-home-details__altGreetingButton--danger:hover {
+    color: var(--color-error);
+}
+
+.astra-home-details__altGreetingNew {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border-radius: var(--radius-base);
+    border: 1px dashed var(--border-color-base);
+    background: var(--surface-base-t5);
+}
+
+.astra-home-details__altGreetingNewActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.astra-home-details__altGreetingAddButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.astra-home-details__primaryBarHost {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.astra-home-details__primaryActions {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.astra-home-details__primaryActions .astra-home-editToggle,
+.astra-home-details__primaryActions .astra-home-details__actionButton {
+    min-height: 32px;
+    height: 32px;
+}
+
+.astra-home-entityReact {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.astra-home-entity__empty,
+.astra-home-entity__status,
+.astra-home-entity__error {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+}
+
+.astra-home-entity__error {
+    color: var(--color-error);
+}
+
+@container astra-home-view (max-width: 720px) {
+    .astra-home-details__accordionLabel {
+        font-size: var(--text-sm);
+    }
+
+    .astra-home-details__primaryActions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}

@@ -1,0 +1,99 @@
+.astra-home-entityTabs {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.astra-home-entityTabs__intro {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+    padding-inline: clamp(16px, 4vw, 32px);
+}
+
+.astra-home-entityTabs__intro:empty {
+    display: none;
+}
+
+.astra-home-entityTabs__panelsLabel {
+    margin: 0;
+}
+
+#home-entityTabs--root {
+    .secondary-tabs {
+        padding: 0;
+    }
+
+    .secondary-tab {
+        font-size: var(--text-base);
+    }
+}
+#home-entityTabs--panels {
+    margin-top: 20px;
+}
+#home-entityTabs--panels > * {
+    padding: 0;
+}
+
+.astra-home-entityTabs__panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.astra-home-entityTabs__panelGrid {
+    display: grid;
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.astra-home-entityTabs__panelAside {
+    background: var(--surface-base-t10);
+    border-radius: var(--radius-base);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    color: var(--color-muted);
+}
+
+.astra-home-entityTabs__panelAsideTitle {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-base);
+}
+
+.astra-home-entityTabs__panelAsideText {
+    margin: 0;
+    font-size: var(--text-xs);
+    line-height: 1.5;
+}
+
+.astra-home-entityTabs__panelMain {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    color: var(--color-base);
+}
+
+.astra-home-entityTabs__panelHeading {
+    margin: 0;
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--text-xl--line-height);
+}
+
+.astra-home-entityTabs__panelDescription {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    line-height: var(--text-sm--line-height);
+}
+
+@container astra-home-view (max-width: 720px) {
+    .astra-home-entityTabs__panelGrid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

@@ -1,0 +1,166 @@
+/* =============================================================
+   Mobile layout scaffolding
+   ============================================================= */
+
+@media screen and (max-width: 600px) {
+    body.astra-mobile-layout {
+        --layout-shell-margin: 0;
+        --sidebarGridGap: 0;
+        --sidebarFooterHeight: 0;
+        --sidebarFrameHeight: calc(100dvh - var(--mobileNavRailHeight));
+        --sidebarContentHeight: calc(var(--sidebarFrameHeight) - var(--sidebarHeaderHeight));
+        --sidebarTabpanelHeight: calc(
+            var(--sidebarContentHeight) - var(--sidebarSecondaryTitleHeight) - var(--sidebarSecondaryTabsHeight) -
+                var(--sidebarTabFooterHeight)
+        );
+    }
+
+    #astraMobileOverlayHost,
+    #astraMobileSidebarHost,
+    #astraMobileMainHost {
+        position: relative;
+        width: 0;
+        height: 0;
+    }
+
+    body.astra-mobile-layout #appWrapper {
+        display: block;
+        position: relative;
+        flex: 1 0 100%;
+        flex-basis: 100%;
+        flex-shrink: 0;
+        width: 100vw;
+        width: 100dvw;
+        min-width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+    }
+
+    body.astra-mobile-layout #leftSidebar {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        width: 100dvw;
+        height: 100vh;
+        height: 100dvh;
+        margin: var(--layout-shell-margin);
+        max-width: none;
+        background: var(--surface-base);
+        border-radius: 0;
+        z-index: 5000;
+        transform: translateX(0);
+        padding: 0;
+        gap: 0;
+        transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body.astra-mobile-layout.astra-mobile-main-visible #leftSidebar {
+        transform: translateX(0);
+        pointer-events: none;
+    }
+
+    body.astra-mobile-layout #contentColumn {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        width: 100dvw;
+        height: 100vh;
+        height: 100dvh;
+        z-index: 6000;
+        margin: var(--layout-shell-margin);
+        background: var(--surface-base);
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        padding-left: 0;
+        overflow: hidden;
+        transform: translateX(100%);
+        pointer-events: none;
+        opacity: 0;
+        will-change: transform, opacity;
+        transition:
+            transform 0.48s cubic-bezier(0.25, 1, 0.33, 1),
+            opacity 0.28s ease-in;
+    }
+
+    body.astra-mobile-layout.astra-mobile-main-visible #contentColumn {
+        transform: translateX(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    body.astra-mobile-layout #mainTopBar,
+    body.astra-mobile-layout #mainContentWrapper,
+    body.astra-mobile-layout #mainRow {
+        border-radius: 0;
+    }
+
+    body.astra-mobile-layout #sidebarToggleButton {
+        display: none;
+    }
+
+    body.astra-mobile-layout .mobile-main-close-button {
+        display: none;
+    }
+
+    body.astra-mobile-layout.astra-mobile-main-visible
+        .mobile-main-close-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--button-base);
+        height: var(--button-base);
+    }
+
+    #contentColumn[aria-hidden] {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        width: 100dvw;
+        height: 100vh;
+        height: 100dvh;
+        z-index: 6000;
+        margin: var(--layout-shell-margin);
+        background: var(--surface-base);
+        border-radius: 0;
+        box-shadow: 0 0 24px rgba(0, 0, 0, 0.18);
+        padding-left: 0;
+        overflow: hidden;
+        will-change: transform, opacity;
+        transition:
+            transform 0.48s cubic-bezier(0.25, 1, 0.33, 1),
+            opacity 0.28s ease-out;
+    }
+
+    #contentColumn[aria-hidden="true"] {
+        transform: translateX(100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #contentColumn[aria-hidden="false"] {
+        transform: translateX(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    #leftSidebar {
+        transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    #leftSidebar[aria-hidden="true"] {
+        transform: translateX(0);
+        pointer-events: none;
+    }
+
+    #leftSidebar[aria-hidden="false"] {
+        transform: translateX(0);
+        pointer-events: auto;
+    }
+}

@@ -1,0 +1,186 @@
+/* =============================================================
+    Secondary tabs component
+   ============================================================= */
+
+/* Swipe-enabled tabs container */
+.secondary-tabs-root.swipe-enabled {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.secondary-tabs-root.swipe-enabled .secondary-tabs {
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-x pan-y;
+}
+
+/* Secondary tabs (generic) */
+.secondary-tabs {
+    display: flex;
+    height: var(--sidebarSecondaryTabsHeight);
+    gap: 18px;
+    position: relative;
+    padding-block: 0;
+    padding-inline: var(--content-padding-inline);
+    padding-left: var(--sidebarContentPanelPaddingLeft, var(--content-padding-inline));
+    border-bottom: 1px solid var(--border-color-base);
+    justify-content: flex-start;
+    align-items: center;
+}
+.secondary-tab {
+    background-color: transparent;
+    appearance: none;
+    height: 100%;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: var(--text-sm);
+    color: var(--color-base);
+    font-weight: var(--font-weight-semibold);
+    position: relative;
+    isolation: isolate;
+    transition: all 0.2s ease-in-out;
+    opacity: 0.7;
+}
+.secondary-tab:hover {
+    opacity: 1;
+}
+.secondary-tab.active {
+    opacity: 1;
+}
+.secondary-tabs__slider {
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 2px;
+    width: 0;
+    opacity: 0;
+    background: var(--color-theme);
+    pointer-events: none;
+    transition:
+        transform 320ms var(--motion-ease-emphasized),
+        width 320ms var(--motion-ease-emphasized),
+        opacity 160ms ease-out;
+}
+#rightSidebar .secondary-tabpanel {
+    height: calc(
+        100dvh - var(--mainTopBarHeight) - var(--sidebarSecondaryTitleHeight) -
+            var(--sidebarSecondaryTabsHeight)
+    );
+}
+
+/* Panels */
+.secondary-tabs-root.swipe-enabled .secondary-tabpanels {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+.secondary-tabs-root.swipe-enabled .secondary-tabpanel {
+    height: 100%;
+    overflow: auto;
+    padding: 12px var(--content-padding-inline);
+    padding-left: var(--sidebarContentPanelPaddingLeft, var(--content-padding-inline));
+}
+.secondary-tabpanel.active {
+    display: block;
+}
+.secondary-tabpanel {
+    display: none;
+}
+.secondary-tabpanel.animating.from-left {
+    animation: tab-in-left 0.25s ease;
+}
+.secondary-tabpanel.animating.from-right {
+    animation: tab-in-right 0.25s ease;
+}
+@keyframes tab-in-left {
+    from {
+        opacity: 0;
+        transform: translateX(-16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+@keyframes tab-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Drawer overrides */
+#sidebarContent {
+    .secondary-tabpanels {
+        padding: 0;
+        overflow: hidden;
+    }
+    .secondary-tabpanel {
+        padding: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+    .secondary-tabpanel {
+        padding: 12px var(--content-padding-inline);
+        padding-left: var(--sidebarContentPanelPaddingLeft, var(--content-padding-inline));
+    }
+
+    .m-b-1 {
+        margin-bottom: unset !important;
+    }
+}
+
+/* Secondary tabs: page-level custom heading slot (icon | title) */
+.secondary-title-slot {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    gap: 10px;
+    height: var(--sidebarSecondaryTitleHeight);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--text-base);
+    color: var(--color-base);
+    border-bottom: 1px solid var(--border-color-base);
+}
+.secondary-title-slot__heading {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+/* Standardized heading layout: [icon] | [label] */
+.sts-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.2;
+}
+.sts-heading__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.sts-heading__icon svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+.sts-heading__label {
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--text-base);
+    padding-left: 2px;
+    padding-right: 4px;
+}

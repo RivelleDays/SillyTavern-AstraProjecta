@@ -1,0 +1,91 @@
+/* =============================================================
+    Accent tabs component
+   ============================================================= */
+
+.accent-tabs-root.swipe-enabled {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.accent-tabs-root.swipe-enabled .accent-tabs {
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-x pan-y;
+}
+
+.accent-tabs {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 0;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--color-base-t20);
+}
+
+.accent-tab {
+    position: relative;
+    isolation: isolate;
+    background-color: transparent;
+    border: none;
+    appearance: none;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s ease-in-out;
+}
+.accent-tab svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+}
+.accent-tab:hover {
+    opacity: 1;
+}
+.accent-tab.active {
+    opacity: 1;
+}
+
+.accent-tabpanels {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+.accent-tabpanel {
+    display: none;
+    height: 100%;
+    overflow: auto;
+}
+.accent-tabpanel.active {
+    display: block;
+}
+.accent-tabpanel.animating.from-left {
+    animation: accent-tab-in-left 0.25s ease;
+}
+.accent-tabpanel.animating.from-right {
+    animation: accent-tab-in-right 0.25s ease;
+}
+@keyframes accent-tab-in-left {
+    from {
+        opacity: 0;
+        transform: translateX(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+@keyframes accent-tab-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

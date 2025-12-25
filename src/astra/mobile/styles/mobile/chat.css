@@ -1,0 +1,25 @@
+/* =============================================================
+    Mobile chat form adjustments
+   ============================================================= */
+
+@media screen and (max-width: 600px) {
+    #chat {
+        padding: 4px;
+    }
+
+    #form_sheld {
+        left: 0;
+        width: 100dvw;
+    }
+
+    #send_textarea {
+        max-height: 20dvh;
+        overflow-y: auto;
+    }
+
+    #leftSendForm,
+    #rightSendForm {
+        align-content: flex-end;
+        align-items: flex-end;
+    }
+}

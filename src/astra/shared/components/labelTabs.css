@@ -1,0 +1,95 @@
+/* =============================================================
+   Label tabs component
+   ============================================================= */
+
+.label-tabs-root {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.label-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.label-tab {
+    appearance: none;
+    background: var(--color-base-t5);
+    border: 1px solid var(--color-base-t20);
+    border-radius: 20px;
+    color: var(--color-base);
+    cursor: pointer;
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    padding: 4px 14px;
+    transition: all 0.2s ease;
+    opacity: 0.8;
+}
+
+.label-tab--disabled,
+.label-tab[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.label-tab:hover {
+    opacity: 1;
+    border-color: var(--color-base-t20);
+    background: var(--color-base-t10);
+}
+
+.label-tab--disabled:hover,
+.label-tab[disabled]:hover {
+    opacity: 0.5;
+    border-color: var(--color-base-t20);
+    background: var(--color-base-t5);
+}
+
+.label-tab:focus {
+    outline: none;
+}
+
+.label-tab:focus-visible {
+    opacity: 1;
+    border-color: var(--color-base);
+    box-shadow: 0 0 0 2px var(--color-base-t20);
+}
+
+.label-tab.active {
+    opacity: 1;
+    background: var(--color-base-t20);
+    border-color: var(--color-base-t20);
+}
+
+.label-tabpanels {
+    position: relative;
+}
+
+.label-tabpanel {
+    display: none;
+    animation: label-tab-fade-in 0.2s ease;
+}
+
+.label-tabpanel.active {
+    display: block;
+}
+
+.label-tabpanel[hidden] {
+    display: none;
+}
+
+@keyframes label-tab-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -1,0 +1,264 @@
+/* =============================================================
+   Sidebar navigation rail
+   ============================================================= */
+
+:root {
+    --sidebar-nav-bubble-size: 42px;
+}
+
+.sidebar-nav-button {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    width: var(--button-base);
+    height: var(--button-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    color: var(--color-base);
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+.sidebar-nav-button:hover {
+    opacity: 1;
+}
+
+.sidebar-nav-button.active {
+    opacity: 1;
+}
+
+body:has(.sidebar-expanded) .sidebar-nav-button.active {
+    background: var(--SmartThemeQuoteColor);
+    color: #fff;
+}
+
+.sidebar-nav-button i {
+    font-size: var(--text-base);
+    pointer-events: none;
+}
+
+.sidebar-nav-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 12px;
+    padding: 4px 0;
+    flex-shrink: 0;
+}
+
+.sidebar-nav-top .sidebar-nav-button {
+    width: var(--sidebar-nav-bubble-size);
+    height: var(--sidebar-nav-bubble-size);
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background-color: var(--color-base-t10);
+    opacity: 0.85;
+    position: relative;
+}
+
+.sidebar-nav-top .sidebar-nav-button::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -16px;
+    width: 4px;
+    border-radius: 0 8px 8px 0;
+    background-color: var(--color-base);
+    transform: translateY(-50%);
+    transition: all 0.25s ease-in-out;
+}
+
+.sidebar-nav-top .sidebar-nav-button:hover {
+    opacity: 1;
+    border-radius: 10px;
+    background-color: var(--color-base-t20);
+}
+
+.sidebar-nav-top .sidebar-nav-button.active {
+    opacity: 1;
+    border-radius: 10px;
+    background-color: var(--color-base-t20);
+}
+
+.sidebar-nav-top .sidebar-nav-button.active::after {
+    opacity: 0;
+    height: 6px;
+}
+
+body:has(#contentColumn[data-active-main="home"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="home"]::after,
+body:has(#contentColumn[data-active-main="chat"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="chat"]::after,
+body:has(#contentColumn[data-active-main="world-info"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="world-info"]::after,
+body:has(#contentColumn[data-active-main="extensions"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="extensions"]::after {
+    opacity: 1;
+    height: 28px;
+}
+
+body:has(#contentColumn[data-active-main="home"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="home"],
+body:has(#contentColumn[data-active-main="chat"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="chat"],
+body:has(#contentColumn[data-active-main="world-info"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="world-info"],
+body:has(#contentColumn[data-active-main="extensions"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="extensions"] {
+        opacity: 1;
+        border-radius: 12px;
+        background-color: var(--color-base-t20);
+
+        .sidebar-nav-chat-avatar {
+            border-radius: 12px;
+        }
+}
+
+body:has(.sidebar-expanded) .sidebar-nav-top .sidebar-nav-button.active,
+body.sidebar-expanded .sidebar-nav-top .sidebar-nav-button.active {
+    background-color: var(--color-base-t20);
+    color: var(--color-base);
+}
+
+body.sidebar-expanded:has(#contentColumn[data-active-main="home"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="home"],
+body.sidebar-expanded:has(#contentColumn[data-active-main="chat"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="chat"],
+body.sidebar-expanded:has(#contentColumn[data-active-main="world-info"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="world-info"],
+body.sidebar-expanded:has(#contentColumn[data-active-main="extensions"])
+    .sidebar-nav-top
+    .sidebar-nav-button[data-tab-id="extensions"] {
+    background-color: var(--color-base-t20);
+    color: var(--color-base);
+}
+
+.sidebar-nav-divider {
+    width: 28px;
+    height: 1px;
+    background: var(--color-base-t20);
+    border-radius: var(--radius-full);
+    opacity: 0.65;
+    margin: 12px auto;
+    flex-shrink: 0;
+}
+
+.sidebar-nav-middle {
+    flex: 1 1 auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding-top: 8px;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.sidebar-nav-middle::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebar-nav-bottom {
+    width: 100%;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.sidebar-nav-top .sidebar-nav-button svg {
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
+
+.sidebar-nav-button svg {
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+}
+
+.sidebar-nav-icon {
+    display: block;
+}
+
+.sidebar-nav-quick-switch {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.sidebar-nav-middle .chat-manager-quick-switch {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-content: flex-start;
+    width: 100%;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.sidebar-nav-middle .chat-manager-quick-switch::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.sidebar-nav-middle .chat-manager-q-item {
+    width: var(--sidebar-nav-bubble-size);
+    height: var(--sidebar-nav-bubble-size);
+    border-radius: 50%;
+    background-image: var(--chat-manager-q-img);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.25s ease-in-out;
+}
+
+.sidebar-nav-middle .chat-manager-q-item:hover {
+    border-radius: 10px;
+}
+
+.sidebar-nav-button[data-tab-id="chat"] {
+    position: relative;
+}
+
+.sidebar-nav-button .sidebar-nav-chat-avatar {
+    width: 42px;
+    height: 42px;
+    display: block;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: all 0.25s ease-in-out;
+    pointer-events: none;
+}
+
+.sidebar-nav-button:hover .sidebar-nav-chat-avatar,
+.sidebar-nav-button.active .sidebar-nav-chat-avatar {
+    border-radius: 10px;
+}

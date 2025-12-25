@@ -1,0 +1,147 @@
+/* =============================================================
+    Layout: application shell overrides & responsive states
+   ============================================================= */
+
+#top-bar,
+#top-settings-holder {
+    display: none !important;
+}
+
+#sheld {
+    border: none !important;
+    height: calc(100%);
+    left: 0;
+    max-height: calc(100%);
+    max-inline-size: var(--contentMaxWidth);
+    padding-bottom: 0 !important;
+    position: relative !important;
+    top: 0;
+    width: 100% !important;
+}
+
+#chat {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background-color: none !important;
+    border: none !important;
+    height: calc(100%);
+    max-height: calc(100%);
+    overflow-y: auto;
+    padding: 0 20px;
+    padding-inline: var(--contentPadInline);
+    width: 100% !important;
+}
+
+/* =============================================================
+    Layout structure
+   ============================================================= */
+
+#appWrapper {
+    display: flex;
+    flex-direction: row;
+    height: 100dvh;
+    overflow: hidden;
+    width: 100dvw;
+    color: var(--color-base);
+    background: var(--surface-muted);
+}
+
+#mainRow {
+    display: flex;
+    flex: 1 1 auto;
+    max-height: calc(100dvh - var(--mainTopBarHeight));
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+    width: 100%;
+    border-radius: 0 0 16px 16px;
+}
+
+.mobile-main-close-button {
+    display: none;
+}
+
+#contentColumn {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    width: 100%;
+    margin: var(--layout-shell-margin);
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px var(--border-color-accent);
+}
+
+#contentColumn > #bg1.astra-column-background {
+    inset: 0;
+    height: 100%;
+    pointer-events: none;
+    position: absolute;
+    width: 100%;
+    z-index: -1;
+}
+
+#mainTopBar {
+    background: var(--surface-base-t50);
+    -webkit-backdrop-filter: blur(var(--SmartThemeBlurStrength));
+    backdrop-filter: blur(var(--SmartThemeBlurStrength));
+    border-bottom: 1px solid var(--border-color-base);
+    display: flex;
+    flex-direction: column;
+    height: var(--mainTopBarHeight);
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    border-radius: 16px 16px 0 0;
+    z-index: 2000;
+}
+
+#mainContentWrapper {
+    background: var(--surface-base-t10);
+    -webkit-backdrop-filter: blur(var(--SmartThemeBlurStrength));
+    backdrop-filter: blur(var(--SmartThemeBlurStrength));
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    position: relative !important;
+}
+
+/* =============================================================
+    Primary top bar layout
+   ============================================================= */
+
+#primaryTopBar {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 8px;
+    justify-content: space-between;
+    max-height: var(--mainTopBarHeight);
+    min-height: var(--mainTopBarHeight);
+    padding: 0 12px;
+}
+
+#primaryBarLeft,
+#primaryBarRight {
+    align-items: center;
+    display: flex;
+}
+
+#primaryBarRight > *:not(:last-child) {
+    margin-right: 8px;
+}
+
+#primaryBarLeft {
+    flex: 1;
+    min-width: 0;
+    gap: 8px;
+}
+
+#primaryBarRight {
+    flex-shrink: 0;
+}

@@ -1,0 +1,12 @@
+{
+    "display_name": "AstraProjecta",
+    "loading_order": 22,
+    "requires": [],
+    "optional": [],
+    "js": "dist/index.js",
+    "css": "dist/style.css",
+    "author": "Rivelle <rivelle.days@gmail.com>",
+    "version": "0.0.0",
+    "homePage": "https://github.com/RivelleDays/SillyTavern-AstraProjecta",
+    "auto_update": true
+}

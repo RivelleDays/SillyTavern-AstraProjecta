@@ -1,0 +1,162 @@
+/* =============================================================
+    Shared dialog and drawer surfaces
+   ============================================================= */
+
+.astra-dialog-surface,
+.astra-drawer-surface {
+    background-color: var(--surface-base);
+    color: var(--color-base);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+}
+
+#astra-dialog-host {
+    z-index: 9999;
+}
+
+.astra-dialog-surface {
+    max-height: min(640px, 85vh);
+    width: min(540px, 94vw);
+    max-width: 540px;
+}
+
+.astra-drawer-surface {
+    max-height: calc(100vh - 80px);
+}
+
+.astra-dialog-header {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    border-bottom: 1px solid var(--border-color-base);
+    text-align: left;
+}
+
+.astra-dialog-header > * {
+    margin: 0;
+}
+
+.astra-dialog-identity {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-base);
+    font-weight: var(--font-weight-semibold);
+}
+
+.astra-dialog-identityAvatar {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--surface-base-t10);
+    border: var(--border-width-base) solid var(--border-color-base);
+}
+
+.astra-dialog-identityImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.astra-dialog-identityName {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    flex: 1;
+    font-weight: var(--font-weight-semibold);
+}
+
+.astra-dialog-heading {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: var(--space-5) 16px;
+    border-bottom: 1px solid var(--border-color-base);
+}
+
+.astra-dialog-headingContent {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.astra-dialog-icon {
+    width: var(--button-xl);
+    height: var(--button-xl);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-color-accent);
+    background: var(--surface-base-t10);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-base);
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--surface-base) 35%, transparent);
+}
+
+.astra-dialog-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.astra-dialog-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--space-5) 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.astra-dialog-content {
+    display: flex;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    color: var(--color-base);
+    gap: 16px;
+    flex-direction: column;
+}
+
+.astra-dialog-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.astra-dialog-label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+}
+
+.astra-dialog-hint {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+}
+
+.astra-dialog-footer {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 20px;
+    border-top: 1px dashed var(--border-color-base);
+    background: var(--color-base-t5);
+    gap: 12px;
+}
+
+@media (min-width: 600px) {
+    .astra-dialog-footer {
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        padding-bottom: calc(12px + var(--safe-bottom));
+    }
+}

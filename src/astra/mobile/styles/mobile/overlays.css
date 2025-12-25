@@ -1,0 +1,19 @@
+/* =============================================================
+   Mobile overlay sizing tweaks
+   ============================================================= */
+
+@media screen and (max-width: 600px) {
+    #character_popup .flex-container {
+        flex-direction: unset;
+    }
+
+    textarea#persona_description {
+        height: 40vh;
+        height: 40dvh;
+    }
+
+    #completion_prompt_manager_popup {
+        height: calc(100vh - var(--mainTopBarHeight)) !important;
+        height: calc(100dvh - var(--mainTopBarHeight)) !important;
+    }
+}

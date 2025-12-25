@@ -1,0 +1,301 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap");
+
+:root {
+    color-scheme: dark;
+
+    /* ===============================
+    1. Base Units
+    =============================== */
+    --space-unit: 0.25rem;
+
+    /* ===============================
+    2. Spacing
+    =============================== */
+    --space-1: var(--space-unit);
+    --space-2: calc(var(--space-unit) * 2);
+    --space-3: calc(var(--space-unit) * 3);
+    --space-4: calc(var(--space-unit) * 4);
+    --space-5: calc(var(--space-unit) * 5);
+    --space-6: calc(var(--space-unit) * 6);
+
+    --space-base: var(--space-3);
+    --space-lg: var(--space-4);
+    --gap-base: var(--space-2);
+    --gap-lg: var(--space-3);
+
+    /* ===============================
+    3. Padding
+    =============================== */
+    --padding-block-sm: var(--space-1);
+    --padding-block-base: var(--space-2);
+    --padding-inline-base: var(--space-3);
+    --padding-inline-lg: var(--space-4);
+    --content-padding-inline: var(--space-3);
+
+    /* ===============================
+    4. Sizing (Icons, Buttons, Avatars)
+    =============================== */
+    --icon-size-sm: 16px;
+    --icon-size-base: 20px;
+    --icon-size-lg: 24px;
+
+    --button-sm: 32px;
+    --button-base: 36px;
+    --button-xl: 40px;
+
+    --avatar-sm: 32px;
+    --avatar-base: 64px;
+    --avatar-lg: 80px;
+
+    /* ===============================
+    5. Colors & Surfaces
+    =============================== */
+
+    --font-sans: "Geist", sans-serif, system-ui;
+
+    --opacity: 0.6;
+    --opacity-hover: 0.8;
+    --opacity-active: 1;
+
+    /* ===============================
+    Motion
+    =============================== */
+    --motion-duration-fast: 120ms;
+    --motion-duration-medium: 240ms;
+    --motion-duration-drawer: 360ms;
+    --motion-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+    --motion-ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Bridge Astra tokens to the shadcn palette so both stay in sync */
+    --color-base: var(--foreground);
+    --color-base-t5: color-mix(in srgb, var(--color-base) 5%, transparent);
+    --color-base-t10: color-mix(in srgb, var(--color-base) 10%, transparent);
+    --color-base-t20: color-mix(in srgb, var(--color-base) 20%, transparent);
+    --color-base-t50: color-mix(in srgb, var(--color-base) 50%, transparent);
+
+    --color-muted: var(--muted-foreground);
+    --color-muted-t5: color-mix(in srgb, var(--color-muted) 5%, transparent);
+    --color-muted-t10: color-mix(in srgb, var(--color-muted) 10%, transparent);
+    --color-muted-t20: color-mix(in srgb, var(--color-muted) 20%, transparent);
+    --color-muted-t50: color-mix(in srgb, var(--color-muted) 50%, transparent);
+
+    --color-accent: var(--accent);
+    --color-accent-t5: color-mix(in srgb, var(--color-accent) 5%, transparent);
+    --color-accent-t10: color-mix(
+        in srgb,
+        var(--color-accent) 10%,
+        transparent
+    );
+    --color-accent-t20: color-mix(
+        in srgb,
+        var(--color-accent) 20%,
+        transparent
+    );
+    --color-accent-t50: color-mix(
+        in srgb,
+        var(--color-accent) 50%,
+        transparent
+    );
+
+    --color-theme: var(--primary);
+    --color-theme-t5: color-mix(in srgb, var(--color-theme) 5%, transparent);
+    --color-theme-t10: color-mix(in srgb, var(--color-theme) 10%, transparent);
+    --color-theme-t20: color-mix(in srgb, var(--color-theme) 20%, transparent);
+    --color-theme-t50: color-mix(in srgb, var(--color-theme) 50%, transparent);
+
+    /* Highlight accents for editors/search */
+    --color-highlight-current: #ffeb3b;
+    --color-highlight-current-t50: color-mix(
+        in srgb,
+        var(--color-highlight-current) 50%,
+        transparent
+    );
+
+    --color-highlight-match: #8bc34a;
+    --color-highlight-match-t50: color-mix(
+        in srgb,
+        var(--color-highlight-match) 50%,
+        transparent
+    );
+
+    --color-highlight-selection: #03a9f4;
+    --color-highlight-selection-t50: color-mix(
+        in srgb,
+        var(--color-highlight-selection) 50%,
+        transparent
+    );
+
+    --color-danger: var(--destructive);
+    --color-danger-t10: color-mix(
+        in srgb,
+        var(--color-danger) 10%,
+        transparent
+    );
+    --color-danger-t20: color-mix(
+        in srgb,
+        var(--color-danger) 20%,
+        transparent
+    );
+    --color-danger-t50: color-mix(
+        in srgb,
+        var(--color-danger) 50%,
+        transparent
+    );
+
+    --surface-base: var(--background);
+    --surface-base-t5: color-mix(in srgb, var(--surface-base) 5%, transparent);
+    --surface-base-t10: color-mix(
+        in srgb,
+        var(--surface-base) 10%,
+        transparent
+    );
+    --surface-base-t20: color-mix(
+        in srgb,
+        var(--surface-base) 20%,
+        transparent
+    );
+    --surface-base-t50: color-mix(
+        in srgb,
+        var(--surface-base) 50%,
+        transparent
+    );
+
+    --surface-muted: #171717;
+    --surface-muted-t5: color-mix(
+        in srgb,
+        var(--surface-muted) 5%,
+        transparent
+    );
+    --surface-muted-t10: color-mix(
+        in srgb,
+        var(--surface-muted) 10%,
+        transparent
+    );
+    --surface-muted-t20: color-mix(
+        in srgb,
+        var(--surface-muted) 20%,
+        transparent
+    );
+    --surface-muted-t50: color-mix(
+        in srgb,
+        var(--surface-muted) 50%,
+        transparent
+    );
+
+    /* ===============================
+    6. Borders & Radius
+    =============================== */
+    --radius-sm: 0.25rem;
+    --radius-base: 0.5rem;
+    --radius-lg: 0.625rem;
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-drawer: 18px;
+    --radius-xl: 1.5rem;
+    --radius-full: 9999px;
+
+    --border-style-base: solid;
+    --border-width-base: 1px;
+    --border-width-lg: 2px;
+    --border-color-base: #ffffff1a;
+    --border-color-accent: #ffffff2a;
+
+    /* ===============================
+    7. Typography
+    =============================== */
+    --text-xs: 0.75rem;
+    --text-xs--line-height: calc(1 / 0.75);
+    --text-sm: 0.875rem;
+    --text-sm--line-height: calc(1.25 / 0.875);
+    --text-base: 1rem;
+    --text-base--line-height: calc(1.5 / 1);
+    --text-lg: 1.125rem;
+    --text-lg--line-height: calc(1.75 / 1.125);
+    --text-xl: 1.25rem;
+    --text-xl--line-height: calc(1.75 / 1.25);
+    --text-2xl: 1.5rem;
+    --text-2xl--line-height: calc(2 / 1.5);
+    --text-3xl: 1.875rem;
+    --text-3xl--line-height: calc(2.25 / 1.875);
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+
+    /* ===============================
+    7a. Layout Shell
+    =============================== */
+    --layout-shell-margin: var(--space-3);
+
+    /* ===============================
+    7b. Sidebar Layout Metrics
+    =============================== */
+    --sidebarNavRailWidth: 72px;
+    --sidebarGridGap: 8px;
+    --sidebarHeaderHeight: var(--mainTopBarHeight);
+    --sidebarFooterHeight: calc(60px + var(--sidebarGridGap));
+    --sidebarSecondaryTitleHeight: 50px;
+    --sidebarSecondaryTabsHeight: 48px;
+    --sidebarTabFooterHeight: 0px;
+    --sidebarFrameHeight: calc(100dvh - (var(--layout-shell-margin) * 2));
+    --sidebarContentHeight: calc(
+        var(--sidebarFrameHeight) - var(--sidebarHeaderHeight) - var(--sidebarFooterHeight)
+    );
+    --sidebarTabpanelHeight: calc(
+        var(--sidebarContentHeight) - var(--sidebarSecondaryTitleHeight) - var(--sidebarSecondaryTabsHeight) -
+            var(--sidebarTabFooterHeight)
+    );
+
+    /* ===============================
+    8. Section Surfaces & Text
+    =============================== */
+
+    /* appWrapper */
+    --surface-app-wrapper: var(--surface-base);
+    --text-app-wrapper: var(--color-base);
+
+    /* sidebarNavRail */
+    --surface-sidebar-nav-rail: var(--surface-base-t10);
+    --text-sidebar-nav-rail: var(--color-base);
+    /* sidebarHeader */
+    --surface-sidebar-header: var(--surface-base-t20);
+    --text-sidebar-header: var(--color-base);
+    /* sidebarContent */
+    --surface-sidebar-content: var(--surface-base-t10);
+    --text-sidebar-content: var(--color-base);
+
+    /* mainTopBar */
+    --surface-main-top-bar: var(--surface-base-t20);
+    --text-main-top-bar: var(--color-base);
+
+    /* rightSidebar */
+    --surface-right-sidebar: var(--surface-base-t20);
+    --text-right-sidebar: var(--color-base);
+
+    /* ===============================
+    9. Effects
+    =============================== */
+    --blur-base: 3px;
+    --blur-strong: 8px;
+    --shadow-base: 0 1px 4px 0 var(--surface-base-t50);
+    --text-shadow-base: 0 0 4px var(--surface-base-t50);
+
+    @media screen and (max-width: 600px) {
+        --layout-shell-margin: 0;
+        --content-padding-inline: var(--space-4);
+        --mainTopBarHeight: 52px;
+    }
+}
+
+#astra-projecta-react-root,
+#astra-projecta-react-root * {
+    border-color: var(--border);
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
+}
+
+body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+}

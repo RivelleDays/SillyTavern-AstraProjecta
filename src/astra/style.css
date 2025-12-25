@@ -1,0 +1,27 @@
+/* =============================================================
+    AstraProjecta CSS entrypoint
+   ============================================================= */
+
+@import "./styles/theme.css";
+@import "../components/ui/astra/shadcn-overrides.css";
+@import "./styles/foundation.css";
+@import "./styles/layout.css";
+@import "./shared/ui/dialogSurfaces.css";
+@import "./styles/quickPanels.css";
+@import "./shared/components/iconButton.css";
+@import "./shared/components/accentTabs.css";
+@import "./shared/components/secondaryTabs.css";
+@import "./shared/components/segmentedTabs.css";
+@import "./shared/components/labelTabs.css";
+@import "./shared/components/stSelect.css";
+@import "./app-shell/main/main-area/headerShell.css";
+@import "./app-shell/main/main-area/views/home/homeView.css";
+@import "./app-shell/sidebar/sidebarShell.css";
+@import "./app-shell/sidebar/navRail.css";
+@import "./app-shell/sidebar/panels/home/homePanel.css";
+@import "./app-shell/sidebar/panels/chat/chat-manager.css";
+@import "./app-shell/main/right-sidebar/panels/lore-info/loreInfo.css";
+@import "./app-shell/main/right-sidebar/panels/portrait/characterPortrait.css";
+@import "./app-shell/main/right-sidebar/panels/entity-info/entityInfo.css";
+@import "./app-shell/main/chat/send-form/sendFormToolbar.css";
+@import "./app-shell/main/chat/messageActions/messageActions.css";

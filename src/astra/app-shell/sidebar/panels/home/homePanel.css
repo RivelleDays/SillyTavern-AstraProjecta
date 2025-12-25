@@ -1,0 +1,99 @@
+.sidebar-home-panel {
+    padding: 12px 0;
+    overflow-y: auto;
+}
+
+.sidebar-home-panel__quickHost {
+    width: 100%;
+}
+
+.sidebar-home-quick {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.sidebar-home-quick__tabsHost {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.sidebar-home-quick__tabsHost .secondary-tabs-root {
+    width: 100%;
+}
+
+.sidebar-home-quick__tabsHost .secondary-title-slot {
+    display: none;
+}
+
+.sidebar-home-quick__panel {
+    margin: 0;
+}
+
+.sidebar-home-quick__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.sidebar-home-quick__item {
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 0 var(--space-3);
+    width: 100%;
+    border-radius: var(--radius-base);
+    border: var(--border-width-base) solid var(--border-color-base);
+    color: var(--color-base);
+    text-align: left;
+    cursor: default;
+    transition:
+        border-color 160ms ease,
+        background-color 160ms ease;
+}
+
+.sidebar-home-quick__item:focus-visible {
+    outline: none;
+    border-color: var(--border-color-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color-accent) 35%, transparent);
+}
+
+.sidebar-home-quick__item:hover {
+    background: var(--color-base-t5);
+}
+
+.sidebar-home-quick__avatar {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
+    border-radius: var(--radius-full);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 1px solid var(--border-color-base);
+}
+
+.sidebar-home-quick__name {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-base);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-home-quick__empty,
+.sidebar-home-quick__hint {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+}
+
+@media (max-width: 600px) {
+    .sidebar-home-panel {
+        padding-inline: 12px;
+    }
+}

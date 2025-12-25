@@ -1,0 +1,210 @@
+.st-select {
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+    min-width: 0;
+    max-width: 100%;
+    font: inherit;
+    font-size: var(--text-base);
+    color: inherit;
+    vertical-align: middle;
+    isolation: isolate;
+}
+
+.st-select--open {
+    z-index: 5000;
+}
+
+.st-select__native {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+    appearance: none;
+}
+
+.st-select__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    padding: 4px 14px;
+    margin: 2px 0;
+    font-size: var(--text-sm);
+    background: var(--color-base-t5);
+    border-radius: 8px;
+    border: 1px solid var(--color-base-t10);
+    box-shadow: 0 1px 3px var(--color-base-t5);
+    color: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+}
+
+.st-select__button:hover,
+.st-select--open .st-select__button {
+    opacity: 1;
+    background: var(--color-base-t10);
+    border-color: var(--color-base-t20);
+    box-shadow: 0 1px 3px var(--color-base-t10);
+}
+
+.st-select__button:focus-visible {
+    outline: 2px solid var(--SmartThemeQuoteColor);
+    outline-offset: 2px;
+}
+
+.st-select--disabled .st-select__button,
+.st-select__button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    background: var(--color-base-t5);
+    border-color: var(--color-base-t10);
+    box-shadow: none;
+}
+
+.st-select__label {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: var(--text-sm--line-height);
+    font-size: var(--text-sm);
+}
+
+.st-select__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    color: inherit;
+    pointer-events: none;
+}
+
+.st-select__icon svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+}
+
+.st-select__menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    min-width: 100%;
+    list-style: none;
+    padding: 6px;
+    margin: 0;
+    border-radius: 12px;
+    border: 1px solid var(--color-base-t10);
+    background: var(--surface-base);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    box-shadow: 0 2px 4px var(--SmartThemeShadowColor);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease,
+        visibility 0.18s ease;
+    z-index: 40;
+    max-height: 280px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    box-sizing: border-box;
+}
+
+.st-select__menu:focus {
+    outline: none;
+}
+
+.st-select--open .st-select__menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.st-select__group-label {
+    padding: 8px 14px 4px 14px;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-base-t20);
+    text-transform: uppercase;
+    pointer-events: none;
+}
+
+.st-select__option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+.st-select__option:last-child {
+    margin-bottom: 0;
+}
+
+.st-select__option:hover,
+.st-select__option[data-active="true"] {
+    background: var(--color-base-t10);
+}
+
+.st-select__option[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.st-select__option-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: var(--text-sm);
+}
+
+.st-select__option-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    color: inherit;
+    opacity: 0;
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease;
+    margin-left: auto;
+}
+
+.st-select__option[aria-selected="true"] .st-select__option-check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.st-select__option[aria-selected="true"] {
+    background: var(--color-base-t10);
+}
+
+.st-select__button[data-st-select-source-classes="character-gallery__select"] {
+    justify-content: flex-start;
+    gap: 6px;
+}

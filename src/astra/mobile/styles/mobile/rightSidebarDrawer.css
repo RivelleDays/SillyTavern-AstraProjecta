@@ -1,0 +1,40 @@
+/* =============================================================
+   Mobile right sidebar drawer
+   ============================================================= */
+
+@media screen and (max-width: 600px) {
+    body.astra-mobile-right-sidebar-drawer-open {
+        overflow: hidden;
+    }
+
+    body.astra-mobile-right-sidebar-drawer-open #rightSidebar {
+        display: none !important;
+    }
+
+    .astra-mobile-right-sidebar-drawer {
+        background: var(--surface-base);
+        border-radius: 16px 16px 0 0;
+        padding: 0;
+        margin-top: 0;
+        max-height: calc(100dvh - var(--mainTopBarHeight) / 2);
+        height: auto;
+        overflow: hidden;
+    }
+
+    .astra-mobile-right-sidebar-drawer__body {
+        padding: 0 0 calc(var(--safe-bottom, env(safe-area-inset-bottom, 0px)));
+        height: calc(100dvh - var(--mainTopBarHeight));
+        overflow-y: auto;
+    }
+
+    .astra-mobile-right-sidebar-drawer__panel {
+        min-height: 120px;
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* Hide handle when showing entity info panel */
+    .astra-mobile-right-sidebar-drawer:has(.astra-mobile-right-sidebar-drawer__panel #entityInfoPanel)
+        .astra-drawer__handle {
+        display: none;
+    }
+}

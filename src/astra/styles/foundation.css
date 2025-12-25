@@ -1,0 +1,98 @@
+/* =============================================================
+    Foundation: design tokens + base typography
+   ============================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap");
+
+body {
+    font-family: "Geist", sans-serif;
+    max-height: 100dvh;
+    overflow: hidden;
+}
+
+a:hover {
+    filter: none;
+}
+
+/* =============================================================
+    Root variables & tiny global helpers
+   ============================================================= */
+:root {
+    /* --contentMaxWidth: clamp(720px, 92vw, 1200px); */
+    /* --contentPadInline: 500px; */
+
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --page-gap: 12px;
+    --mainTopBarHeight: 48px;
+    --sidebarWidth: 20vw;
+    --rightSidebarWidth: 22vw;
+    --sheldWidth: 40vw;
+    --sheldWidthLeft: calc(50px + var(--sidebarWidth));
+}
+
+::-webkit-scrollbar {
+    width: 0.5rem;
+    scrollbar-gutter: stable;
+}
+::-webkit-scrollbar-track {
+    cursor: default;
+    background-color: transparent;
+}
+::-webkit-scrollbar-track:hover {
+    background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+    cursor: grab;
+}
+::-webkit-scrollbar-thumb:active {
+    cursor: grabbing;
+}
+.scrollY {
+    overflow-y: auto !important;
+}
+::-webkit-scrollbar-thumb:vertical {
+    /* background-color: var(--color-base); */
+    background-clip: content-box;
+    border: 1px solid transparent;
+    min-height: 40px;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+::-webkit-scrollbar-thumb:vertical:hover {
+    opacity: 0.8;
+}
+body.movingUI ::-webkit-scrollbar-thumb:vertical {
+    border-top: 20px solid transparent;
+}
+::-webkit-scrollbar-thumb:horizontal {
+    /* background-color: var(--color-base); */
+    background-clip: content-box;
+    border: 1px solid transparent;
+    min-width: 40px;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+::-webkit-scrollbar-thumb:horizontal:hover {
+    opacity: 0.8;
+}
+::-webkit-scrollbar-corner {
+    background-color: transparent;
+}
+
+@media screen and (max-width: 600px) {
+    :root {
+        --sidebarWidth: calc(100dvw - var(--sidebarNavRailWidth));
+        --mobileNavRailHeight: 60px;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
