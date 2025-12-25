@@ -58,7 +58,7 @@
     .mobile-sidebar-nav-rail__section {
         display: flex;
         flex-direction: row;
-        gap: 8px;
+        gap: 4px;
         width: 100%;
     }
 

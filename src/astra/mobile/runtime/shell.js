@@ -1,4 +1,3 @@
-import { NAVIGATION_TAB_IDS } from '@/astra/app-shell/main/navigation/navConfig.js'
 import {
 	getHomeRoute,
 	subscribeHomeRouteStore,
@@ -12,7 +11,7 @@ import { isMobileLayoutActive } from '../state/index.js'
 import { createMobileOverlayHosts, createMobileMainCloseButton, createMobileNavRail } from '../ui/index.js'
 import { getMobileMediaQuery, isMobile } from '../utils/index.js'
 
-const MAIN_AREA_TAB_IDS = new Set(NAVIGATION_TAB_IDS.filter(tabId => tabId !== 'chat'))
+const MAIN_AREA_TAB_IDS = new Set(['home'])
 
 export function createMobileShellRuntime({
 	appWrapper,
@@ -203,16 +202,24 @@ export function createMobileShellRuntime({
 		sidebarNavStore?.setIsExpanded(!document.body.classList.contains('sidebar-fully-collapsed'))
 	}
 
-	function handleMobileChange(event) {
-		if (!event) return
-		if (event.matches) {
-			applyMobileLayout()
-			mount()
-		} else {
-			unmount()
-			applyDesktopLayout()
-		}
-	}
+    function handleMobileChange(event) {
+        if (!event) return
+        if (event.matches) {
+            applyMobileLayout()
+            mount()
+            const activeTab = getActiveNavTab()
+            if (activeTab && typeof setActiveSidebarTab === 'function') {
+                void setActiveSidebarTab(activeTab, { fromRestore: true })
+            }
+        } else {
+            unmount()
+            applyDesktopLayout()
+            const activeTab = getActiveNavTab()
+            if (activeTab && typeof setActiveSidebarTab === 'function') {
+                void setActiveSidebarTab(activeTab, { fromRestore: true })
+            }
+        }
+    }
 
 	function initializeLayout() {
 		const isMobileDevice = isMobile()

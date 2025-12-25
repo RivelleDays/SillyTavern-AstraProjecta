@@ -258,3 +258,13 @@ body.astra-mobile-layout #sidebarFooter {
     opacity: 0.7;
     font-size: var(--text-xs);
 }
+
+@media screen and (max-width: 600px) {
+    #wi-holder,
+    #rm_extensions_block .extensions_block {
+        padding: 12px;
+        margin: 0;
+        height: var(--sidebarContentHeight);
+        overflow-y: auto;
+    }
+}

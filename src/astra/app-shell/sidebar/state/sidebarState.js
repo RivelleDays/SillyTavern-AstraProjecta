@@ -137,7 +137,8 @@ export function createSidebarState({
         } = normalizeOptions(options)
         const desiredTabId = tabId
         const isManagedTab = mainAreaNavigation.isNavigationTab(desiredTabId)
-        const shouldSkipSidebarContent = SIDEBAR_CONTENT_DISABLED_TABS.has(desiredTabId)
+        const isSidebarOnlyTab = isMobileLayout() && SIDEBAR_CONTENT_DISABLED_TABS.has(desiredTabId)
+        const shouldSkipSidebarContent = SIDEBAR_CONTENT_DISABLED_TABS.has(desiredTabId) && !isSidebarOnlyTab
 
         if (isManagedTab && desiredTabId !== 'chat') {
             const isSameTab = activeSidebarTab === desiredTabId

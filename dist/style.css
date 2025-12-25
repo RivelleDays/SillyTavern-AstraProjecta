@@ -2387,7 +2387,7 @@ body.right-sidebar-closing #rightSidebar * {
     .mobile-sidebar-nav-rail__section {
         display: flex;
         flex-direction: row;
-        gap: 8px;
+        gap: 4px;
         width: 100%;
     }
 
@@ -6604,6 +6604,15 @@ body.astra-mobile-layout #sidebarFooter {
 .footer-placeholder {
     opacity: 0.7;
     font-size: var(--text-xs);
+}
+@media screen and (max-width: 600px) {
+    #wi-holder,
+    #rm_extensions_block .extensions_block {
+        padding: 12px;
+        margin: 0;
+        height: var(--sidebarContentHeight);
+        overflow-y: auto;
+    }
 }
 /* =============================================================
    Sidebar navigation rail

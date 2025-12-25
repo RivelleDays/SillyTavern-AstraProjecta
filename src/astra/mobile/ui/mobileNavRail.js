@@ -14,36 +14,34 @@ const normalizeSectionsForMobile = sections => {
 	const middleItems = sanitizeSectionItems(sections?.middle)
 	const bottomItems = sanitizeSectionItems(sections?.bottom)
 
-	const homeItem = [...topItems, ...middleItems, ...bottomItems].find(item => item?.id === 'home')
-	const chatItem = [...topItems, ...middleItems, ...bottomItems].find(item => item?.id === 'chat')
-	const normalizedTop = topItems.filter(item => item?.id !== 'chat' && item?.id !== 'home')
-	const filteredMiddle = middleItems.filter(item => item?.id !== 'chat' && item?.id !== 'home')
+	const workspaceIds = ['home', 'world-info', 'chat', 'extensions']
+	const allItems = [...topItems, ...middleItems, ...bottomItems]
+	const workspaceItems = workspaceIds
+		.map(id => allItems.find(item => item?.id === id))
+		.filter(Boolean)
+
+	const normalizedTop = topItems.filter(item => !workspaceIds.includes(item?.id))
+	const filteredMiddle = middleItems.filter(item => !workspaceIds.includes(item?.id))
 
 	let normalizedMiddle = filteredMiddle
-	if (homeItem || chatItem) {
-		const middleWithPrimaryItems = [...filteredMiddle]
+	if (workspaceItems.length) {
+		const middleWithWorkspace = [...filteredMiddle]
 		let insertIndex = 0
 		const preferredAnchors = ['ai-settings', 'user-settings']
 
 		preferredAnchors.forEach(anchorId => {
-			const anchorIndex = middleWithPrimaryItems.findIndex(item => item?.id === anchorId)
+			const anchorIndex = middleWithWorkspace.findIndex(item => item?.id === anchorId)
 			if (anchorIndex !== -1 && anchorIndex + 1 > insertIndex) {
 				insertIndex = anchorIndex + 1
 			}
 		})
 
-		if (homeItem) {
-			middleWithPrimaryItems.splice(insertIndex, 0, homeItem)
+		workspaceItems.forEach(item => {
+			middleWithWorkspace.splice(insertIndex, 0, item)
 			insertIndex += 1
-		}
+		})
 
-		if (chatItem) {
-			const chatAnchorIndex = middleWithPrimaryItems.findIndex(item => item?.id === 'home')
-			const finalIndex = chatAnchorIndex !== -1 ? chatAnchorIndex + 1 : insertIndex
-			middleWithPrimaryItems.splice(finalIndex, 0, chatItem)
-		}
-
-		normalizedMiddle = middleWithPrimaryItems
+		normalizedMiddle = middleWithWorkspace
 	}
 
 	return {

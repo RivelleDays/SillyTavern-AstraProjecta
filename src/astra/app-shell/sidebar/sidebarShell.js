@@ -175,6 +175,16 @@ export function createSidebarShell({
     let userSettingsTabsApi = null
     let charManagementTabsApi = null
     let personaManagementTabsApi = null
+    const ensureDrawerPanel = (tabId, drawerId) => {
+        const container = sidebarTabContent[tabId]
+        if (!container) return
+        const drawerNode = document.getElementById(drawerId)
+        if (!drawerNode) return
+        const mounted = portDrawerInto(drawerNode, container)
+        if (mounted) {
+            mounted.style.display = ''
+        }
+    }
 
     function initializeSidebarPanels() {
         allNavItems.forEach(item => {
@@ -292,8 +302,11 @@ export function createSidebarShell({
             personaManagementTabsApi.updateCurrentHeading()
         } else if (tabId !== 'chat') {
             const activeItem = allNavItems.find(item => item.id === tabId)
-            sidebarTitle.textContent = activeItem ? activeItem.title : 'Menu'
-            const headingNode = sidebarTitle
+            const label = activeItem?.title || 'Menu'
+            sidebarTitle.textContent = label
+            const headingNode = typeof makeHeadingNode === 'function' && activeItem
+                ? makeHeadingNode({ icon: activeItem.iconMarkup || '', label })
+                : sidebarTitle
             sidebarHeaderTitleSlot.replaceChildren(headingNode)
         }
 
@@ -313,6 +326,14 @@ export function createSidebarShell({
                     const newContainer = container.querySelector('[data-tab-id="st-user-settings"]')
                     if (newContainer) portDrawerInto('user-settings-block', newContainer)
                 }
+                break
+            }
+            case 'world-info': {
+                ensureDrawerPanel('world-info', 'WorldInfo')
+                break
+            }
+            case 'extensions': {
+                ensureDrawerPanel('extensions', 'rm_extensions_block')
                 break
             }
             default:
