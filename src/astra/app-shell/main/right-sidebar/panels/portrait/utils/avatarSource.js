@@ -18,6 +18,11 @@ export function resolveAvatarSource({ thumbURL, fullURL, avatarId, typeHint, isU
 			}
 		}
 
+		if (!safeFull && id) {
+			const personaFull = resolveFullAvatarUrl(id, { typeHint: 'persona' })
+			if (personaFull) return personaFull
+		}
+
 		return safeFull || safeThumb
 	}
 

@@ -50,3 +50,7 @@ body.waifuMode .zoomed_avatar,
     height: unset !important;
     width: unset !important;
 }
+
+#expression-wrapper {
+    display: none !important;
+}

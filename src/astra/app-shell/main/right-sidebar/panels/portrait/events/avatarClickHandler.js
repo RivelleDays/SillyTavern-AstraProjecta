@@ -58,9 +58,11 @@ export function attachAvatarClickHandler({ zoomedAvatar, container, tabs, annota
 		})
 	}
 
+	const avatarSelectors = '.mes .avatar, .mes .astra-messageHeader__avatar'
+
 	// Clean up any previous handler we may have attached and remove the host handler to prevent duplicate overlays.
-	$document.off('click', '.mes .avatar')
-	$document.on('click', '.mes .avatar', function handleAvatarClick(event) {
+	$document.off('click', avatarSelectors)
+	$document.on('click', avatarSelectors, function handleAvatarClick(event) {
 		event.preventDefault()
 		event.stopImmediatePropagation()
 

@@ -213,7 +213,7 @@ body.sidebar-expanded:has(#contentColumn[data-active-main="extensions"])
 .sidebar-nav-middle .chat-manager-quick-switch {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
     justify-content: center;
     align-content: flex-start;
     width: 100%;

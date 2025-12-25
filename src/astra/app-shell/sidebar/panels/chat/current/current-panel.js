@@ -3,12 +3,14 @@ import { createRoot } from 'react-dom/client';
 import { Button } from '@/components/ui/button';
 
 import { createChatListController } from '../shared/chat-list-controller.js';
+import { bind as bindEntityAvatar } from '../shared/entity-avatar.js';
 import { createChatCategoryStore } from '../categories/category-store.js';
 import { createCategoriesModule } from '../categories/index.js';
 import { buildCurrentPanelDom } from './current-panel-dom.js';
 import { createChatListView } from './current-chat-list-view.js';
 import { createContextUtils, createRequestHeadersFactory } from './context-utils.js';
 import { createAutoPagerManager } from './auto-pager-manager.js';
+import { mountQuickSwitch } from '../quick-switch/index.js';
 
 const POPUP_MODULE_PATH = '/scripts/popup.js';
 const CORE_SCRIPT_PATH = '/script.js';
@@ -170,6 +172,7 @@ export function createCurrent({
     getContext,
     getChatFiles,
     openChatById,
+    openGroupById,
     getCurrentChatId,
     toMoment,
     stContext,
@@ -192,6 +195,8 @@ export function createCurrent({
         actionsWrap,
         autoPagerSentinel,
         titlebarButtonsHost,
+        quickSwitchHost,
+        quickSwitchAvatarImage,
     } = buildCurrentPanelDom();
 
     const {
@@ -207,6 +212,45 @@ export function createCurrent({
     const showAllTitleReset = 'Return to the paged list';
 
     let titleButtonsRoot = null;
+    let mobileQuickSwitch = null;
+    let mobileAvatarBinding = null;
+
+    const isMobileLayout = () => {
+        if (typeof document === 'undefined') return false;
+        return document.body?.classList?.contains?.('astra-mobile-layout');
+    };
+
+    const refreshMobileQuickSwitch = () => {
+        if (mobileQuickSwitch && typeof mobileQuickSwitch.refresh === 'function') {
+            try { mobileQuickSwitch.refresh(); } catch {}
+        }
+    };
+
+    const ensureMobileQuickSwitch = () => {
+        if (!isMobileLayout()) return;
+
+        if (quickSwitchHost && !mobileQuickSwitch) {
+            mobileQuickSwitch = mountQuickSwitch({
+                container: quickSwitchHost,
+                openGroupById,
+                openChatById,
+            });
+            mobileQuickSwitch?.setAfterNavigate?.(refreshQuickSwitchForContext);
+        }
+
+        if (quickSwitchAvatarImage && !mobileAvatarBinding) {
+            mobileAvatarBinding = bindEntityAvatar(quickSwitchAvatarImage, () => getContext?.() ?? {});
+        }
+
+        try { mobileAvatarBinding?.update?.(); } catch {}
+        refreshMobileQuickSwitch();
+    };
+
+    const refreshQuickSwitchForContext = () => {
+        ensureMobileQuickSwitch();
+        try { mobileAvatarBinding?.update?.(); } catch {}
+        refreshMobileQuickSwitch();
+    };
 
     async function handleNewChatFromManager() {
         const coreModule = await loadCoreChatModule();
@@ -256,6 +300,8 @@ export function createCurrent({
             console?.error?.('[AstraProjecta] Failed to render Chat Manager actions', error);
         }
     }
+
+    ensureMobileQuickSwitch();
 
     showAllBtn.textContent = showAllLabelDefault;
     showAllBtn.title = showAllTitleDefault;
@@ -642,21 +688,28 @@ export function createCurrent({
             et.CHAT_NAME_CHANGED,
         ].filter(Boolean));
         refreshEvents.forEach((type) => {
-            subscribeEvent(type, () => scheduleBackgroundRefresh({ immediate: true }));
+            subscribeEvent(type, () => {
+                scheduleBackgroundRefresh({ immediate: true });
+                refreshQuickSwitchForContext();
+            });
         });
     } catch {}
 
     subscribeEvent(EVENT_CHAT_CHANGED, (nextChatId) => {
         scheduleBackgroundRefresh({ immediate: true, chatId: nextChatId });
+        refreshQuickSwitchForContext();
     });
     subscribeEvent(EVENT_GROUP_UPDATED, () => {
         scheduleBackgroundRefresh({ chatId: null, delay: 600 });
+        refreshQuickSwitchForContext();
     });
     subscribeEvent(EVENT_CHAT_CREATED, () => {
         scheduleBackgroundRefresh({ immediate: true });
+        refreshQuickSwitchForContext();
     });
     subscribeEvent(EVENT_GROUP_CHAT_CREATED, () => {
         scheduleBackgroundRefresh({ immediate: true });
+        refreshQuickSwitchForContext();
     });
 
     if (ST && typeof ST.saveMetadataDebounced === 'function' && !ST.saveMetadataDebounced.chatManagerChatPreviewWrapped) {
@@ -679,26 +732,34 @@ export function createCurrent({
 
     if (typeof MutationObserver !== 'undefined' && document?.body) {
         let lastSidebarExpanded = document.body.classList.contains('sidebar-expanded');
+        let lastMobileLayout = document.body.classList.contains('astra-mobile-layout');
         sidebarExpansionObserver = new MutationObserver(() => {
             const expanded = document.body.classList.contains('sidebar-expanded');
-            if (expanded === lastSidebarExpanded) return;
+            const mobileActive = document.body.classList.contains('astra-mobile-layout');
 
-            if (!expanded) {
-                needsRefreshAfterExpand = true;
-                controller.reset();
-                autoPager.teardown();
-                updateChatListDisplay.cancel?.();
-            } else if (needsRefreshAfterExpand) {
-                needsRefreshAfterExpand = false;
-                const immediate = typeof updateChatListDisplay.flush === 'function'
-                    ? updateChatListDisplay.flush()
-                    : updateChatListDisplay();
-                if (immediate && typeof immediate.catch === 'function') {
-                    immediate.catch(() => {});
+            if (mobileActive && (!lastMobileLayout || !mobileQuickSwitch)) {
+                refreshQuickSwitchForContext();
+            }
+
+            if (expanded !== lastSidebarExpanded) {
+                if (!expanded) {
+                    needsRefreshAfterExpand = true;
+                    controller.reset();
+                    autoPager.teardown();
+                    updateChatListDisplay.cancel?.();
+                } else if (needsRefreshAfterExpand) {
+                    needsRefreshAfterExpand = false;
+                    const immediate = typeof updateChatListDisplay.flush === 'function'
+                        ? updateChatListDisplay.flush()
+                        : updateChatListDisplay();
+                    if (immediate && typeof immediate.catch === 'function') {
+                        immediate.catch(() => {});
+                    }
                 }
             }
 
             lastSidebarExpanded = expanded;
+            lastMobileLayout = mobileActive;
         });
         try {
             sidebarExpansionObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
@@ -786,6 +847,10 @@ export function createCurrent({
         try { sidebarExpansionObserver?.disconnect(); } catch {}
         try { titleButtonsRoot?.unmount(); } catch {}
         titleButtonsRoot = null;
+        try { mobileQuickSwitch?.dispose?.(); } catch {}
+        mobileQuickSwitch = null;
+        try { mobileAvatarBinding?.dispose?.(); } catch {}
+        mobileAvatarBinding = null;
         autoPager.teardown();
         try { el.remove(); } catch {}
     }

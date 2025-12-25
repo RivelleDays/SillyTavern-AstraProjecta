@@ -14,7 +14,7 @@ import {
 	resolveMessageAvatarFromDom,
 } from '../context/chatMessageContext.js'
 
-const DEFAULT_SYNC_DELAY = 80
+const DEFAULT_SYNC_DELAY = 0
 
 const headerEntries = new Map()
 const headerActionRoots = new Map()
@@ -85,22 +85,34 @@ function ensureHeaderNodes(mesEl) {
 	return { header, avatarImg, nameEl, actionsHost }
 }
 
-function setAvatar(el, src = '', avatarId = '') {
+function setAvatar(el, avatar = {}) {
 	if (!el) return
-	const safeSrc = src ?? ''
+
+	const safeSrc = avatar?.src ?? ''
+	const safeId = avatar?.avatarId ?? ''
+	const safeFull = avatar?.avatarFull ?? ''
+	const safeType = avatar?.avatarType ?? ''
+	const safeOwner = avatar?.avatarOwner ?? ''
+
 	if (safeSrc) {
 		el.src = safeSrc
 		el.dataset.empty = 'false'
-		if (avatarId) {
-			el.dataset.avatarId = avatarId
-		} else {
-			delete el.dataset.avatarId
-		}
 	} else {
 		el.removeAttribute('src')
 		el.dataset.empty = 'true'
-		delete el.dataset.avatarId
 	}
+
+	if (safeId) el.dataset.avatarId = safeId
+	else delete el.dataset.avatarId
+
+	if (safeFull) el.dataset.avatarFull = safeFull
+	else delete el.dataset.avatarFull
+
+	if (safeType) el.dataset.avatarType = safeType
+	else delete el.dataset.avatarType
+
+	if (safeOwner) el.dataset.avatarOwner = safeOwner
+	else delete el.dataset.avatarOwner
 }
 
 function setName(el, value = '') {
@@ -235,6 +247,9 @@ function syncHeaderForElement(mesEl) {
 	const avatarInfo = resolveMessageAvatarFromDom(mesId) ?? {}
 	const avatarSrc = avatarInfo?.src ?? ''
 	const avatarId = avatarInfo?.avatarId ?? ''
+	const avatarFull = avatarInfo?.avatarFull ?? ''
+	const avatarType = avatarInfo?.avatarType ?? ''
+	const avatarOwner = avatarInfo?.avatarOwner ?? ''
 	const bookmarkLink =
 		mesEl?.getAttribute?.('bookmark_link') ||
 		message?.extra?.bookmark_link ||
@@ -250,6 +265,9 @@ function syncHeaderForElement(mesEl) {
 		name: name ?? '',
 		avatar: avatarSrc ?? '',
 		avatarId: avatarId ?? '',
+		avatarFull: avatarFull ?? '',
+		avatarType: avatarType ?? '',
+		avatarOwner: avatarOwner ?? '',
 		bookmark: bookmarkLink ?? '',
 		isGhost,
 	}
@@ -258,8 +276,21 @@ function syncHeaderForElement(mesEl) {
 	if (!prev || prev.name !== snapshot.name) {
 		setName(nodes.nameEl, snapshot.name)
 	}
-	if (!prev || prev.avatar !== snapshot.avatar || prev.avatarId !== snapshot.avatarId) {
-		setAvatar(nodes.avatarImg, snapshot.avatar, snapshot.avatarId)
+	if (
+		!prev ||
+		prev.avatar !== snapshot.avatar ||
+		prev.avatarId !== snapshot.avatarId ||
+		prev.avatarFull !== snapshot.avatarFull ||
+		prev.avatarType !== snapshot.avatarType ||
+		prev.avatarOwner !== snapshot.avatarOwner
+	) {
+		setAvatar(nodes.avatarImg, {
+			src: snapshot.avatar,
+			avatarId: snapshot.avatarId,
+			avatarFull: snapshot.avatarFull,
+			avatarType: snapshot.avatarType,
+			avatarOwner: snapshot.avatarOwner,
+		})
 	}
 	if (!prev || prev.bookmark !== snapshot.bookmark || prev.isGhost !== snapshot.isGhost) {
 		renderHeaderActions(nodes.actionsHost, mesEl, { bookmarkLink: snapshot.bookmark, isGhost: snapshot.isGhost })

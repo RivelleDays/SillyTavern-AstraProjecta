@@ -717,6 +717,21 @@
     overflow-y: auto;
 }
 
+.chat-manager-layout {
+    display: block;
+    height: 100%;
+}
+
+.chat-manager-qs-column {
+    display: none;
+}
+
+.chat-manager-main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
 .chat-manager-categories {
     padding-top: 4px;
 }
@@ -804,6 +819,104 @@
 .chat-manager-cat-item-rename:hover,
 .chat-manager-inline-remove:hover {
     background: var(--color-base-t20);
+}
+
+@media (max-width: 600px) {
+    .chat-manager {
+        --chat-manager-qs-size: 44px;
+        --chat-manager-qs-radius: 9999px;
+        --chat-manager-qs-gap: 8px;
+    }
+
+    .chat-manager-layout {
+        display: grid;
+        grid-template-columns: 52px 1fr;
+        gap: 12px;
+        align-items: start;
+        height: 100%;
+    }
+
+    .chat-manager-qs-column {
+        position: sticky;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        height: calc(var(--sidebarContentHeight) - 24px);
+        max-height: calc(var(--sidebarContentHeight) - 24px);
+        min-height: 0;
+        overflow: hidden;
+        align-self: start;
+        flex-shrink: 0;
+    }
+
+    .chat-manager-qs-column .sidebar-nav-divider {
+        margin: 0;
+    }
+
+    .chat-manager-qs-avatar {
+        width: var(--chat-manager-qs-size);
+        height: var(--chat-manager-qs-size);
+        padding: 0;
+        border-radius: 12px;
+        border: none;
+        background: var(--color-base-t10);
+        overflow: hidden;
+        opacity: 1 !important;
+        flex-shrink: 0;
+
+        .sidebar-nav-chat-avatar {
+            border-radius: 0 !important;
+        }
+    }
+
+    .chat-manager-main {
+        padding: 12px;
+    }
+
+    .chat-manager-main-column {
+        overflow-y: auto;
+        max-height: 100%;
+    }
+
+    .chat-manager-mobile-qs {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: var(--chat-manager-qs-gap);
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .chat-manager-mobile-qs .chat-manager-quick-switch {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: var(--chat-manager-qs-gap);
+        align-items: center;
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: 100%;
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+
+    .chat-manager-mobile-qs .chat-manager-quick-switch::-webkit-scrollbar {
+        display: none;
+    }
+
+    .chat-manager-mobile-qs .chat-manager-q-item {
+        width: var(--chat-manager-qs-size);
+        height: var(--chat-manager-qs-size);
+        border-radius: var(--chat-manager-qs-radius);
+        background-image: var(--chat-manager-q-img);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        flex-shrink: 0;
+    }
 }
 
 /* ====== Tag button on chat rows ====== */

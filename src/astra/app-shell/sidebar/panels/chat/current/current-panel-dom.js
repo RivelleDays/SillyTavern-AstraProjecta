@@ -11,6 +11,38 @@ export function buildCurrentPanelDom() {
     root.className = 'chat-manager-page';
     root.dataset.page = 'current';
 
+    const layout = document.createElement('div');
+    layout.className = 'chat-manager-layout';
+
+    const quickSwitchColumn = document.createElement('div');
+    quickSwitchColumn.className = 'chat-manager-qs-column';
+
+    const quickSwitchDivider = document.createElement('div');
+    quickSwitchDivider.className = 'sidebar-nav-divider';
+
+    const quickSwitchAvatarButton = document.createElement('button');
+    quickSwitchAvatarButton.type = 'button';
+    quickSwitchAvatarButton.className = 'sidebar-nav-button chat-manager-qs-avatar';
+    quickSwitchAvatarButton.title = 'Current chat';
+
+    const quickSwitchAvatarImage = document.createElement('img');
+    quickSwitchAvatarImage.className = 'sidebar-nav-chat-avatar';
+    quickSwitchAvatarImage.alt = 'Current chat avatar';
+    quickSwitchAvatarImage.referrerPolicy = 'no-referrer';
+    quickSwitchAvatarImage.loading = 'lazy';
+    quickSwitchAvatarImage.decoding = 'async';
+    quickSwitchAvatarImage.draggable = false;
+
+    quickSwitchAvatarButton.append(quickSwitchAvatarImage);
+
+    const quickSwitchHost = document.createElement('div');
+    quickSwitchHost.className = 'chat-manager-mobile-qs';
+
+    quickSwitchColumn.append(quickSwitchAvatarButton, quickSwitchDivider, quickSwitchHost);
+
+    const mainColumn = document.createElement('div');
+    mainColumn.className = 'chat-manager-main-column';
+
     // --- Top bar: controls and search ---
     const topbar = document.createElement('div');
     topbar.className = 'chat-manager-topbar';
@@ -93,7 +125,10 @@ export function buildCurrentPanelDom() {
 
     actionsWrap.append(showAllButton, showMoreButton);
 
-    root.append(topbar, categoriesWrap, titleBar, titleActionsHost, chatList, actionsWrap);
+    mainColumn.append(topbar, categoriesWrap, titleBar, titleActionsHost, chatList, actionsWrap);
+
+    layout.append(quickSwitchColumn, mainColumn);
+    root.append(layout);
 
     const autoPagerSentinel = document.createElement('div');
     autoPagerSentinel.className = 'chat-manager-auto-loader';
@@ -112,5 +147,7 @@ export function buildCurrentPanelDom() {
         actionsWrap,
         autoPagerSentinel,
         titlebarButtonsHost: titleActionsHost,
+        quickSwitchHost,
+        quickSwitchAvatarImage,
     };
 }

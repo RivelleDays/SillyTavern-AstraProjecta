@@ -22,7 +22,9 @@ export function updateAvatarDataset(imgElement, { typeHint } = {}) {
 	}
 
 	const hint = typeHint || guessAvatarTypeFromMessage(imgElement.closest('.mes'))
-	const { thumb: resolvedThumb, full } = getAvatarSources(thumb, hint ? { typeHint: hint } : {})
+	const fullFromDom = imgElement.getAttribute('data-izoomify-url') || imgElement.dataset.avatarFull || ''
+	const { thumb: resolvedThumb, full: resolvedFull } = getAvatarSources(thumb, hint ? { typeHint: hint } : {})
+	const full = fullFromDom || resolvedFull || ''
 
 	delete imgElement.dataset.avatarThumb
 
@@ -46,7 +48,7 @@ export function updateAvatarDataset(imgElement, { typeHint } = {}) {
 
 function refreshMessageAvatarsInNode(root) {
 	const scope = root ?? document
-	const images = scope.querySelectorAll('.mes .avatar img')
+	const images = scope.querySelectorAll('.mes .avatar img, .mes .astra-messageHeader__avatar img')
 	images.forEach(img => updateAvatarDataset(img))
 }
 
@@ -56,7 +58,7 @@ function refreshMessageAvatarById(messageId) {
 		return
 	}
 
-	const selector = `.mes[mesid="${messageId}"] .avatar img`
+	const selector = `.mes[mesid="${messageId}"] .avatar img, .mes[mesid="${messageId}"] .astra-messageHeader__avatar img`
 	const images = document.querySelectorAll(selector)
 	if (images.length) {
 		images.forEach(img => updateAvatarDataset(img))

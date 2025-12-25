@@ -106,6 +106,7 @@
 }
 
 .astra-chat-search-trigger {
+    display: none;
     justify-content: center;
 }
 

@@ -42,6 +42,7 @@ export function renderChat(container, deps = {}) {
     const headerTitleSlot = deps.sidebarHeaderTitleSlot ?? headerEl;
     const headerActions = deps.sidebarHeaderActions ?? null;
     const headerTitleFallback = deps.sidebarTitle ?? null;
+    const openGroupById = typeof deps.openGroupById === 'function' ? deps.openGroupById : null;
 
     const CHAT_CATEGORY_STORAGE_KEY = 'chatManager.chatCategories'; // DO NOT RENAME!!! EXISTING SAVES RELY ON THIS KEY.
     const ST_CTX = (typeof SillyTavern !== 'undefined' && typeof SillyTavern.getContext === 'function')
@@ -109,6 +110,7 @@ export function renderChat(container, deps = {}) {
         getContext,
         getChatFiles,
         openChatById,
+        openGroupById,
         getCurrentChatId: deps.getCurrentChatId,
         toMoment,
         stContext: __ST_CTX__,

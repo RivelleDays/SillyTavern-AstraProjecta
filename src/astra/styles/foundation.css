@@ -24,7 +24,7 @@ a:hover {
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --page-gap: 12px;
     --mainTopBarHeight: 48px;
-    --sidebarWidth: 20vw;
+    --sidebarWidth: 22vw;
     --rightSidebarWidth: 22vw;
     --sheldWidth: 40vw;
     --sheldWidthLeft: calc(50px + var(--sidebarWidth));

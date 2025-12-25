@@ -7,19 +7,14 @@
     }
 }
 
+#chat .mesAvatarWrapper,
 #chat .swipe_left,
 #chat .swipe_right,
 #chat .swipes-counter,
 #chat .mes_edit,
 #chat .mes_edit_buttons,
-#chat .timestamp {
-    display: none !important;
-}
-
-#chat .mes[data-astra-hide-avatar="true"] > .mesAvatarWrapper {
-    display: none !important;
-}
-
+#chat .timestamp,
+#chat .mes_block .ch_name,
 #chat .mes .mes_ghost {
     display: none !important;
 }
@@ -45,9 +40,9 @@
     height: 40px;
     border-radius: var(--radius-full);
     overflow: hidden;
-    border: 1px solid var(--border-color-base);
     background: var(--surface-base-t50);
     flex: 0 0 auto;
+    cursor: pointer;
 }
 
 .astra-messageHeader__avatar img {

@@ -1,4 +1,5 @@
 const PSEUDO_TABS = new Set()
+const SIDEBAR_CONTENT_DISABLED_TABS = new Set(['world-info', 'extensions'])
 const MOBILE_LAYOUT_CLASS = 'astra-mobile-layout'
 
 export function createSidebarState({
@@ -136,6 +137,7 @@ export function createSidebarState({
         } = normalizeOptions(options)
         const desiredTabId = tabId
         const isManagedTab = mainAreaNavigation.isNavigationTab(desiredTabId)
+        const shouldSkipSidebarContent = SIDEBAR_CONTENT_DISABLED_TABS.has(desiredTabId)
 
         if (isManagedTab && desiredTabId !== 'chat') {
             const isSameTab = activeSidebarTab === desiredTabId
@@ -149,7 +151,9 @@ export function createSidebarState({
                 }
             }
             await activateManagedNavigation(desiredTabId)
-            await switchActiveSidebarContent(desiredTabId, { skipMainAreaUpdate: true })
+            if (!shouldSkipSidebarContent) {
+                await switchActiveSidebarContent(desiredTabId, { skipMainAreaUpdate: true })
+            }
             return
         }
 

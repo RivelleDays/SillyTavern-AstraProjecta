@@ -78,9 +78,13 @@ function resolveMessageAvatarFromDom(mesIdx) {
 	if (!img) return null
 
 	const src = typeof img.currentSrc === 'string' && img.currentSrc.trim() ? img.currentSrc : img.src ?? ''
+	const fullFromDom = img.dataset?.avatarFull ?? img.getAttribute?.('data-izoomify-url') ?? ''
 	return {
 		src: src || '',
 		avatarId: img.dataset?.avatarId ?? '',
+		avatarFull: fullFromDom || '',
+		avatarType: img.dataset?.avatarType ?? '',
+		avatarOwner: img.dataset?.avatarOwner ?? targetEl.getAttribute?.('ch_name') ?? '',
 	}
 }
 

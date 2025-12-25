@@ -254,7 +254,9 @@ export function createMobileShellRuntime({
 			}
 		}
 
-		const onNavigate = () => {
+		const onNavigate = event => {
+			const source = event?.detail?.source;
+			if (source === 'quick-switch') return;
 			showMainArea()
 		}
 

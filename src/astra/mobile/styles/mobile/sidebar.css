@@ -118,4 +118,8 @@
         width: 100vw;
         z-index: 3500;
     }
+
+    .sidebar-nav-button[data-tab-id="home"] {
+        display: none !important;
+    }
 }
