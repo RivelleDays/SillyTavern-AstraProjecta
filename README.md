@@ -1,4 +1,8 @@
 # AstraProjecta (Alpha)
+> [!Warning]
+> The current version is **for internal testing only**. Core functionality is **not complete**, and the project may contain **major design flaws and critical issues**.  
+> **Do not rely on it for daily use**, and expect breaking changes at any time.
+
 > **AstraProjecta = A SillyTavern Frontend Redesign Project**  
 AstraProjecta is an attempt to build a **new frontend interface** on top of SillyTavern’s functional framework—**without inheriting its original look or operational logic**.
 
