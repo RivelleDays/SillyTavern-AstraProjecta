@@ -1,0 +1,14 @@
+{
+	"display_name": "AstraProjecta",
+	"description": "A SillyTavern frontend redesign (Alpha) aiming for a modern, coherent, cross-device UI/UX.",
+	"loading_order": 1,
+	"requires": [],
+	"optional": [],
+	"js": "dist/index.js",
+	"css": "dist/style.css",
+	"author": "RivelleDays",
+	"version": "0.1.0",
+	"homePage": "https://github.com/RivelleDays/SillyTavern-AstraProjecta",
+	"license": "AGPL-3.0",
+	"auto_update": true
+}

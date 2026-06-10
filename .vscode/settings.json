@@ -1,0 +1,11 @@
+{
+	"editor.detectIndentation": false,
+	"editor.insertSpaces": false,
+	"editor.tabSize": 4,
+	"files.associations": {
+		"*.css": "tailwindcss"
+	},
+	"tailwindCSS.experimental.configFile": "src/styles/globals.css",
+	"tailwindCSS.lint.invalidConfigPath": "ignore",
+	"tailwindCSS.files.exclude": ["**/dist/**", "**/src/styles/generated/**"]
+}

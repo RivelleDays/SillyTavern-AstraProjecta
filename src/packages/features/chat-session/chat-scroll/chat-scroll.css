@@ -1,0 +1,120 @@
+body.astra-projecta-mobile-layout {
+	& #chat {
+		--astra-chat-scroll-inline-padding: calc(
+			var(--mobile-chat-spacing) - 4px
+		);
+		max-height: unset;
+		bottom: 0;
+		background-color: transparent;
+		border: none !important;
+		padding-inline: var(--astra-chat-scroll-inline-padding);
+	}
+
+	& #chat[data-astra-projecta-chat-scroll="native"] {
+		--astra-chat-scrollbar-size: 6px;
+		--astra-chat-scrollbar-thumb: var(--color-base-t30);
+		--astra-chat-scrollbar-thumb-hover: var(--color-base-t40);
+		--astra-chat-scroll-fade-size: 36px;
+		--astra-chat-scroll-fade-background: var(--background);
+		--astra-chat-scroll-fade-inline-outset: var(
+			--astra-chat-scroll-inline-padding
+		);
+
+		position: relative;
+		scrollbar-color: var(--astra-chat-scrollbar-thumb) transparent;
+		scrollbar-width: thin;
+	}
+
+	&:has(dialog.popup[open]) #chat[data-astra-projecta-chat-scroll="native"],
+	&[data-astra-projecta-native-popup-active="true"]
+		#chat[data-astra-projecta-chat-scroll="native"],
+	&:has(dialog.popup[opening])
+		#chat[data-astra-projecta-chat-scroll="native"],
+	&:has(#shadow_popup[style*="display: block"])
+		#chat[data-astra-projecta-chat-scroll="native"],
+	&:has(#shadow_popup[style*="display:block"])
+		#chat[data-astra-projecta-chat-scroll="native"],
+	&:has(#bulk_tag_shadow_popup[style*="display: block"])
+		#chat[data-astra-projecta-chat-scroll="native"],
+	&:has(#bulk_tag_shadow_popup[style*="display:block"])
+		#chat[data-astra-projecta-chat-scroll="native"],
+	&:has(#shadow_select_chat_popup[style*="display: block"])
+		#chat[data-astra-projecta-chat-scroll="native"],
+	&:has(#shadow_select_chat_popup[style*="display:block"])
+		#chat[data-astra-projecta-chat-scroll="native"] {
+		overflow-y: hidden !important;
+		overscroll-behavior: contain;
+		touch-action: none;
+		-webkit-overflow-scrolling: auto;
+	}
+
+	& #chat[data-astra-projecta-chat-scroll="native"]::before,
+	& #chat[data-astra-projecta-chat-scroll="native"]::after {
+		content: "";
+		position: sticky;
+		z-index: 2;
+		display: block;
+		align-self: stretch;
+		flex: 0 0 var(--astra-chat-scroll-fade-size);
+		inline-size: calc(
+			100% + (2 * var(--astra-chat-scroll-fade-inline-outset))
+		);
+		height: var(--astra-chat-scroll-fade-size);
+		margin-inline: calc(0px - var(--astra-chat-scroll-fade-inline-outset));
+		pointer-events: none;
+		opacity: 0;
+	}
+
+	& #chat[data-astra-projecta-chat-scroll="native"]::before {
+		top: 0;
+		margin-bottom: calc(0px - var(--astra-chat-scroll-fade-size));
+		background: linear-gradient(
+			to bottom,
+			var(--astra-chat-scroll-fade-background) 0%,
+			transparent 100%
+		);
+	}
+
+	& #chat[data-astra-projecta-chat-scroll="native"]::after {
+		bottom: 0;
+		margin-top: calc(0px - var(--astra-chat-scroll-fade-size));
+		background: linear-gradient(
+			to top,
+			var(--astra-chat-scroll-fade-background) 0%,
+			transparent 100%
+		);
+	}
+
+	&
+		#chat[data-astra-projecta-chat-scroll="native"][data-astra-projecta-chat-scroll-y-start]::before {
+		opacity: 1;
+	}
+
+	&
+		#chat[data-astra-projecta-chat-scroll="native"][data-astra-projecta-chat-scroll-y-end]::after {
+		opacity: 1;
+	}
+
+	& #chat[data-astra-projecta-chat-scroll="native"]::-webkit-scrollbar {
+		width: var(--astra-chat-scrollbar-size);
+		height: var(--astra-chat-scrollbar-size);
+	}
+
+	& #chat[data-astra-projecta-chat-scroll="native"]::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	& #chat[data-astra-projecta-chat-scroll="native"]::-webkit-scrollbar-thumb {
+		border: 2px solid transparent;
+		border-radius: 9999px;
+		background-color: var(--astra-chat-scrollbar-thumb);
+		background-clip: content-box;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		&
+			#chat[data-astra-projecta-chat-scroll="native"]::-webkit-scrollbar-thumb:hover {
+			background-color: var(--astra-chat-scrollbar-thumb-hover);
+		}
+	}
+}

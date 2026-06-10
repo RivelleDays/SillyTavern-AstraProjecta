@@ -1,0 +1,13 @@
+.git/
+node_modules/
+
+dist/
+coverage/
+.cache/
+.nyc_output/
+
+.worktrees/
+tmp/
+temp/
+
+*.log

@@ -1,0 +1,89 @@
+{
+	"name": "sillytavern-astraprojecta",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"@base-ui/react": "^1.4.1",
+		"@hookform/resolvers": "^5.2.2",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"cmdk": "^1.1.1",
+		"date-fns": "^4.1.0",
+		"embla-carousel-react": "^8.6.0",
+		"input-otp": "^1.4.2",
+		"lucide-react": "^1.14.0",
+		"next-themes": "^0.4.6",
+		"radix-ui": "^1.4.3",
+		"react": "^18.2.0",
+		"react-day-picker": "^9.14.0",
+		"react-dom": "^18.2.0",
+		"react-hook-form": "^7.72.1",
+		"react-resizable-panels": "^4.10.0",
+		"recharts": "^3.8.0",
+		"shadcn": "^3.5.0",
+		"sonner": "^2.0.7",
+		"tailwind-merge": "^3.5.0",
+		"vaul": "^1.1.2",
+		"zod": "^4.3.6"
+	},
+	"scripts": {
+		"build": "webpack --mode production",
+		"check:scoped-preflight": "node ./scripts/generate-scoped-tailwind-preflight.mjs --check",
+		"dev": "webpack --mode development --watch",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"generate:scoped-preflight": "node ./scripts/generate-scoped-tailwind-preflight.mjs",
+		"i18n": "node ./scripts/manage-i18n.mjs",
+		"prebuild": "npm run i18n && npm run generate:scoped-preflight",
+		"predev": "npm run i18n && npm run generate:scoped-preflight",
+		"pretest": "npm run i18n",
+		"pretest:run": "npm run i18n",
+		"pretypecheck": "npm run i18n",
+		"test": "vitest",
+		"test:run": "vitest run",
+		"typecheck": "tsc --noEmit"
+	},
+	"eslintConfig": {
+		"extends": [
+			"react-app"
+		]
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"devDependencies": {
+		"@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+		"@babel/preset-env": "^7.24.0",
+		"@babel/preset-react": "^7.23.3",
+		"@babel/preset-typescript": "^7.28.5",
+		"@tailwindcss/postcss": "^4.2.2",
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^16.3.2",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3",
+		"babel-loader": "^9.1.3",
+		"css-loader": "^7.1.4",
+		"eslint-config-react-app": "^7.0.1",
+		"jsdom": "^27.0.1",
+		"mini-css-extract-plugin": "^2.10.2",
+		"postcss": "^8.5.9",
+		"postcss-loader": "^8.2.1",
+		"prettier": "^3.8.3",
+		"tailwindcss": "^4.2.2",
+		"terser-webpack-plugin": "^5.3.17",
+		"tw-animate-css": "^1.4.0",
+		"typescript": "^5.9.3",
+		"vitest": "^3.2.4",
+		"webpack": "^5.106.1",
+		"webpack-cli": "^5.1.4"
+	}
+}

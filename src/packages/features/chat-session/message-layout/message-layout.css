@@ -1,0 +1,292 @@
+body.astra-projecta-mobile-layout {
+	& #chat .mes {
+		flex-direction: column;
+		align-items: stretch;
+		--avatar-base-width: 44px;
+	}
+
+	& #chat .mes .avatar img {
+		width: var(--avatar-base-width);
+		height: var(--avatar-base-width);
+		object-fit: cover;
+		object-position: center center;
+		border-radius: var(--radius-full);
+		border: 1px solid var(--border);
+		box-shadow: none;
+	}
+
+	& #chat .mes > .mes_block.astra-mesBody {
+		width: 100%;
+		padding-left: 0;
+	}
+
+	& #chat .mes_text {
+		padding: 12px 4px;
+	}
+
+	& #chat .mes .mes_text {
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		user-select: none;
+	}
+
+	& #chat .mes[data-astra-message-prompt-excluded="true"] {
+		opacity: 0.6;
+	}
+
+	& #chat .mes.lastInContext {
+		border-top: 0 !important;
+	}
+
+	& #chat .astra-mesDate {
+		display: grid;
+		flex: 0 0 auto;
+		grid-template-columns: minmax(16px, 1fr) auto minmax(16px, 1fr);
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		padding: 8px 0;
+		color: var(--color-base-t60);
+		font-size: var(--text-xs);
+		font-weight: var(--font-weight-medium);
+	}
+
+	& #chat .astra-mesDate__line {
+		min-width: 0;
+		border-top: 1px solid var(--color-base-t10);
+	}
+
+	& #chat .astra-mesDate__label {
+		min-width: 0;
+		white-space: nowrap;
+	}
+
+	& #chat .astra-mesContextBoundary {
+		display: flex;
+		flex: 0 0 auto;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		padding: 8px 0;
+		color: var(--color-base);
+		font-size: var(--text-xs);
+		font-weight: var(--font-weight-semibold);
+	}
+
+	& #chat .astra-mesContextBoundary__tag,
+	& #chat .astra-mesContextBoundary__title {
+		display: inline-flex;
+		align-items: center;
+		min-width: 0;
+		min-height: 26px;
+		border: 1px solid var(--color-theme-t30);
+		background: var(--color-theme-t5);
+		line-height: 1;
+		white-space: nowrap;
+	}
+
+	& #chat .astra-mesContextBoundary__tag {
+		flex: none;
+		gap: 8px;
+		border-right: 0;
+		border-radius: var(--radius-full) 0 0 var(--radius-full);
+		padding-inline: 8px;
+		background: var(--color-theme-t10);
+		color: var(--color-theme);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	& #chat .astra-mesContextBoundary__title {
+		max-width: min(70vw, 320px);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		border-radius: 0 var(--radius-full) var(--radius-full) 0;
+		padding: 5px 10px;
+		color: var(--color-base-t90);
+	}
+
+	& #chat .mes .astra-mesHeader {
+		display: grid;
+		grid-template-columns: var(--avatar-base-width) minmax(0, 1fr) auto;
+		grid-template-areas: "avatar body actions";
+		align-items: center;
+		column-gap: 8px;
+		width: 100%;
+	}
+
+	& #chat .mes .astra-mesHeader > .mesAvatarWrapper {
+		grid-area: avatar;
+		justify-self: start;
+		align-self: start;
+		width: var(--avatar-base-width);
+		padding-bottom: 0 !important;
+	}
+
+	& #chat .mes .astra-mesHeader > .mesAvatarWrapper > .avatar {
+		justify-self: start;
+		align-self: start;
+		flex: none;
+		width: var(--avatar-base-width);
+		height: var(--avatar-base-width);
+	}
+
+	& #chat .mes .astra-mesHeader__name {
+		grid-area: body;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: 100%;
+		min-width: 0;
+	}
+
+	& #chat .mes .astra-mesHeader__identityLine {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		width: 100%;
+		min-width: 0;
+	}
+
+	& #chat .mes .astra-mesNameText {
+		display: inline-flex;
+		align-items: center;
+		min-width: 0;
+		max-width: 100%;
+	}
+
+	& #chat .mes .astra-mesNameText > .name_text {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-size: var(--text-sm);
+		font-weight: var(--font-weight-bold);
+	}
+
+	& #chat .mes .astra-mesHeader__name > .ch_name {
+		display: none !important;
+	}
+
+	& #chat .mes .astra-mesMeta {
+		display: inline-flex;
+		align-items: center;
+		gap: 2px;
+		width: 100%;
+		min-width: 0;
+		opacity: 0.7;
+	}
+
+	& #chat .mes .astra-mesNativeControls {
+		display: none !important;
+	}
+
+	& #chat .mes .astra-mesMeta__items {
+		display: inline-flex;
+		align-items: center;
+		flex-wrap: nowrap;
+		min-width: 0;
+	}
+
+	& #chat .mes .astra-mesMeta__item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0;
+		min-width: 0;
+	}
+
+	& #chat .mes .astra-mesMeta__separator {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		color: var(--color-muted-t70);
+	}
+
+	& #chat .mes .astra-mesMeta__separator > svg {
+		width: var(--astra-icon-size-sm);
+		height: var(--astra-icon-size-sm);
+	}
+
+	&
+		#chat
+		.mes
+		.astra-mesMeta__item
+		> :is(.mesIDDisplay, .mes_timer, .tokenCounterDisplay),
+	& #chat .mes .astra-mesMeta__time > .timestamp {
+		display: inline-flex;
+		align-items: center;
+		min-width: 0;
+		text-align: start;
+		line-height: 1;
+	}
+
+	& #chat .mes .astra-mesModel {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		min-width: 0;
+		height: 22px;
+		border: 1px solid var(--border-color-base);
+		border-radius: var(--radius-full);
+		padding: 2px 8px;
+		background: var(--surface-background-t20);
+	}
+
+	& #chat .mes .astra-mesModel:empty,
+	& #chat .mes .astra-mesModel[hidden] {
+		display: none;
+	}
+
+	& #chat .mes .astra-mesModel > .timestamp-icon {
+		flex: none;
+	}
+
+	& #chat .mes .astra-mesModel__label {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-size: 11px;
+		font-weight: var(--font-weight-medium);
+		opacity: 0.8;
+	}
+
+	& #chat .mes .astra-mesMeta__time {
+		display: inline-flex;
+		align-items: center;
+		min-width: 0;
+		text-align: start;
+	}
+
+	& #chat .astra-mesMeta__time .timestamp-icon {
+		display: none !important;
+	}
+
+	&.hideChatAvatars #chat .mes .astra-mesHeader {
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-areas: "body actions";
+	}
+
+	&.hideChatAvatars #chat .mes .astra-mesHeader > .mesAvatarWrapper {
+		display: none;
+	}
+
+	& #chat .mes .timestamp-icon {
+		width: 12px;
+		height: 12px;
+		opacity: 0.8;
+	}
+
+	&
+		#chat
+		.mes
+		:is(.mes_timer, .mesIDDisplay, .tokenCounterDisplay, .timestamp) {
+		cursor: default;
+		opacity: 1;
+		color: var(--color-muted);
+		font-size: var(--text-xs);
+		font-weight: var(--font-weight-semibold);
+		text-align: center;
+	}
+}

@@ -1,0 +1,183 @@
+import * as React from "react";
+
+import { Button } from "@/components/ui/shadcn/button";
+import { UiIcon } from "@/components/ui/shared/icon";
+import { ChevronRight } from "@/components/ui/shared/icons";
+import type { LucideIcon } from "@/components/ui/shared/icons";
+import type { PrimarySendActionSnapshot } from "@/packages/core/st/primarySendAction";
+import type { CurrentUserAvatarSnapshot } from "@/packages/core/st/currentUserAvatar";
+import {
+	MOBILE_CHAT_MAIN_MENU_DRAWER_ID,
+	MOBILE_CHAT_MAIN_MENU_TRIGGER_ID,
+} from "@/packages/features/chat-session/send-form/contracts/dom";
+import { MobileSendFormExtensionsMenu } from "@/packages/features/chat-session/send-form/extensions-menu/MobileSendFormExtensionsMenu";
+import { MobileSendFormOptionsMenu } from "@/packages/features/chat-session/send-form/options-menu/MobileSendFormOptionsMenu";
+
+export interface MobileSendFormInputRowProps {
+	currentUserAvatarLabel: string;
+	documentRef: Document;
+	expandLeftControlsLabel: string;
+	inputRowLabel: string;
+	isLeftControlsInteractionBlocked: boolean;
+	isMainMenuOpen: boolean;
+	isTextareaMultiline: boolean;
+	leftControlsLabel: string;
+	leftControlsState: "default" | "composing";
+	onExpandLeftControlsClick(): void;
+	onMainMenuOpen(): void;
+	onMainMenuTriggerKeyDownCapture(
+		event: React.KeyboardEvent<HTMLButtonElement>,
+	): void;
+	onMainMenuTriggerPointerDownCapture(): void;
+	onPrimarySendActionClick(): void;
+	onShortcutsToolbarVisibilityChange(nextValue: boolean): void;
+	onTextareaHostChange(host: HTMLDivElement | null): void;
+	primarySendActionIcon: LucideIcon;
+	primarySendActionSnapshot: PrimarySendActionSnapshot;
+	showShortcutsToolbar: boolean;
+	userAvatarSnapshot: CurrentUserAvatarSnapshot;
+}
+
+export function MobileSendFormInputRow({
+	currentUserAvatarLabel,
+	documentRef,
+	expandLeftControlsLabel,
+	inputRowLabel,
+	isLeftControlsInteractionBlocked,
+	isMainMenuOpen,
+	isTextareaMultiline,
+	leftControlsLabel,
+	leftControlsState,
+	onExpandLeftControlsClick,
+	onMainMenuOpen,
+	onMainMenuTriggerKeyDownCapture,
+	onMainMenuTriggerPointerDownCapture,
+	onPrimarySendActionClick,
+	onShortcutsToolbarVisibilityChange,
+	onTextareaHostChange,
+	primarySendActionIcon: PrimarySendActionIcon,
+	primarySendActionSnapshot,
+	showShortcutsToolbar,
+	userAvatarSnapshot,
+}: MobileSendFormInputRowProps) {
+	const isComposingState = leftControlsState === "composing";
+
+	return (
+		<div
+			aria-label={inputRowLabel}
+			className="mobile-send-form-input-row"
+			data-input-state={leftControlsState}
+			data-slot="mobile-send-form-input-row"
+			data-textarea-layout={
+				isTextareaMultiline ? "multi-line" : "single-line"
+			}
+		>
+			<div className="mobile-send-form-input-row__left">
+				<button
+					aria-controls={MOBILE_CHAT_MAIN_MENU_DRAWER_ID}
+					aria-expanded={isMainMenuOpen}
+					aria-haspopup="dialog"
+					aria-label={currentUserAvatarLabel}
+					className="mobile-send-form-input-row__avatar mobile-chat-main-menu__trigger"
+					data-avatar-source={userAvatarSnapshot.source}
+					id={MOBILE_CHAT_MAIN_MENU_TRIGGER_ID}
+					type="button"
+					onClick={onMainMenuOpen}
+					onKeyDownCapture={onMainMenuTriggerKeyDownCapture}
+					onPointerDownCapture={onMainMenuTriggerPointerDownCapture}
+				>
+					<img
+						alt={currentUserAvatarLabel}
+						className="mobile-send-form-input-row__avatar-image"
+						draggable={false}
+						loading="eager"
+						src={userAvatarSnapshot.thumbnailUrl}
+					/>
+				</button>
+				<div
+					className="mobile-send-form-input-row__textarea-host"
+					data-avatar-source={userAvatarSnapshot.source}
+				>
+					<div
+						aria-label={leftControlsLabel}
+						className="mobile-send-form-input-row__left-controls"
+						data-interaction-blocked={
+							isLeftControlsInteractionBlocked ? "true" : "false"
+						}
+						data-left-state={leftControlsState}
+						role="toolbar"
+					>
+						<div
+							aria-hidden={isComposingState}
+							className="mobile-send-form-input-row__left-controls-default"
+						>
+							<MobileSendFormOptionsMenu
+								documentRef={documentRef}
+								interactionBlocked={
+									isLeftControlsInteractionBlocked
+								}
+								showShortcutsToolbar={showShortcutsToolbar}
+								onShowShortcutsToolbarChange={
+									onShortcutsToolbarVisibilityChange
+								}
+							/>
+							<MobileSendFormExtensionsMenu
+								documentRef={documentRef}
+								interactionBlocked={
+									isLeftControlsInteractionBlocked
+								}
+							/>
+						</div>
+						<div
+							aria-hidden={!isComposingState}
+							className="mobile-send-form-input-row__left-controls-composing"
+						>
+							<Button
+								aria-label={expandLeftControlsLabel}
+								className="mobile-send-form-input-row__left-control-button"
+								size="icon-xs"
+								title={expandLeftControlsLabel}
+								type="button"
+								variant="ghost"
+								onClick={onExpandLeftControlsClick}
+							>
+								<UiIcon
+									aria-hidden={true}
+									icon={ChevronRight}
+									size="sm"
+								/>
+							</Button>
+						</div>
+					</div>
+					<div
+						className="mobile-send-form-input-row__textarea-main"
+						ref={onTextareaHostChange}
+					/>
+					<div className="mobile-send-form-input-row__textarea-actions">
+						{primarySendActionSnapshot.visible ? (
+							<Button
+								aria-label={primarySendActionSnapshot.label}
+								className="mobile-send-form-input-row__send-button data-[action-kind=stop]:[&_svg]:fill-current"
+								data-action-kind={
+									primarySendActionSnapshot.kind
+								}
+								disabled={primarySendActionSnapshot.disabled}
+								size="icon"
+								title={primarySendActionSnapshot.label}
+								type="button"
+								variant="default"
+								onClick={onPrimarySendActionClick}
+							>
+								<UiIcon
+									aria-hidden={true}
+									icon={PrimarySendActionIcon}
+									size="sm"
+								/>
+							</Button>
+						) : null}
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
