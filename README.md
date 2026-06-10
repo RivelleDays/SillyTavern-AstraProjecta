@@ -169,3 +169,6 @@ Thank you to the SillyTavern developers, contributors, and community members who
 Thank you to everyone who tested early AstraProjecta builds, discussed Moonlit Echoes, shared feedback, or helped clarify what a more cohesive SillyTavern mobile experience could become.
 
 This project is still very young, but every piece of thoughtful feedback helps shape it into something clearer, more stable, and more useful.
+
+## License
+AGPLv3
