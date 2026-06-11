@@ -62,12 +62,19 @@ body.astra-projecta-mobile-layout {
 	}
 
 	& #chat .astra-mesContextBoundary {
-		display: flex;
+		box-sizing: border-box;
+		display: inline-flex;
 		flex: 0 0 auto;
 		align-items: center;
 		justify-content: center;
-		width: 100%;
-		padding: 8px 0;
+		align-self: center;
+		width: fit-content;
+		max-width: calc(100% - 32px);
+		margin: 8px auto;
+		padding: 4px;
+		border: 1px solid var(--border-color-base);
+		border-radius: var(--radius-full);
+		background: var(--surface-background-t20);
 		color: var(--color-base);
 		font-size: var(--text-xs);
 		font-weight: var(--font-weight-semibold);
@@ -79,30 +86,29 @@ body.astra-projecta-mobile-layout {
 		align-items: center;
 		min-width: 0;
 		min-height: 26px;
-		border: 1px solid var(--color-theme-t30);
-		background: var(--color-theme-t5);
 		line-height: 1;
 		white-space: nowrap;
 	}
 
 	& #chat .astra-mesContextBoundary__tag {
 		flex: none;
-		gap: 8px;
-		border-right: 0;
-		border-radius: var(--radius-full) 0 0 var(--radius-full);
-		padding-inline: 8px;
-		background: var(--color-theme-t10);
-		color: var(--color-theme);
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
+		gap: 6px;
+		border-radius: var(--radius-full);
+		padding-inline: 10px;
+		background: var(--color-base-t10);
+		color: var(--color-base);
+		letter-spacing: 0;
+	}
+
+	& #chat .astra-mesContextBoundary__tagIcon {
+		flex: none;
 	}
 
 	& #chat .astra-mesContextBoundary__title {
 		max-width: min(70vw, 320px);
 		overflow: hidden;
 		text-overflow: ellipsis;
-		border-radius: 0 var(--radius-full) var(--radius-full) 0;
-		padding: 5px 10px;
+		padding: 5px 12px;
 		color: var(--color-base-t90);
 	}
 

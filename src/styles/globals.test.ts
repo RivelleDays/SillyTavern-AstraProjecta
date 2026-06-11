@@ -511,6 +511,9 @@ describe("globals.css", () => {
 			".astra-mesContextBoundary__tag",
 		);
 		expect(compactMessageLayoutCss).toContain(
+			".astra-mesContextBoundary__tagIcon",
+		);
+		expect(compactMessageLayoutCss).toContain(
 			".astra-mesContextBoundary__title",
 		);
 	});
