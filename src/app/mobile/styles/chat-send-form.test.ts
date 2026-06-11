@@ -25,6 +25,16 @@ function readBlock(css: string, selector: string): string {
 	return match?.groups?.body ?? "";
 }
 
+function readSlice(css: string, startPattern: string, endPattern: string): string {
+	const startIndex = css.indexOf(startPattern);
+	if (startIndex === -1) {
+		return "";
+	}
+
+	const endIndex = css.indexOf(endPattern, startIndex + startPattern.length);
+	return endIndex === -1 ? css.slice(startIndex) : css.slice(startIndex, endIndex);
+}
+
 function expectSingleLineEllipsis(block: string) {
 	expect(block).toContain("min-width: 0;");
 	expect(block).toContain("overflow: hidden;");
@@ -77,6 +87,96 @@ describe("chat-send-form.css", () => {
 		expect(css).toContain(
 			"var(--astra-avatar-size-mobile-send-form-trigger)",
 		);
+	});
+
+	test("keeps mobile quick reply host styling scoped to Astra token contracts", () => {
+		const css = readCss();
+		const quickReplySlice = readSlice(
+			css,
+			"#form_sheld > #mobile-send-form-quick-reply-host",
+			"#send_form > #mobile-send-form-input-row-host",
+		);
+
+		expectSelectors(css, [
+			"#mobile-send-form-quick-reply-host > #qr--bar > .qr--buttons",
+			"#mobile-send-form-quick-reply-host > #qr--bar .qr--button",
+			"#mobile-send-form-quick-reply-host > #qr--bar .qr--button-expander",
+		]);
+		expect(quickReplySlice).toContain("--mobile-send-form-quick-reply-gap:");
+		expect(quickReplySlice).toContain(
+			"--mobile-send-form-quick-reply-button-padding-x:",
+		);
+		expect(quickReplySlice).toContain(
+			"--mobile-send-form-quick-reply-button-padding-y:",
+		);
+		expect(quickReplySlice).toContain(
+			"--mobile-send-form-quick-reply-button-font-size:",
+		);
+		expect(quickReplySlice).toContain(
+			"--mobile-send-form-quick-reply-max-block-size:",
+		);
+		expect(quickReplySlice).toContain(
+			"--mobile-send-form-quick-reply-expander-size:",
+		);
+		expect(quickReplySlice).not.toContain("!important");
+		expect(quickReplySlice).not.toContain("--mobileQRsBarHeight");
+		expect(quickReplySlice).not.toContain("var(--mainFontSize)");
+		expect(quickReplySlice).not.toContain("var(--SmartThemeBodyColor)");
+	});
+
+	test("keeps mobile quick reply menu and popout styling on Astra token contracts", () => {
+		const css = readCss();
+		const quickReplyMenuSlice = readSlice(
+			css,
+			"body.astra-projecta-mobile-layout {",
+			"#send_form > #mobile-send-form-input-row-host",
+		);
+
+		expectSelectors(css, [
+			"body.astra-projecta-mobile-layout #qr--popout > .qr--body > .qr--buttons",
+			"body.astra-projecta-mobile-layout #qr--popout > .qr--body > .qr--buttons.qr--color",
+			"body.astra-projecta-mobile-layout .ctx-menu",
+			"body.astra-projecta-mobile-layout .ctx-sub-menu",
+			"body.astra-projecta-mobile-layout .ctx-menu .ctx-blocker li",
+			"body.astra-projecta-mobile-layout .ctx-item + .ctx-header",
+			"body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-header",
+			"body.astra-projecta-mobile-layout .ctx-blocker li:hover",
+			"body.astra-projecta-mobile-layout .ctx-item .qr--button-label",
+			"body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-item",
+		]);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-quick-reply-menu-padding-x:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-quick-reply-menu-padding-y:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-quick-reply-menu-item-padding-x:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-quick-reply-menu-item-padding-y:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-quick-reply-menu-item-font-size:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-quick-reply-menu-label-font-size:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-quick-reply-menu-surface:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-quick-reply-menu-border-color:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-quick-reply-menu-header-separator-color:",
+		);
+		expect(quickReplyMenuSlice).not.toContain("!important");
+		expect(quickReplyMenuSlice).not.toContain("--mobileQRsBarHeight");
+		expect(quickReplyMenuSlice).not.toContain("var(--mainFontSize)");
+		expect(quickReplyMenuSlice).not.toContain("var(--SmartThemeBodyColor)");
+		expect(quickReplyMenuSlice).not.toContain("backdrop-filter");
+		expect(quickReplyMenuSlice).not.toContain("-webkit-backdrop-filter");
 	});
 
 	test("keeps the inline send button on the input-row size token", () => {

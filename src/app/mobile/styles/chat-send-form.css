@@ -130,16 +130,196 @@
 	}
 
 	#form_sheld > #mobile-send-form-quick-reply-host {
+		--mobile-send-form-quick-reply-gap: 8px;
+		--mobile-send-form-quick-reply-button-padding-x: 0;
+		--mobile-send-form-quick-reply-button-padding-y: 0;
+		--mobile-send-form-quick-reply-button-font-size: var(--text-xs);
+		--mobile-send-form-quick-reply-max-block-size: unset;
+		--mobile-send-form-quick-reply-expander-size: 20px;
 		box-sizing: border-box;
 		flex: 0 0 auto;
+		width: 100%;
+		min-width: 0;
+		padding: var(--mobile-chat-spacing);
+		padding-bottom: 0;
+		background: transparent;
+	}
+
+	#mobile-send-form-quick-reply-host > #qr--bar {
+		box-sizing: border-box;
+		width: 100%;
+		min-width: 0;
+		max-height: var(--mobile-send-form-quick-reply-max-block-size);
+		gap: 8px;
+		overflow-x: hidden;
+		overflow-y: auto;
+		scrollbar-width: thin;
+		-webkit-overflow-scrolling: touch;
+		overscroll-behavior: contain;
+	}
+
+	#mobile-send-form-quick-reply-host > #qr--bar > .qr--buttons {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--mobile-send-form-quick-reply-gap);
 		width: 100%;
 		min-width: 0;
 		background: transparent;
 	}
 
-	#mobile-send-form-quick-reply-host > #qr--bar {
-		width: 100%;
+	#mobile-send-form-quick-reply-host > #qr--bar > .qr--buttons.qr--color {
+		background: transparent;
+	}
+
+	#mobile-send-form-quick-reply-host > #qr--bar > .qr--buttons.qr--borderColor {
+		background: transparent;
+		border: none !important;
+	}
+
+	#mobile-send-form-quick-reply-host > #qr--bar .qr--button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0;
+		max-width: 100%;
 		min-width: 0;
+		height: 36px;
+		margin: 0;
+		border: 1px solid var(--border-color-base);
+		border-radius: var(--radius-full);
+		background: var(--color-base-t10);
+		color: var(--color-base);
+		font-size: var(--mobile-send-form-quick-reply-button-font-size);
+		font-weight: var(--font-weight-medium);
+		text-align: left;
+	}
+
+	#mobile-send-form-quick-reply-host > #qr--bar .qr--button:not(:disabled) {
+		cursor: pointer;
+	}
+
+	#mobile-send-form-quick-reply-host > #qr--bar .qr--button:hover:not(:disabled) {
+		background: var(--surface-muted-t50);
+		border-color: var(--border-color-base);
+	}
+
+	#mobile-send-form-quick-reply-host > #qr--bar .qr--button:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 60%, transparent);
+	}
+
+	#mobile-send-form-quick-reply-host > #qr--bar .qr--button:disabled {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	#mobile-send-form-quick-reply-host > #qr--bar .qr--button-label {
+		display: block;
+		min-width: 0;
+		overflow: hidden;
+		font-size: inherit;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	#mobile-send-form-quick-reply-host > #qr--bar .qr--button-expander {
+		flex: 0 0 var(--mobile-send-form-quick-reply-expander-size);
+		width: var(--mobile-send-form-quick-reply-expander-size);
+		min-width: var(--mobile-send-form-quick-reply-expander-size);
+		margin: 0;
+		padding-inline: 0;
+		border-left-width: 0;
+	}
+
+	body.astra-projecta-mobile-layout {
+		--mobile-send-form-quick-reply-menu-padding-x: calc(
+			var(--mobile-chat-spacing) * 2 / 3
+		);
+		--mobile-send-form-quick-reply-menu-padding-y: calc(
+			var(--mobile-chat-spacing) / 2
+		);
+		--mobile-send-form-quick-reply-menu-item-padding-x: calc(
+			var(--mobile-chat-spacing) / 2
+		);
+		--mobile-send-form-quick-reply-menu-item-padding-y: calc(
+			var(--mobile-chat-spacing) / 6
+		);
+		--mobile-send-form-quick-reply-menu-item-font-size: var(--text-sm);
+		--mobile-send-form-quick-reply-menu-label-font-size: var(--text-xs);
+		--mobile-send-form-quick-reply-menu-surface: color-mix(
+			in srgb,
+			var(--surface-base) 88%,
+			var(--surface-muted-t40)
+		);
+		--mobile-send-form-quick-reply-menu-border-color: var(
+			--border-color-base-t70
+		);
+		--mobile-send-form-quick-reply-menu-header-separator-color: color-mix(
+			in srgb,
+			var(--foreground) 18%,
+			transparent
+		);
+	}
+
+	body.astra-projecta-mobile-layout #qr--popout > .qr--body > .qr--buttons {
+		gap: var(--mobile-send-form-quick-reply-gap);
+		background: transparent;
+	}
+
+	body.astra-projecta-mobile-layout #qr--popout > .qr--body > .qr--buttons.qr--color {
+		gap: var(--mobile-send-form-quick-reply-gap);
+		background: transparent;
+	}
+
+	body.astra-projecta-mobile-layout .ctx-menu,
+	body.astra-projecta-mobile-layout .ctx-sub-menu {
+		padding: var(--mobile-send-form-quick-reply-menu-padding-y)
+			var(--mobile-send-form-quick-reply-menu-padding-x);
+		border: 1px solid var(--mobile-send-form-quick-reply-menu-border-color);
+		border-radius: var(--radius-lg);
+		background: var(--mobile-send-form-quick-reply-menu-surface);
+		color: var(--foreground);
+		opacity: 1;
+	}
+
+	body.astra-projecta-mobile-layout .ctx-menu .ctx-blocker li,
+	body.astra-projecta-mobile-layout .ctx-sub-menu .ctx-blocker li {
+		margin-bottom: 0;
+		padding: var(--mobile-send-form-quick-reply-menu-item-padding-y)
+			var(--mobile-send-form-quick-reply-menu-item-padding-x);
+		font-size: var(--mobile-send-form-quick-reply-menu-item-font-size);
+	}
+
+	body.astra-projecta-mobile-layout .ctx-item + .ctx-header {
+		margin-top: calc(var(--mobile-chat-spacing) / 3);
+		padding-top: calc(var(--mobile-chat-spacing) * 5 / 6);
+		border-top: 1px dashed
+			var(--mobile-send-form-quick-reply-menu-header-separator-color);
+	}
+
+	body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-header {
+		padding-bottom: calc(var(--mobile-chat-spacing) / 5);
+		color: var(--muted-foreground);
+		font-size: var(--mobile-send-form-quick-reply-menu-label-font-size);
+		letter-spacing: 0.02em;
+		opacity: 0.8;
+	}
+
+	body.astra-projecta-mobile-layout .ctx-blocker li:hover {
+		color: var(--foreground);
+	}
+
+	body.astra-projecta-mobile-layout .ctx-item .qr--button-label {
+		display: block;
+		padding-bottom: calc(var(--mobile-chat-spacing) / 5);
+		font-size: var(--mobile-send-form-quick-reply-menu-label-font-size);
+	}
+
+	body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-item {
+		padding: var(--mobile-send-form-quick-reply-menu-item-padding-y)
+			var(--mobile-send-form-quick-reply-menu-item-padding-x);
+		font-size: var(--mobile-send-form-quick-reply-menu-item-font-size);
 	}
 
 	#send_form > #mobile-send-form-input-row-host {
