@@ -102,10 +102,7 @@
 		isolation: isolate;
 		background: transparent;
 		border-top: none;
-	}
-
-	body.PWA #form_sheld {
-		padding-bottom: 0;
+		padding-bottom: calc(var(--mobile-chat-spacing) + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)));
 	}
 
 	#form_sheld::before {
@@ -369,17 +366,7 @@
 		flex: 0 0 100%;
 		width: 100%;
 		min-width: 0;
-		padding-bottom: calc(
-			var(--mobile-chat-spacing) +
-				var(--astra-mobile-safe-bottom-effective, var(--safe-bottom))
-		);
 		background: transparent;
-	}
-
-	body.PWA #send_form > #mobile-send-form-input-row-host {
-		padding-bottom: calc(
-			4px + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom))
-		);
 	}
 
 	.mobile-send-form-shortcuts {
@@ -750,6 +737,7 @@
 		width: 100%;
 		padding: var(--mobile-chat-spacing);
 		padding-right: calc(var(--mobile-chat-spacing) - 4px);
+		padding-bottom: 0;
 	}
 
 	.mobile-send-form-input-row__avatar {
