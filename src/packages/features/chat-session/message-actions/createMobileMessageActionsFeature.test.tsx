@@ -2524,10 +2524,11 @@ describe("createMobileMessageActionsFeature", () => {
 			const astraEditDialog = await screen.findByRole("dialog", {
 				name: "Edit Message",
 			});
+			const astraEditDialogQueries = within(astraEditDialog);
 			const messageTextarea =
-				within(astraEditDialog).getByLabelText("Message text");
+				astraEditDialogQueries.getByLabelText("Message text");
 			const reasoningTextarea =
-				within(astraEditDialog).getByLabelText("Reasoning");
+				await astraEditDialogQueries.findByLabelText("Reasoning");
 
 			expect(messageTextarea).toHaveValue("Native action target body");
 			expect(reasoningTextarea).toHaveValue("Original reasoning");
