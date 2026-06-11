@@ -137,39 +137,61 @@ describe("chat-send-form.css", () => {
 			"body.astra-projecta-mobile-layout #qr--popout > .qr--body > .qr--buttons.qr--color",
 			"body.astra-projecta-mobile-layout .ctx-menu",
 			"body.astra-projecta-mobile-layout .ctx-sub-menu",
-			"body.astra-projecta-mobile-layout .ctx-menu .ctx-blocker li",
 			"body.astra-projecta-mobile-layout .ctx-item + .ctx-header",
 			"body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-header",
-			"body.astra-projecta-mobile-layout .ctx-blocker li:hover",
-			"body.astra-projecta-mobile-layout .ctx-item .qr--button-label",
 			"body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-item",
+			"body.astra-projecta-mobile-layout .ctx-item:hover",
+			"body.astra-projecta-mobile-layout .ctx-item .qr--button-icon",
+			"body.astra-projecta-mobile-layout .ctx-item .qr--button-label",
+			"body.astra-projecta-mobile-layout .ctx-item .ctx-expander",
 		]);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-quick-reply-menu-padding-x:",
+			"--mobile-send-form-menu-surface-padding-inline:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-quick-reply-menu-padding-y:",
+			"--mobile-send-form-menu-surface-padding-block:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-quick-reply-menu-item-padding-x:",
+			"--mobile-send-form-menu-surface:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-quick-reply-menu-item-padding-y:",
+			"--mobile-send-form-menu-border-color:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-quick-reply-menu-item-font-size:",
+			"--mobile-send-form-menu-section-gap:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-quick-reply-menu-label-font-size:",
+			"--mobile-send-form-menu-section-separator-color:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-quick-reply-menu-surface:",
+			"--mobile-send-form-menu-label-padding-inline:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-quick-reply-menu-border-color:",
+			"--mobile-send-form-menu-label-font-size:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-quick-reply-menu-header-separator-color:",
+			"--mobile-send-form-menu-row-height:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-menu-row-padding-inline:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-menu-row-padding-block:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-menu-row-gap:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-menu-row-radius:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-menu-row-font-size:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-menu-row-font-weight:",
+		);
+		expect(quickReplyMenuSlice).toContain(
+			"--mobile-send-form-menu-row-hover-surface:",
 		);
 		expect(quickReplyMenuSlice).not.toContain("!important");
 		expect(quickReplyMenuSlice).not.toContain("--mobileQRsBarHeight");
