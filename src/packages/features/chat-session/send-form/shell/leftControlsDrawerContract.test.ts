@@ -94,6 +94,16 @@ describe("left-controls default drawer contract", () => {
 		expect(shortcutsToolbarSource).not.toContain('size="icon-sm"');
 	});
 
+	test("keeps mobile send-form shortcut icons on the medium Astra icon token", () => {
+		const shortcutsToolbarSource = readSource(
+			"src/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar.tsx",
+		);
+
+		expect(shortcutsToolbarSource).toContain('icon={Astroid}');
+		expect(shortcutsToolbarSource).toContain("icon={ShortcutIcon}");
+		expect(shortcutsToolbarSource).toContain('size="md"');
+	});
+
 	test("keeps src/components/ui/astra focused on the documented overlay compatibility exceptions", () => {
 		const astraEntries = readdirSync(
 			resolve(process.cwd(), "src/components/ui/astra"),

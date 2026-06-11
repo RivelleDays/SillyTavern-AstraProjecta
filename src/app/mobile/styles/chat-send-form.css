@@ -177,13 +177,18 @@
 		border: none;
 	}
 
+	#mobile-send-form-quick-reply-host > #qr--bar > .qr--buttons .qr--button .qr--button-icon,
+	#mobile-send-form-quick-reply-host > #qr--popout > .qr--body > .qr--buttons .qr--button .qr--button-icon {
+		margin: 0 4px;
+	}
+
 	#mobile-send-form-quick-reply-host > #qr--bar .qr--button {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		gap: 0;
 		max-width: 100%;
-		min-width: 0;
+		min-width: 36px;
 		height: 36px;
 		margin: 0;
 		border: 1px solid var(--border-color-base);

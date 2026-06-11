@@ -54,7 +54,7 @@ export function MobileSendFormShortcutsToolbar({
 							aria-hidden={true}
 							data-icon="inline-start"
 							icon={Astroid}
-							size="sm"
+							size="md"
 						/>
 						{sillyTavernInterfaceTriggerLabel}
 					</Button>
@@ -80,7 +80,7 @@ export function MobileSendFormShortcutsToolbar({
 								<UiIcon
 									aria-hidden={true}
 									icon={ShortcutIcon}
-									size="sm"
+									size="md"
 								/>
 							</Button>
 						</span>
