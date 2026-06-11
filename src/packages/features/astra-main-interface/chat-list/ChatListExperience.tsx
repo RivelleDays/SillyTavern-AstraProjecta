@@ -16,7 +16,11 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/astra/drawer";
-import { ResponsiveDialog } from "@/components/ui/astra/ResponsiveDialog";
+import {
+	ResponsiveDialog,
+	ResponsiveDialogClose,
+	useResponsiveDialogClose,
+} from "@/components/ui/astra/ResponsiveDialog";
 import {
 	Empty,
 	EmptyContent,
@@ -106,6 +110,15 @@ type ChatMenuSortField = "last-message" | "messages" | "name";
 type ChatMenuSortDirection = "ascending" | "descending";
 type ChatMenuSortOrder = "natural" | "reverse";
 type ChatListRowVariant = "current" | "global";
+type ChatListActiveRowOverlay =
+	| {
+			entry: ChatCatalogEntry;
+			type: "actions" | "categories";
+	  }
+	| {
+			action: ChatCatalogRowActionDialogState;
+			type: "rowAction";
+	  };
 
 export interface ChatListCopy {
 	controlsDescription: I18nKey;
@@ -475,6 +488,7 @@ function ChatListRowActionButton({
 function ChatActionsDrawerItemButton({
 	ariaControls,
 	ariaExpanded,
+	closeBeforeAction = false,
 	dataState,
 	disabled = false,
 	icon,
@@ -484,6 +498,7 @@ function ChatActionsDrawerItemButton({
 }: {
 	ariaControls?: string;
 	ariaExpanded?: boolean;
+	closeBeforeAction?: boolean;
 	dataState?: "off" | "on";
 	disabled?: boolean;
 	icon: LucideIcon;
@@ -491,6 +506,15 @@ function ChatActionsDrawerItemButton({
 	modifierClassName?: string;
 	onClick?: () => void;
 }) {
+	const close = useResponsiveDialogClose();
+
+	function handleClick() {
+		if (closeBeforeAction) {
+			close();
+		}
+		onClick?.();
+	}
+
 	return (
 		<button
 			aria-controls={ariaControls}
@@ -503,7 +527,7 @@ function ChatActionsDrawerItemButton({
 			disabled={disabled}
 			title={label}
 			type="button"
-			onClick={onClick}
+			onClick={handleClick}
 		>
 			<UiIcon aria-hidden={true} icon={icon} size="sm" />
 			<span>{label}</span>
@@ -1205,8 +1229,10 @@ export function ChatCatalogRowActionsDrawer({
 	entry,
 	exportChat,
 	hasAssignedCategories,
+	onOpenEntry,
 	onOpenCategories,
 	onOpenChange,
+	openEntryDisabled,
 	onRequestDelete,
 	onRequestRename,
 }: {
@@ -1214,8 +1240,10 @@ export function ChatCatalogRowActionsDrawer({
 	entry: ChatCatalogEntry | null;
 	exportChat: ExportChatCatalogEntry;
 	hasAssignedCategories: boolean;
+	onOpenEntry: OpenChatCatalogEntry;
 	onOpenCategories: (entry: ChatCatalogEntry) => void;
 	onOpenChange: (open: boolean) => void;
+	openEntryDisabled: boolean;
 	onRequestDelete: (entry: ChatCatalogEntry) => void;
 	onRequestRename: (entry: ChatCatalogEntry) => void;
 }) {
@@ -1293,18 +1321,6 @@ export function ChatCatalogRowActionsDrawer({
 		[entry, exportChat, isExporting, onOpenChange],
 	);
 
-	const handleEntryAction = React.useCallback(
-		(action: (entry: ChatCatalogEntry) => void) => {
-			if (!entry || isExporting) {
-				return;
-			}
-
-			onOpenChange(false);
-			action(entry);
-		},
-		[entry, isExporting, onOpenChange],
-	);
-
 	if (!shouldRenderDrawer || !drawerEntry) {
 		return null;
 	}
@@ -1320,13 +1336,21 @@ export function ChatCatalogRowActionsDrawer({
 			.
 		</span>
 	);
+	const footer = (
+		<ChatCatalogRowActionsDrawerFooter
+			entry={drawerEntry}
+			isExporting={isExporting}
+			onOpenEntry={onOpenEntry}
+			openEntryDisabled={openEntryDisabled}
+		/>
+	);
 
 	return (
 		<ResponsiveDialog
 			className="astra-main-interface-drawer astra-main-interface-chat-row-action-dialog astra-main-interface-chat-actions-drawer"
 			contentId={CHAT_ROW_ACTIONS_DRAWER_ID}
 			description={description}
-			forceMountContent={true}
+			footer={footer}
 			headerContent={
 				<ChatCatalogRowDialogIdentityHeader entry={drawerEntry} />
 			}
@@ -1360,8 +1384,11 @@ export function ChatCatalogRowActionsDrawer({
 									"astraMainInterface.chatMenu.action.delete",
 								)}
 								modifierClassName="astra-main-interface-chat-actions-drawer__item--destructive astra-main-interface-chat-actions-drawer__item--delete"
+								closeBeforeAction={true}
 								onClick={() => {
-									handleEntryAction(onRequestDelete);
+									if (entry) {
+										onRequestDelete(entry);
+									}
 								}}
 							/>
 							<ChatActionsDrawerItemButton
@@ -1374,8 +1401,11 @@ export function ChatCatalogRowActionsDrawer({
 									"astraMainInterface.chatMenu.action.categories",
 								)}
 								modifierClassName="astra-main-interface-chat-actions-drawer__item--categories"
+								closeBeforeAction={true}
 								onClick={() => {
-									handleEntryAction(onOpenCategories);
+									if (entry) {
+										onOpenCategories(entry);
+									}
 								}}
 							/>
 							<ChatActionsDrawerItemButton
@@ -1385,8 +1415,11 @@ export function ChatCatalogRowActionsDrawer({
 									"astraMainInterface.chatMenu.action.rename",
 								)}
 								modifierClassName="astra-main-interface-chat-actions-drawer__item--rename"
+								closeBeforeAction={true}
 								onClick={() => {
-									handleEntryAction(onRequestRename);
+									if (entry) {
+										onRequestRename(entry);
+									}
 								}}
 							/>
 						</div>
@@ -1413,6 +1446,57 @@ export function ChatCatalogRowActionsDrawer({
 				</div>
 			</div>
 		</ResponsiveDialog>
+	);
+}
+
+function ChatCatalogRowActionsDrawerFooter({
+	entry,
+	isExporting,
+	onOpenEntry,
+	openEntryDisabled,
+}: {
+	entry: ChatCatalogEntry;
+	isExporting: boolean;
+	onOpenEntry: OpenChatCatalogEntry;
+	openEntryDisabled: boolean;
+}) {
+	const close = useResponsiveDialogClose();
+	const cancelLabel = translateAstra(
+		"astraMainInterface.chatMenu.actions.cancel",
+	);
+	const openLabel = translateAstra("astraMainInterface.chatMenu.actions.open");
+
+	return (
+		<div className="astra-chat-library-dialog-footer">
+			<div className="astra-chat-library-dialog-footer-actions">
+				<ResponsiveDialogClose asChild={true}>
+					<Button
+						className="astra-chat-library-dialog-action astra-chat-library-dialog-action--close"
+						type="button"
+						variant="ghost"
+					>
+						{cancelLabel}
+					</Button>
+				</ResponsiveDialogClose>
+				<Button
+					className="astra-chat-library-dialog-action astra-chat-library-dialog-action--confirm"
+					disabled={isExporting || openEntryDisabled}
+					type="button"
+					variant="default"
+					onClick={() => {
+						close();
+						void onOpenEntry(entry);
+					}}
+				>
+					<UiIcon
+						aria-hidden={true}
+						icon={MessageCircleMore}
+						size="sm"
+					/>
+					{openLabel}
+				</Button>
+			</div>
+		</div>
 	);
 }
 
@@ -1609,12 +1693,10 @@ export function ChatListExperience<
 		() => readShowAvatars?.(getChatListDisplayStorage()) ?? false,
 	);
 	const [visibleCount, setVisibleCount] = React.useState(CHAT_LIST_PAGE_SIZE);
-	const [activeRowAction, setActiveRowAction] =
-		React.useState<ChatCatalogRowActionDialogState | null>(null);
-	const [activeActionsEntry, setActiveActionsEntry] =
-		React.useState<ChatCatalogEntry | null>(null);
-	const [activeCategoryEntry, setActiveCategoryEntry] =
-		React.useState<ChatCatalogEntry | null>(null);
+	const [activeRowOverlay, setActiveRowOverlay] =
+		React.useState<ChatListActiveRowOverlay | null>(null);
+	const queuedRowOverlayRef =
+		React.useRef<ChatListActiveRowOverlay | null>(null);
 	const searchInputId = React.useId();
 	const sentinelRef = React.useRef<HTMLDivElement | null>(null);
 	const {
@@ -1693,6 +1775,12 @@ export function ChatListExperience<
 
 	const isLoading = snapshot.status === "loading";
 	const hasEntries = visibleEntries.length > 0;
+	const activeActionsEntry =
+		activeRowOverlay?.type === "actions" ? activeRowOverlay.entry : null;
+	const activeCategoryEntry =
+		activeRowOverlay?.type === "categories" ? activeRowOverlay.entry : null;
+	const activeRowAction =
+		activeRowOverlay?.type === "rowAction" ? activeRowOverlay.action : null;
 	const emptyMessage = query
 		? translateAstra(copy.emptySearch)
 		: translateAstra(copy.emptyTitle);
@@ -1725,6 +1813,21 @@ export function ChatListExperience<
 	function handleSortModeChange(nextSortMode: ChatCatalogSortMode) {
 		setSortMode(nextSortMode);
 		persistSortMode(getChatListDisplayStorage(), nextSortMode);
+	}
+
+	function openRowOverlay(nextOverlay: ChatListActiveRowOverlay) {
+		queuedRowOverlayRef.current = null;
+		setActiveRowOverlay(nextOverlay);
+	}
+
+	function queueRowOverlay(nextOverlay: ChatListActiveRowOverlay) {
+		queuedRowOverlayRef.current = nextOverlay;
+	}
+
+	function handleRowOverlayClosed() {
+		const nextOverlay = queuedRowOverlayRef.current;
+		queuedRowOverlayRef.current = null;
+		setActiveRowOverlay(nextOverlay);
 	}
 
 	return (
@@ -1822,20 +1925,34 @@ export function ChatListExperience<
 										)}
 										previewLineCount={previewLineCount}
 										showAvatars={showAvatars}
-										onOpenActions={setActiveActionsEntry}
-										onOpenCategories={
-											setActiveCategoryEntry
-										}
-										onRequestDelete={(entry) => {
-											setActiveRowAction({
+										onOpenActions={(entry) => {
+											openRowOverlay({
 												entry,
-												mode: "delete",
+												type: "actions",
+											});
+										}}
+										onOpenCategories={(entry) => {
+											openRowOverlay({
+												entry,
+												type: "categories",
+											});
+										}}
+										onRequestDelete={(entry) => {
+											openRowOverlay({
+												action: {
+													entry,
+													mode: "delete",
+												},
+												type: "rowAction",
 											});
 										}}
 										onRequestRename={(entry) => {
-											setActiveRowAction({
-												entry,
-												mode: "rename",
+											openRowOverlay({
+												action: {
+													entry,
+													mode: "rename",
+												},
+												type: "rowAction",
 											});
 										}}
 										onOpen={(nextEntry) => {
@@ -1857,20 +1974,34 @@ export function ChatListExperience<
 										)}
 										previewLineCount={previewLineCount}
 										showAvatars={showAvatars}
-										onOpenActions={setActiveActionsEntry}
-										onOpenCategories={
-											setActiveCategoryEntry
-										}
-										onRequestDelete={(entry) => {
-											setActiveRowAction({
+										onOpenActions={(entry) => {
+											openRowOverlay({
 												entry,
-												mode: "delete",
+												type: "actions",
+											});
+										}}
+										onOpenCategories={(entry) => {
+											openRowOverlay({
+												entry,
+												type: "categories",
+											});
+										}}
+										onRequestDelete={(entry) => {
+											openRowOverlay({
+												action: {
+													entry,
+													mode: "delete",
+												},
+												type: "rowAction",
 											});
 										}}
 										onRequestRename={(entry) => {
-											setActiveRowAction({
-												entry,
-												mode: "rename",
+											openRowOverlay({
+												action: {
+													entry,
+													mode: "rename",
+												},
+												type: "rowAction",
 											});
 										}}
 										onOpen={(nextEntry) => {
@@ -2025,22 +2156,35 @@ export function ChatListExperience<
 							? hasAssignedCategories(activeCategoryEntry)
 							: false
 				}
-				onOpenCategories={setActiveCategoryEntry}
+				onOpenEntry={openChatWithFeedback}
+				onOpenCategories={(entry) => {
+					queueRowOverlay({
+						entry,
+						type: "categories",
+					});
+				}}
 				onOpenChange={(isOpen) => {
 					if (!isOpen) {
-						setActiveActionsEntry(null);
+						handleRowOverlayClosed();
 					}
 				}}
+				openEntryDisabled={openingKey !== null}
 				onRequestDelete={(entry) => {
-					setActiveRowAction({
-						entry,
-						mode: "delete",
+					queueRowOverlay({
+						action: {
+							entry,
+							mode: "delete",
+						},
+						type: "rowAction",
 					});
 				}}
 				onRequestRename={(entry) => {
-					setActiveRowAction({
-						entry,
-						mode: "rename",
+					queueRowOverlay({
+						action: {
+							entry,
+							mode: "rename",
+						},
+						type: "rowAction",
 					});
 				}}
 			/>
@@ -2050,7 +2194,7 @@ export function ChatListExperience<
 				entry={activeCategoryEntry}
 				onOpenChange={(isOpen) => {
 					if (!isOpen) {
-						setActiveCategoryEntry(null);
+						handleRowOverlayClosed();
 					}
 				}}
 			/>
@@ -2078,7 +2222,7 @@ export function ChatListExperience<
 				}}
 				onOpenChange={(isOpen) => {
 					if (!isOpen) {
-						setActiveRowAction(null);
+						handleRowOverlayClosed();
 					}
 				}}
 				onSuccess={() => {

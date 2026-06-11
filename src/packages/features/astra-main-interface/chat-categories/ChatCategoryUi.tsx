@@ -2096,47 +2096,21 @@ export function ChatCategoryAssignmentDrawer({
 		event.preventDefault();
 	}, []);
 
-	const footer = (
-		<div className="astra-chat-library-dialog-footer astra-chat-library-dialog-footer--categories">
-			<div className="astra-chat-library-dialog-footer-actions">
-				<Button
-					className="astra-chat-library-dialog-action astra-chat-library-dialog-action--close"
-					type="button"
-					variant="ghost"
-					onClick={() => onOpenChange(false)}
-				>
-					{translateAstra(
-						"astraMainInterface.chatMenu.categoryDrawer.close",
-					)}
-				</Button>
-				<Button
-					className="astra-chat-library-dialog-action astra-chat-library-dialog-action--save"
-					disabled={!drawerEntry || !hasChanges}
-					type="button"
-					variant="default"
-					onClick={() => {
-						if (!drawerEntry) {
-							return;
-						}
-
-						chatCategoryStore.setChatCategoryIds(
-							drawerEntry.key,
-							draftIds,
-						);
-						onOpenChange(false);
-					}}
-				>
-					{translateAstra(
-						"astraMainInterface.chatMenu.categoryDrawer.save",
-					)}
-				</Button>
-			</div>
-		</div>
-	);
-
 	if (!shouldRenderDrawer || !drawerEntry) {
 		return null;
 	}
+
+	const footer = (
+		<ChatCategoryAssignmentDrawerFooter
+			canSave={hasChanges}
+			onSave={() => {
+				chatCategoryStore.setChatCategoryIds(
+					drawerEntry.key,
+					draftIds,
+				);
+			}}
+		/>
+	);
 
 	return (
 		<ResponsiveDialog
@@ -2187,6 +2161,48 @@ export function ChatCategoryAssignmentDrawer({
 				</div>
 			</div>
 		</ResponsiveDialog>
+	);
+}
+
+function ChatCategoryAssignmentDrawerFooter({
+	canSave,
+	onSave,
+}: {
+	canSave: boolean;
+	onSave(): void;
+}) {
+	const close = useResponsiveDialogClose();
+
+	return (
+		<div className="astra-chat-library-dialog-footer astra-chat-library-dialog-footer--categories">
+			<div className="astra-chat-library-dialog-footer-actions">
+				<ResponsiveDialogClose asChild={true}>
+					<Button
+						className="astra-chat-library-dialog-action astra-chat-library-dialog-action--close"
+						type="button"
+						variant="ghost"
+					>
+						{translateAstra(
+							"astraMainInterface.chatMenu.categoryDrawer.close",
+						)}
+					</Button>
+				</ResponsiveDialogClose>
+				<Button
+					className="astra-chat-library-dialog-action astra-chat-library-dialog-action--save"
+					disabled={!canSave}
+					type="button"
+					variant="default"
+					onClick={() => {
+						onSave();
+						close();
+					}}
+				>
+					{translateAstra(
+						"astraMainInterface.chatMenu.categoryDrawer.save",
+					)}
+				</Button>
+			</div>
+		</div>
 	);
 }
 

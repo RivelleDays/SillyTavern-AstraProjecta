@@ -1,6 +1,10 @@
 import * as React from "react";
 
-import { ResponsiveDialog } from "@/components/ui/astra/ResponsiveDialog";
+import {
+	ResponsiveDialog,
+	ResponsiveDialogClose,
+	useResponsiveDialogClose,
+} from "@/components/ui/astra/ResponsiveDialog";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import { AstraChatAvatar } from "@/components/ui/shared/chat-avatar";
@@ -28,6 +32,7 @@ export interface ChatCatalogRowActionDialogState {
 
 type ConfirmRenameResult = RenameChatCatalogResult | void;
 type ConfirmDeleteResult = DeleteChatCatalogResult | void;
+type CloseDialog = () => void;
 
 export interface ChatCatalogRowActionDialogProps {
 	action: ChatCatalogRowActionDialogState | null;
@@ -216,7 +221,7 @@ export function ChatCatalogRowActionDialog({
 		event.preventDefault();
 	}, []);
 
-	const handleConfirmRename = React.useCallback(async () => {
+	const handleConfirmRename = React.useCallback(async (close: CloseDialog) => {
 		if (!entry || !canRename || isBusy) return;
 
 		setIsBusy(true);
@@ -237,7 +242,7 @@ export function ChatCatalogRowActionDialog({
 				"success",
 				translateAstra("astraMainInterface.chatMenu.rename.success"),
 			);
-			onOpenChange(false);
+			close();
 		} finally {
 			setIsBusy(false);
 		}
@@ -247,11 +252,10 @@ export function ChatCatalogRowActionDialog({
 		isBusy,
 		normalizedNextName,
 		onConfirmRename,
-		onOpenChange,
 		onSuccess,
 	]);
 
-	const handleConfirmDelete = React.useCallback(async () => {
+	const handleConfirmDelete = React.useCallback(async (close: CloseDialog) => {
 		if (!entry || !canDelete || isBusy) return;
 
 		setIsBusy(true);
@@ -272,80 +276,26 @@ export function ChatCatalogRowActionDialog({
 				"success",
 				translateAstra("astraMainInterface.chatMenu.delete.success"),
 			);
-			onOpenChange(false);
+			close();
 		} finally {
 			setIsBusy(false);
 		}
-	}, [canDelete, entry, isBusy, onConfirmDelete, onOpenChange, onSuccess]);
+	}, [canDelete, entry, isBusy, onConfirmDelete, onSuccess]);
 
 	const headerContent = entry ? (
 		<ChatCatalogRowDialogIdentityHeader entry={entry} />
 	) : null;
 
 	const footer = (
-		<div
-			className={
-				isDelete
-					? "astra-chat-library-dialog-footer astra-chat-library-dialog-footer--delete"
-					: "astra-chat-library-dialog-footer astra-chat-library-dialog-footer--rename"
-			}
-		>
-			{isDelete ? (
-				<Button
-					className="astra-chat-library-dialog-action astra-chat-library-dialog-action--delete"
-					disabled={!canDelete || isBusy}
-					type="button"
-					variant="ghost"
-					onClick={handleConfirmDelete}
-				>
-					<UiIcon aria-hidden={true} icon={Trash2} size="sm" />
-					{isBusy
-						? translateAstra(
-								"astraMainInterface.chatMenu.delete.deleting",
-							)
-						: translateAstra(
-								"astraMainInterface.chatMenu.delete.confirm",
-							)}
-				</Button>
-			) : null}
-			<div className="astra-chat-library-dialog-footer-actions">
-				<Button
-					className="astra-chat-library-dialog-action astra-chat-library-dialog-action--close"
-					disabled={isBusy}
-					type="button"
-					variant={isRename ? "ghost" : "default"}
-					onClick={() => onOpenChange(false)}
-				>
-					{translateAstra(
-						isRename
-							? "astraMainInterface.chatMenu.rename.cancel"
-							: "astraMainInterface.chatMenu.delete.close",
-					)}
-				</Button>
-				{isRename ? (
-					<Button
-						className="astra-chat-library-dialog-action astra-chat-library-dialog-action--confirm"
-						disabled={!canRename || isBusy}
-						type="button"
-						variant="default"
-						onClick={handleConfirmRename}
-					>
-						<UiIcon
-							aria-hidden={true}
-							icon={PencilLine}
-							size="sm"
-						/>
-						{isBusy
-							? translateAstra(
-									"astraMainInterface.chatMenu.rename.renaming",
-								)
-							: translateAstra(
-									"astraMainInterface.chatMenu.rename.confirm",
-								)}
-					</Button>
-				) : null}
-			</div>
-		</div>
+		<ChatCatalogRowActionDialogFooter
+			canDelete={canDelete}
+			canRename={canRename}
+			isBusy={isBusy}
+			isDelete={isDelete}
+			isRename={isRename}
+			onConfirmDelete={handleConfirmDelete}
+			onConfirmRename={handleConfirmRename}
+		/>
 	);
 
 	return (
@@ -402,32 +352,12 @@ export function ChatCatalogRowActionDialog({
 					</div>
 				</div>
 				{isRename ? (
-					<div className="astra-chat-library-dialog-field">
-						<Input
-							aria-label={translateAstra(
-								"astraMainInterface.chatMenu.rename.inputLabel",
-							)}
-							disabled={isBusy}
-							id={CHAT_ROW_ACTION_DIALOG_RENAME_INPUT_ID}
-							placeholder={translateAstra(
-								"astraMainInterface.chatMenu.rename.placeholder",
-							)}
-							value={nextName}
-							onChange={(event) => {
-								setNextName(event.target.value);
-							}}
-							onKeyDown={(event) => {
-								if (event.key !== "Enter") return;
-								event.preventDefault();
-								void handleConfirmRename();
-							}}
-						/>
-						<p className="astra-chat-library-dialog-description">
-							{translateAstra(
-								"astraMainInterface.chatMenu.rename.hint",
-							)}
-						</p>
-					</div>
+					<ChatCatalogRowActionDialogRenameField
+						disabled={isBusy}
+						nextName={nextName}
+						onConfirmRename={handleConfirmRename}
+						onNextNameChange={setNextName}
+					/>
 				) : (
 					<div className="astra-chat-library-dialog-meta">
 						<div className="astra-chat-library-dialog-row">
@@ -460,5 +390,137 @@ export function ChatCatalogRowActionDialog({
 				)}
 			</div>
 		</ResponsiveDialog>
+	);
+}
+
+function ChatCatalogRowActionDialogFooter({
+	canDelete,
+	canRename,
+	isBusy,
+	isDelete,
+	isRename,
+	onConfirmDelete,
+	onConfirmRename,
+}: {
+	canDelete: boolean;
+	canRename: boolean;
+	isBusy: boolean;
+	isDelete: boolean;
+	isRename: boolean;
+	onConfirmDelete(close: CloseDialog): Promise<void>;
+	onConfirmRename(close: CloseDialog): Promise<void>;
+}) {
+	const close = useResponsiveDialogClose();
+
+	return (
+		<div
+			className={
+				isDelete
+					? "astra-chat-library-dialog-footer astra-chat-library-dialog-footer--delete"
+					: "astra-chat-library-dialog-footer astra-chat-library-dialog-footer--rename"
+			}
+		>
+			{isDelete ? (
+				<Button
+					className="astra-chat-library-dialog-action astra-chat-library-dialog-action--delete"
+					disabled={!canDelete || isBusy}
+					type="button"
+					variant="ghost"
+					onClick={() => {
+						void onConfirmDelete(close);
+					}}
+				>
+					<UiIcon aria-hidden={true} icon={Trash2} size="sm" />
+					{isBusy
+						? translateAstra(
+								"astraMainInterface.chatMenu.delete.deleting",
+							)
+						: translateAstra(
+								"astraMainInterface.chatMenu.delete.confirm",
+							)}
+				</Button>
+			) : null}
+			<div className="astra-chat-library-dialog-footer-actions">
+				<ResponsiveDialogClose asChild={true}>
+					<Button
+						className="astra-chat-library-dialog-action astra-chat-library-dialog-action--close"
+						disabled={isBusy}
+						type="button"
+						variant={isRename ? "ghost" : "default"}
+					>
+						{translateAstra(
+							isRename
+								? "astraMainInterface.chatMenu.rename.cancel"
+								: "astraMainInterface.chatMenu.delete.close",
+						)}
+					</Button>
+				</ResponsiveDialogClose>
+				{isRename ? (
+					<Button
+						className="astra-chat-library-dialog-action astra-chat-library-dialog-action--confirm"
+						disabled={!canRename || isBusy}
+						type="button"
+						variant="default"
+						onClick={() => {
+							void onConfirmRename(close);
+						}}
+					>
+						<UiIcon
+							aria-hidden={true}
+							icon={PencilLine}
+							size="sm"
+						/>
+						{isBusy
+							? translateAstra(
+									"astraMainInterface.chatMenu.rename.renaming",
+								)
+							: translateAstra(
+									"astraMainInterface.chatMenu.rename.confirm",
+								)}
+					</Button>
+				) : null}
+			</div>
+		</div>
+	);
+}
+
+function ChatCatalogRowActionDialogRenameField({
+	disabled,
+	nextName,
+	onConfirmRename,
+	onNextNameChange,
+}: {
+	disabled: boolean;
+	nextName: string;
+	onConfirmRename(close: CloseDialog): Promise<void>;
+	onNextNameChange(nextName: string): void;
+}) {
+	const close = useResponsiveDialogClose();
+
+	return (
+		<div className="astra-chat-library-dialog-field">
+			<Input
+				aria-label={translateAstra(
+					"astraMainInterface.chatMenu.rename.inputLabel",
+				)}
+				disabled={disabled}
+				id={CHAT_ROW_ACTION_DIALOG_RENAME_INPUT_ID}
+				placeholder={translateAstra(
+					"astraMainInterface.chatMenu.rename.placeholder",
+				)}
+				value={nextName}
+				onChange={(event) => {
+					onNextNameChange(event.target.value);
+				}}
+				onKeyDown={(event) => {
+					if (event.key !== "Enter") return;
+					event.preventDefault();
+					void onConfirmRename(close);
+				}}
+			/>
+			<p className="astra-chat-library-dialog-description">
+				{translateAstra("astraMainInterface.chatMenu.rename.hint")}
+			</p>
+		</div>
 	);
 }

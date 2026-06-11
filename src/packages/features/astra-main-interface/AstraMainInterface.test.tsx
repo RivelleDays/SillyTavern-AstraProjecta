@@ -54,6 +54,16 @@ const DIALOG_TITLE_WARNING =
 	"`DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.";
 const DIALOG_DESCRIPTION_WARNING =
 	"Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.";
+const ROW_OVERLAY_UNMOUNT_TIMEOUT_MS = 2000;
+
+async function waitForDialogToUnmount(name: string) {
+	await waitFor(
+		() => {
+			expect(screen.queryByRole("dialog", { name })).not.toBeInTheDocument();
+		},
+		{ timeout: ROW_OVERLAY_UNMOUNT_TIMEOUT_MS },
+	);
+}
 
 function createEntry(
 	overrides: Partial<ChatCatalogEntry> = {},
@@ -2365,7 +2375,7 @@ describe("AstraMainInterface", () => {
 					screen.queryByRole("dialog", { name: "Edit categories" }),
 				).not.toBeInTheDocument();
 			},
-			{ timeout: 1000 },
+			{ timeout: ROW_OVERLAY_UNMOUNT_TIMEOUT_MS },
 		);
 	});
 
@@ -4123,9 +4133,31 @@ describe("AstraMainInterface", () => {
 				".astra-main-interface-chat-actions-drawer__export-summary",
 			),
 		).not.toBeInTheDocument();
+		const footer = drawer.querySelector(".astra-dialog-footer");
+		expect(footer).toBeInTheDocument();
 		expect(
-			drawer.querySelector(".astra-dialog-footer"),
-		).not.toBeInTheDocument();
+			footer?.querySelector(".astra-chat-library-dialog-footer"),
+		).toBeInTheDocument();
+		expect(
+			footer?.querySelector(".astra-chat-library-dialog-footer-actions"),
+		).toBeInTheDocument();
+		expect(
+			within(footer as HTMLElement).getByRole("button", {
+				name: "Cancel",
+			}),
+		).toBeEnabled();
+		expect(
+			within(footer as HTMLElement).getByRole("button", {
+				name: "Open this chat",
+			}),
+		).toBeEnabled();
+		expect(
+			within(footer as HTMLElement)
+				.getByRole("button", {
+					name: "Open this chat",
+				})
+				.querySelector(".lucide-message-circle-more"),
+		).toBeInTheDocument();
 		const groups = Array.from(
 			drawer.querySelectorAll(
 				".astra-main-interface-chat-actions-drawer__group",
@@ -4180,6 +4212,233 @@ describe("AstraMainInterface", () => {
 				.getByRole("button", { name: "Rename chat" })
 				.querySelector(".lucide-pencil-line"),
 		).toBeInTheDocument();
+	});
+
+	test("closes the chat actions drawer from its footer cancel button", async () => {
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [createEntry()],
+			}),
+		);
+
+		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+		fireEvent.click(
+			within(
+				screen.getByRole("button", {
+					name: "Open Hero chapter-1",
+				}),
+			).getByRole("button", {
+				name: "Chat actions",
+			}),
+		);
+
+		const drawer = await screen.findByRole("dialog", {
+			name: "Chat actions",
+		});
+		fireEvent.click(
+			within(drawer).getByRole("button", {
+				name: "Cancel",
+			}),
+		);
+
+		await waitForDialogToUnmount("Chat actions");
+	});
+
+	test("opens the selected chat from the actions drawer footer with the shared open controller", async () => {
+		document.body.innerHTML = `
+            <div id="sheld">
+                <div id="chat"></div>
+            </div>
+        `;
+		const sheld = document.getElementById("sheld") as HTMLElement;
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [createEntry()],
+			}),
+		);
+		let resolveOpenChat!: (
+			result: Awaited<ReturnType<OpenChatCatalogEntry>>,
+		) => void;
+		const openChat = vi.fn<OpenChatCatalogEntry>().mockReturnValue(
+			new Promise((resolve) => {
+				resolveOpenChat = resolve;
+			}),
+		);
+		const onRequestClose = vi.fn();
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				openChat={openChat}
+				onRequestClose={onRequestClose}
+			/>,
+		);
+
+		fireEvent.click(
+			within(
+				screen.getByRole("button", {
+					name: "Open Hero chapter-1",
+				}),
+			).getByRole("button", {
+				name: "Chat actions",
+			}),
+		);
+
+		const drawer = await screen.findByRole("dialog", {
+			name: "Chat actions",
+		});
+		fireEvent.click(
+			within(drawer).getByRole("button", {
+				name: "Open this chat",
+			}),
+		);
+
+		expect(openChat).toHaveBeenCalledWith(
+			expect.objectContaining({
+				key: "character:0:chapter-1",
+			}),
+		);
+		await waitForDialogToUnmount("Chat actions");
+		expect(onRequestClose).toHaveBeenCalledTimes(1);
+		expect(
+			within(sheld).getByRole("status", {
+				hidden: true,
+				name: "Opening chat...",
+			}),
+		).toBeInTheDocument();
+
+		await act(async () => {
+			resolveOpenChat({
+				ok: true,
+			});
+		});
+	});
+
+	test("closes the panel without reopening when the actions drawer footer opens the current chat", async () => {
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [
+					createEntry({
+						isCurrent: true,
+					}),
+				],
+			}),
+		);
+		const openChat = vi.fn<OpenChatCatalogEntry>().mockResolvedValue({
+			ok: true,
+		});
+		const onRequestClose = vi.fn();
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				openChat={openChat}
+				onRequestClose={onRequestClose}
+			/>,
+		);
+
+		fireEvent.click(
+			within(
+				screen.getByRole("button", {
+					name: "Open Hero chapter-1",
+				}),
+			).getByRole("button", {
+				name: "Chat actions",
+			}),
+		);
+
+		const drawer = await screen.findByRole("dialog", {
+			name: "Chat actions",
+		});
+		fireEvent.click(
+			within(drawer).getByRole("button", {
+				name: "Open this chat",
+			}),
+		);
+
+		await waitForDialogToUnmount("Chat actions");
+		expect(onRequestClose).toHaveBeenCalledTimes(1);
+		expect(openChat).not.toHaveBeenCalled();
+		expect(
+			screen.queryByRole("status", {
+				name: "Opening chat...",
+			}),
+		).not.toBeInTheDocument();
+	});
+
+	test("shows the shared inline error when opening from the actions drawer footer fails", async () => {
+		document.body.innerHTML = `
+            <div id="sheld">
+                <div id="chat"></div>
+            </div>
+        `;
+		const sheld = document.getElementById("sheld") as HTMLElement;
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [createEntry()],
+			}),
+		);
+		let resolveOpenChat!: (
+			result: Awaited<ReturnType<OpenChatCatalogEntry>>,
+		) => void;
+		const openChat = vi.fn<OpenChatCatalogEntry>().mockReturnValue(
+			new Promise((resolve) => {
+				resolveOpenChat = resolve;
+			}),
+		);
+		const onRequestClose = vi.fn();
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				openChat={openChat}
+				onRequestClose={onRequestClose}
+			/>,
+		);
+
+		fireEvent.click(
+			within(
+				screen.getByRole("button", {
+					name: "Open Hero chapter-1",
+				}),
+			).getByRole("button", {
+				name: "Chat actions",
+			}),
+		);
+
+		const drawer = await screen.findByRole("dialog", {
+			name: "Chat actions",
+		});
+		fireEvent.click(
+			within(drawer).getByRole("button", {
+				name: "Open this chat",
+			}),
+		);
+
+		await waitForDialogToUnmount("Chat actions");
+		expect(onRequestClose).toHaveBeenCalledTimes(1);
+		expect(
+			within(sheld).getByRole("status", {
+				hidden: true,
+				name: "Opening chat...",
+			}),
+		).toBeInTheDocument();
+
+		resolveOpenChat({
+			ok: false,
+			reason: "open-failed",
+		});
+
+		expect(
+			await screen.findByText("Failed to open chat."),
+		).toBeInTheDocument();
+		expect(
+			within(sheld).queryByRole("status", {
+				hidden: true,
+				name: "Opening chat...",
+			}),
+		).not.toBeInTheDocument();
 	});
 
 	test("opens a presentational category drawer for the clicked row without opening the chat", async () => {
@@ -4273,7 +4532,7 @@ describe("AstraMainInterface", () => {
 		).toBeInTheDocument();
 		expect(
 			within(footer as HTMLElement).getByRole("button", {
-				name: "Close",
+				name: "Cancel",
 			}),
 		).toBeEnabled();
 		expect(
@@ -4517,10 +4776,14 @@ describe("AstraMainInterface", () => {
 		fireEvent.click(categoryAction);
 
 		expect(openChat).not.toHaveBeenCalled();
-		expect(categoryAction).toHaveAttribute("aria-expanded", "true");
-		const categoryDrawer = await screen.findByRole("dialog", {
-			name: "Edit categories",
-		});
+		const categoryDrawer = await screen.findByRole(
+			"dialog",
+			{
+				name: "Edit categories",
+			},
+			{ timeout: ROW_OVERLAY_UNMOUNT_TIMEOUT_MS },
+		);
+		await waitForDialogToUnmount("Chat actions");
 		expect(categoryDrawer).toHaveAttribute(
 			"id",
 			"astra-main-interface-chat-category-drawer",
@@ -4528,6 +4791,17 @@ describe("AstraMainInterface", () => {
 		expect(within(categoryDrawer).getByText("campfire")).toHaveClass(
 			"astra-dialog-current-chat-file-name",
 		);
+		fireEvent.click(
+			within(categoryDrawer).getByRole("button", {
+				name: "Cancel",
+			}),
+		);
+		await waitForDialogToUnmount("Edit categories");
+		expect(
+			screen.queryByRole("dialog", {
+				name: "Chat actions",
+			}),
+		).not.toBeInTheDocument();
 	});
 
 	test("opens delete confirmation from the chat actions drawer body without opening the chat", async () => {
@@ -4569,11 +4843,29 @@ describe("AstraMainInterface", () => {
 		const deleteDialog = await screen.findByRole("dialog", {
 			name: "Delete chat",
 		});
+		await waitForDialogToUnmount("Chat actions");
 		expect(deleteDialog).toHaveAttribute(
 			"id",
 			"astra-main-interface-chat-row-action-dialog",
 		);
 		expect(within(deleteDialog).getByText("chapter-1")).toBeInTheDocument();
+		fireEvent.click(
+			within(deleteDialog).getByRole("button", {
+				name: "Cancel",
+			}),
+		);
+		await waitFor(() => {
+			expect(
+				screen.queryByRole("dialog", {
+					name: "Delete chat",
+				}),
+			).not.toBeInTheDocument();
+		});
+		expect(
+			screen.queryByRole("dialog", {
+				name: "Chat actions",
+			}),
+		).not.toBeInTheDocument();
 	});
 
 	test("opens rename from the chat actions drawer body without opening the chat", async () => {
@@ -4615,6 +4907,7 @@ describe("AstraMainInterface", () => {
 		const renameDialog = await screen.findByRole("dialog", {
 			name: "Rename chat",
 		});
+		await waitForDialogToUnmount("Chat actions");
 		expect(renameDialog).toHaveAttribute(
 			"id",
 			"astra-main-interface-chat-row-action-dialog",
@@ -4624,6 +4917,23 @@ describe("AstraMainInterface", () => {
 				name: "New chat name",
 			}),
 		).toHaveValue("chapter-1");
+		fireEvent.click(
+			within(renameDialog).getByRole("button", {
+				name: "Cancel",
+			}),
+		);
+		await waitFor(() => {
+			expect(
+				screen.queryByRole("dialog", {
+					name: "Rename chat",
+				}),
+			).not.toBeInTheDocument();
+		});
+		expect(
+			screen.queryByRole("dialog", {
+				name: "Chat actions",
+			}),
+		).not.toBeInTheDocument();
 	});
 
 	test("creates owner and global categories from the category drawer scope select", async () => {
@@ -4965,7 +5275,7 @@ describe("AstraMainInterface", () => {
 		expect(retainedCollage).toHaveAttribute("data-count", "2");
 
 		act(() => {
-			vi.advanceTimersByTime(649);
+			vi.advanceTimersByTime(499);
 		});
 		expect(
 			document.getElementById("astra-main-interface-chat-actions-drawer"),

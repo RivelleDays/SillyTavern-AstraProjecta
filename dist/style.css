@@ -11318,8 +11318,11 @@ body.astra-projecta-mobile-layout {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   margin-left: auto;
+  .astra-main-interface-chat-row__action-button {
+    min-width: calc(var(--astra-button-min-size) + 12px);
+  }
 }
 .astra-main-interface-chat-row__action-button {
   display: inline-flex;

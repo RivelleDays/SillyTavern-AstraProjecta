@@ -23,8 +23,10 @@ export interface I18nMessages {
 	"astraMainInterface.chatMenu.action.exportText": string;
 	"astraMainInterface.chatMenu.action.rename": string;
 	"astraMainInterface.chatMenu.actions": string;
+	"astraMainInterface.chatMenu.actions.cancel": string;
 	"astraMainInterface.chatMenu.actions.description": string;
 	"astraMainInterface.chatMenu.actions.group.chatFile": string;
+	"astraMainInterface.chatMenu.actions.open": string;
 	"astraMainInterface.chatMenu.categoryDrawer.categoryList": string;
 	"astraMainInterface.chatMenu.categoryDrawer.close": string;
 	"astraMainInterface.chatMenu.categoryDrawer.create.add": string;
