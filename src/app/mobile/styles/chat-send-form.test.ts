@@ -345,7 +345,6 @@ describe("chat-send-form.css", () => {
 			".mobile-chat-main-menu-drawer__current-user-image",
 			".mobile-chat-main-menu-drawer__current-user-name-stack",
 			".mobile-chat-main-menu-drawer__current-user-actions",
-			".mobile-chat-main-menu-drawer__current-user-action",
 			"@media (hover: hover) and (pointer: fine)",
 		]);
 		expect(css).toContain("--mobile-chat-main-menu-drawer-avatar-size:");
@@ -391,16 +390,20 @@ describe("chat-send-form.css", () => {
 
 	test("routes main-menu drawer icon action sizes through the shared button token", () => {
 		const css = readCss();
-
-		for (const selector of [
-			".mobile-chat-main-menu-drawer__action-button",
+		const actionButtonBlock = readBlock(
+			css,
+			'.mobile-chat-main-menu-drawer__action-button[data-slot="button"]',
+		);
+		const currentUserActionBlock = readBlock(
+			css,
 			".mobile-chat-main-menu-drawer__current-user-action",
-		]) {
-			const block = readBlock(css, selector);
+		);
 
-			expect(block, selector).not.toBe("");
-			expect(block, selector).toContain("var(--astra-button-min-size)");
-		}
+		expect(actionButtonBlock).not.toBe("");
+		expect(actionButtonBlock).toContain("var(--astra-button-min-size)");
+		expect(currentUserActionBlock).not.toContain(
+			"var(--astra-button-min-size)",
+		);
 	});
 
 	test("does not keep removed main-menu drawer selector contracts", () => {

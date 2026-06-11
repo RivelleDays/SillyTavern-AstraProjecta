@@ -18,9 +18,10 @@
 
 - Treat the repository root as the canonical active working tree for AstraProjecta implementation, testing, build, commit, and handoff.
 - Run agent tooling, `git status`, `npm run build`, commits, and pushes from the repository root only.
-- For ordinary feature work, create or switch to the working branch from the repository root with `git switch -c codex/<topic>` or `git switch <branch>` before editing, so the user and agent are already on the branch that owns the changes.
-- Do not maintain a second writable checkout for the same repository under another path. If another filesystem entry is needed for convenience, make it a symlink or other pointer to this canonical working tree instead of a separate clone.
-- Use `git worktree` only for explicit parallel or isolation needs; do not create an auxiliary worktree merely to avoid switching the repository root to the task branch.
+- For ordinary feature work, stay on `main` in the repository root and commit or push directly from that branch.
+- Create or switch to a short-lived branch or auxiliary worktree only when the task explicitly needs risky experimentation, parallel work, or isolation.
+- Do not maintain a second writable checkout for the same repository under another path. If another filesystem entry is needed for convenience, it must be a symlink or other pointer to this canonical working tree instead of a separate clone.
+- Use `git worktree` only for explicit parallel or isolation needs; do not create an auxiliary worktree merely to avoid keeping the repository root on `main`.
 - If an auxiliary worktree is used, do not leave its branch locked away from the repository root when the user is expected to continue from the root. Before final handoff, either move the changes back to the root branch and detach or remove the auxiliary worktree, or explicitly state that the branch is checked out only at the worktree path and cannot also be checked out at the root.
 - Maintainers may keep machine-specific instructions in ignored `AGENTS.local.md`, using `AGENTS.local.example.md` as the public-safe template.
 
@@ -34,7 +35,8 @@
 
 - These git rules apply only inside this AstraProjecta repository and do not authorize git actions in a parent SillyTavern checkout.
 - Before any commit, inspect `git status`, check whether the working tree includes unrelated changes, and stop for scope clarification instead of guessing when the commit boundary is ambiguous.
-- Before handoff, run `git worktree list` when any auxiliary worktree was used, and confirm the active feature branch is not checked out by another worktree if the canonical root is supposed to use it.
+- Unless the task explicitly requires isolation, leave the canonical repository root on `main` tracking `origin/main` before handoff.
+- Before handoff, run `git worktree list` when any auxiliary worktree was used, and confirm no temporary branch remains checked out by another worktree when the canonical root is supposed to continue from `main`.
 - Before any commit, run `npm run build` from this repository and treat any warning or error as a blocker.
 - Only proceed to `git add` and `git commit` after the build finishes with zero warnings and zero errors.
 - Write the commit message on the user's behalf using a single-topic, readable conventional-style summary or concise imperative summary unless the user requests specific wording.
@@ -180,7 +182,7 @@ SillyTavern-AstraProjecta/
 - Confirm CSS-related tests protect structure, ownership, and interaction affordance contracts only, not hand-tuned visual values.
 - Confirm shared derived color tokens still use the canonical tint ramp and that new color token families document their intended usage scope.
 - Confirm server plugins and external frontend projects are still described as references, not required runtime dependencies.
-- Confirm the repository root remains the canonical active working tree, ordinary feature branches are created or switched there, and auxiliary worktrees are limited to explicit parallel or isolation needs.
-- Confirm auxiliary worktree handoff rules prevent a feature branch from staying locked away from the repository root unless that limitation is clearly reported.
+- Confirm the repository root remains the canonical active working tree, `main` remains the default development branch there, and any convenience path is only a symlink or pointer to that same checkout.
+- Confirm auxiliary worktrees remain limited to explicit parallel or isolation needs and do not replace `main` as the repository root's default working branch.
 - Confirm git workflow language keeps `git status` review, clean build-before-commit, and explicit authorization for push, merge, PR, and branch-deletion actions.
 - After every completed code change, run `npm run build` yourself and confirm the build finishes with zero warnings and zero errors before declaring success.

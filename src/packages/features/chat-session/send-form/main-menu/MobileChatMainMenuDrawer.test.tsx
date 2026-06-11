@@ -681,6 +681,15 @@ describe("MobileChatMainMenuDrawer", () => {
 			"Persona switch",
 			"Persona management",
 		]);
+		for (const button of actionButtons) {
+			expect(button).toHaveClass(
+				"mobile-chat-main-menu-drawer__action-button",
+			);
+			expect(button).toHaveClass(
+				"mobile-chat-main-menu-drawer__current-user-action",
+			);
+			expect(button).toHaveAttribute("data-size", "icon");
+		}
 		expect(actionButtons[0]).toBeDisabled();
 		expect(actionButtons[1]).toBeDisabled();
 		expect(actionButtons[2]).not.toBeDisabled();

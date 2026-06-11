@@ -687,7 +687,7 @@ export function MobileChatMainMenuDrawer({
 														className="mobile-chat-main-menu-drawer__action-button mobile-chat-main-menu-drawer__current-user-action rounded-full"
 														disabled={isDisabled}
 														key={key}
-														size="icon-sm"
+														size="icon"
 														type="button"
 														variant="outline"
 														onClick={() => {

@@ -923,13 +923,16 @@
 	}
 
 	.mobile-chat-main-menu-drawer__action-button {
-		width: var(--astra-button-min-size);
-		height: var(--astra-button-min-size);
 		color: var(--muted-foreground);
 		background: var(--surface-muted-t50);
 		opacity: 0.85;
 		border: 0;
 		box-shadow: none;
+	}
+
+	.mobile-chat-main-menu-drawer__action-button[data-slot="button"] {
+		width: var(--astra-button-min-size);
+		height: var(--astra-button-min-size);
 	}
 
 	.mobile-chat-main-menu-drawer__entity-name {
@@ -1378,16 +1381,6 @@
 
 	.mobile-chat-main-menu-drawer__current-user-actions {
 		margin-left: auto;
-	}
-
-	.mobile-chat-main-menu-drawer__current-user-action {
-		width: var(--astra-button-min-size);
-		height: var(--astra-button-min-size);
-		color: var(--muted-foreground);
-		background: var(--surface-muted-t50);
-		border: 0;
-		box-shadow: none;
-		opacity: 0.85;
 	}
 
 	.mobile-chat-main-menu-drawer__tile {
