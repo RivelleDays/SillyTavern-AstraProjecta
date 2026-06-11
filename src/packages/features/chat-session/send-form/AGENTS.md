@@ -1,14 +1,14 @@
 ## Purpose
 
 - Own the AstraProjecta mobile send-form host inside SillyTavern's single-chat input surface.
-- Keep textarea reparent/restore behavior, quick shortcut composition, and input-row UI together.
+- Keep textarea reparent/restore behavior, quick shortcut composition, native quick-reply wrapper bridging, and input-row UI together.
 
 ## Owned Paths / Responsibilities
 
 - The `contracts/` subfolder owns native send-form anchor ids, Astra host ids, drawer ids, storage keys, and shortcut descriptors.
-- The `host/` subfolder owns mount/unmount bootstrap and textarea reparent/restore lifecycle.
+- The `host/` subfolder owns mount/unmount bootstrap, native host ordering, and textarea reparent/restore lifecycle.
 - The `shell/` subfolder owns React view composition for the shortcuts row and input row.
-- The `bridges/` subfolder owns quick shortcut click-through, native options click-through, and shared send-form focus-release compatibility helpers.
+- The `bridges/` subfolder owns quick shortcut click-through, native quick-reply bar reparent/restore, native options click-through, and shared send-form focus-release compatibility helpers.
 - This feature owns the SillyTavern interface trigger wiring only; the panel shell, descriptors, ids, and route icons live under `src/packages/features/sillytavern-interface/`.
 - The `context-usage/` subfolder owns the shortcut popover surface and presentation helpers for context-usage summaries.
 - The `main-menu/` subfolder owns the current-chat drawer presentation and static tile metadata. Route SVG assets live under `src/packages/features/sillytavern-interface/icons/`.
@@ -18,8 +18,10 @@
 ## SillyTavern Touchpoints
 
 - Mount the shortcuts host inside `#form_sheld` before `#send_form`.
+- Mount the quick-reply host inside `#form_sheld` between the shortcuts host and `#send_form`.
 - Mount the input-row host inside `#send_form` before `#nonQRFormItems`.
 - Reparent `#send_textarea` only while mounted, and restore it before `#rightSendForm` on teardown.
+- Reparent native `#qr--bar` only while mounted, and restore it to its original parent/sibling ordering on teardown when the origin still exists.
 - Observe native shortcut/send-button visibility without mutating unrelated ST nodes.
 - Bridge the current-user chat settings override action through SillyTavern's existing `#char-management-dropdown #set_chat_character_settings` option for character chats and `#rm_group_scenario` button for group chats. Missing native targets must no-op.
 
@@ -27,7 +29,8 @@
 
 - Mount/unmount must stay idempotent.
 - Missing ST anchors must cleanly no-op.
-- Keep the top shortcuts zone and input-row zone as separate owned surfaces; only the input-row zone may own textarea reparenting.
+- Keep the top shortcuts zone, quick-reply zone, and input-row zone as separate owned surfaces; only the input-row zone may own textarea reparenting.
+- Treat `#qr--bar` as a native node owned by SillyTavern Quick Reply; Astra only provides the mobile wrapper host and restore-safe bridge.
 - Keep the legacy mobile DOM contract stable for the input row while this compatibility slice is active.
 - The current-chat drawer in this folder is presentation-only: it consumes the core current-chat identity store and must not rebuild identity resolution locally.
 - Do not move SillyTavern interface title/content logic back into send-form; this folder only opens and closes the SillyTavern interface surface.

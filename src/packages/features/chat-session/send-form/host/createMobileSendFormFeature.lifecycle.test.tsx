@@ -279,6 +279,9 @@ describe("createMobileSendFormFeature lifecycle", () => {
 			document.getElementById("mobile-send-form-shortcuts-host"),
 		).not.toBeInTheDocument();
 		expect(
+			document.getElementById("mobile-send-form-quick-reply-host"),
+		).not.toBeInTheDocument();
+		expect(
 			document.getElementById("mobile-send-form-input-row-host"),
 		).not.toBeInTheDocument();
 
@@ -306,6 +309,9 @@ describe("createMobileSendFormFeature lifecycle", () => {
 		await waitFor(() => {
 			expect(
 				document.getElementById("mobile-send-form-shortcuts-host"),
+			).toBeInTheDocument();
+			expect(
+				document.getElementById("mobile-send-form-quick-reply-host"),
 			).toBeInTheDocument();
 			expect(
 				document.getElementById("mobile-send-form-input-row-host"),
@@ -360,6 +366,9 @@ describe("createMobileSendFormFeature lifecycle", () => {
 				document.getElementById("mobile-send-form-shortcuts-host"),
 			).not.toBeInTheDocument();
 			expect(
+				document.getElementById("mobile-send-form-quick-reply-host"),
+			).not.toBeInTheDocument();
+			expect(
 				document.getElementById("mobile-send-form-input-row-host"),
 			).not.toBeInTheDocument();
 		});
@@ -381,6 +390,9 @@ describe("createMobileSendFormFeature lifecycle", () => {
 		await waitFor(() => {
 			expect(
 				document.getElementById("mobile-send-form-shortcuts-host"),
+			).toBeInTheDocument();
+			expect(
+				document.getElementById("mobile-send-form-quick-reply-host"),
 			).toBeInTheDocument();
 			expect(
 				document.getElementById("mobile-send-form-input-row-host"),
@@ -590,5 +602,108 @@ describe("createMobileSendFormFeature lifecycle", () => {
 		expect(currentChatInfoStore?.refresh).not.toHaveBeenCalled();
 
 		feature.dispose();
+	});
+
+	test("reparents a quick reply bar created after mount into the mobile quick reply host", async () => {
+		document.body.innerHTML = `
+      <div id="form_sheld">
+      <form id="send_form">
+        <div id="nonQRFormItems">
+          <textarea id="send_textarea"></textarea>
+          <div id="rightSendForm"></div>
+        </div>
+      </form>
+      </div>
+    `;
+
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+
+		const feature = createMobileSendFormFeature({ documentRef: document });
+		feature.mount();
+
+		const quickReplyHost = await waitFor(() => {
+			const element = document.getElementById(
+				"mobile-send-form-quick-reply-host",
+			);
+			expect(element).toBeInTheDocument();
+			return element as HTMLElement;
+		});
+		const sendForm = document.getElementById("send_form");
+		const nonQrFormItems = document.getElementById("nonQRFormItems");
+		if (!(sendForm instanceof HTMLElement)) {
+			throw new Error("expected native send form");
+		}
+
+		const quickReplyBar = document.createElement("div");
+		quickReplyBar.id = "qr--bar";
+		quickReplyBar.textContent = "Quick reply";
+		sendForm.insertBefore(quickReplyBar, nonQrFormItems);
+
+		await waitFor(() => {
+			expect(quickReplyBar.parentElement).toBe(quickReplyHost);
+		});
+
+		feature.dispose();
+	});
+
+	test("re-attaches replacement quick reply bars and restores the active bar on dispose", async () => {
+		document.body.innerHTML = `
+      <div id="form_sheld">
+      <form id="send_form">
+        <div id="qr--bar">Initial quick reply</div>
+        <div id="nonQRFormItems">
+          <textarea id="send_textarea"></textarea>
+          <div id="rightSendForm"></div>
+        </div>
+      </form>
+      </div>
+    `;
+
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+
+		const feature = createMobileSendFormFeature({ documentRef: document });
+		feature.mount();
+
+		const quickReplyHost = await waitFor(() => {
+			const element = document.getElementById(
+				"mobile-send-form-quick-reply-host",
+			);
+			expect(element).toBeInTheDocument();
+			return element as HTMLElement;
+		});
+		const sendForm = document.getElementById("send_form");
+		const nonQrFormItems = document.getElementById("nonQRFormItems");
+		const initialQuickReplyBar = document.getElementById("qr--bar");
+		if (
+			!(sendForm instanceof HTMLElement) ||
+			!(nonQrFormItems instanceof HTMLElement) ||
+			!(initialQuickReplyBar instanceof HTMLElement)
+		) {
+			throw new Error("expected native quick reply fixture");
+		}
+
+		await waitFor(() => {
+			expect(initialQuickReplyBar.parentElement).toBe(quickReplyHost);
+		});
+
+		initialQuickReplyBar.remove();
+
+		const replacementQuickReplyBar = document.createElement("div");
+		replacementQuickReplyBar.id = "qr--bar";
+		replacementQuickReplyBar.textContent = "Replacement quick reply";
+		sendForm.insertBefore(replacementQuickReplyBar, nonQrFormItems);
+
+		await waitFor(() => {
+			expect(replacementQuickReplyBar.parentElement).toBe(
+				quickReplyHost,
+			);
+		});
+
+		feature.dispose();
+
+		expect(replacementQuickReplyBar.parentElement).toBe(sendForm);
+		expect(replacementQuickReplyBar.nextElementSibling).toBe(
+			nonQrFormItems,
+		);
 	});
 });

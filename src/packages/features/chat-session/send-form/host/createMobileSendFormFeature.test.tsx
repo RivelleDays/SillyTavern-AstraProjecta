@@ -56,6 +56,9 @@ function setSillyTavernContext(context: unknown | { current: unknown }) {
 
 async function waitForSendFormHosts() {
 	return waitFor(() => {
+		const quickReplyHost = document.getElementById(
+			"mobile-send-form-quick-reply-host",
+		);
 		const shortcutsHost = document.getElementById(
 			"mobile-send-form-shortcuts-host",
 		);
@@ -63,11 +66,13 @@ async function waitForSendFormHosts() {
 			"mobile-send-form-input-row-host",
 		);
 
+		expect(quickReplyHost).toBeInTheDocument();
 		expect(shortcutsHost).toBeInTheDocument();
 		expect(inputRowHost).toBeInTheDocument();
 
 		return {
 			inputRowHost: inputRowHost as HTMLElement,
+			quickReplyHost: quickReplyHost as HTMLElement,
 			shortcutsHost: shortcutsHost as HTMLElement,
 		};
 	});
@@ -93,6 +98,7 @@ async function mountMainMenuFocusFixture() {
       <div id="user_avatar_block">
         <div class="avatar-container selected" data-avatar-id="hero-persona"></div>
       </div>
+      <div id="qr--bar"><button type="button">Quick reply</button></div>
       <div id="form_sheld">
       <form id="send_form">
         <div id="nonQRFormItems">
@@ -207,6 +213,7 @@ function setupChatSettingsOverrideFixture(
       </div>
       <div id="form_sheld">
       <form id="send_form">
+        <div id="qr--bar"><button type="button">Quick reply</button></div>
         <div id="nonQRFormItems">
           <textarea id="send_textarea"></textarea>
           <div id="rightSendForm">
@@ -400,10 +407,11 @@ describe("createMobileSendFormFeature", () => {
               </div>
             </div>
           </div>
-        </div>
+      </div>
       </div>
       <div id="form_sheld">
       <form id="send_form">
+        <div id="qr--bar"><button type="button">Quick reply</button></div>
         <div id="nonQRFormItems">
           <textarea id="send_textarea"></textarea>
           <div id="rightSendForm">
@@ -448,7 +456,8 @@ describe("createMobileSendFormFeature", () => {
 		const feature = createMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
-		const { inputRowHost, shortcutsHost } = await waitForSendFormHosts();
+		const { inputRowHost, quickReplyHost, shortcutsHost } =
+			await waitForSendFormHosts();
 
 		expect(
 			shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
@@ -463,7 +472,15 @@ describe("createMobileSendFormFeature", () => {
 			inputRowHost.querySelector(".mobile-send-form-input-row"),
 		).toBeInTheDocument();
 		expect(shortcutsHost.parentElement?.id).toBe("form_sheld");
-		expect(shortcutsHost.nextElementSibling?.id).toBe("send_form");
+		expect(shortcutsHost.nextElementSibling?.id).toBe(
+			"mobile-send-form-quick-reply-host",
+		);
+		expect(quickReplyHost.parentElement?.id).toBe("form_sheld");
+		expect(quickReplyHost.previousElementSibling?.id).toBe(
+			"mobile-send-form-shortcuts-host",
+		);
+		expect(quickReplyHost.nextElementSibling?.id).toBe("send_form");
+		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 		expect(inputRowHost.parentElement?.id).toBe("send_form");
 		expect(inputRowHost.nextElementSibling?.id).toBe("nonQRFormItems");
 
@@ -543,6 +560,7 @@ describe("createMobileSendFormFeature", () => {
       </div>
       <div id="form_sheld">
       <form id="send_form">
+        <div id="qr--bar"><button type="button">Quick reply</button></div>
         <div id="nonQRFormItems">
           <textarea id="send_textarea"></textarea>
           <div id="rightSendForm">
@@ -630,16 +648,29 @@ describe("createMobileSendFormFeature", () => {
 		feature.mount();
 		feature.mount();
 
-		const { inputRowHost, shortcutsHost } = await waitForSendFormHosts();
+		const { inputRowHost, quickReplyHost, shortcutsHost } =
+			await waitForSendFormHosts();
 
 		expect(shortcutsHost).toHaveClass("mobile-send-form-shortcuts-host");
 		expect(shortcutsHost.parentElement?.id).toBe("form_sheld");
-		expect(shortcutsHost.nextElementSibling?.id).toBe("send_form");
+		expect(shortcutsHost.nextElementSibling?.id).toBe(
+			"mobile-send-form-quick-reply-host",
+		);
+		expect(quickReplyHost).toHaveClass("mobile-send-form-quick-reply-host");
+		expect(quickReplyHost.parentElement?.id).toBe("form_sheld");
+		expect(quickReplyHost.previousElementSibling?.id).toBe(
+			"mobile-send-form-shortcuts-host",
+		);
+		expect(quickReplyHost.nextElementSibling?.id).toBe("send_form");
+		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 		expect(inputRowHost).toHaveClass("mobile-send-form-input-row-host");
 		expect(inputRowHost.parentElement?.id).toBe("send_form");
 		expect(inputRowHost.nextElementSibling?.id).toBe("nonQRFormItems");
 		expect(
 			document.querySelectorAll("#mobile-send-form-shortcuts-host"),
+		).toHaveLength(1);
+		expect(
+			document.querySelectorAll("#mobile-send-form-quick-reply-host"),
 		).toHaveLength(1);
 		expect(
 			shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
@@ -904,16 +935,23 @@ describe("createMobileSendFormFeature", () => {
 
 		feature.unmount();
 
+		const restoredQuickReplyBar = document.getElementById("qr--bar");
 		const restoredTextarea = document.getElementById("send_textarea");
 		const nonQrFormItems = document.getElementById("nonQRFormItems");
 		const rightSendForm = document.getElementById("rightSendForm");
+		const sendForm = document.getElementById("send_form");
 
 		expect(
 			document.getElementById("mobile-send-form-shortcuts-host"),
 		).not.toBeInTheDocument();
 		expect(
+			document.getElementById("mobile-send-form-quick-reply-host"),
+		).not.toBeInTheDocument();
+		expect(
 			document.getElementById("mobile-send-form-input-row-host"),
 		).not.toBeInTheDocument();
+		expect(restoredQuickReplyBar?.parentElement).toBe(sendForm);
+		expect(restoredQuickReplyBar?.nextElementSibling).toBe(nonQrFormItems);
 		expect(restoredTextarea?.parentElement).toBe(nonQrFormItems);
 		expect(restoredTextarea?.nextElementSibling).toBe(rightSendForm);
 

@@ -7597,6 +7597,17 @@
     min-width: 0;
     background: transparent;
   }
+  #form_sheld > #mobile-send-form-quick-reply-host {
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
+    background: transparent;
+  }
+  #mobile-send-form-quick-reply-host > #qr--bar {
+    width: 100%;
+    min-width: 0;
+  }
   #send_form > #mobile-send-form-input-row-host {
     box-sizing: border-box;
     flex: 0 0 100%;

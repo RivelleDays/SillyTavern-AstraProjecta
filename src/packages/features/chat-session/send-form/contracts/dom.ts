@@ -13,9 +13,12 @@ export const NATIVE_CHAT_CHARACTER_SETTINGS_OVERRIDE_OPTION_ID =
 export const NATIVE_GROUP_SCENARIO_BUTTON_ID = "rm_group_scenario";
 export const NATIVE_SEND_BUTTON_ID = "send_but";
 export const NATIVE_SEND_TEXTAREA_ID = "send_textarea";
+export const NATIVE_QUICK_REPLY_BAR_ID = "qr--bar";
 
 export const MOBILE_SEND_FORM_SHORTCUTS_HOST_ID =
 	"mobile-send-form-shortcuts-host";
+export const MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID =
+	"mobile-send-form-quick-reply-host";
 export const MOBILE_SEND_FORM_INPUT_ROW_HOST_ID =
 	"mobile-send-form-input-row-host";
 export const MOBILE_CHAT_MAIN_MENU_TRIGGER_ID = "mobile-chat-main-menu-trigger";

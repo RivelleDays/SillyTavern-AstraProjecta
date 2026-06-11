@@ -12,6 +12,7 @@ import { createPrimarySendActionStore } from "@/packages/core/st/primarySendActi
 import { createQuickShortcutStore } from "@/packages/core/st/quickShortcuts";
 import {
 	MOBILE_SEND_FORM_INPUT_ROW_HOST_ID,
+	MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID,
 	MOBILE_SEND_FORM_SHORTCUTS_HOST_ID,
 	NATIVE_FORM_SHELD_ID,
 	NATIVE_NON_QR_FORM_ITEMS_ID,
@@ -19,6 +20,10 @@ import {
 	NATIVE_SEND_FORM_ID,
 	NATIVE_SEND_TEXTAREA_ID,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
+import {
+	createNativeQuickReplyBarBridge,
+	type NativeQuickReplyBarBridge,
+} from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyBarBridge";
 import { SEND_FORM_SHORTCUTS } from "@/packages/features/chat-session/send-form/contracts/shortcuts";
 import { AstraMobileSendForm } from "@/packages/features/chat-session/send-form/shell/AstraMobileSendForm";
 
@@ -73,6 +78,8 @@ export function createMobileSendFormFeature({
 	documentRef?: Document;
 } = {}): MobileSendFormFeature {
 	let inputRowHost: HTMLDivElement | null = null;
+	let quickReplyBarBridge: NativeQuickReplyBarBridge | null = null;
+	let quickReplyHost: HTMLDivElement | null = null;
 	let root: Root | null = null;
 	let shortcutsHost: HTMLDivElement | null = null;
 	let managedTextarea: HTMLTextAreaElement | null = null;
@@ -214,13 +221,20 @@ export function createMobileSendFormFeature({
 	}
 
 	function mount() {
-		if (root && shortcutsHost?.isConnected && inputRowHost?.isConnected) {
+		if (
+			root &&
+			shortcutsHost?.isConnected &&
+			quickReplyHost?.isConnected &&
+			inputRowHost?.isConnected
+		) {
 			return;
 		}
 
 		if (
 			root &&
-			(!shortcutsHost?.isConnected || !inputRowHost?.isConnected)
+			(!shortcutsHost?.isConnected ||
+				!quickReplyHost?.isConnected ||
+				!inputRowHost?.isConnected)
 		) {
 			unmount();
 		}
@@ -244,6 +258,17 @@ export function createMobileSendFormFeature({
 			targets.formSheld.insertBefore(shortcutsHost, targets.sendForm);
 		}
 
+		quickReplyHost =
+			resolveHost(documentRef, MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID) ??
+			documentRef.createElement("div");
+		quickReplyHost.id = MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID;
+		quickReplyHost.className = "mobile-send-form-quick-reply-host";
+		markAstraProjectaUiRoot(quickReplyHost);
+
+		if (shortcutsHost.nextSibling !== quickReplyHost) {
+			targets.formSheld.insertBefore(quickReplyHost, shortcutsHost.nextSibling);
+		}
+
 		inputRowHost =
 			resolveHost(documentRef, MOBILE_SEND_FORM_INPUT_ROW_HOST_ID) ??
 			documentRef.createElement("div");
@@ -257,6 +282,11 @@ export function createMobileSendFormFeature({
 		) {
 			targets.sendForm.insertBefore(inputRowHost, targets.nonQrFormItems);
 		}
+
+		quickReplyBarBridge ??= createNativeQuickReplyBarBridge({
+			documentRef,
+		});
+		quickReplyBarBridge.attachTo(quickReplyHost);
 
 		if (!root) {
 			root = createRoot(shortcutsHost);
@@ -286,8 +316,13 @@ export function createMobileSendFormFeature({
 		restoreTextareaToNativeRow();
 		root?.unmount();
 		root = null;
+		quickReplyBarBridge?.restore();
+		quickReplyBarBridge?.dispose();
+		quickReplyBarBridge = null;
 		inputRowHost?.remove();
 		inputRowHost = null;
+		quickReplyHost?.remove();
+		quickReplyHost = null;
 		shortcutsHost?.remove();
 		shortcutsHost = null;
 		disposeStores();

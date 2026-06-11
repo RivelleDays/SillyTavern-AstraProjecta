@@ -48,8 +48,11 @@ describe("chat-send-form.css", () => {
 			"#form_sheld",
 			"#form_sheld::before",
 			"#mobile-send-form-shortcuts-host",
+			"#mobile-send-form-quick-reply-host",
 			"#mobile-send-form-input-row-host",
 			"#form_sheld > #mobile-send-form-shortcuts-host",
+			"#form_sheld > #mobile-send-form-quick-reply-host",
+			"#mobile-send-form-quick-reply-host > #qr--bar",
 			"#send_form > #mobile-send-form-input-row-host",
 		]);
 	});
