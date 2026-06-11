@@ -353,6 +353,7 @@ export interface I18nMessages {
 	"sendForm.options.action.impersonate": string;
 	"sendForm.options.action.manageChatFiles": string;
 	"sendForm.options.action.regenerate": string;
+	"sendForm.options.action.reloadPage": string;
 	"sendForm.options.action.saveCheckpoint": string;
 	"sendForm.options.action.startNewChat": string;
 	"sendForm.options.action.tokenProbabilities": string;

@@ -7733,7 +7733,8 @@
     border-radius: var(--radius-lg);
     background: var(--mobile-send-form-menu-surface);
     color: var(--foreground);
-    margin-left: -40px;
+    margin-left: -20px;
+    margin-bottom: 24px;
     opacity: 1;
     box-shadow: none;
   }
@@ -7744,8 +7745,8 @@
   }
   body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-header {
     display: block;
-    padding: 0 var(--mobile-send-form-menu-label-padding-inline);
-    margin-bottom: calc(var(--mobile-send-form-menu-section-gap) / 2);
+    padding-inline: var(--mobile-send-form-menu-label-padding-inline);
+    margin-top: calc(var(--mobile-send-form-menu-section-gap) / 2);
     color: var(--color-muted-t90);
     font-size: var(--mobile-send-form-menu-label-font-size);
     font-weight: var(--font-weight-medium);

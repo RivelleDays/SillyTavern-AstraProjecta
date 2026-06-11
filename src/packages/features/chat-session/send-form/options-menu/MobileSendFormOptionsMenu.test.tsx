@@ -341,4 +341,52 @@ describe("MobileSendFormOptionsMenu", () => {
 
 		expect(onShowShortcutsToolbarChange).toHaveBeenCalledWith(false);
 	});
+
+	test("clicking Reload Page triggers the page reload handler", async () => {
+		document.body.innerHTML = `
+      <div id="options">
+      </div>
+      <form id="send_form">
+        <div id="nonQRFormItems">
+          <textarea id="send_textarea"></textarea>
+        </div>
+      </form>
+    `;
+
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+
+		const reloadPageSpy = vi.fn();
+
+		setSillyTavernContext({
+			chatId: "chat-1",
+			chatMetadata: {},
+			groupId: "group-1",
+		});
+
+		const { container } = render(
+			<MobileSendFormOptionsMenu
+				documentRef={document}
+				onPageReload={reloadPageSpy}
+			/>,
+		);
+
+		const trigger = within(container).getByRole("button", { name: "Menu" });
+
+		fireEvent.pointerDown(trigger);
+		fireEvent.click(trigger);
+
+		const drawer = await waitFor(() => {
+			const element = document.getElementById(
+				"mobile-send-form-options-drawer",
+			);
+			expect(element).toBeInTheDocument();
+			return element as HTMLElement;
+		});
+
+		fireEvent.click(
+			within(drawer).getByRole("button", { name: "Reload Page" }),
+		);
+
+		expect(reloadPageSpy).toHaveBeenCalledTimes(1);
+	});
 });

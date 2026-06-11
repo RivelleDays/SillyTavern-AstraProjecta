@@ -129,14 +129,25 @@ function useMenuVersion(documentRef: Document) {
 	}, [documentRef]);
 }
 
+function reloadPage() {
+	window.location.reload();
+}
+
 async function triggerMenuAction({
 	action,
 	documentRef,
+	onPageReload,
 }: {
 	action: MobileSendFormMenuActionDescriptor;
 	documentRef: Document;
+	onPageReload: () => void;
 }) {
 	if (!action.isEnabled) {
+		return;
+	}
+
+	if (action.kind === "page-reload") {
+		onPageReload();
 		return;
 	}
 
@@ -185,11 +196,13 @@ async function triggerMenuAction({
 export function MobileSendFormOptionsMenu({
 	documentRef = document,
 	interactionBlocked = false,
+	onPageReload = reloadPage,
 	onShowShortcutsToolbarChange = () => {},
 	showShortcutsToolbar = true,
 }: {
 	documentRef?: Document;
 	interactionBlocked?: boolean;
+	onPageReload?: () => void;
 	onShowShortcutsToolbarChange?(nextValue: boolean): void;
 	showShortcutsToolbar?: boolean;
 }) {
@@ -207,10 +220,10 @@ export function MobileSendFormOptionsMenu({
 
 	const handleActionClick = React.useCallback(
 		async (action: MobileSendFormMenuActionDescriptor) => {
-			await triggerMenuAction({ action, documentRef });
+			await triggerMenuAction({ action, documentRef, onPageReload });
 			setIsOpen(false);
 		},
-		[documentRef],
+		[documentRef, onPageReload],
 	);
 
 	const handleOpenRequest = React.useCallback(() => {

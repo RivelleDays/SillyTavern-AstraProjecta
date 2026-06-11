@@ -5,6 +5,7 @@ import {
 	HatGlasses,
 	MessageCirclePlus,
 	MessageCircleX,
+	RefreshCcw,
 	RefreshCw,
 	Scale,
 	SendToBack,
@@ -52,6 +53,14 @@ type MenuActionSeed =
 			kind: "native-option";
 			labelKey: I18nKey;
 			nativeOptionId: string;
+			variant: MobileSendFormMenuActionDescriptor["variant"];
+	  }
+	| {
+			group: MobileSendFormMenuGroupKey;
+			icon: MobileSendFormMenuActionDescriptor["icon"];
+			key: MobileSendFormMenuActionDescriptor["key"];
+			kind: "page-reload";
+			labelKey: I18nKey;
 			variant: MobileSendFormMenuActionDescriptor["variant"];
 	  }
 	| {
@@ -184,6 +193,14 @@ const MENU_ACTIONS: readonly MenuActionSeed[] = [
 	},
 	{
 		group: "chat-session",
+		icon: RefreshCcw,
+		key: "reload_page",
+		kind: "page-reload",
+		labelKey: "sendForm.options.action.reloadPage",
+		variant: "default",
+	},
+	{
+		group: "chat-session",
 		icon: X,
 		key: "close_chat",
 		kind: "native-option",
@@ -262,8 +279,8 @@ function hasNativeOption(nativeOptionId: string, documentRef: Document) {
 }
 
 function hasVisibleNativeOption(nativeOptionId: string, documentRef: Document) {
-	return getNativeOptionElements(nativeOptionId, documentRef).some(
-		(element) => isElementVisible(element),
+	return getNativeOptionElements(nativeOptionId, documentRef).some((element) =>
+		isElementVisible(element),
 	);
 }
 
@@ -375,6 +392,10 @@ function resolveActionVisibility(
 		);
 	}
 
+	if (action.kind === "page-reload") {
+		return true;
+	}
+
 	switch (action.key) {
 		case "save_checkpoint":
 			return checkpoints.saveCheckpoint;
@@ -419,6 +440,19 @@ export function buildMobileSendFormMenuGroups({
 					kind: action.kind,
 					label: translateAstra(action.labelKey),
 					nativeOptionId: action.nativeOptionId,
+					variant: action.variant,
+				};
+			}
+
+			if (action.kind === "page-reload") {
+				return {
+					group: action.group,
+					icon: action.icon,
+					isEnabled,
+					isVisible,
+					key: action.key,
+					kind: action.kind,
+					label: translateAstra(action.labelKey),
 					variant: action.variant,
 				};
 			}

@@ -19,6 +19,7 @@ export type MobileSendFormMenuActionKey =
 	| "convert_to_group"
 	| "start_new_chat"
 	| "manage_chat_files"
+	| "reload_page"
 	| "close_chat"
 	| "delete_messages"
 	| "delete_chat";
@@ -38,6 +39,10 @@ export interface MobileSendFormNativeOptionAction extends MobileSendFormMenuActi
 	nativeOptionId: string;
 }
 
+export interface MobileSendFormPageReloadAction extends MobileSendFormMenuActionBase {
+	kind: "page-reload";
+}
+
 export interface MobileSendFormSlashCommandAction extends MobileSendFormMenuActionBase {
 	command: string;
 	confirmTitle: string;
@@ -47,6 +52,7 @@ export interface MobileSendFormSlashCommandAction extends MobileSendFormMenuActi
 
 export type MobileSendFormMenuActionDescriptor =
 	| MobileSendFormNativeOptionAction
+	| MobileSendFormPageReloadAction
 	| MobileSendFormSlashCommandAction;
 
 export interface MobileSendFormMenuGroupDescriptor {

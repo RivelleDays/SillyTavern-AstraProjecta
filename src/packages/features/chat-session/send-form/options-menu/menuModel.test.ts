@@ -156,6 +156,42 @@ describe("buildMobileSendFormMenuGroups", () => {
 		expect(promptPanelsGroup?.actions[0]?.isEnabled).toBe(true);
 	});
 
+	test("places reload page before close chat and keeps it visible without native reload controls", () => {
+		renderOptions([{ id: "option_close_chat" }]);
+
+		setSillyTavernContext({
+			chatId: "chat-1",
+			chatMetadata: {},
+			groupId: "group-1",
+		});
+
+		const visibleGroups = buildMobileSendFormMenuGroups({
+			documentRef: document,
+		});
+		const visibleChatSessionGroup = visibleGroups.find(
+			(group) => group.key === "chat-session",
+		);
+
+		expect(
+			visibleChatSessionGroup?.actions.map((action) => action.key),
+		).toEqual(["reload_page", "close_chat"]);
+
+		renderOptions([]);
+
+		const noNativeReloadGroups = buildMobileSendFormMenuGroups({
+			documentRef: document,
+		});
+		const noNativeReloadChatSessionGroup = noNativeReloadGroups.find(
+			(group) => group.key === "chat-session",
+		);
+
+		expect(
+			noNativeReloadChatSessionGroup?.actions.map(
+				(action) => action.key,
+			),
+		).toEqual(["reload_page"]);
+	});
+
 	test("translates group labels, action labels, and confirm copy through Astra i18n keys", () => {
 		renderOptions([
 			{ id: "option_toggle_AN" },
@@ -191,6 +227,11 @@ describe("buildMobileSendFormMenuGroups", () => {
 		expect(promptPanelsGroup?.actions[0]?.label).toBe(
 			"sendForm.options.action.authorNote::Author's Note",
 		);
+		expect(
+			groups
+				.find((group) => group.key === "chat-session")
+				?.actions.find((action) => action.key === "reload_page")?.label,
+		).toBe("sendForm.options.action.reloadPage::Reload Page");
 		expect(deleteChatAction?.label).toBe(
 			"sendForm.options.action.deleteChat::Delete chat",
 		);
