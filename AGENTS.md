@@ -18,11 +18,11 @@
 
 - Treat the repository root as the canonical active working tree for AstraProjecta implementation, testing, build, commit, and handoff.
 - Run agent tooling, `git status`, `npm run build`, commits, and pushes from the repository root only.
-- For ordinary feature work, stay on `main` in the repository root and commit or push directly from that branch.
-- Create or switch to a short-lived branch or auxiliary worktree only when the task explicitly needs risky experimentation, parallel work, or isolation.
+- For ordinary feature, bugfix, documentation, and refactor work, create or switch to a short-lived branch from the repository root before editing, typically with `git switch -c codex/<topic>` or `git switch <existing-branch>`.
+- Use the canonical repository root as the active working tree for that task branch; do not keep the root pinned to `main` merely to preserve isolation.
 - Do not maintain a second writable checkout for the same repository under another path. If another filesystem entry is needed for convenience, it must be a symlink or other pointer to this canonical working tree instead of a separate clone.
-- Use `git worktree` only for explicit parallel or isolation needs; do not create an auxiliary worktree merely to avoid keeping the repository root on `main`.
-- If an auxiliary worktree is used, do not leave its branch locked away from the repository root when the user is expected to continue from the root. Before final handoff, either move the changes back to the root branch and detach or remove the auxiliary worktree, or explicitly state that the branch is checked out only at the worktree path and cannot also be checked out at the root.
+- Use `git worktree` only for explicit parallel or high-risk isolation needs; treat it as a supplement to the root short-lived-branch workflow rather than the default way to isolate work.
+- If an auxiliary worktree is used, do not leave its branch locked away from the repository root when the user is expected to continue from the root. Before final handoff, either move the changes back to a root-usable branch and detach or remove the auxiliary worktree, or explicitly state that the branch is checked out only at the worktree path and cannot be switched to from the root until the worktree releases it.
 - Maintainers may keep machine-specific instructions in ignored `AGENTS.local.md`, using `AGENTS.local.example.md` as the public-safe template.
 
 ## Public vs Local Agent Instructions
@@ -35,8 +35,9 @@
 
 - These git rules apply only inside this AstraProjecta repository and do not authorize git actions in a parent SillyTavern checkout.
 - Before any commit, inspect `git status`, check whether the working tree includes unrelated changes, and stop for scope clarification instead of guessing when the commit boundary is ambiguous.
-- Unless the task explicitly requires isolation, leave the canonical repository root on `main` tracking `origin/main` before handoff.
-- Before handoff, run `git worktree list` when any auxiliary worktree was used, and confirm no temporary branch remains checked out by another worktree when the canonical root is supposed to continue from `main`.
+- Before handoff, report the current branch, whether it is ahead of `main`, and whether it appears ready to merge back into `main`.
+- When the task appears complete, explicitly state whether the branch is a candidate to merge into `main` and whether it can be deleted after that merge. Reporting merge readiness is allowed; performing `git merge`, `git push`, opening pull requests, or deleting branches still requires explicit authorization.
+- Before handoff, run `git worktree list` when any auxiliary worktree was used, and confirm no worktree-owned branch remains checked out in a way that blocks later merge, switch, or cleanup from the canonical root.
 - Before any commit, run `npm run build` from this repository and treat any warning or error as a blocker.
 - Only proceed to `git add` and `git commit` after the build finishes with zero warnings and zero errors.
 - Write the commit message on the user's behalf using a single-topic, readable conventional-style summary or concise imperative summary unless the user requests specific wording.
@@ -182,7 +183,8 @@ SillyTavern-AstraProjecta/
 - Confirm CSS-related tests protect structure, ownership, and interaction affordance contracts only, not hand-tuned visual values.
 - Confirm shared derived color tokens still use the canonical tint ramp and that new color token families document their intended usage scope.
 - Confirm server plugins and external frontend projects are still described as references, not required runtime dependencies.
-- Confirm the repository root remains the canonical active working tree, `main` remains the default development branch there, and any convenience path is only a symlink or pointer to that same checkout.
-- Confirm auxiliary worktrees remain limited to explicit parallel or isolation needs and do not replace `main` as the repository root's default working branch.
-- Confirm git workflow language keeps `git status` review, clean build-before-commit, and explicit authorization for push, merge, PR, and branch-deletion actions.
+- Confirm the repository root remains the canonical active working tree, ordinary work starts on a short-lived branch there, and any convenience path is only a symlink or pointer to that same checkout.
+- Confirm auxiliary worktrees remain limited to explicit parallel or isolation needs and do not replace the root short-lived-branch workflow as the default way to isolate work.
+- Confirm handoff language requires explicit reporting of the current branch, merge readiness, and post-merge branch deletion candidacy while preserving authorization gates for push, merge, PR, and branch deletion.
+- Confirm git workflow language keeps `git status` review and clean build-before-commit requirements.
 - After every completed code change, run `npm run build` yourself and confirm the build finishes with zero warnings and zero errors before declaring success.
