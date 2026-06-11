@@ -87,15 +87,15 @@ describe("createMobileChatTopBarFeature main interface close wiring", () => {
 
 		await waitFor(() => {
 			expect(
-				screen.queryByRole("dialog", { name: "Main UI" }),
-			).not.toBeInTheDocument();
+				document.getElementById("mobile-astra-main-interface-panel"),
+			).toHaveAttribute("data-state", "closed");
+			expect(
+				document.getElementById("mobile-astra-main-interface-panel"),
+			).toHaveAttribute("inert");
 		});
 		expect(
 			document.getElementById("mobile-astra-main-interface-panel"),
-		).toHaveAttribute("data-state", "closed");
-		expect(
-			document.getElementById("mobile-astra-main-interface-panel"),
-		).toHaveAttribute("aria-hidden", "true");
+		).not.toHaveAttribute("aria-hidden");
 
 		act(() => {
 			feature.dispose();

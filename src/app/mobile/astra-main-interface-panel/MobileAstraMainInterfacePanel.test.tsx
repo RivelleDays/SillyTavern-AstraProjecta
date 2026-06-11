@@ -180,9 +180,15 @@ describe("MobileAstraMainInterfacePanel", () => {
 
 		await waitFor(() => {
 			expect(
-				screen.queryByRole("dialog", { name: "Main UI" }),
-			).not.toBeInTheDocument();
+				document.getElementById(MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID),
+			).toHaveAttribute("data-state", "closed");
+			expect(
+				document.getElementById(MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID),
+			).toHaveAttribute("inert");
 		});
+		expect(
+			document.getElementById(MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID),
+		).not.toHaveAttribute("aria-hidden");
 
 		fireEvent.click(
 			screen.getByRole("button", { name: "Open main interface" }),
