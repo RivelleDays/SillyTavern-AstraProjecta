@@ -77,6 +77,9 @@ export function MobileChatContextUsageShortcut({
 	const fieldPersonaDescription = translateAstra(
 		"sendForm.contextUsage.field.personaDescription",
 	);
+	const fieldOtherPrompt = translateAstra(
+		"sendForm.contextUsage.field.otherPrompt",
+	);
 	const fieldContextUsed = translateAstra(
 		"sendForm.contextUsage.field.contextUsed",
 	);
@@ -188,6 +191,12 @@ export function MobileChatContextUsageShortcut({
 								label={fieldPersonaDescription}
 								value={formatContextUsageTokenCount(
 									snapshot.personaTokens,
+								)}
+							/>
+							<ContextUsageTextRow
+								label={fieldOtherPrompt}
+								value={formatContextUsageTokenCount(
+									snapshot.otherPromptTokens,
 								)}
 							/>
 						</div>

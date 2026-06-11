@@ -21,6 +21,7 @@ type ChatContextUsageDetailedBreakdown = {
 	worldInfoTokens: number | null;
 	characterTokens: number | null;
 	personaTokens: number | null;
+	otherPromptTokens: number | null;
 	hasDetailedBreakdown: boolean;
 };
 
@@ -159,6 +160,7 @@ function createEmptyDetailedBreakdown(): ChatContextUsageDetailedBreakdown {
 		characterTokens: null,
 		chatHistoryTokens: null,
 		hasDetailedBreakdown: false,
+		otherPromptTokens: null,
 		personaTokens: null,
 		worldInfoTokens: null,
 	};
@@ -202,6 +204,18 @@ function parseTokenInteger(value: unknown): number | null {
 	}
 
 	return parseNonNegativeInteger(normalized);
+}
+
+function calculateOtherPromptTokens(
+	usedPromptTokens: number,
+	knownPromptTokens: Array<number | null>,
+): number {
+	const knownPromptTotal = knownPromptTokens.reduce(
+		(total, tokenCount) => total + (tokenCount ?? 0),
+		0,
+	);
+
+	return Math.max(0, usedPromptTokens - knownPromptTotal);
 }
 
 function readHasPreparedContext(documentRef: Document | null): boolean {
@@ -308,6 +322,7 @@ function areSnapshotsSemanticallyEqual(
 			nextSnapshot.hasPreparedContext &&
 		currentSnapshot.mainApi === nextSnapshot.mainApi &&
 		currentSnapshot.maxContextTokens === nextSnapshot.maxContextTokens &&
+		currentSnapshot.otherPromptTokens === nextSnapshot.otherPromptTokens &&
 		currentSnapshot.personaTokens === nextSnapshot.personaTokens &&
 		currentSnapshot.promptBudgetTokens ===
 			nextSnapshot.promptBudgetTokens &&
@@ -349,6 +364,7 @@ function createSnapshotFromExistingUsage({
 				characterTokens: snapshot.characterTokens,
 				chatHistoryTokens: snapshot.chatHistoryTokens,
 				hasDetailedBreakdown: snapshot.hasDetailedBreakdown,
+				otherPromptTokens: snapshot.otherPromptTokens,
 				personaTokens: snapshot.personaTokens,
 				worldInfoTokens: snapshot.worldInfoTokens,
 			},
@@ -409,18 +425,29 @@ async function readPromptManagerUsageSnapshot({
 			return null;
 		}
 
+		const characterTokens =
+			readCountValue(rawCounts, "charDescription") +
+			readCountValue(rawCounts, "charPersonality") +
+			readCountValue(rawCounts, "scenario");
+		const chatHistoryTokens = readCountValue(rawCounts, "chatHistory");
+		const personaTokens = readCountValue(rawCounts, "personaDescription");
+		const worldInfoTokens =
+			readCountValue(rawCounts, "worldInfoBefore") +
+			readCountValue(rawCounts, "worldInfoAfter");
+
 		return {
-			characterTokens:
-				readCountValue(rawCounts, "charDescription") +
-				readCountValue(rawCounts, "charPersonality") +
-				readCountValue(rawCounts, "scenario"),
-			chatHistoryTokens: readCountValue(rawCounts, "chatHistory"),
+			characterTokens,
+			chatHistoryTokens,
 			hasDetailedBreakdown: true,
-			personaTokens: readCountValue(rawCounts, "personaDescription"),
+			otherPromptTokens: calculateOtherPromptTokens(usedPromptTokens, [
+				characterTokens,
+				chatHistoryTokens,
+				personaTokens,
+				worldInfoTokens,
+			]),
+			personaTokens,
 			usedPromptTokens,
-			worldInfoTokens:
-				readCountValue(rawCounts, "worldInfoBefore") +
-				readCountValue(rawCounts, "worldInfoAfter"),
+			worldInfoTokens,
 		};
 	} catch {
 		return null;
@@ -486,21 +513,38 @@ function readNativePromptManagerUsageSnapshot(
 		return null;
 	}
 
+	const characterTokens =
+		readNativePromptManagerCount(counts, "charDescription") +
+		readNativePromptManagerCount(counts, "charPersonality") +
+		readNativePromptManagerCount(counts, "scenario");
+	const chatHistoryTokens = readNativePromptManagerCount(
+		counts,
+		"chatHistory",
+	);
+	const hasDetailedBreakdown = counts.size > 0;
+	const personaTokens = readNativePromptManagerCount(
+		counts,
+		"personaDescription",
+	);
+	const worldInfoTokens =
+		readNativePromptManagerCount(counts, "worldInfoBefore") +
+		readNativePromptManagerCount(counts, "worldInfoAfter");
+
 	return {
-		characterTokens:
-			readNativePromptManagerCount(counts, "charDescription") +
-			readNativePromptManagerCount(counts, "charPersonality") +
-			readNativePromptManagerCount(counts, "scenario"),
-		chatHistoryTokens: readNativePromptManagerCount(counts, "chatHistory"),
-		hasDetailedBreakdown: counts.size > 0,
-		personaTokens: readNativePromptManagerCount(
-			counts,
-			"personaDescription",
-		),
+		characterTokens,
+		chatHistoryTokens,
+		hasDetailedBreakdown,
+		otherPromptTokens: hasDetailedBreakdown
+			? calculateOtherPromptTokens(usedPromptTokens, [
+					characterTokens,
+					chatHistoryTokens,
+					personaTokens,
+					worldInfoTokens,
+				])
+			: null,
+		personaTokens,
 		usedPromptTokens,
-		worldInfoTokens:
-			readNativePromptManagerCount(counts, "worldInfoBefore") +
-			readNativePromptManagerCount(counts, "worldInfoAfter"),
+		worldInfoTokens,
 	};
 }
 

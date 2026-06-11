@@ -261,6 +261,7 @@ export interface I18nMessages {
 	"sendForm.contextUsage.field.characterDescription": string;
 	"sendForm.contextUsage.field.chatHistory": string;
 	"sendForm.contextUsage.field.contextUsed": string;
+	"sendForm.contextUsage.field.otherPrompt": string;
 	"sendForm.contextUsage.field.personaDescription": string;
 	"sendForm.contextUsage.field.promptUsed": string;
 	"sendForm.contextUsage.field.responseReserve": string;

@@ -22,6 +22,7 @@ function createSnapshot(
 		hasPreparedContext: true,
 		mainApi: "openai",
 		maxContextTokens: 8192,
+		otherPromptTokens: null,
 		personaTokens: null,
 		promptBudgetTokens: 7168,
 		reservedResponseTokens: 1024,
@@ -240,7 +241,7 @@ describe("MobileChatContextUsageShortcut", () => {
 		).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				"sendForm.contextUsage.field.promptUsed::Prompt Used",
+				"sendForm.contextUsage.field.promptUsed::Prompt Manager Total",
 			),
 		).toBeInTheDocument();
 		expect(
@@ -253,7 +254,7 @@ describe("MobileChatContextUsageShortcut", () => {
 			"sendForm.contextUsage.field.responseReserve::Response Reserve",
 		);
 		const promptUsed = screen.getByText(
-			"sendForm.contextUsage.field.promptUsed::Prompt Used",
+			"sendForm.contextUsage.field.promptUsed::Prompt Manager Total",
 		);
 
 		expect(
@@ -284,5 +285,48 @@ describe("MobileChatContextUsageShortcut", () => {
 
 		expect(trigger).toHaveClass("is-full");
 		expect(trigger).toHaveTextContent("100%");
+	});
+
+	test("renders live Prompt Manager totals with uncategorized prompt tokens", async () => {
+		setSillyTavernContext({
+			translate: (text: string, key: string) => `${key}::${text}`,
+		});
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+
+		render(
+			<MobileChatContextUsageShortcut
+				snapshot={createSnapshot({
+					characterTokens: 750,
+					chatHistoryTokens: 1805,
+					hasDetailedBreakdown: true,
+					otherPromptTokens: 373,
+					personaTokens: 0,
+					status: "ready",
+					usagePercent: 50,
+					usedContextTokens: 4976,
+					usedPromptTokens: 2928,
+					worldInfoTokens: 0,
+				})}
+			/>,
+		);
+
+		fireEvent.click(
+			screen.getByRole("button", {
+				name: "sendForm.contextUsage.trigger.open::Open context usage details",
+			}),
+		);
+
+		expect(
+			await screen.findByText(
+				"sendForm.contextUsage.field.otherPrompt::Other Prompt",
+			),
+		).toBeInTheDocument();
+		expect(screen.getByText("373")).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				"sendForm.contextUsage.field.promptUsed::Prompt Manager Total",
+			),
+		).toBeInTheDocument();
+		expect(screen.getByText("2,928 / 7,168")).toBeInTheDocument();
 	});
 });
