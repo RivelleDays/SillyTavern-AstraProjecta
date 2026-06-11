@@ -7738,7 +7738,7 @@
   }
   body.astra-projecta-mobile-layout .ctx-item + .ctx-header {
     margin-top: var(--mobile-send-form-menu-section-gap);
-    padding-top: var(--mobile-send-form-menu-section-gap) !important;
+    padding-top: var(--mobile-send-form-menu-section-gap);
     border-top: 1px solid	var(--mobile-send-form-menu-section-separator-color);
   }
   body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-header {
@@ -7780,7 +7780,7 @@
     margin: 0;
   }
   body.astra-projecta-mobile-layout .ctx-item .qr--button-icon.qr--hidden {
-    display: none !important;
+    display: none;
   }
   body.astra-projecta-mobile-layout .ctx-item .qr--button-label {
     display: block;
