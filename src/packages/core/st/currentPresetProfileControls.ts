@@ -529,10 +529,15 @@ async function readCurrentCommandValue(
 	context: StContextLike | null,
 	commandName: string,
 ): Promise<string | null> {
-	// ST logs a fallback message when /preset is called without a name, so
-	// read the live preset from sync settings instead of probing the command.
-	if (commandName === "preset") {
-		return readCurrentPresetValue(context);
+	// Background authority checks must stay read-only. These values are
+	// exposed synchronously by ST context, while slash command callbacks may
+	// emit settings updates even when called as probes.
+	if (
+		commandName === "api" ||
+		commandName === "preset" ||
+		commandName === "model"
+	) {
+		return readCurrentCommandValueFallback(context, commandName);
 	}
 
 	const command = context?.SlashCommandParser?.commands?.[commandName];
@@ -768,7 +773,6 @@ export function createCurrentPresetProfileControlsStore({
 		eventTypes.PRESET_CHANGED,
 		eventTypes.PRESET_DELETED,
 		eventTypes.PRESET_RENAMED,
-		eventTypes.SETTINGS_UPDATED,
 	].filter((eventName): eventName is string => typeof eventName === "string");
 
 	if (eventSource) {

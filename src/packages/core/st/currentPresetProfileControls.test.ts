@@ -220,6 +220,51 @@ describe("currentPresetProfileControls", () => {
 		store.dispose();
 	});
 
+	test("does not probe slash commands when settings updates refresh selected profile authority", async () => {
+		const { context, eventSource, liveValues } =
+			createConnectedProfileContext();
+		setSillyTavernContext(context);
+
+		let emittedSettingsUpdates = 0;
+		const emitSettingsUpdated = () => {
+			if (emittedSettingsUpdates >= 2) {
+				return;
+			}
+
+			emittedSettingsUpdates += 1;
+			eventSource.emit("settings_updated");
+		};
+		const apiCallback = vi.fn(async () => {
+			emitSettingsUpdated();
+			return liveValues.api;
+		});
+		const modelCallback = vi.fn(async () => {
+			emitSettingsUpdated();
+			return liveValues.model;
+		});
+
+		context.SlashCommandParser.commands.api.callback = apiCallback;
+		context.SlashCommandParser.commands.model.callback = modelCallback;
+
+		const store = createCurrentPresetProfileControlsStore();
+		await waitForAssertion(() => {
+			expect(store.getSnapshot().connectionProfiles.authority).toBe(
+				"attached",
+			);
+		});
+
+		expect(apiCallback).not.toHaveBeenCalled();
+		expect(modelCallback).not.toHaveBeenCalled();
+
+		eventSource.emit("settings_updated");
+		await flushMicrotasks();
+
+		expect(apiCallback).not.toHaveBeenCalled();
+		expect(modelCallback).not.toHaveBeenCalled();
+
+		store.dispose();
+	});
+
 	test("marks the selected connection profile as detached when a native preset change drifts the live settings away from it", async () => {
 		const { context, eventSource, liveValues } =
 			createConnectedProfileContext();
