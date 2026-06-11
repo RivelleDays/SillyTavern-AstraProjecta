@@ -1,7 +1,7 @@
 # SillyTavern-AstraProjecta
 
 <p align="left">
-  <img src="https://img.shields.io/badge/release-alpha-51A0DE?style=for-the-badge&labelColor=000000" alt="Release: Alpha">
+  <a href="https://github.com/RivelleDays/SillyTavern-AstraProjecta/commits/main/"><img src="https://img.shields.io/badge/release-alpha-51A0DE?style=for-the-badge&labelColor=000000" alt="Release: Alpha"></a>
   <a href="https://github.com/SillyTavern/SillyTavern/releases/"><img src="https://img.shields.io/badge/required%20ST%20version-1.18.0%2B-darkred?style=for-the-badge&labelColor=000000&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAABRFBMVEVHcEyEGxubFhafFRWfFRWeFBSaFhaWFRWfFRWfFRWOFhaeFRWeFBSeFBSfFRWfFRWdFRWbFBSfFBSfFBSdFRWeExOfFBSfFRWdFBSfFRWfFRWfGxudFRWeFBSTFRWeFRWeFRWfFRWcFhaeFRWfFRWeFRWfFRWfFRWeFRWeFRWeFRWgFBSgFRWfFRWfFRWgFRX26ur4+Pj9+/ugFBT9/v6fFRWtOzueFRWeFRWgFRX///+fFRX6+/vXo6OfFBSrODj6/PzIenr28PD+/f2gFRX06ur17e3dr6+rMzPTlJS5VVW+ZGT9/v7y39/y6OioMTHx//+1Skrrz8+qMDD7+/v7/Pzq0tLkvb22UVHHe3v4+Pi3WFjIgoL4+PjNjIy5XFyuQEDmzMzZpKThubn8/Py+YWHz8/P8/Pz9//+gFRX////36+tJcu2kAAAAaXRSTlMAARDDqIkMB8qyAzqXUrnQGROErSmd1o41pL4iL2oFTFiTHYt5ccZ1PF1G6ONj2/z1gv1n32CkQz/t7ceYYH+KqdZT5fSoY+XbwLSH1u8elxi8+OmeqJ78nTmbXBds8WlWNc+EwcovuYtEjPKpAAACkklEQVQ4y3VTZXfbQBBcwYlZlmSRLdmWmRpwqGFOw1BmPvf/f+/JeU3ipr0Pp/d2VzszO7cAJfj/oXiAxK5xFEU9TkoSxa1pLejggcayrMVNp2lk26w2wEvg4iUry7IATUGVPG12tlfrYB2iWjmPFJjGAxiqwYT5dyEr3MVkoUWZhgTAF0K+JRQfkyrrvhYoYcTWGVEvT/EpF/PudIAKBRTU18LQYswcR1bNiRxv0JXzDjYRzWsiIcuzKgk0OzglkMDVMW4QDiteXu5VJ7dLMBoYMxPxLV0QUk9zRK6SAEIwX+FEL0hTgRGSW00mXXY6Ce8oaw5UETiWokhqN21z9D3RUDMKH0dXo/Ozs/PRwfqbV5UgnNKodtHmydxwOPf+Mr+HJy87rT8ie5kBoLhXw/HXm5uNzf2N4/Hcxu6B6wAYtZiGxgBryNOdi+Xl70ABqsKT8WsKqr7rpAwe1ABhLCDPjT9sj39cX/88QqTgqRm1Yx1ZZAAWhKlPDElZ9vP28szM+HI9L1ADUbSIg061QlTmc252Z+nTTxer27+e5QW82evmdt0bLItvt7a2vn1ZnhTsloAXF++8pznVsu3T4xlyxi/Wqefj/UyibNFSOZq0oGKdERR/JVzd3Ht3eDhC8dHeqhZVGEcRGD2mwHAxbkEJ2Y4CUCmiapHw8lg2IyZh7BrA2bhPZHCJ6OeUFD+HVZRFYnShj21ip5FEEy4VTS1JbUZQeV71b22KEuOBHZzYZ1mx3WRZ3/X/sU2SFRTbbfIHXYyK9YdPnF+cPMlYiO5jTT33UpKbeadspxPLcqwvTNmvz8tyY2mnR+bAYtxnmHoyjdhbYZguxspkHwKZNum/1pcioYW6MJm3Yf5v+02S+Q13BVQ4NCDLNAAAAABJRU5ErkJggg==" alt="Required ST version: 1.18.0+"></a>
 </p>
 
@@ -32,7 +32,7 @@ AstraProjecta currently focuses on refining SillyTavern’s core chat experience
   <tr>
     <th width="25%">Chat View</th>
     <th width="25%">Main Drawer</th>
-    <th width="25%">ST Main Menu</th>
+    <th width="25%">ST Menu</th>
     <th width="25%">Message Details</th>
   </tr>
   <tr>
@@ -80,7 +80,7 @@ After installation, please make sure your environment follows the [Requirements]
   <tr>
     <td width="260" align="left" valign="middle">
       <a href="https://discord.gg/bb35eB5Zgr">
-        <img src="https://img.shields.io/badge/Join%20our%20Discord-AstraRiver-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=000000" alt="Join our Discord: AstraRiver" height="32">
+        <img src="https://img.shields.io/badge/Discord-AstraRiver-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=000000" alt="Join our Discord: AstraRiver" height="32">
       </a>
     </td>
     <td valign="middle">
