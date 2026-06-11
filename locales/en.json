@@ -366,6 +366,8 @@
 	"sendForm.primaryAction.continue": "Continue the last message",
 	"sendForm.primaryAction.send": "Send a message",
 	"sendForm.primaryAction.stop": "Abort request",
+	"sendForm.quickReply.hide": "Hide quick replies",
+	"sendForm.quickReply.show": "Show quick replies",
 	"sendForm.shortcuts.continue": "Continue the last message",
 	"sendForm.shortcuts.impersonate": "Ask AI to write your message for you",
 	"sendForm.shortcuts.toolbar": "Chat shortcuts",

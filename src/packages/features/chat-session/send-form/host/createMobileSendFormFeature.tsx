@@ -24,6 +24,7 @@ import {
 	createNativeQuickReplyBarBridge,
 	type NativeQuickReplyBarBridge,
 } from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyBarBridge";
+import { createNativeQuickReplyEnabledStore } from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyEnabledStore";
 import { SEND_FORM_SHORTCUTS } from "@/packages/features/chat-session/send-form/contracts/shortcuts";
 import { AstraMobileSendForm } from "@/packages/features/chat-session/send-form/shell/AstraMobileSendForm";
 
@@ -106,6 +107,9 @@ export function createMobileSendFormFeature({
 	> | null = null;
 	let quickShortcutStore: ReturnType<typeof createQuickShortcutStore> | null =
 		null;
+	let quickReplyEnabledStore: ReturnType<
+		typeof createNativeQuickReplyEnabledStore
+	> | null = null;
 
 	function resolveManagedTextarea() {
 		const textarea = documentRef.getElementById(NATIVE_SEND_TEXTAREA_ID);
@@ -188,6 +192,9 @@ export function createMobileSendFormFeature({
 			descriptors: SEND_FORM_SHORTCUTS,
 			documentRef,
 		});
+		quickReplyEnabledStore ??= createNativeQuickReplyEnabledStore({
+			documentRef,
+		});
 
 		return {
 			chatContextUsageStore,
@@ -197,6 +204,7 @@ export function createMobileSendFormFeature({
 			currentPresetProfileControlsStore,
 			currentUserAvatarStore,
 			primarySendActionStore,
+			quickReplyEnabledStore,
 			quickShortcutStore,
 		};
 	}
@@ -209,6 +217,7 @@ export function createMobileSendFormFeature({
 		currentPresetProfileControlsStore?.dispose();
 		currentUserAvatarStore?.dispose();
 		primarySendActionStore?.dispose();
+		quickReplyEnabledStore?.dispose();
 		quickShortcutStore?.dispose();
 		chatContextUsageStore = null;
 		currentConnectionInfoStore = null;
@@ -217,6 +226,7 @@ export function createMobileSendFormFeature({
 		currentPresetProfileControlsStore = null;
 		currentUserAvatarStore = null;
 		primarySendActionStore = null;
+		quickReplyEnabledStore = null;
 		quickShortcutStore = null;
 	}
 
@@ -266,7 +276,10 @@ export function createMobileSendFormFeature({
 		markAstraProjectaUiRoot(quickReplyHost);
 
 		if (shortcutsHost.nextSibling !== quickReplyHost) {
-			targets.formSheld.insertBefore(quickReplyHost, shortcutsHost.nextSibling);
+			targets.formSheld.insertBefore(
+				quickReplyHost,
+				shortcutsHost.nextSibling,
+			);
 		}
 
 		inputRowHost =
@@ -307,6 +320,8 @@ export function createMobileSendFormFeature({
 				inputRowHost={inputRowHost}
 				onTextareaHostChange={moveTextareaIntoHost}
 				primarySendActionStore={stores.primarySendActionStore}
+				quickReplyEnabledStore={stores.quickReplyEnabledStore}
+				quickReplyHost={quickReplyHost}
 				quickShortcutStore={stores.quickShortcutStore}
 			/>,
 		);

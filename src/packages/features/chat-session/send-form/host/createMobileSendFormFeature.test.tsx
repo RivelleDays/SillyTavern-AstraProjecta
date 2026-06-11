@@ -18,6 +18,10 @@ import { MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY } from "@/packages/fe
 
 type Listener = (...args: unknown[]) => void;
 
+const mountedQuickReplyVisibilityFeatures: Array<
+	ReturnType<typeof createMobileSendFormFeature>
+> = [];
+
 function createEventSourceStub() {
 	const listeners = new Map<string, Set<Listener>>();
 
@@ -345,8 +349,87 @@ async function openMainMenuFromCurrentUserAvatar() {
 	});
 }
 
+function setupQuickReplyVisibilityFixture({
+	nativeToggle = "checked",
+	storedVisibility,
+}: {
+	nativeToggle?: "checked" | "missing" | "unchecked";
+	storedVisibility?: "false" | "true";
+} = {}) {
+	document.body.innerHTML = `
+      <div id="options_button" title="Menu"></div>
+      <div id="extensionsMenuButton" title="Extensions"></div>
+      <div id="extensionsMenu" class="options-content" style="display: none;"></div>
+      <div id="options">
+        <button id="option_impersonate" type="button"></button>
+        <button id="option_continue" type="button"></button>
+      </div>
+      <div id="qr_container">
+        ${
+			nativeToggle === "missing"
+				? ""
+				: `<input id="qr--isEnabled" type="checkbox" ${
+						nativeToggle === "checked" ? "checked" : ""
+					}>`
+		}
+      </div>
+      <div id="user_avatar_block">
+        <div class="avatar-container selected" data-avatar-id="hero-persona"></div>
+      </div>
+      <div id="form_sheld">
+      <form id="send_form">
+        <div id="qr--bar"><button type="button">Quick reply</button></div>
+        <div id="nonQRFormItems">
+          <textarea id="send_textarea"></textarea>
+          <div id="rightSendForm">
+            <button id="mes_impersonate" title="Impersonate" type="button"></button>
+            <button id="mes_continue" title="Continue" type="button"></button>
+            <button id="send_but" title="Send message" type="button"></button>
+          </div>
+        </div>
+      </form>
+      </div>
+    `;
+
+	window.matchMedia = vi.fn().mockImplementation(() => ({
+		addEventListener: vi.fn(),
+		matches: true,
+		removeEventListener: vi.fn(),
+	}));
+
+	if (storedVisibility) {
+		window.localStorage.setItem(
+			"astra_projecta.mobile_send_form.quick_reply_visible",
+			storedVisibility,
+		);
+	}
+
+	setSillyTavernContext({
+		chat: [{ is_system: false, is_user: true }],
+		chatId: "chat-1",
+		characters: [{ chat: "chat-1" }],
+		getThumbnailUrl: vi.fn(() => "/thumbs/hero-persona.png"),
+		powerUserSettings: {
+			continue_on_send: false,
+			quick_continue: true,
+			quick_impersonate: true,
+		},
+	});
+
+	ensureAstraProjectaUiInfrastructure({ documentRef: document });
+
+	const feature = createMobileSendFormFeature({ documentRef: document });
+	feature.mount();
+	mountedQuickReplyVisibilityFeatures.push(feature);
+
+	return feature;
+}
+
 describe("createMobileSendFormFeature", () => {
 	afterEach(() => {
+		while (mountedQuickReplyVisibilityFeatures.length > 0) {
+			mountedQuickReplyVisibilityFeatures.pop()?.dispose();
+		}
 		Reflect.deleteProperty(
 			globalThis as Record<string, unknown>,
 			"SillyTavern",
@@ -3470,6 +3553,144 @@ describe("createMobileSendFormFeature", () => {
 				"sendForm.extensions.sectionLabel::Extensions",
 			),
 		).toBeInTheDocument();
+
+		feature.dispose();
+	});
+
+	test("renders the quick reply visibility toggle after the SillyTavern interface trigger when native quick replies are enabled", async () => {
+		const feature = setupQuickReplyVisibilityFixture();
+
+		const { quickReplyHost, shortcutsHost } = await waitForSendFormHosts();
+		const shortcutsStrip = shortcutsHost.querySelector(
+			".mobile-send-form-shortcuts__strip",
+		) as HTMLElement | null;
+		expect(shortcutsStrip).toBeInTheDocument();
+
+		const shortcutButtons = within(
+			shortcutsStrip as HTMLElement,
+		).getAllByRole("button");
+
+		expect(shortcutButtons[0]).toHaveAttribute(
+			"id",
+			"sillytavern-interface-panel-trigger",
+		);
+		expect(shortcutButtons[1]).toHaveAttribute(
+			"id",
+			"mobile-send-form-quick-reply-toggle",
+		);
+		expect(shortcutButtons[1]).toHaveAccessibleName("Hide quick replies");
+		expect(
+			shortcutButtons[1].querySelector(".lucide-message-circle-reply"),
+		).toBeInTheDocument();
+		expect(shortcutButtons[2]).toHaveAccessibleName("Impersonate");
+		expect(quickReplyHost).not.toHaveAttribute("hidden");
+		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
+
+		feature.dispose();
+	});
+
+	test("hides and shows the quick reply host from the persisted visibility toggle", async () => {
+		const feature = setupQuickReplyVisibilityFixture();
+
+		const { quickReplyHost, shortcutsHost } = await waitForSendFormHosts();
+		const hideToggle = within(shortcutsHost).getByRole("button", {
+			name: "Hide quick replies",
+		});
+
+		fireEvent.click(hideToggle);
+
+		await waitFor(() => {
+			expect(quickReplyHost).toHaveAttribute("hidden");
+		});
+		expect(
+			window.localStorage.getItem(
+				"astra_projecta.mobile_send_form.quick_reply_visible",
+			),
+		).toBe("false");
+
+		const showToggle = within(shortcutsHost).getByRole("button", {
+			name: "Show quick replies",
+		});
+		expect(
+			showToggle.querySelector(".lucide-text-cursor-input"),
+		).toBeInTheDocument();
+
+		fireEvent.click(showToggle);
+
+		await waitFor(() => {
+			expect(quickReplyHost).not.toHaveAttribute("hidden");
+		});
+		expect(
+			window.localStorage.getItem(
+				"astra_projecta.mobile_send_form.quick_reply_visible",
+			),
+		).toBe("true");
+
+		feature.dispose();
+	});
+
+	test("starts with the quick reply host hidden when persisted visibility is false and can show it again", async () => {
+		const feature = setupQuickReplyVisibilityFixture({
+			storedVisibility: "false",
+		});
+
+		const { quickReplyHost, shortcutsHost } = await waitForSendFormHosts();
+
+		expect(quickReplyHost).toHaveAttribute("hidden");
+
+		const showToggle = within(shortcutsHost).getByRole("button", {
+			name: "Show quick replies",
+		});
+		fireEvent.click(showToggle);
+
+		await waitFor(() => {
+			expect(quickReplyHost).not.toHaveAttribute("hidden");
+		});
+
+		feature.dispose();
+	});
+
+	test("hides the quick reply visibility toggle and host when native quick replies are disabled", async () => {
+		const feature = setupQuickReplyVisibilityFixture({
+			nativeToggle: "unchecked",
+		});
+
+		const { quickReplyHost, shortcutsHost } = await waitForSendFormHosts();
+
+		expect(
+			within(shortcutsHost).queryByRole("button", {
+				name: "Hide quick replies",
+			}),
+		).not.toBeInTheDocument();
+		expect(
+			within(shortcutsHost).queryByRole("button", {
+				name: "Show quick replies",
+			}),
+		).not.toBeInTheDocument();
+		expect(quickReplyHost).toHaveAttribute("hidden");
+
+		feature.dispose();
+	});
+
+	test("hides only the quick reply visibility toggle when the native quick reply setting is unavailable", async () => {
+		const feature = setupQuickReplyVisibilityFixture({
+			nativeToggle: "missing",
+		});
+
+		const { quickReplyHost, shortcutsHost } = await waitForSendFormHosts();
+
+		expect(
+			within(shortcutsHost).queryByRole("button", {
+				name: "Hide quick replies",
+			}),
+		).not.toBeInTheDocument();
+		expect(
+			within(shortcutsHost).queryByRole("button", {
+				name: "Show quick replies",
+			}),
+		).not.toBeInTheDocument();
+		expect(quickReplyHost).not.toHaveAttribute("hidden");
+		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 
 		feature.dispose();
 	});

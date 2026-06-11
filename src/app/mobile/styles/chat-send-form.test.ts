@@ -54,7 +54,7 @@ describe("chat-send-form.css", () => {
 			"#send_form #leftSendForm",
 			"#send_form #rightSendForm",
 			"#send_form #nonQRFormItems",
-			"body.PWA #form_sheld",
+			"body.PWA #sheld",
 			"#form_sheld",
 			"#form_sheld::before",
 			"#mobile-send-form-shortcuts-host",

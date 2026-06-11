@@ -84,14 +84,15 @@ describe("left-controls default drawer contract", () => {
 		expect(optionsMenuSource).toContain("onPointerDownCapture");
 	});
 
-	test("keeps mobile send-form shortcuts on standard button sizes", () => {
+	test("keeps mobile send-form shortcuts on compact button sizes", () => {
 		const shortcutsToolbarSource = readSource(
 			"src/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar.tsx",
 		);
 
-		expect(shortcutsToolbarSource).toContain('size="default"');
-		expect(shortcutsToolbarSource).toContain('size="icon"');
-		expect(shortcutsToolbarSource).not.toContain('size="icon-sm"');
+		expect(shortcutsToolbarSource).toContain('size="sm"');
+		expect(shortcutsToolbarSource).toContain('size="icon-sm"');
+		expect(shortcutsToolbarSource).not.toContain('size="default"');
+		expect(shortcutsToolbarSource).not.toContain('size="icon"');
 	});
 
 	test("keeps mobile send-form shortcut icons on the medium Astra icon token", () => {

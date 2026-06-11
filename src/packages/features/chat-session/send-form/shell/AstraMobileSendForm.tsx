@@ -18,7 +18,11 @@ import type {
 	PrimarySendActionStore,
 } from "@/packages/core/st/primarySendAction";
 import type { QuickShortcutStore } from "@/packages/core/st/quickShortcuts";
-import { MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY } from "@/packages/features/chat-session/send-form/contracts/dom";
+import type { NativeQuickReplyEnabledStore } from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyEnabledStore";
+import {
+	MOBILE_SEND_FORM_QUICK_REPLY_VISIBILITY_STORAGE_KEY,
+	MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
+} from "@/packages/features/chat-session/send-form/contracts/dom";
 import { SILLYTAVERN_INTERFACE_ID } from "@/packages/features/sillytavern-interface/contracts/dom";
 import type { SillyTavernInterfaceRouteKey } from "@/packages/features/sillytavern-interface";
 import { SEND_FORM_SHORTCUTS } from "@/packages/features/chat-session/send-form/contracts/shortcuts";
@@ -192,6 +196,49 @@ function persistShortcutsToolbarVisibility(
 	}
 }
 
+function readStoredQuickReplyHostVisibility(documentRef: Document): boolean {
+	const storage = documentRef.defaultView?.localStorage;
+	if (!storage) {
+		return true;
+	}
+
+	try {
+		const storedValue = storage.getItem(
+			MOBILE_SEND_FORM_QUICK_REPLY_VISIBILITY_STORAGE_KEY,
+		);
+		if (storedValue === "false") {
+			return false;
+		}
+
+		if (storedValue === "true") {
+			return true;
+		}
+	} catch {
+		return true;
+	}
+
+	return true;
+}
+
+function persistQuickReplyHostVisibility(
+	documentRef: Document,
+	isVisible: boolean,
+) {
+	const storage = documentRef.defaultView?.localStorage;
+	if (!storage) {
+		return;
+	}
+
+	try {
+		storage.setItem(
+			MOBILE_SEND_FORM_QUICK_REPLY_VISIBILITY_STORAGE_KEY,
+			String(isVisible),
+		);
+	} catch {
+		// Ignore storage failures and keep the in-memory preference active.
+	}
+}
+
 export function AstraMobileSendForm({
 	chatContextUsageStore,
 	currentConnectionInfoStore,
@@ -203,6 +250,8 @@ export function AstraMobileSendForm({
 	inputRowHost,
 	onTextareaHostChange,
 	primarySendActionStore,
+	quickReplyEnabledStore,
+	quickReplyHost,
 	quickShortcutStore,
 }: {
 	chatContextUsageStore: ChatContextUsageStore;
@@ -215,6 +264,8 @@ export function AstraMobileSendForm({
 	inputRowHost: HTMLDivElement | null;
 	onTextareaHostChange(host: HTMLDivElement | null): void;
 	primarySendActionStore: PrimarySendActionStore;
+	quickReplyEnabledStore: NativeQuickReplyEnabledStore;
+	quickReplyHost: HTMLDivElement | null;
 	quickShortcutStore: QuickShortcutStore;
 }) {
 	const contextUsageSnapshot = React.useSyncExternalStore(
@@ -257,6 +308,11 @@ export function AstraMobileSendForm({
 		quickShortcutStore.getSnapshot,
 		quickShortcutStore.getSnapshot,
 	);
+	const quickReplyEnabledSnapshot = React.useSyncExternalStore(
+		quickReplyEnabledStore.subscribe,
+		quickReplyEnabledStore.getSnapshot,
+		quickReplyEnabledStore.getSnapshot,
+	);
 	const [leftControlsState, setLeftControlsState] = React.useState<
 		"default" | "composing"
 	>("default");
@@ -265,6 +321,9 @@ export function AstraMobileSendForm({
 	const [isTextareaMultiline, setIsTextareaMultiline] = React.useState(false);
 	const [showShortcutsToolbar, setShowShortcutsToolbar] = React.useState(() =>
 		readStoredShortcutsToolbarVisibility(documentRef),
+	);
+	const [showQuickReplyHost, setShowQuickReplyHost] = React.useState(() =>
+		readStoredQuickReplyHostVisibility(documentRef),
 	);
 	const sillyTavernInterface = useSillyTavernInterfaceController({
 		documentRef,
@@ -355,6 +414,26 @@ export function AstraMobileSendForm({
 	React.useEffect(() => {
 		leftControlsStateRef.current = leftControlsState;
 	}, [leftControlsState]);
+
+	const shouldForceHideQuickReplyHost =
+		quickReplyEnabledSnapshot.hasNativeToggle &&
+		!quickReplyEnabledSnapshot.isEnabled;
+	const shouldShowQuickReplyVisibilityToggle =
+		quickReplyEnabledSnapshot.hasNativeToggle &&
+		quickReplyEnabledSnapshot.isEnabled;
+	const isQuickReplyHostVisible = shouldForceHideQuickReplyHost
+		? false
+		: !quickReplyEnabledSnapshot.hasNativeToggle
+			? true
+			: showQuickReplyHost;
+
+	React.useLayoutEffect(() => {
+		if (!(quickReplyHost instanceof HTMLDivElement)) {
+			return;
+		}
+
+		quickReplyHost.hidden = !isQuickReplyHostVisible;
+	}, [isQuickReplyHostVisible, quickReplyHost]);
 
 	React.useEffect(() => {
 		return () => {
@@ -540,6 +619,13 @@ export function AstraMobileSendForm({
 		},
 		[documentRef],
 	);
+	const handleQuickReplyHostVisibilityToggle = React.useCallback(() => {
+		setShowQuickReplyHost((current) => {
+			const nextValue = !current;
+			persistQuickReplyHostVisibility(documentRef, nextValue);
+			return nextValue;
+		});
+	}, [documentRef]);
 	const primarySendActionIcon = resolvePrimarySendActionIcon(
 		primarySendActionSnapshot.kind,
 	);
@@ -563,6 +649,11 @@ export function AstraMobileSendForm({
 	const shortcutsToolbarLabel = translateAstra("sendForm.shortcuts.toolbar");
 	const sillyTavernInterfaceTriggerLabel = translateAstra(
 		"sillyTavernInterface.trigger",
+	);
+	const quickReplyVisibilityToggleLabel = translateAstra(
+		isQuickReplyHostVisible
+			? "sendForm.quickReply.hide"
+			: "sendForm.quickReply.show",
 	);
 	const inputRowLabel = translateAstra("sendForm.input.row");
 	const currentUserAvatarLabel = translateAstra(
@@ -851,11 +942,19 @@ export function AstraMobileSendForm({
 	const shortcutsToolbar = showShortcutsToolbar ? (
 		<MobileSendFormShortcutsToolbar
 			contextUsageSnapshot={contextUsageSnapshot}
+			isQuickReplyHostVisible={isQuickReplyHostVisible}
 			label={shortcutsToolbarLabel}
+			quickReplyVisibilityToggleLabel={quickReplyVisibilityToggleLabel}
 			sillyTavernInterfaceTriggerLabel={sillyTavernInterfaceTriggerLabel}
 			showContextUsageShortcut={showContextUsageShortcut}
+			showQuickReplyVisibilityToggle={
+				shouldShowQuickReplyVisibilityToggle
+			}
 			visibleQuickShortcuts={visibleQuickShortcuts}
 			onSillyTavernInterfaceOpen={sillyTavernInterface.openCurrentPage}
+			onQuickReplyHostVisibilityToggle={
+				handleQuickReplyHostVisibilityToggle
+			}
 			onQuickShortcutClick={handleQuickShortcutClick}
 		/>
 	) : null;

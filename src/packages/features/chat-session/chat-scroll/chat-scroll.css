@@ -25,22 +25,7 @@ body.astra-projecta-mobile-layout {
 		scrollbar-width: thin;
 	}
 
-	&:has(dialog.popup[open]) #chat[data-astra-projecta-chat-scroll="native"],
 	&[data-astra-projecta-native-popup-active="true"]
-		#chat[data-astra-projecta-chat-scroll="native"],
-	&:has(dialog.popup[opening])
-		#chat[data-astra-projecta-chat-scroll="native"],
-	&:has(#shadow_popup[style*="display: block"])
-		#chat[data-astra-projecta-chat-scroll="native"],
-	&:has(#shadow_popup[style*="display:block"])
-		#chat[data-astra-projecta-chat-scroll="native"],
-	&:has(#bulk_tag_shadow_popup[style*="display: block"])
-		#chat[data-astra-projecta-chat-scroll="native"],
-	&:has(#bulk_tag_shadow_popup[style*="display:block"])
-		#chat[data-astra-projecta-chat-scroll="native"],
-	&:has(#shadow_select_chat_popup[style*="display: block"])
-		#chat[data-astra-projecta-chat-scroll="native"],
-	&:has(#shadow_select_chat_popup[style*="display:block"])
 		#chat[data-astra-projecta-chat-scroll="native"] {
 		overflow-y: hidden !important;
 		overscroll-behavior: contain;

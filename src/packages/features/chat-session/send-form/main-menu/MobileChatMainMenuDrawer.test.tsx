@@ -80,6 +80,7 @@ function createContextUsageSnapshot(
 		hasPreparedContext: true,
 		mainApi: "openai",
 		maxContextTokens: 32_768,
+		otherPromptTokens: null,
 		personaTokens: 176,
 		promptBudgetTokens: 30_720,
 		reservedResponseTokens: 2_048,

@@ -210,7 +210,7 @@ function calculateOtherPromptTokens(
 	usedPromptTokens: number,
 	knownPromptTokens: Array<number | null>,
 ): number {
-	const knownPromptTotal = knownPromptTokens.reduce(
+	const knownPromptTotal = knownPromptTokens.reduce<number>(
 		(total, tokenCount) => total + (tokenCount ?? 0),
 		0,
 	);

@@ -575,32 +575,12 @@ describe("globals.css", () => {
 			"#chat[data-astra-projecta-chat-scroll='native'][data-astra-projecta-chat-scroll-y-end]::after",
 		);
 		expect(compactChatScrollCss).toContain(
-			"&:has(dialog.popup[open]) #chat[data-astra-projecta-chat-scroll='native']",
-		);
-		expect(compactChatScrollCss).toContain(
 			"&[data-astra-projecta-native-popup-active='true'] #chat[data-astra-projecta-chat-scroll='native']",
 		);
-		expect(compactChatScrollCss).toContain(
-			"&:has(dialog.popup[opening]) #chat[data-astra-projecta-chat-scroll='native']",
-		);
-		expect(compactChatScrollCss).toContain(
-			"&:has(#shadow_popup[style*='display: block']) #chat[data-astra-projecta-chat-scroll='native']",
-		);
-		expect(compactChatScrollCss).toContain(
-			"&:has(#shadow_popup[style*='display:block']) #chat[data-astra-projecta-chat-scroll='native']",
-		);
-		expect(compactChatScrollCss).toContain(
-			"&:has(#bulk_tag_shadow_popup[style*='display: block']) #chat[data-astra-projecta-chat-scroll='native']",
-		);
-		expect(compactChatScrollCss).toContain(
-			"&:has(#bulk_tag_shadow_popup[style*='display:block']) #chat[data-astra-projecta-chat-scroll='native']",
-		);
-		expect(compactChatScrollCss).toContain(
-			"&:has(#shadow_select_chat_popup[style*='display: block']) #chat[data-astra-projecta-chat-scroll='native']",
-		);
-		expect(compactChatScrollCss).toContain(
-			"&:has(#shadow_select_chat_popup[style*='display:block']) #chat[data-astra-projecta-chat-scroll='native']",
-		);
+		expect(chatScrollCss).not.toContain(":has(dialog.popup");
+		expect(chatScrollCss).not.toContain(":has(#shadow_popup");
+		expect(chatScrollCss).not.toContain(":has(#bulk_tag_shadow_popup");
+		expect(chatScrollCss).not.toContain(":has(#shadow_select_chat_popup");
 		expect(chatScrollCss).not.toContain("-webkit-mask-image:");
 		expect(chatScrollCss).not.toContain("mask-image:");
 		expect(chatScrollCss).not.toContain(

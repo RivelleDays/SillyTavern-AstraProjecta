@@ -1661,39 +1661,13 @@
 
 @media screen and (max-width: 1000px) {
 	html[data-astra-projecta-native-popup-active="true"],
-	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"],
-	body.astra-projecta-mobile-layout:has(dialog.popup[open]),
-	body.astra-projecta-mobile-layout:has(dialog.popup[opening]),
-	body.astra-projecta-mobile-layout:has(
-			#shadow_popup[style*="display: block"]
-		),
-	body.astra-projecta-mobile-layout:has(
-			#shadow_popup[style*="display:block"]
-		),
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display: block"]
-		),
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display:block"]
-		),
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display: block"]
-		),
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display:block"]
-		) {
+	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"] {
 		pointer-events: auto !important;
 		overflow: hidden !important;
 		overscroll-behavior: none;
 	}
 
 	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		dialog.popup
-		.popup-content,
-	body.astra-projecta-mobile-layout:has(dialog.popup[open])
-		dialog.popup
-		.popup-content,
-	body.astra-projecta-mobile-layout:has(dialog.popup[opening])
 		dialog.popup
 		.popup-content {
 		overscroll-behavior: contain;
@@ -1702,40 +1676,6 @@
 	}
 
 	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__viewport,
-	body.astra-projecta-mobile-layout:has(dialog.popup[open])
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__viewport,
-	body.astra-projecta-mobile-layout:has(dialog.popup[opening])
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__viewport,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_popup[style*="display: block"]
-		)
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__viewport,
-	body.astra-projecta-mobile-layout:has(#shadow_popup[style*="display:block"])
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__viewport,
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display: block"]
-		)
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__viewport,
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display:block"]
-		)
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__viewport,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display: block"]
-		)
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__viewport,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display:block"]
-		)
 		[data-astra-scroll-affordance="surface"]
 		.astra-scroll-area__viewport {
 		overflow: hidden !important;
@@ -1746,40 +1686,6 @@
 
 	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
 		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__scrollbar,
-	body.astra-projecta-mobile-layout:has(dialog.popup[open])
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__scrollbar,
-	body.astra-projecta-mobile-layout:has(dialog.popup[opening])
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__scrollbar,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_popup[style*="display: block"]
-		)
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__scrollbar,
-	body.astra-projecta-mobile-layout:has(#shadow_popup[style*="display:block"])
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__scrollbar,
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display: block"]
-		)
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__scrollbar,
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display:block"]
-		)
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__scrollbar,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display: block"]
-		)
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__scrollbar,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display:block"]
-		)
-		[data-astra-scroll-affordance="surface"]
 		.astra-scroll-area__scrollbar {
 		opacity: 0 !important;
 		pointer-events: none !important;
@@ -1787,141 +1693,13 @@
 
 	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
 		[data-vaul-overlay],
-	body.astra-projecta-mobile-layout:has(dialog.popup[open])
-		[data-vaul-overlay],
-	body.astra-projecta-mobile-layout:has(dialog.popup[opening])
-		[data-vaul-overlay],
-	body.astra-projecta-mobile-layout:has(
-			#shadow_popup[style*="display: block"]
-		)
-		[data-vaul-overlay],
-	body.astra-projecta-mobile-layout:has(#shadow_popup[style*="display:block"])
-		[data-vaul-overlay],
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display: block"]
-		)
-		[data-vaul-overlay],
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display:block"]
-		)
-		[data-vaul-overlay],
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display: block"]
-		)
-		[data-vaul-overlay],
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display:block"]
-		)
-		[data-vaul-overlay],
 	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		[data-vaul-drawer],
-	body.astra-projecta-mobile-layout:has(dialog.popup[open])
-		[data-vaul-drawer],
-	body.astra-projecta-mobile-layout:has(dialog.popup[opening])
-		[data-vaul-drawer],
-	body.astra-projecta-mobile-layout:has(
-			#shadow_popup[style*="display: block"]
-		)
-		[data-vaul-drawer],
-	body.astra-projecta-mobile-layout:has(#shadow_popup[style*="display:block"])
-		[data-vaul-drawer],
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display: block"]
-		)
-		[data-vaul-drawer],
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display:block"]
-		)
-		[data-vaul-drawer],
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display: block"]
-		)
-		[data-vaul-drawer],
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display:block"]
-		)
 		[data-vaul-drawer],
 	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
 		.astra-drawer__overlay,
-	body.astra-projecta-mobile-layout:has(dialog.popup[open])
-		.astra-drawer__overlay,
-	body.astra-projecta-mobile-layout:has(dialog.popup[opening])
-		.astra-drawer__overlay,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_popup[style*="display: block"]
-		)
-		.astra-drawer__overlay,
-	body.astra-projecta-mobile-layout:has(#shadow_popup[style*="display:block"])
-		.astra-drawer__overlay,
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display: block"]
-		)
-		.astra-drawer__overlay,
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display:block"]
-		)
-		.astra-drawer__overlay,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display: block"]
-		)
-		.astra-drawer__overlay,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display:block"]
-		)
-		.astra-drawer__overlay,
 	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
 		.astra-drawer,
-	body.astra-projecta-mobile-layout:has(dialog.popup[open]) .astra-drawer,
-	body.astra-projecta-mobile-layout:has(dialog.popup[opening]) .astra-drawer,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_popup[style*="display: block"]
-		)
-		.astra-drawer,
-	body.astra-projecta-mobile-layout:has(#shadow_popup[style*="display:block"])
-		.astra-drawer,
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display: block"]
-		)
-		.astra-drawer,
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display:block"]
-		)
-		.astra-drawer,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display: block"]
-		)
-		.astra-drawer,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display:block"]
-		)
-		.astra-drawer,
 	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		.astra-mobile-page-panel,
-	body.astra-projecta-mobile-layout:has(dialog.popup[open])
-		.astra-mobile-page-panel,
-	body.astra-projecta-mobile-layout:has(dialog.popup[opening])
-		.astra-mobile-page-panel,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_popup[style*="display: block"]
-		)
-		.astra-mobile-page-panel,
-	body.astra-projecta-mobile-layout:has(#shadow_popup[style*="display:block"])
-		.astra-mobile-page-panel,
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display: block"]
-		)
-		.astra-mobile-page-panel,
-	body.astra-projecta-mobile-layout:has(
-			#bulk_tag_shadow_popup[style*="display:block"]
-		)
-		.astra-mobile-page-panel,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display: block"]
-		)
-		.astra-mobile-page-panel,
-	body.astra-projecta-mobile-layout:has(
-			#shadow_select_chat_popup[style*="display:block"]
-		)
 		.astra-mobile-page-panel {
 		pointer-events: none !important;
 	}

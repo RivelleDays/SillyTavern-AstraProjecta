@@ -255,9 +255,11 @@ describe("shadcn-overrides.css", () => {
 			"body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active='true']\n        [data-astra-scroll-affordance='surface']\n        .astra-scroll-area__viewport",
 			"body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active='true']\n        [data-astra-scroll-affordance='surface']\n        .astra-scroll-area__scrollbar",
 			"body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active='true']\n        dialog.popup\n        .popup-content",
-			"body.astra-projecta-mobile-layout:has(#shadow_select_chat_popup[style*='display: block'])",
-			"body.astra-projecta-mobile-layout:has(#shadow_select_chat_popup[style*='display:block'])",
 		]);
+		expect(css).not.toContain(":has(dialog.popup");
+		expect(css).not.toContain(":has(#shadow_popup");
+		expect(css).not.toContain(":has(#bulk_tag_shadow_popup");
+		expect(css).not.toContain(":has(#shadow_select_chat_popup");
 	});
 
 	test("keeps page-panel and main-menu character drawer rules split", () => {

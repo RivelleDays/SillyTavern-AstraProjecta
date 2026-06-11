@@ -210,8 +210,11 @@ describe("MobilePagePanel source contract", () => {
 		expect(css).not.toContain(".astra-mobile-page-panel__body-overlay");
 		expect(normalizeStyleSource(css)).toContain(
 			normalizeStyleSource(
-				"body.astra-projecta-mobile-layout:has(dialog.popup[open]) .astra-mobile-page-panel",
+				"body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active='true'] .astra-mobile-page-panel",
 			),
+		);
+		expect(css).not.toContain(
+			"body.astra-projecta-mobile-layout:has(dialog.popup",
 		);
 	});
 });

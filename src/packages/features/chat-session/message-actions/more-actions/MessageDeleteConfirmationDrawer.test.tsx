@@ -474,9 +474,10 @@ describe("MessageDeleteConfirmationDrawer", () => {
 		const onDeleted = vi.fn();
 		const onOpenChange = vi.fn();
 		const error = vi.fn();
-		(globalThis as typeof globalThis & { toastr?: unknown }).toastr = {
-			error,
-		};
+		(globalThis as unknown as { toastr?: { error?: typeof error } }).toastr =
+			{
+				error,
+			};
 		setSillyTavernContext({ deleteMessage });
 
 		render(

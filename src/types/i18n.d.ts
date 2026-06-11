@@ -369,6 +369,8 @@ export interface I18nMessages {
 	"sendForm.primaryAction.continue": string;
 	"sendForm.primaryAction.send": string;
 	"sendForm.primaryAction.stop": string;
+	"sendForm.quickReply.hide": string;
+	"sendForm.quickReply.show": string;
 	"sendForm.shortcuts.continue": string;
 	"sendForm.shortcuts.impersonate": string;
 	"sendForm.shortcuts.toolbar": string;
