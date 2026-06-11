@@ -385,7 +385,8 @@
 		flex-wrap: nowrap;
 		position: relative;
 		width: 100%;
-		padding: 4px var(--mobile-chat-spacing);
+		padding-inline: var(--mobile-chat-spacing);
+		height: 52px;
 	}
 
 	.mobile-send-form-shortcuts::after {
@@ -742,9 +743,8 @@
 		flex: 1 1 auto;
 		min-width: 0;
 		width: 100%;
-		padding-inline: var(--mobile-chat-spacing);
+		padding: var(--mobile-chat-spacing);
 		padding-right: calc(var(--mobile-chat-spacing) - 4px);
-		padding-top: 8px;
 	}
 
 	.mobile-send-form-input-row__avatar {

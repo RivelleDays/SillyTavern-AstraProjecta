@@ -7823,7 +7823,8 @@
     flex-wrap: nowrap;
     position: relative;
     width: 100%;
-    padding: 4px var(--mobile-chat-spacing);
+    padding-inline: var(--mobile-chat-spacing);
+    height: 52px;
   }
   .mobile-send-form-shortcuts::after {
     content: "";
@@ -8146,9 +8147,8 @@
     flex: 1 1 auto;
     min-width: 0;
     width: 100%;
-    padding-inline: var(--mobile-chat-spacing);
+    padding: var(--mobile-chat-spacing);
     padding-right: calc(var(--mobile-chat-spacing) - 4px);
-    padding-top: 8px;
   }
   .mobile-send-form-input-row__avatar {
     --mobile-send-form-avatar-size: max(
@@ -11371,7 +11371,7 @@ body.astra-projecta-mobile-layout {
     font-size: var(--text-xs);
     font-weight: var(--font-weight-semibold);
     border-radius: 20px;
-    height: 32px;
+    height: 36px;
     margin-right: 4px;
   }
   .sillytavern-interface-panel {

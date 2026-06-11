@@ -84,6 +84,16 @@ describe("left-controls default drawer contract", () => {
 		expect(optionsMenuSource).toContain("onPointerDownCapture");
 	});
 
+	test("keeps mobile send-form shortcuts on standard button sizes", () => {
+		const shortcutsToolbarSource = readSource(
+			"src/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar.tsx",
+		);
+
+		expect(shortcutsToolbarSource).toContain('size="default"');
+		expect(shortcutsToolbarSource).toContain('size="icon"');
+		expect(shortcutsToolbarSource).not.toContain('size="icon-sm"');
+	});
+
 	test("keeps src/components/ui/astra focused on the documented overlay compatibility exceptions", () => {
 		const astraEntries = readdirSync(
 			resolve(process.cwd(), "src/components/ui/astra"),

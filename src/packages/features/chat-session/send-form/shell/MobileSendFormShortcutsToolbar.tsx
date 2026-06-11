@@ -45,7 +45,7 @@ export function MobileSendFormShortcutsToolbar({
 					<Button
 						className="mobile-send-form-shortcuts__button"
 						id={SILLYTAVERN_INTERFACE_TRIGGER_ID}
-						size="sm"
+						size="default"
 						type="button"
 						variant="outline"
 						onClick={onSillyTavernInterfaceOpen}
@@ -70,7 +70,7 @@ export function MobileSendFormShortcutsToolbar({
 							<Button
 								aria-label={item.label}
 								className="mobile-send-form-shortcuts__button"
-								size="icon-sm"
+								size="icon"
 								type="button"
 								variant="ghost"
 								onClick={() => {
