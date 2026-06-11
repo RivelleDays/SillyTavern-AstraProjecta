@@ -205,15 +205,27 @@ export function MobileSendFormExtensionsMenu({
 				id={MOBILE_SEND_FORM_EXTENSIONS_DRAWER_ID}
 			>
 				<DrawerHeader className="sr-only">
-					<DrawerTitle
-						id={MOBILE_SEND_FORM_EXTENSIONS_DRAWER_TITLE_ID}
-					>
-						{title}
+					<DrawerTitle asChild={true}>
+						<span>
+							<span
+								id={MOBILE_SEND_FORM_EXTENSIONS_DRAWER_TITLE_ID}
+								data-slot="drawer-title"
+							>
+								{title}
+							</span>
+						</span>
 					</DrawerTitle>
-					<DrawerDescription
-						id={MOBILE_SEND_FORM_EXTENSIONS_DRAWER_DESCRIPTION_ID}
-					>
-						{description}
+					<DrawerDescription asChild={true}>
+						<span>
+							<span
+								id={
+									MOBILE_SEND_FORM_EXTENSIONS_DRAWER_DESCRIPTION_ID
+								}
+								data-slot="drawer-description"
+							>
+								{description}
+							</span>
+						</span>
 					</DrawerDescription>
 				</DrawerHeader>
 				<DrawerBody

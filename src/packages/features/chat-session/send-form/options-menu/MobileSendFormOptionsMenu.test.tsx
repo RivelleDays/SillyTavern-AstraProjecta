@@ -1,10 +1,18 @@
 import * as React from "react";
 
 import { fireEvent, render, waitFor, within } from "@testing-library/react";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ensureAstraProjectaUiInfrastructure } from "@/packages/core/runtime/uiScope";
 import { MobileSendFormOptionsMenu } from "@/packages/features/chat-session/send-form/options-menu/MobileSendFormOptionsMenu";
+
+const DIALOG_TITLE_WARNING =
+	"`DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.";
+const DIALOG_DESCRIPTION_WARNING =
+	"Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.";
+
+let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
 
 function setSillyTavernContext(context: unknown) {
 	(globalThis as { SillyTavern?: unknown }).SillyTavern = {
@@ -19,7 +27,32 @@ function createVisualViewport(height: number) {
 }
 
 describe("MobileSendFormOptionsMenu", () => {
+	beforeEach(() => {
+		consoleErrorSpy = vi
+			.spyOn(console, "error")
+			.mockImplementation(() => undefined);
+		consoleWarnSpy = vi
+			.spyOn(console, "warn")
+			.mockImplementation(() => undefined);
+	});
+
 	afterEach(() => {
+		expect(
+			consoleErrorSpy.mock.calls
+				.flat()
+				.some((message) =>
+					String(message).includes(DIALOG_TITLE_WARNING),
+				),
+		).toBe(false);
+		expect(
+			consoleWarnSpy.mock.calls
+				.flat()
+				.some((message) =>
+					String(message).includes(DIALOG_DESCRIPTION_WARNING),
+				),
+		).toBe(false);
+		consoleErrorSpy.mockRestore();
+		consoleWarnSpy.mockRestore();
 		Reflect.deleteProperty(
 			globalThis as Record<string, unknown>,
 			"SillyTavern",
