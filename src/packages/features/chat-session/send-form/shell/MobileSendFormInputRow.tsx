@@ -2,7 +2,6 @@ import * as React from "react";
 
 import { Button } from "@/components/ui/shadcn/button";
 import { UiIcon } from "@/components/ui/shared/icon";
-import { ChevronRight } from "@/components/ui/shared/icons";
 import type { LucideIcon } from "@/components/ui/shared/icons";
 import type { PrimarySendActionSnapshot } from "@/packages/core/st/primarySendAction";
 import type { CurrentUserAvatarSnapshot } from "@/packages/core/st/currentUserAvatar";
@@ -16,14 +15,10 @@ import { MobileSendFormOptionsMenu } from "@/packages/features/chat-session/send
 export interface MobileSendFormInputRowProps {
 	currentUserAvatarLabel: string;
 	documentRef: Document;
-	expandLeftControlsLabel: string;
 	inputRowLabel: string;
-	isLeftControlsInteractionBlocked: boolean;
 	isMainMenuOpen: boolean;
 	isTextareaMultiline: boolean;
 	leftControlsLabel: string;
-	leftControlsState: "default" | "composing";
-	onExpandLeftControlsClick(): void;
 	onMainMenuOpen(): void;
 	onMainMenuTriggerKeyDownCapture(
 		event: React.KeyboardEvent<HTMLButtonElement>,
@@ -41,14 +36,10 @@ export interface MobileSendFormInputRowProps {
 export function MobileSendFormInputRow({
 	currentUserAvatarLabel,
 	documentRef,
-	expandLeftControlsLabel,
 	inputRowLabel,
-	isLeftControlsInteractionBlocked,
 	isMainMenuOpen,
 	isTextareaMultiline,
 	leftControlsLabel,
-	leftControlsState,
-	onExpandLeftControlsClick,
 	onMainMenuOpen,
 	onMainMenuTriggerKeyDownCapture,
 	onMainMenuTriggerPointerDownCapture,
@@ -60,13 +51,11 @@ export function MobileSendFormInputRow({
 	showShortcutsToolbar,
 	userAvatarSnapshot,
 }: MobileSendFormInputRowProps) {
-	const isComposingState = leftControlsState === "composing";
-
 	return (
 		<div
 			aria-label={inputRowLabel}
 			className="mobile-send-form-input-row"
-			data-input-state={leftControlsState}
+			data-input-state="default"
 			data-slot="mobile-send-form-input-row"
 			data-textarea-layout={
 				isTextareaMultiline ? "multi-line" : "single-line"
@@ -101,21 +90,12 @@ export function MobileSendFormInputRow({
 					<div
 						aria-label={leftControlsLabel}
 						className="mobile-send-form-input-row__left-controls"
-						data-interaction-blocked={
-							isLeftControlsInteractionBlocked ? "true" : "false"
-						}
-						data-left-state={leftControlsState}
+						data-left-state="default"
 						role="toolbar"
 					>
-						<div
-							aria-hidden={isComposingState}
-							className="mobile-send-form-input-row__left-controls-default"
-						>
+						<div className="mobile-send-form-input-row__left-controls-default">
 							<MobileSendFormOptionsMenu
 								documentRef={documentRef}
-								interactionBlocked={
-									isLeftControlsInteractionBlocked
-								}
 								showShortcutsToolbar={showShortcutsToolbar}
 								onShowShortcutsToolbarChange={
 									onShortcutsToolbarVisibilityChange
@@ -123,30 +103,7 @@ export function MobileSendFormInputRow({
 							/>
 							<MobileSendFormExtensionsMenu
 								documentRef={documentRef}
-								interactionBlocked={
-									isLeftControlsInteractionBlocked
-								}
 							/>
-						</div>
-						<div
-							aria-hidden={!isComposingState}
-							className="mobile-send-form-input-row__left-controls-composing"
-						>
-							<Button
-								aria-label={expandLeftControlsLabel}
-								className="mobile-send-form-input-row__left-control-button"
-								size="icon-xs"
-								title={expandLeftControlsLabel}
-								type="button"
-								variant="ghost"
-								onClick={onExpandLeftControlsClick}
-							>
-								<UiIcon
-									aria-hidden={true}
-									icon={ChevronRight}
-									size="sm"
-								/>
-							</Button>
 						</div>
 					</div>
 					<div

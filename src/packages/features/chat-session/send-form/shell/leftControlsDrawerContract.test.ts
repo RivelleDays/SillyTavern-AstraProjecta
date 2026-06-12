@@ -31,13 +31,18 @@ describe("left-controls default drawer contract", () => {
 		expect(inputRowSource).toContain("MobileSendFormOptionsMenu");
 		expect(inputRowSource).toContain("MobileSendFormExtensionsMenu");
 		expect(sendFormSource).toContain("MobileChatMainMenuDrawer");
-		expect(inputRowSource).toContain("data-interaction-blocked");
-		expect(sendFormSource).toContain("armLeftControlsInteractionBlock");
-		expect(sendFormSource).toContain("isComposingLeftControlsTarget");
-		expect(sendFormSource).toContain(
+		expect(inputRowSource).not.toContain("data-interaction-blocked");
+		expect(inputRowSource).not.toContain("expandLeftControlsLabel");
+		expect(inputRowSource).not.toContain("onExpandLeftControlsClick");
+		expect(inputRowSource).not.toContain(
+			"mobile-send-form-input-row__left-controls-composing",
+		);
+		expect(sendFormSource).not.toContain("armLeftControlsInteractionBlock");
+		expect(sendFormSource).not.toContain("isComposingLeftControlsTarget");
+		expect(sendFormSource).not.toContain(
 			".mobile-send-form-input-row__left-controls-composing",
 		);
-		expect(inputRowSource).toContain("interactionBlocked={");
+		expect(inputRowSource).not.toContain("interactionBlocked={");
 		expect(inputRowSource).toContain("documentRef={documentRef}");
 		expect(inputRowSource).toContain("MOBILE_CHAT_MAIN_MENU_DRAWER_ID");
 		expect(sendFormSource).toContain("MobileSillyTavernInterfacePanel");

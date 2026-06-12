@@ -87,6 +87,10 @@ describe("chat-send-form.css", () => {
 		expect(css).toContain(
 			"var(--astra-avatar-size-mobile-send-form-trigger)",
 		);
+		expect(css).not.toContain(
+			".mobile-send-form-input-row__left-controls-composing",
+		);
+		expect(css).not.toContain('[data-left-state="composing"]');
 	});
 
 	test("keeps mobile quick reply host styling scoped to Astra token contracts", () => {

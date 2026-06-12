@@ -277,7 +277,6 @@ export interface I18nMessages {
 	"sendForm.extensions.sectionLabel": string;
 	"sendForm.extensions.title": string;
 	"sendForm.extensions.trigger": string;
-	"sendForm.input.expandLeftControls": string;
 	"sendForm.input.leftControls": string;
 	"sendForm.input.row": string;
 	"sendForm.mainMenu.action.deleteChat": string;

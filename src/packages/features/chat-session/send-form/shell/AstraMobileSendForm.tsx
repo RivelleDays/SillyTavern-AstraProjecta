@@ -79,27 +79,6 @@ function readIsTextareaMultiline(textarea: HTMLTextAreaElement): boolean {
 	return hasExplicitLineBreak || exceedsSingleLineHeight;
 }
 
-function resolveTargetElement(target: Node | null): Element | null {
-	if (target instanceof Element) {
-		return target;
-	}
-
-	if (target instanceof Text) {
-		return target.parentElement;
-	}
-
-	return null;
-}
-
-function isComposingLeftControlsTarget(target: Node | null): boolean {
-	const element = resolveTargetElement(target);
-	return (
-		element?.closest(
-			".mobile-send-form-input-row__left-controls-composing",
-		) !== null
-	);
-}
-
 function resolvePrimarySendActionIcon(kind: PrimarySendActionKind) {
 	switch (kind) {
 		case "continue":
@@ -110,8 +89,6 @@ function resolvePrimarySendActionIcon(kind: PrimarySendActionKind) {
 			return SendHorizontal;
 	}
 }
-
-const LEFT_CONTROLS_INTERACTION_BLOCK_MS = 220;
 
 type CurrentChatActionDialogKind = "delete" | "rename";
 
@@ -313,9 +290,6 @@ export function AstraMobileSendForm({
 		quickReplyEnabledStore.getSnapshot,
 		quickReplyEnabledStore.getSnapshot,
 	);
-	const [leftControlsState, setLeftControlsState] = React.useState<
-		"default" | "composing"
-	>("default");
 	const [managedTextarea, setManagedTextarea] =
 		React.useState<HTMLTextAreaElement | null>(null);
 	const [isTextareaMultiline, setIsTextareaMultiline] = React.useState(false);
@@ -333,14 +307,6 @@ export function AstraMobileSendForm({
 		React.useState<CurrentChatActionDialogState>(null);
 	const [isConnectionProfileBusy, setIsConnectionProfileBusy] =
 		React.useState(false);
-	const [
-		isLeftControlsInteractionBlocked,
-		setIsLeftControlsInteractionBlocked,
-	] = React.useState(false);
-	const leftControlsStateRef = React.useRef(leftControlsState);
-	const leftControlsInteractionBlockTimeoutRef = React.useRef<ReturnType<
-		typeof setTimeout
-	> | null>(null);
 	const currentChatActionDialogOpenHandleRef = React.useRef<
 		number | ReturnType<typeof setTimeout> | null
 	>(null);
@@ -353,25 +319,6 @@ export function AstraMobileSendForm({
 	const chatSettingsOverrideOpenHandleKindRef = React.useRef<
 		"frame" | "timeout" | null
 	>(null);
-
-	const clearLeftControlsInteractionBlock = React.useCallback(() => {
-		const timeoutId = leftControlsInteractionBlockTimeoutRef.current;
-		if (timeoutId !== null) {
-			clearTimeout(timeoutId);
-			leftControlsInteractionBlockTimeoutRef.current = null;
-		}
-
-		setIsLeftControlsInteractionBlocked(false);
-	}, []);
-
-	const armLeftControlsInteractionBlock = React.useCallback(() => {
-		clearLeftControlsInteractionBlock();
-		setIsLeftControlsInteractionBlocked(true);
-		leftControlsInteractionBlockTimeoutRef.current = setTimeout(() => {
-			leftControlsInteractionBlockTimeoutRef.current = null;
-			setIsLeftControlsInteractionBlocked(false);
-		}, LEFT_CONTROLS_INTERACTION_BLOCK_MS);
-	}, [clearLeftControlsInteractionBlock]);
 
 	const clearPendingCurrentChatActionDialogOpen = React.useCallback(() => {
 		const handle = currentChatActionDialogOpenHandleRef.current;
@@ -411,10 +358,6 @@ export function AstraMobileSendForm({
 		clearTimeout(handle as ReturnType<typeof setTimeout>);
 	}, [documentRef]);
 
-	React.useEffect(() => {
-		leftControlsStateRef.current = leftControlsState;
-	}, [leftControlsState]);
-
 	const shouldForceHideQuickReplyHost =
 		quickReplyEnabledSnapshot.hasNativeToggle &&
 		!quickReplyEnabledSnapshot.isEnabled;
@@ -434,12 +377,6 @@ export function AstraMobileSendForm({
 
 		quickReplyHost.hidden = !isQuickReplyHostVisible;
 	}, [isQuickReplyHostVisible, quickReplyHost]);
-
-	React.useEffect(() => {
-		return () => {
-			clearLeftControlsInteractionBlock();
-		};
-	}, [clearLeftControlsInteractionBlock]);
 
 	React.useEffect(() => {
 		return () => {
@@ -482,29 +419,6 @@ export function AstraMobileSendForm({
 
 	React.useEffect(() => {
 		if (!(managedTextarea instanceof HTMLTextAreaElement)) {
-			clearLeftControlsInteractionBlock();
-			setLeftControlsState("default");
-			return;
-		}
-
-		const enterComposing = () => {
-			clearLeftControlsInteractionBlock();
-			setLeftControlsState("composing");
-		};
-
-		managedTextarea.addEventListener("pointerdown", enterComposing);
-		managedTextarea.addEventListener("focus", enterComposing);
-		managedTextarea.addEventListener("input", enterComposing);
-
-		return () => {
-			managedTextarea.removeEventListener("pointerdown", enterComposing);
-			managedTextarea.removeEventListener("focus", enterComposing);
-			managedTextarea.removeEventListener("input", enterComposing);
-		};
-	}, [clearLeftControlsInteractionBlock, managedTextarea]);
-
-	React.useEffect(() => {
-		if (!(managedTextarea instanceof HTMLTextAreaElement)) {
 			setIsTextareaMultiline(false);
 			return;
 		}
@@ -538,49 +452,6 @@ export function AstraMobileSendForm({
 		};
 	}, [documentRef, managedTextarea]);
 
-	React.useEffect(() => {
-		const handleDocumentPointerDown = (event: PointerEvent) => {
-			if (leftControlsStateRef.current !== "composing") {
-				return;
-			}
-
-			const textarea = managedTextarea;
-			if (!(textarea instanceof HTMLTextAreaElement)) {
-				setLeftControlsState("default");
-				return;
-			}
-
-			const target = event.target;
-			if (!(target instanceof Node)) {
-				setLeftControlsState("default");
-				return;
-			}
-
-			if (textarea === target || textarea.contains(target)) {
-				return;
-			}
-
-			if (isComposingLeftControlsTarget(target)) {
-				return;
-			}
-
-			setLeftControlsState("default");
-		};
-
-		documentRef.addEventListener(
-			"pointerdown",
-			handleDocumentPointerDown,
-			true,
-		);
-		return () => {
-			documentRef.removeEventListener(
-				"pointerdown",
-				handleDocumentPointerDown,
-				true,
-			);
-		};
-	}, [documentRef, managedTextarea]);
-
 	const handleTextareaHostRef = React.useCallback(
 		(host: HTMLDivElement | null) => {
 			onTextareaHostChange(host);
@@ -608,10 +479,6 @@ export function AstraMobileSendForm({
 		},
 		[documentRef],
 	);
-	const handleExpandLeftControlsClick = React.useCallback(() => {
-		setLeftControlsState("default");
-		armLeftControlsInteractionBlock();
-	}, [armLeftControlsInteractionBlock]);
 	const handleShortcutsToolbarVisibilityChange = React.useCallback(
 		(nextValue: boolean) => {
 			setShowShortcutsToolbar(nextValue);
@@ -660,9 +527,6 @@ export function AstraMobileSendForm({
 		"sendForm.avatar.currentUser",
 	);
 	const leftControlsLabel = translateAstra("sendForm.input.leftControls");
-	const expandLeftControlsLabel = translateAstra(
-		"sendForm.input.expandLeftControls",
-	);
 	const handleMainMenuOpenChange = React.useCallback(
 		(nextOpen: boolean) => {
 			if (
@@ -962,18 +826,14 @@ export function AstraMobileSendForm({
 		<MobileSendFormInputRow
 			currentUserAvatarLabel={currentUserAvatarLabel}
 			documentRef={documentRef}
-			expandLeftControlsLabel={expandLeftControlsLabel}
 			inputRowLabel={inputRowLabel}
-			isLeftControlsInteractionBlocked={isLeftControlsInteractionBlocked}
 			isMainMenuOpen={isMainMenuOpen}
 			isTextareaMultiline={isTextareaMultiline}
 			leftControlsLabel={leftControlsLabel}
-			leftControlsState={leftControlsState}
 			primarySendActionIcon={primarySendActionIcon}
 			primarySendActionSnapshot={primarySendActionSnapshot}
 			showShortcutsToolbar={showShortcutsToolbar}
 			userAvatarSnapshot={avatarSnapshot}
-			onExpandLeftControlsClick={handleExpandLeftControlsClick}
 			onMainMenuOpen={handleMainMenuOpen}
 			onMainMenuTriggerKeyDownCapture={
 				handleMainMenuTriggerKeyDownCapture

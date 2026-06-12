@@ -573,7 +573,7 @@ describe("createMobileSendFormFeature", () => {
 		);
 	});
 
-	test("mounts the textarea host with left controls, composes input states, and restores the textarea on unmount", async () => {
+	test("mounts the textarea host with persistent left controls and restores the textarea on unmount", async () => {
 		document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>
       <div id="extensionsMenuButton" title="Extensions"></div>
@@ -779,11 +779,11 @@ describe("createMobileSendFormFeature", () => {
 				".mobile-send-form-input-row__left-controls-default",
 			),
 		).toBeInTheDocument();
-		expect(
-			inputRowHost.querySelector(
-				".mobile-send-form-input-row__left-controls-composing",
-			),
-		).toBeInTheDocument();
+			expect(
+				inputRowHost.querySelector(
+					".mobile-send-form-input-row__left-controls-composing",
+				),
+			).not.toBeInTheDocument();
 
 		const textarea = await waitFor(() => {
 			const textbox = within(inputRowHost).getByRole("textbox");
@@ -979,31 +979,34 @@ describe("createMobileSendFormFeature", () => {
 		fireEvent.focus(textarea);
 		fireEvent.input(textarea, { target: { value: "line 1\nline 2" } });
 
-		await waitFor(() => {
-			expect(inputRow).toHaveAttribute("data-input-state", "composing");
-			expect(inputRow).toHaveAttribute(
-				"data-textarea-layout",
-				"multi-line",
-			);
-			expect(leftControls).toHaveAttribute(
-				"data-left-state",
-				"composing",
-			);
-		});
+			await waitFor(() => {
+				expect(inputRow).toHaveAttribute("data-input-state", "default");
+				expect(inputRow).toHaveAttribute(
+					"data-textarea-layout",
+					"multi-line",
+				);
+				expect(leftControls).toHaveAttribute(
+					"data-left-state",
+					"default",
+				);
+			});
 
-		fireEvent.click(
-			within(host).getByRole("button", {
-				hidden: true,
-				name: "Expand left controls",
-			}),
-		);
+			expect(
+				within(host).queryByRole("button", {
+					hidden: true,
+					name: "Expand left controls",
+				}),
+			).not.toBeInTheDocument();
+			expect(
+				document.getElementById("mobile-send-form-menu-button"),
+			).toBeInTheDocument();
+			expect(
+				document.getElementById(
+					"mobile-send-form-extension-shortcuts-button",
+				),
+			).toHaveAttribute("aria-hidden", "false");
 
-		await waitFor(() => {
-			expect(inputRow).toHaveAttribute("data-input-state", "default");
-			expect(leftControls).toHaveAttribute("data-left-state", "default");
-		});
-
-		const avatarImage = within(host).getByAltText("Current user avatar");
+			const avatarImage = within(host).getByAltText("Current user avatar");
 		expect(avatarImage).toHaveAttribute("src", "/thumbs/hero-persona.png");
 		expect(avatarImage).toHaveClass(
 			"mobile-send-form-input-row__avatar-image",
@@ -2757,7 +2760,7 @@ describe("createMobileSendFormFeature", () => {
 		);
 	});
 
-	test("blocks the options drawer until the left-controls isolation window expires after expanding from composing", async () => {
+		test("keeps the options drawer available while the textarea is multiline", async () => {
 		try {
 			document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>
@@ -2834,51 +2837,22 @@ describe("createMobileSendFormFeature", () => {
 			fireEvent.focus(textarea);
 			fireEvent.input(textarea, { target: { value: "line 1\nline 2" } });
 
-			await waitFor(() => {
-				expect(leftControls).toHaveAttribute(
-					"data-left-state",
-					"composing",
-				);
-			});
+				await waitFor(() => {
+					expect(leftControls).toHaveAttribute(
+						"data-left-state",
+						"default",
+					);
+				});
 
-			vi.useFakeTimers();
+				const menuButton = within(host).getByRole("button", {
+					name: "Menu",
+				});
 
-			fireEvent.click(
-				within(host).getByRole("button", {
-					hidden: true,
-					name: "Expand left controls",
-				}),
-			);
+				fireEvent.pointerDown(menuButton);
+				fireEvent.click(menuButton);
 
-			expect(leftControls).toHaveAttribute("data-left-state", "default");
-
-			const menuButton = within(host).getByRole("button", {
-				name: "Menu",
-			});
-
-			fireEvent.pointerDown(menuButton);
-			fireEvent.click(menuButton);
-
-			expect(
-				document.getElementById("mobile-send-form-options-drawer"),
-			).not.toBeInTheDocument();
-
-			expect(leftControls).toHaveAttribute(
-				"data-interaction-blocked",
-				"true",
-			);
-
-			await act(async () => {
-				await vi.advanceTimersByTimeAsync(220);
-			});
-
-			vi.useRealTimers();
-
-			fireEvent.pointerDown(menuButton);
-			fireEvent.click(menuButton);
-
-			await waitFor(() => {
-				expect(
+				await waitFor(() => {
+					expect(
 					document.getElementById("mobile-send-form-options-drawer"),
 				).toBeInTheDocument();
 			});
@@ -2889,7 +2863,7 @@ describe("createMobileSendFormFeature", () => {
 		}
 	});
 
-	test("blocks the extensions drawer until the left-controls isolation window expires after expanding from composing", async () => {
+		test("keeps the extensions drawer available while the textarea is multiline", async () => {
 		try {
 			document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>
@@ -2966,50 +2940,21 @@ describe("createMobileSendFormFeature", () => {
 			fireEvent.focus(textarea);
 			fireEvent.input(textarea, { target: { value: "line 1\nline 2" } });
 
-			await waitFor(() => {
-				expect(leftControls).toHaveAttribute(
-					"data-left-state",
-					"composing",
-				);
-			});
+				await waitFor(() => {
+					expect(leftControls).toHaveAttribute(
+						"data-left-state",
+						"default",
+					);
+				});
 
-			vi.useFakeTimers();
+				const extensionsButton = within(host).getByRole("button", {
+					name: "Extension shortcuts",
+				});
 
-			fireEvent.click(
-				within(host).getByRole("button", {
-					hidden: true,
-					name: "Expand left controls",
-				}),
-			);
+				fireEvent.pointerDown(extensionsButton);
+				fireEvent.click(extensionsButton);
 
-			expect(leftControls).toHaveAttribute("data-left-state", "default");
-
-			const extensionsButton = within(host).getByRole("button", {
-				name: "Extension shortcuts",
-			});
-
-			fireEvent.pointerDown(extensionsButton);
-			fireEvent.click(extensionsButton);
-
-			expect(
-				document.getElementById("mobile-send-form-extensions-drawer"),
-			).not.toBeInTheDocument();
-
-			expect(leftControls).toHaveAttribute(
-				"data-interaction-blocked",
-				"true",
-			);
-
-			await act(async () => {
-				await vi.advanceTimersByTimeAsync(220);
-			});
-
-			vi.useRealTimers();
-
-			fireEvent.pointerDown(extensionsButton);
-			fireEvent.click(extensionsButton);
-
-			await waitFor(() => {
+				await waitFor(() => {
 				expect(
 					document.getElementById(
 						"mobile-send-form-extensions-drawer",
@@ -3023,7 +2968,7 @@ describe("createMobileSendFormFeature", () => {
 		}
 	});
 
-	test("keeps composing left controls active through the expand button pointerdown and only collapses on click", async () => {
+		test("does not render an expand button while the textarea is multiline", async () => {
 		document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>
       <div id="extensionsMenuButton" title="Extensions"></div>
@@ -3097,38 +3042,32 @@ describe("createMobileSendFormFeature", () => {
 		fireEvent.focus(textarea);
 		fireEvent.input(textarea, { target: { value: "line 1\nline 2" } });
 
-		await waitFor(() => {
-			expect(leftControls).toHaveAttribute(
-				"data-left-state",
-				"composing",
-			);
+			await waitFor(() => {
+				expect(leftControls).toHaveAttribute(
+					"data-left-state",
+					"default",
+				);
+			});
+
+			expect(
+				within(host).queryByRole("button", {
+					hidden: true,
+					name: "Expand left controls",
+				}),
+			).not.toBeInTheDocument();
+			expect(
+				within(host).getByRole("button", { name: "Menu" }),
+			).toBeInTheDocument();
+			expect(
+				within(host).getByRole("button", {
+					name: "Extension shortcuts",
+				}),
+			).toBeInTheDocument();
+
+			feature.dispose();
 		});
 
-		const expandButton = within(host).getByRole("button", {
-			hidden: true,
-			name: "Expand left controls",
-		});
-
-		fireEvent.pointerDown(expandButton);
-
-		expect(leftControls).toHaveAttribute("data-left-state", "composing");
-		expect(leftControls).toHaveAttribute(
-			"data-interaction-blocked",
-			"false",
-		);
-
-		fireEvent.click(expandButton);
-
-		expect(leftControls).toHaveAttribute("data-left-state", "default");
-		expect(leftControls).toHaveAttribute(
-			"data-interaction-blocked",
-			"true",
-		);
-
-		feature.dispose();
-	});
-
-	test("still collapses composing left controls on pointerdown outside the textarea and composing controls", async () => {
+		test("keeps left controls visible after textarea focus and outside pointerdown", async () => {
 		document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>
       <div id="extensionsMenuButton" title="Extensions"></div>
@@ -3202,12 +3141,12 @@ describe("createMobileSendFormFeature", () => {
 		fireEvent.focus(textarea);
 		fireEvent.input(textarea, { target: { value: "line 1\nline 2" } });
 
-		await waitFor(() => {
-			expect(leftControls).toHaveAttribute(
-				"data-left-state",
-				"composing",
-			);
-		});
+			await waitFor(() => {
+				expect(leftControls).toHaveAttribute(
+					"data-left-state",
+					"default",
+				);
+			});
 
 		fireEvent.pointerDown(
 			within(host).getByRole("button", { name: "Current user avatar" }),
@@ -3690,7 +3629,7 @@ describe("createMobileSendFormFeature", () => {
 			}),
 		).not.toBeInTheDocument();
 		expect(quickReplyHost).not.toHaveAttribute("hidden");
-		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
+		expect(document.getElementById("qr--bar")).toBeInTheDocument();
 
 		feature.dispose();
 	});
