@@ -7585,7 +7585,7 @@
     --mobile-send-form-glass-mask-hidden: transparent;
     content: "";
     position: absolute;
-    top: -20px;
+    top: -32px;
     bottom: 0;
     left: 50%;
     z-index: 0;
@@ -7873,7 +7873,7 @@
     flex: 1 1 auto;
     overflow-x: auto;
     overflow-y: hidden;
-    gap: 6px;
+    gap: 4px;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
@@ -9391,7 +9391,8 @@ body.astra-projecta-mobile-layout {
   content: "";
   position: absolute;
   inset-inline: 0;
-  top: 0;
+  top: -2px;
+  width: 101vw;
   bottom: calc(0px - var(--astra-mobile-glass-top-fade-size));
   z-index: 0;
   pointer-events: none;
@@ -13800,7 +13801,7 @@ body.astra-projecta-base-ui-body {
   --surface-primary-t90: color-mix(in srgb, var(--primary) 90%, transparent);
   --tw-shadow-color: var(--astra-projecta-theme-shadow);
   --tw-inset-shadow-color: var(--astra-projecta-theme-shadow);
-  --safe-bottom: calc(env(safe-area-inset-bottom, 0px) / 2);
+  --safe-bottom: calc(env(safe-area-inset-bottom, 0px) - 8px);
   --astra-mobile-visual-viewport-bottom: 100vh;
   --astra-mobile-safe-bottom-effective: var(--safe-bottom);
   --astra-mobile-glass-blur: 18px;

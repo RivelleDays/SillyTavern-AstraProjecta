@@ -535,7 +535,7 @@ body.astra-projecta-base-ui-body {
 	/* Shared runtime rendering tokens */
 	--tw-shadow-color: var(--astra-projecta-theme-shadow);
 	--tw-inset-shadow-color: var(--astra-projecta-theme-shadow);
-	--safe-bottom: calc(env(safe-area-inset-bottom, 0px) / 2);
+	--safe-bottom: calc(env(safe-area-inset-bottom, 0px) - 8px);
 	--astra-mobile-visual-viewport-bottom: 100vh;
 	--astra-mobile-safe-bottom-effective: var(--safe-bottom);
 	--astra-mobile-glass-blur: 18px;
