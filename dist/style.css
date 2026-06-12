@@ -9251,7 +9251,7 @@
     min-width: 0;
     height: auto;
     max-height: none;
-    gap: 8px;
+    gap: 12px;
     border-radius: var(--radius-4xl);
     border: 1px solid var(--border-color-base);
     background: var(--color-base-t5);
