@@ -7688,6 +7688,7 @@
     flex: 0 0 var(--mobile-send-form-quick-reply-expander-size);
     width: var(--mobile-send-form-quick-reply-expander-size);
     min-width: var(--mobile-send-form-quick-reply-expander-size);
+    height: var(--mobile-send-form-quick-reply-expander-size);
     margin: 0;
     padding-inline: 0;
     border-left-width: 0;
@@ -7695,14 +7696,7 @@
   body.astra-projecta-mobile-layout {
     --mobile-send-form-menu-surface-padding-inline: 8px;
     --mobile-send-form-menu-surface-padding-block: 8px;
-    --mobile-send-form-menu-surface: var(--surface-base);
-    @supports (color: color-mix(in lab, red, red)) {
-      --mobile-send-form-menu-surface: color-mix(
-			in srgb,
-			var(--surface-base) 88%,
-			var(--surface-muted-t40)
-		);
-    }
+    --mobile-send-form-menu-surface: var(--background);
     --mobile-send-form-menu-border-color: var(--border-color-base);
     --mobile-send-form-menu-section-gap: 8px;
     --mobile-send-form-menu-section-separator-color: var(--border-color-base);
