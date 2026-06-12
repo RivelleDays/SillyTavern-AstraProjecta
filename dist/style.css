@@ -7615,7 +7615,7 @@
     width: 100%;
     min-width: 0;
     padding-inline: calc(var(--mobile-chat-spacing) - 4px);
-    background: transparent;
+    background: transparent !important;
   }
   .mobile-send-form-input-row__textarea-host > #mobile-send-form-quick-reply-host {
     --mobile-send-form-quick-reply-gap: 8px;
