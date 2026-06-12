@@ -102,23 +102,7 @@
 		isolation: isolate;
 		background: transparent;
 		border-top: none;
-		padding-bottom: calc(
-			var(--mobile-chat-spacing) +
-				var(--astra-mobile-safe-bottom-effective, var(--safe-bottom))
-		);
-	}
-
-	#form_sheld::before {
-		content: "";
-		background-color: var(--background);
-		position: absolute;
-		inset-block: 0;
-		left: 50%;
-		width: 120dvw;
-		transform: translateX(-50%);
-		z-index: -1;
-		pointer-events: none;
-		border-top: 1px solid var(--border-color-base);
+		padding-bottom: calc( var(--mobile-chat-spacing) / 2 + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)) );
 	}
 
 	#send_form > #mobile-send-form-composer-host {
@@ -126,8 +110,7 @@
 		flex: 0 0 100%;
 		width: 100%;
 		min-width: 0;
-		padding: var(--mobile-chat-spacing)
-			calc(var(--mobile-chat-spacing) - 4px) 0;
+		padding-inline: calc(var(--mobile-chat-spacing) - 4px);
 		background: transparent;
 	}
 
@@ -384,9 +367,8 @@
 		box-sizing: border-box;
 		width: 100%;
 		min-width: 0;
-		padding: 0 0 8px;
 		border-radius: var(--radius-4xl);
-		background: var(--surface-muted-t20);
+		background: var(--surface-background-t90);
 		overflow: hidden;
 	}
 
@@ -406,7 +388,7 @@
 		box-sizing: border-box;
 		width: 100%;
 		min-width: 0;
-		padding: 8px 12px 0;
+		padding: 8px 12px;
 	}
 
 	.mobile-send-form-composer[data-shortcuts-visible="false"] .mobile-send-form-composer__shortcut-region {
