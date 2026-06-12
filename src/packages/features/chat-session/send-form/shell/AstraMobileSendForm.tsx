@@ -806,19 +806,11 @@ export function AstraMobileSendForm({
 	const shortcutsToolbar = showShortcutsToolbar ? (
 		<MobileSendFormShortcutsToolbar
 			contextUsageSnapshot={contextUsageSnapshot}
-			isQuickReplyHostVisible={isQuickReplyHostVisible}
 			label={shortcutsToolbarLabel}
-			quickReplyVisibilityToggleLabel={quickReplyVisibilityToggleLabel}
 			sillyTavernInterfaceTriggerLabel={sillyTavernInterfaceTriggerLabel}
 			showContextUsageShortcut={showContextUsageShortcut}
-			showQuickReplyVisibilityToggle={
-				shouldShowQuickReplyVisibilityToggle
-			}
 			visibleQuickShortcuts={visibleQuickShortcuts}
 			onSillyTavernInterfaceOpen={sillyTavernInterface.openCurrentPage}
-			onQuickReplyHostVisibilityToggle={
-				handleQuickReplyHostVisibilityToggle
-			}
 			onQuickShortcutClick={handleQuickShortcutClick}
 		/>
 	) : null;
@@ -828,10 +820,15 @@ export function AstraMobileSendForm({
 			documentRef={documentRef}
 			inputRowLabel={inputRowLabel}
 			isMainMenuOpen={isMainMenuOpen}
+			isQuickReplyHostVisible={isQuickReplyHostVisible}
 			isTextareaMultiline={isTextareaMultiline}
 			leftControlsLabel={leftControlsLabel}
 			primarySendActionIcon={primarySendActionIcon}
 			primarySendActionSnapshot={primarySendActionSnapshot}
+			quickReplyVisibilityToggleLabel={quickReplyVisibilityToggleLabel}
+			showQuickReplyVisibilityToggle={
+				shouldShowQuickReplyVisibilityToggle
+			}
 			showShortcutsToolbar={showShortcutsToolbar}
 			userAvatarSnapshot={avatarSnapshot}
 			onMainMenuOpen={handleMainMenuOpen}
@@ -842,6 +839,9 @@ export function AstraMobileSendForm({
 				handleMainMenuTriggerPointerDownCapture
 			}
 			onPrimarySendActionClick={handlePrimarySendActionClick}
+			onQuickReplyHostVisibilityToggle={
+				handleQuickReplyHostVisibilityToggle
+			}
 			onShortcutsToolbarVisibilityChange={
 				handleShortcutsToolbarVisibilityChange
 			}

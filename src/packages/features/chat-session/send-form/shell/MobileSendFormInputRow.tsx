@@ -11,12 +11,14 @@ import {
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { MobileSendFormExtensionsMenu } from "@/packages/features/chat-session/send-form/extensions-menu/MobileSendFormExtensionsMenu";
 import { MobileSendFormOptionsMenu } from "@/packages/features/chat-session/send-form/options-menu/MobileSendFormOptionsMenu";
+import { MobileSendFormQuickReplyToggleButton } from "@/packages/features/chat-session/send-form/shell/MobileSendFormQuickReplyToggleButton";
 
 export interface MobileSendFormInputRowProps {
 	currentUserAvatarLabel: string;
 	documentRef: Document;
 	inputRowLabel: string;
 	isMainMenuOpen: boolean;
+	isQuickReplyHostVisible: boolean;
 	isTextareaMultiline: boolean;
 	leftControlsLabel: string;
 	onMainMenuOpen(): void;
@@ -25,10 +27,13 @@ export interface MobileSendFormInputRowProps {
 	): void;
 	onMainMenuTriggerPointerDownCapture(): void;
 	onPrimarySendActionClick(): void;
+	onQuickReplyHostVisibilityToggle(): void;
 	onShortcutsToolbarVisibilityChange(nextValue: boolean): void;
 	onTextareaHostChange(host: HTMLDivElement | null): void;
 	primarySendActionIcon: LucideIcon;
 	primarySendActionSnapshot: PrimarySendActionSnapshot;
+	quickReplyVisibilityToggleLabel: string;
+	showQuickReplyVisibilityToggle: boolean;
 	showShortcutsToolbar: boolean;
 	userAvatarSnapshot: CurrentUserAvatarSnapshot;
 }
@@ -38,16 +43,20 @@ export function MobileSendFormInputRow({
 	documentRef,
 	inputRowLabel,
 	isMainMenuOpen,
+	isQuickReplyHostVisible,
 	isTextareaMultiline,
 	leftControlsLabel,
 	onMainMenuOpen,
 	onMainMenuTriggerKeyDownCapture,
 	onMainMenuTriggerPointerDownCapture,
 	onPrimarySendActionClick,
+	onQuickReplyHostVisibilityToggle,
 	onShortcutsToolbarVisibilityChange,
 	onTextareaHostChange,
 	primarySendActionIcon: PrimarySendActionIcon,
 	primarySendActionSnapshot,
+	quickReplyVisibilityToggleLabel,
+	showQuickReplyVisibilityToggle,
 	showShortcutsToolbar,
 	userAvatarSnapshot,
 }: MobileSendFormInputRowProps) {
@@ -123,6 +132,18 @@ export function MobileSendFormInputRow({
 							</div>
 						</div>
 						<div className="mobile-send-form-input-row__textarea-actions">
+							{showQuickReplyVisibilityToggle ? (
+								<MobileSendFormQuickReplyToggleButton
+									className="mobile-send-form-input-row__quick-reply-toggle"
+									isQuickReplyHostVisible={
+										isQuickReplyHostVisible
+									}
+									label={quickReplyVisibilityToggleLabel}
+									onClick={
+										onQuickReplyHostVisibilityToggle
+									}
+								/>
+							) : null}
 							{primarySendActionSnapshot.visible ? (
 								<Button
 									aria-label={primarySendActionSnapshot.label}

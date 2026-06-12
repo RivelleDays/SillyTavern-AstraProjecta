@@ -3518,10 +3518,11 @@ describe("createMobileSendFormFeature", () => {
 		feature.dispose();
 	});
 
-	test("renders the quick reply visibility toggle after the SillyTavern interface trigger when native quick replies are enabled", async () => {
+	test("renders the quick reply visibility toggle in the input row before the send button when native quick replies are enabled", async () => {
 		const feature = setupQuickReplyVisibilityFixture();
 
-		const { quickReplyHost, shortcutsHost } = await waitForSendFormHosts();
+		const { inputRowHost, quickReplyHost, shortcutsHost } =
+			await waitForSendFormHosts();
 		const shortcutsStrip = shortcutsHost.querySelector(
 			".mobile-send-form-shortcuts__strip",
 		) as HTMLElement | null;
@@ -3530,20 +3531,35 @@ describe("createMobileSendFormFeature", () => {
 		const shortcutButtons = within(
 			shortcutsStrip as HTMLElement,
 		).getAllByRole("button");
+		const textareaActions = inputRowHost.querySelector(
+			".mobile-send-form-input-row__textarea-actions",
+		);
+		const quickReplyToggle = within(inputRowHost).getByRole("button", {
+			name: "Hide quick replies",
+		});
+		const sendButton = within(inputRowHost).getByRole("button", {
+			name: "Send message",
+		});
 
 		expect(shortcutButtons[0]).toHaveAttribute(
 			"id",
 			"sillytavern-interface-panel-trigger",
 		);
-		expect(shortcutButtons[1]).toHaveAttribute(
+		expect(
+			within(shortcutsHost).queryByRole("button", {
+				name: "Hide quick replies",
+			}),
+		).not.toBeInTheDocument();
+		expect(quickReplyToggle).toHaveAttribute(
 			"id",
 			"mobile-send-form-quick-reply-toggle",
 		);
-		expect(shortcutButtons[1]).toHaveAccessibleName("Hide quick replies");
 		expect(
-			shortcutButtons[1].querySelector(".lucide-message-circle-reply"),
+			quickReplyToggle.querySelector(".lucide-keyboard"),
 		).toBeInTheDocument();
-		expect(shortcutButtons[2]).toHaveAccessibleName("Impersonate");
+		expect(textareaActions?.firstElementChild).toBe(quickReplyToggle);
+		expect(quickReplyToggle.nextElementSibling).toBe(sendButton);
+		expect(shortcutButtons[1]).toHaveAccessibleName("Impersonate");
 		expect(quickReplyHost).not.toHaveAttribute("hidden");
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 
@@ -3553,8 +3569,14 @@ describe("createMobileSendFormFeature", () => {
 	test("hides and shows the quick reply host from the persisted visibility toggle", async () => {
 		const feature = setupQuickReplyVisibilityFixture();
 
-		const { quickReplyHost, shortcutsHost } = await waitForSendFormHosts();
-		const hideToggle = within(shortcutsHost).getByRole("button", {
+		const { inputRowHost, quickReplyHost, shortcutsHost } =
+			await waitForSendFormHosts();
+		expect(
+			within(shortcutsHost).queryByRole("button", {
+				name: "Hide quick replies",
+			}),
+		).not.toBeInTheDocument();
+		const hideToggle = within(inputRowHost).getByRole("button", {
 			name: "Hide quick replies",
 		});
 
@@ -3569,11 +3591,11 @@ describe("createMobileSendFormFeature", () => {
 			),
 		).toBe("false");
 
-		const showToggle = within(shortcutsHost).getByRole("button", {
+		const showToggle = within(inputRowHost).getByRole("button", {
 			name: "Show quick replies",
 		});
 		expect(
-			showToggle.querySelector(".lucide-text-cursor-input"),
+			showToggle.querySelector(".lucide-message-circle-reply"),
 		).toBeInTheDocument();
 
 		fireEvent.click(showToggle);
@@ -3595,13 +3617,22 @@ describe("createMobileSendFormFeature", () => {
 			storedVisibility: "false",
 		});
 
-		const { quickReplyHost, shortcutsHost } = await waitForSendFormHosts();
+		const { inputRowHost, quickReplyHost, shortcutsHost } =
+			await waitForSendFormHosts();
 
 		expect(quickReplyHost).toHaveAttribute("hidden");
+		expect(
+			within(shortcutsHost).queryByRole("button", {
+				name: "Show quick replies",
+			}),
+		).not.toBeInTheDocument();
 
-		const showToggle = within(shortcutsHost).getByRole("button", {
+		const showToggle = within(inputRowHost).getByRole("button", {
 			name: "Show quick replies",
 		});
+		expect(
+			showToggle.querySelector(".lucide-message-circle-reply"),
+		).toBeInTheDocument();
 		fireEvent.click(showToggle);
 
 		await waitFor(() => {
@@ -3616,7 +3647,8 @@ describe("createMobileSendFormFeature", () => {
 			nativeToggle: "unchecked",
 		});
 
-		const { quickReplyHost, shortcutsHost } = await waitForSendFormHosts();
+		const { inputRowHost, quickReplyHost, shortcutsHost } =
+			await waitForSendFormHosts();
 
 		expect(
 			within(shortcutsHost).queryByRole("button", {
@@ -3625,6 +3657,16 @@ describe("createMobileSendFormFeature", () => {
 		).not.toBeInTheDocument();
 		expect(
 			within(shortcutsHost).queryByRole("button", {
+				name: "Show quick replies",
+			}),
+		).not.toBeInTheDocument();
+		expect(
+			within(inputRowHost).queryByRole("button", {
+				name: "Hide quick replies",
+			}),
+		).not.toBeInTheDocument();
+		expect(
+			within(inputRowHost).queryByRole("button", {
 				name: "Show quick replies",
 			}),
 		).not.toBeInTheDocument();
@@ -3638,7 +3680,8 @@ describe("createMobileSendFormFeature", () => {
 			nativeToggle: "missing",
 		});
 
-		const { quickReplyHost, shortcutsHost } = await waitForSendFormHosts();
+		const { inputRowHost, quickReplyHost, shortcutsHost } =
+			await waitForSendFormHosts();
 
 		expect(
 			within(shortcutsHost).queryByRole("button", {
@@ -3647,6 +3690,16 @@ describe("createMobileSendFormFeature", () => {
 		).not.toBeInTheDocument();
 		expect(
 			within(shortcutsHost).queryByRole("button", {
+				name: "Show quick replies",
+			}),
+		).not.toBeInTheDocument();
+		expect(
+			within(inputRowHost).queryByRole("button", {
+				name: "Hide quick replies",
+			}),
+		).not.toBeInTheDocument();
+		expect(
+			within(inputRowHost).queryByRole("button", {
 				name: "Show quick replies",
 			}),
 		).not.toBeInTheDocument();

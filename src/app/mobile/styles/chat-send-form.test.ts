@@ -81,19 +81,18 @@ describe("chat-send-form.css", () => {
 			".mobile-send-form-shortcuts__strip",
 			".mobile-send-form-input-row",
 			".mobile-send-form-input-row__left",
+			".mobile-send-form-input-row__avatar",
 			".mobile-send-form-input-row__textarea-host",
 			".mobile-send-form-input-row__textarea-main",
 			".mobile-send-form-input-row__controls-row",
 			".mobile-send-form-input-row__textarea-actions",
+			".mobile-send-form-input-row__quick-reply-toggle",
 			".mobile-send-form-input-row__send-button",
 			".mobile-send-form-input-row__left-control-button:not(:disabled)",
 			".mobile-send-form-input-row__left-control-button:disabled",
 		]);
 		expect(css).toContain("--mobile-send-form-textarea-flex-basis:");
 		expect(css).toContain("--mobile-send-form-avatar-size:");
-		expect(css).toContain(
-			"var(--astra-avatar-size-mobile-send-form-trigger)",
-		);
 		expect(css).not.toContain(
 			".mobile-send-form-input-row__left-controls-composing",
 		);

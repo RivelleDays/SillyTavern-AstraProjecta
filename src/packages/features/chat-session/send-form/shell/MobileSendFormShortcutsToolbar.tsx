@@ -2,15 +2,10 @@ import * as React from "react";
 
 import { Button } from "@/components/ui/shadcn/button";
 import { UiIcon } from "@/components/ui/shared/icon";
-import {
-	Astroid,
-	MessageCircleReply,
-	TextCursorInput,
-} from "@/components/ui/shared/icons";
+import { Astroid } from "@/components/ui/shared/icons";
 import type { LucideIcon } from "@/components/ui/shared/icons";
 import type { ChatContextUsageSnapshot } from "@/packages/core/st/chatContextUsage";
 import { SILLYTAVERN_INTERFACE_TRIGGER_ID } from "@/packages/features/sillytavern-interface/contracts/dom";
-import { MOBILE_SEND_FORM_QUICK_REPLY_TOGGLE_ID } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { MobileChatContextUsageShortcut } from "@/packages/features/chat-session/send-form/context-usage/MobileChatContextUsageShortcut";
 
 export interface VisibleMobileSendFormShortcut {
@@ -21,35 +16,23 @@ export interface VisibleMobileSendFormShortcut {
 
 export interface MobileSendFormShortcutsToolbarProps {
 	contextUsageSnapshot: ChatContextUsageSnapshot;
-	isQuickReplyHostVisible: boolean;
 	label: string;
-	quickReplyVisibilityToggleLabel: string;
 	onSillyTavernInterfaceOpen(): void;
-	onQuickReplyHostVisibilityToggle(): void;
 	onQuickShortcutClick(shortcutId: string): void;
 	sillyTavernInterfaceTriggerLabel: string;
 	showContextUsageShortcut: boolean;
-	showQuickReplyVisibilityToggle: boolean;
 	visibleQuickShortcuts: readonly VisibleMobileSendFormShortcut[];
 }
 
 export function MobileSendFormShortcutsToolbar({
 	contextUsageSnapshot,
-	isQuickReplyHostVisible,
 	label,
 	onSillyTavernInterfaceOpen,
-	onQuickReplyHostVisibilityToggle,
 	onQuickShortcutClick,
-	quickReplyVisibilityToggleLabel,
 	sillyTavernInterfaceTriggerLabel,
 	showContextUsageShortcut,
-	showQuickReplyVisibilityToggle,
 	visibleQuickShortcuts,
 }: MobileSendFormShortcutsToolbarProps) {
-	const QuickReplyToggleIcon = isQuickReplyHostVisible
-		? MessageCircleReply
-		: TextCursorInput;
-
 	return (
 		<div
 			aria-label={label}
@@ -76,25 +59,6 @@ export function MobileSendFormShortcutsToolbar({
 						{sillyTavernInterfaceTriggerLabel}
 					</Button>
 				</span>
-				{showQuickReplyVisibilityToggle ? (
-					<span className="mobile-send-form-shortcuts__item">
-						<Button
-							aria-label={quickReplyVisibilityToggleLabel}
-							className="mobile-send-form-shortcuts__button"
-							id={MOBILE_SEND_FORM_QUICK_REPLY_TOGGLE_ID}
-							size="icon-sm"
-							type="button"
-							variant="ghost"
-							onClick={onQuickReplyHostVisibilityToggle}
-						>
-							<UiIcon
-								aria-hidden={true}
-								icon={QuickReplyToggleIcon}
-								size="md"
-							/>
-						</Button>
-					</span>
-				) : null}
 				{visibleQuickShortcuts.map((item) => {
 					const ShortcutIcon = item.icon;
 

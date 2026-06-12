@@ -2112,10 +2112,19 @@
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
+		gap: 8px;
 		flex: 0 0 auto;
 		flex-shrink: 0;
-		min-width: var(--mobile-send-form-inline-send-button-size);
+		min-width: 0;
 		padding: 0;
+	}
+
+	.mobile-send-form-input-row__quick-reply-toggle {
+		flex: 0 0 auto;
+	}
+
+	.mobile-send-form-input-row__quick-reply-toggle[data-variant="ghost"] {
+		color: inherit;
 	}
 
 	.mobile-send-form-input-row__send-button {
