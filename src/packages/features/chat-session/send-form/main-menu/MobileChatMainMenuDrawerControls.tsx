@@ -40,6 +40,14 @@ function DrawerSelectControl({
 		: options.some((option) => option.value === "")
 			? NONE_OPTION_VALUE
 			: undefined;
+	const selectedOption = normalizedValue
+		? options.find(
+				(option) =>
+					(option.value === "" ? NONE_OPTION_VALUE : option.value) ===
+					normalizedValue,
+			)
+		: undefined;
+	const triggerTitle = selectedOption?.label ?? placeholder;
 
 	return (
 		<div
@@ -64,30 +72,41 @@ function DrawerSelectControl({
 					);
 				}}
 			>
-				<SelectTrigger
-					aria-label={label}
-					className="mobile-chat-main-menu-drawer__control-trigger"
-					disabled={disabled}
-					id={id}
-					size="sm"
-				>
-					<SelectValue placeholder={placeholder} />
-				</SelectTrigger>
+					<SelectTrigger
+						aria-label={label}
+						className="mobile-chat-main-menu-drawer__control-trigger"
+						disabled={disabled}
+						id={id}
+						size="sm"
+						title={triggerTitle}
+					>
+						<span className="mobile-chat-main-menu-drawer__control-value">
+							<SelectValue placeholder={placeholder} />
+						</span>
+					</SelectTrigger>
 				<SelectContent
+					align="start"
 					className="mobile-chat-main-menu-drawer__control-content"
 					position="popper"
 				>
 					{options.map((option) => (
 						<SelectItem
+							className="mobile-chat-main-menu-drawer__control-option"
 							disabled={option.disabled}
 							key={`${option.value || NONE_OPTION_VALUE}-${option.label}`}
+							textValue={option.label}
 							value={
 								option.value === ""
 									? NONE_OPTION_VALUE
 									: option.value
 							}
 						>
-							{option.label}
+							<span
+								className="mobile-chat-main-menu-drawer__control-option-label"
+								title={option.label}
+							>
+								{option.label}
+							</span>
 						</SelectItem>
 					))}
 				</SelectContent>

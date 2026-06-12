@@ -1076,6 +1076,94 @@ describe("MobileChatMainMenuDrawer", () => {
 		});
 	});
 
+	test("keeps long connection profile labels inspectable while exposing bounded select markup", async () => {
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		setSillyTavernContext({
+			translate: (text: string) => text,
+		});
+		const longProfileLabel =
+			"openrouter anthropic/claude-opus-4.5 - Sushi Preset (Kimi, Deepseek, Gemini, and several long fallback providers)";
+		const onConnectionProfileChange = vi.fn();
+
+		render(
+			<MobileChatMainMenuDrawer
+				chatContextUsageSnapshot={createContextUsageSnapshot()}
+				chatInfoSnapshot={createInfoSnapshot()}
+				currentConnectionSnapshot={createCurrentConnectionSnapshot()}
+				currentPresetProfileControlsSnapshot={createPresetProfileControlsSnapshot(
+					{
+						connectionProfiles: {
+							options: [
+								{ label: "<None>", value: "" },
+								{
+									label: longProfileLabel,
+									value: "profile-long",
+								},
+								{
+									label: "Compact Mode",
+									value: "profile-short",
+								},
+							],
+							selectedProfileId: "profile-long",
+							selectedProfileName: longProfileLabel,
+						},
+					},
+				)}
+				onConnectionProfileChange={onConnectionProfileChange}
+				onOpenChange={() => {}}
+				open={true}
+				snapshot={createIdentitySnapshot()}
+			/>,
+		);
+
+		const profileTrigger = await screen.findByRole("combobox", {
+			name: "Connection Profile",
+		});
+		const triggerValue = profileTrigger.querySelector(
+			".mobile-chat-main-menu-drawer__control-value",
+		);
+
+		expect(profileTrigger).toHaveTextContent(longProfileLabel);
+		expect(profileTrigger).toHaveAttribute("title", longProfileLabel);
+		expect(triggerValue).toBeInTheDocument();
+		expect(triggerValue).toHaveTextContent(longProfileLabel);
+
+		profileTrigger.focus();
+		fireEvent.keyDown(profileTrigger, {
+			code: "ArrowDown",
+			key: "ArrowDown",
+		});
+
+		const content = await screen.findByRole("listbox");
+		const longProfileItem = within(content).getByRole("option", {
+			name: longProfileLabel,
+		});
+		const longProfileItemLabel =
+			within(longProfileItem).getByText(longProfileLabel);
+		const portalContainer = document.getElementById(
+			"astra-projecta-ui-portals",
+		);
+
+		expect(longProfileItem).toHaveClass(
+			"mobile-chat-main-menu-drawer__control-option",
+		);
+		expect(longProfileItemLabel).toHaveClass(
+			"mobile-chat-main-menu-drawer__control-option-label",
+		);
+		expect(longProfileItemLabel).toHaveAttribute("title", longProfileLabel);
+		await waitFor(() => {
+			expect(portalContainer?.contains(content)).toBe(true);
+		});
+
+		fireEvent.click(
+			within(content).getByRole("option", {
+				name: "Compact Mode",
+			}),
+		);
+
+		expect(onConnectionProfileChange).toHaveBeenCalledWith("profile-short");
+	});
+
 	test("disables the connection profile select while a change is in progress", async () => {
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 		setSillyTavernContext({
