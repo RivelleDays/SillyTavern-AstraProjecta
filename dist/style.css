@@ -8131,7 +8131,7 @@
     flex: 1 1 auto;
     min-width: 0;
     width: 100%;
-    padding: var(--mobile-chat-spacing);
+    padding: var(--mobile-chat-spacing) calc(var(--mobile-chat-spacing) - 4px);
     padding-bottom: 0;
   }
   .mobile-send-form-input-row__avatar {
@@ -12094,8 +12094,9 @@ body.astra-projecta-mobile-layout {
 		);
     max-height: unset;
     bottom: 0;
-    background-color: transparent;
+    background-color: transparent !important;
     border: none !important;
+    backdrop-filter: none !important;
     padding-inline: var(--astra-chat-scroll-inline-padding);
   }
   & #chat[data-astra-projecta-chat-scroll="native"] {
@@ -13719,7 +13720,7 @@ body.astra-projecta-base-ui-body {
   --surface-primary-t90: color-mix(in srgb, var(--primary) 90%, transparent);
   --tw-shadow-color: var(--astra-projecta-theme-shadow);
   --tw-inset-shadow-color: var(--astra-projecta-theme-shadow);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-bottom: calc(env(safe-area-inset-bottom, 0px) / 2);
   --astra-mobile-visual-viewport-bottom: 100vh;
   --astra-mobile-safe-bottom-effective: var(--safe-bottom);
   --astra-icon-size-xs: 0.875rem;

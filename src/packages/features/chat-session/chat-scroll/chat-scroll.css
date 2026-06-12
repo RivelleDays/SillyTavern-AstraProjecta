@@ -5,8 +5,9 @@ body.astra-projecta-mobile-layout {
 		);
 		max-height: unset;
 		bottom: 0;
-		background-color: transparent;
+		background-color: transparent !important;
 		border: none !important;
+		backdrop-filter: none !important;
 		padding-inline: var(--astra-chat-scroll-inline-padding);
 	}
 
