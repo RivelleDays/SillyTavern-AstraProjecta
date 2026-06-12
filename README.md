@@ -30,23 +30,19 @@ AstraProjecta currently focuses on refining SillyTavern’s core chat experience
 
 <table width="100%">
   <tr>
-    <th width="25%">Chat View</th>
-    <th width="25%">Main Drawer</th>
-    <th width="25%">ST Menu</th>
-    <th width="25%">Message Details</th>
+    <th width="33.33%">Chat View</th>
+    <th width="33.33%">Main Drawer</th>
+    <th width="33.33%">ST Menu</th>
   </tr>
   <tr>
-    <td width="25%">
+    <td width="33.33%">
       <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-chat-view.png?raw=true" alt="AstraProjecta mobile chat view with message layout, message actions, swipe controls, and the bottom input bar" width="100%">
     </td>
-    <td width="25%">
+    <td width="33.33%">
       <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-main-drawer.png?raw=true" alt="AstraProjecta mobile main drawer with API status, model information, settings shortcuts, and connection profile controls" width="100%">
     </td>
-    <td width="25%">
+    <td width="33.33%">
       <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-background-manager.png?raw=true" alt="AstraProjecta mobile SillyTavern main menu with AstraProjecta navigation and interface shortcuts" width="100%">
-    </td>
-    <td width="25%">
-      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-message-details.png?raw=true" alt="AstraProjecta mobile message details drawer with metadata, message actions, and rendered message content" width="100%">
     </td>
   </tr>
 </table>
@@ -76,18 +72,13 @@ After installation, please make sure your environment follows the [Requirements]
 
 ## Community
 
-<table>
-  <tr>
-    <td width="260" align="left" valign="middle">
-      <a href="https://discord.gg/bb35eB5Zgr">
-        <img src="https://img.shields.io/badge/Discord-AstraRiver-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=000000" alt="Join our Discord: AstraRiver" height="32">
-      </a>
-    </td>
-    <td valign="middle">
-      <strong><a href="https://discord.gg/bb35eB5Zgr">AstraRiver</a></strong> is Rivelle’s personal server, created to share and discuss topics related to <strong>AstraProjecta</strong>, SillyTavern, AI Roleplay, and other Rivelle-made projects in one place.
-    </td>
-  </tr>
-</table>
+<p align="left">
+  <a href="https://discord.gg/bb35eB5Zgr">
+    <img src="https://img.shields.io/badge/Discord-AstraRiver-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=000000" alt="Join our Discord: AstraRiver" height="32">
+  </a>
+</p>
+
+**[AstraRiver](https://discord.gg/bb35eB5Zgr)** is Rivelle’s personal server, created to share and discuss topics related to **AstraProjecta**, SillyTavern, AI Roleplay, and other Rivelle-made projects in one place.
 
 You are welcome to join if you would like to follow development progress, share feedback, or casually discuss related UI and project ideas.
 
