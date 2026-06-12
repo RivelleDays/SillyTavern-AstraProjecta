@@ -7527,6 +7527,7 @@
     height: calc(	100vh -	var(--mobile-chat-top-bar-block-size, var(--topBarBlockSize))	);
     height: calc(	var(--astra-mobile-visual-viewport-bottom, 100dvh) -	var(--mobile-chat-top-bar-block-size, var(--topBarBlockSize))	);
     max-height: calc(	var(--astra-mobile-visual-viewport-bottom, 100dvh) -	var(--mobile-chat-top-bar-block-size, var(--topBarBlockSize))	);
+    overflow: hidden;
   }
   body.PWA #sheld {
     padding: 0 !important;
@@ -7578,19 +7579,18 @@
     overflow: visible;
     background: transparent;
     border-top: none;
-    padding-bottom: calc( var(--mobile-chat-spacing) / 2 + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)) );
+    padding-bottom: calc(8px + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)) );
   }
   #form_sheld::before {
     --mobile-send-form-glass-mask-visible: rgb(0 0 0);
     --mobile-send-form-glass-mask-hidden: transparent;
     content: "";
     position: absolute;
-    top: -32px;
-    bottom: 0;
-    left: 50%;
+    top: 20px;
+    bottom: -2px;
+    left: 0;
     z-index: 0;
-    width: 120dvw;
-    transform: translateX(-50%);
+    width: 101dvw;
     pointer-events: none;
     background: linear-gradient(	to bottom,	transparent 0%,	var(--astra-mobile-glass-bottom-surface)	var(--astra-mobile-glass-bottom-fade-size),	var(--astra-mobile-glass-bottom-surface) 100%	);
     @supports (color: color-mix(in lab, red, red)) {
@@ -11475,6 +11475,17 @@ body.astra-projecta-mobile-layout {
     min-height: 0;
     pointer-events: none;
   }
+  .sillytavern-interface-panel__footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    flex: 0 0 auto;
+    min-width: 0;
+    align-items: center;
+    column-gap: 8px;
+    padding: 12px 16px;
+    padding-bottom: calc(12px + var(--safe-bottom));
+    border-top: 1px solid var(--border-color-base);
+  }
   .sillytavern-interface-panel__footer-accessory {
     display: flex;
     flex: 0 0 auto;
@@ -11490,17 +11501,6 @@ body.astra-projecta-mobile-layout {
     max-height: 0;
     border-color: transparent;
     opacity: 0;
-  }
-  .sillytavern-interface-panel__footer {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    flex: 0 0 auto;
-    min-width: 0;
-    align-items: center;
-    column-gap: 8px;
-    padding: 8px 16px;
-    padding-bottom: calc(8px + var(--safe-bottom));
-    border-top: 1px solid var(--border-color-base);
   }
   .sillytavern-interface-panel__footer-main {
     display: flex;
@@ -11708,7 +11708,7 @@ body.astra-projecta-mobile-layout {
   }
   .sillytavern-interface__main-nav-toggle-button {
     flex: 0 0 auto;
-    width: 52px !important;
+    width: 56px !important;
     height: 32px !important;
     border-radius: 20px;
   }
@@ -13801,7 +13801,7 @@ body.astra-projecta-base-ui-body {
   --surface-primary-t90: color-mix(in srgb, var(--primary) 90%, transparent);
   --tw-shadow-color: var(--astra-projecta-theme-shadow);
   --tw-inset-shadow-color: var(--astra-projecta-theme-shadow);
-  --safe-bottom: calc(env(safe-area-inset-bottom, 0px) - 8px);
+  --safe-bottom: calc(env(safe-area-inset-bottom, 0px) / 2);
   --astra-mobile-visual-viewport-bottom: 100vh;
   --astra-mobile-safe-bottom-effective: var(--safe-bottom);
   --astra-mobile-glass-blur: 18px;

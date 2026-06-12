@@ -101,6 +101,18 @@
 		pointer-events: none;
 	}
 
+	.sillytavern-interface-panel__footer {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+		flex: 0 0 auto;
+		min-width: 0;
+		align-items: center;
+		column-gap: 8px;
+		padding: 12px 16px;
+		padding-bottom: calc(12px + var(--safe-bottom));
+		border-top: 1px solid var(--border-color-base);
+	}
+
 	.sillytavern-interface-panel__footer-accessory {
 		display: flex;
 		flex: 0 0 auto;
@@ -120,18 +132,6 @@
 		max-height: 0;
 		border-color: transparent;
 		opacity: 0;
-	}
-
-	.sillytavern-interface-panel__footer {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-		flex: 0 0 auto;
-		min-width: 0;
-		align-items: center;
-		column-gap: 8px;
-		padding: 8px 16px;
-		padding-bottom: calc(8px + var(--safe-bottom));
-		border-top: 1px solid var(--border-color-base);
 	}
 
 	.sillytavern-interface-panel__footer-main {
@@ -378,7 +378,7 @@
 
 	.sillytavern-interface__main-nav-toggle-button {
 		flex: 0 0 auto;
-		width: 52px !important;
+		width: 56px !important;
 		height: 32px !important;
 		border-radius: 20px;
 	}

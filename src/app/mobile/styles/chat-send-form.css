@@ -45,6 +45,7 @@
 			var(--astra-mobile-visual-viewport-bottom, 100dvh) -
 				var(--mobile-chat-top-bar-block-size, var(--topBarBlockSize))
 		);
+		overflow: hidden;
 	}
 	body.PWA #sheld {
 		padding: 0 !important;
@@ -103,7 +104,7 @@
 		overflow: visible;
 		background: transparent;
 		border-top: none;
-		padding-bottom: calc( var(--mobile-chat-spacing) / 2 + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)) );
+		padding-bottom: calc(8px + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)) );
 	}
 
 	#form_sheld::before {
@@ -112,12 +113,11 @@
 
 		content: "";
 		position: absolute;
-		top: -32px;
-		bottom: 0;
-		left: 50%;
+		top: 20px;
+		bottom: -2px;
+		left: 0;
 		z-index: 0;
-		width: 120dvw;
-		transform: translateX(-50%);
+		width: 101dvw;
 		pointer-events: none;
 		background: linear-gradient(
 			to bottom,
