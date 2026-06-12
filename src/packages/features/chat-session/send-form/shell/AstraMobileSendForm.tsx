@@ -1,5 +1,4 @@
 import * as React from "react";
-import { createPortal } from "react-dom";
 
 import {
 	SendHorizontal,
@@ -20,7 +19,9 @@ import type {
 import type { QuickShortcutStore } from "@/packages/core/st/quickShortcuts";
 import type { NativeQuickReplyEnabledStore } from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyEnabledStore";
 import {
+	MOBILE_SEND_FORM_INPUT_ROW_HOST_ID,
 	MOBILE_SEND_FORM_QUICK_REPLY_VISIBILITY_STORAGE_KEY,
+	MOBILE_SEND_FORM_SHORTCUTS_HOST_ID,
 	MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { SILLYTAVERN_INTERFACE_ID } from "@/packages/features/sillytavern-interface/contracts/dom";
@@ -224,7 +225,6 @@ export function AstraMobileSendForm({
 	currentPresetProfileControlsStore,
 	currentUserAvatarStore,
 	documentRef = document,
-	inputRowHost,
 	onTextareaHostChange,
 	primarySendActionStore,
 	quickReplyEnabledStore,
@@ -238,7 +238,6 @@ export function AstraMobileSendForm({
 	currentPresetProfileControlsStore: CurrentPresetProfileControlsStore;
 	currentUserAvatarStore: CurrentUserAvatarStore;
 	documentRef?: Document;
-	inputRowHost: HTMLDivElement | null;
 	onTextareaHostChange(host: HTMLDivElement | null): void;
 	primarySendActionStore: PrimarySendActionStore;
 	quickReplyEnabledStore: NativeQuickReplyEnabledStore;
@@ -851,8 +850,30 @@ export function AstraMobileSendForm({
 
 	return (
 		<>
-			{shortcutsToolbar}
-			{inputRowHost ? createPortal(inputRow, inputRowHost) : null}
+			<div
+				className="mobile-send-form-composer"
+				data-shortcuts-visible={
+					showShortcutsToolbar ? "true" : "false"
+				}
+				data-slot="mobile-send-form-composer"
+			>
+				<div className="mobile-send-form-composer__surface">
+					<div
+						className="mobile-send-form-input-row-host"
+						id={MOBILE_SEND_FORM_INPUT_ROW_HOST_ID}
+					>
+						{inputRow}
+					</div>
+				</div>
+				<div className="mobile-send-form-composer__shortcut-region">
+					<div
+						className="mobile-send-form-shortcuts-host"
+						id={MOBILE_SEND_FORM_SHORTCUTS_HOST_ID}
+					>
+						{shortcutsToolbar}
+					</div>
+				</div>
+			</div>
 			<MobileChatMainMenuDrawer
 				chatContextUsageSnapshot={contextUsageSnapshot}
 				currentConnectionSnapshot={currentConnectionSnapshot}

@@ -11,9 +11,8 @@ import { createCurrentUserAvatarStore } from "@/packages/core/st/currentUserAvat
 import { createPrimarySendActionStore } from "@/packages/core/st/primarySendAction";
 import { createQuickShortcutStore } from "@/packages/core/st/quickShortcuts";
 import {
-	MOBILE_SEND_FORM_INPUT_ROW_HOST_ID,
+	MOBILE_SEND_FORM_COMPOSER_HOST_ID,
 	MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID,
-	MOBILE_SEND_FORM_SHORTCUTS_HOST_ID,
 	NATIVE_FORM_SHELD_ID,
 	NATIVE_NON_QR_FORM_ITEMS_ID,
 	NATIVE_RIGHT_SEND_FORM_ID,
@@ -78,11 +77,10 @@ export function createMobileSendFormFeature({
 }: {
 	documentRef?: Document;
 } = {}): MobileSendFormFeature {
-	let inputRowHost: HTMLDivElement | null = null;
+	let composerHost: HTMLDivElement | null = null;
 	let quickReplyBarBridge: NativeQuickReplyBarBridge | null = null;
 	let quickReplyHost: HTMLDivElement | null = null;
 	let root: Root | null = null;
-	let shortcutsHost: HTMLDivElement | null = null;
 	let managedTextarea: HTMLTextAreaElement | null = null;
 	let currentChatIdentityStore: ReturnType<
 		typeof createCurrentChatIdentityStore
@@ -231,20 +229,13 @@ export function createMobileSendFormFeature({
 	}
 
 	function mount() {
-		if (
-			root &&
-			shortcutsHost?.isConnected &&
-			quickReplyHost?.isConnected &&
-			inputRowHost?.isConnected
-		) {
+		if (root && composerHost?.isConnected && quickReplyHost?.isConnected) {
 			return;
 		}
 
 		if (
 			root &&
-			(!shortcutsHost?.isConnected ||
-				!quickReplyHost?.isConnected ||
-				!inputRowHost?.isConnected)
+			(!composerHost?.isConnected || !quickReplyHost?.isConnected)
 		) {
 			unmount();
 		}
@@ -263,43 +254,26 @@ export function createMobileSendFormFeature({
 
 		if (
 			quickReplyHost.parentElement !== targets.formSheld ||
-			quickReplyHost.previousElementSibling !== targets.sendForm
+			quickReplyHost.nextElementSibling !== targets.sendForm
 		) {
-			targets.formSheld.insertBefore(
-				quickReplyHost,
-				targets.sendForm.nextSibling,
-			);
+			targets.formSheld.insertBefore(quickReplyHost, targets.sendForm);
 		}
 
-		shortcutsHost =
-			resolveHost(documentRef, MOBILE_SEND_FORM_SHORTCUTS_HOST_ID) ??
+		composerHost =
+			resolveHost(documentRef, MOBILE_SEND_FORM_COMPOSER_HOST_ID) ??
 			documentRef.createElement("div");
-		shortcutsHost.id = MOBILE_SEND_FORM_SHORTCUTS_HOST_ID;
-		shortcutsHost.className = "mobile-send-form-shortcuts-host";
-		markAstraProjectaUiRoot(shortcutsHost);
+		composerHost.id = MOBILE_SEND_FORM_COMPOSER_HOST_ID;
+		composerHost.className = "mobile-send-form-composer-host";
+		markAstraProjectaUiRoot(composerHost);
 
 		if (
-			shortcutsHost.parentElement !== targets.formSheld ||
-			shortcutsHost.previousElementSibling !== quickReplyHost
+			composerHost.parentElement !== targets.sendForm ||
+			composerHost.nextElementSibling !== targets.nonQrFormItems
 		) {
-			targets.formSheld.insertBefore(
-				shortcutsHost,
-				quickReplyHost.nextSibling,
+			targets.sendForm.insertBefore(
+				composerHost,
+				targets.nonQrFormItems,
 			);
-		}
-
-		inputRowHost =
-			resolveHost(documentRef, MOBILE_SEND_FORM_INPUT_ROW_HOST_ID) ??
-			documentRef.createElement("div");
-		inputRowHost.id = MOBILE_SEND_FORM_INPUT_ROW_HOST_ID;
-		inputRowHost.className = "mobile-send-form-input-row-host";
-		markAstraProjectaUiRoot(inputRowHost);
-
-		if (
-			inputRowHost.parentElement !== targets.sendForm ||
-			inputRowHost.nextElementSibling !== targets.nonQrFormItems
-		) {
-			targets.sendForm.insertBefore(inputRowHost, targets.nonQrFormItems);
 		}
 
 		quickReplyBarBridge ??= createNativeQuickReplyBarBridge({
@@ -308,7 +282,7 @@ export function createMobileSendFormFeature({
 		quickReplyBarBridge.attachTo(quickReplyHost);
 
 		if (!root) {
-			root = createRoot(shortcutsHost);
+			root = createRoot(composerHost);
 		}
 
 		const stores = ensureStores();
@@ -323,7 +297,6 @@ export function createMobileSendFormFeature({
 				}
 				currentUserAvatarStore={stores.currentUserAvatarStore}
 				documentRef={documentRef}
-				inputRowHost={inputRowHost}
 				onTextareaHostChange={moveTextareaIntoHost}
 				primarySendActionStore={stores.primarySendActionStore}
 				quickReplyEnabledStore={stores.quickReplyEnabledStore}
@@ -340,12 +313,10 @@ export function createMobileSendFormFeature({
 		quickReplyBarBridge?.restore();
 		quickReplyBarBridge?.dispose();
 		quickReplyBarBridge = null;
-		inputRowHost?.remove();
-		inputRowHost = null;
 		quickReplyHost?.remove();
 		quickReplyHost = null;
-		shortcutsHost?.remove();
-		shortcutsHost = null;
+		composerHost?.remove();
+		composerHost = null;
 		disposeStores();
 	}
 

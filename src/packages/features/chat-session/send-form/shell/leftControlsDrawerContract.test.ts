@@ -46,7 +46,8 @@ describe("left-controls default drawer contract", () => {
 		expect(inputRowSource).toContain("documentRef={documentRef}");
 		expect(inputRowSource).toContain("MOBILE_CHAT_MAIN_MENU_DRAWER_ID");
 		expect(sendFormSource).toContain("MobileSillyTavernInterfacePanel");
-		expect(shortcutsToolbarSource).toContain("Astroid");
+		expect(shortcutsToolbarSource).toContain("BrainCircuit");
+		expect(shortcutsToolbarSource).toContain("ChevronDown");
 		expect(sendFormSource).toContain("SILLYTAVERN_INTERFACE_ID");
 		expect(shortcutsToolbarSource).toContain(
 			"SILLYTAVERN_INTERFACE_TRIGGER_ID",
@@ -105,7 +106,8 @@ describe("left-controls default drawer contract", () => {
 			"src/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar.tsx",
 		);
 
-		expect(shortcutsToolbarSource).toContain('icon={Astroid}');
+		expect(shortcutsToolbarSource).toContain('icon={BrainCircuit}');
+		expect(shortcutsToolbarSource).toContain('icon={ChevronDown}');
 		expect(shortcutsToolbarSource).toContain("icon={ShortcutIcon}");
 		expect(shortcutsToolbarSource).toContain('size="md"');
 	});

@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { Button } from "@/components/ui/shadcn/button";
 import { UiIcon } from "@/components/ui/shared/icon";
-import { Astroid } from "@/components/ui/shared/icons";
+import { BrainCircuit, ChevronDown } from "@/components/ui/shared/icons";
 import type { LucideIcon } from "@/components/ui/shared/icons";
 import type { ChatContextUsageSnapshot } from "@/packages/core/st/chatContextUsage";
 import { SILLYTAVERN_INTERFACE_TRIGGER_ID } from "@/packages/features/sillytavern-interface/contracts/dom";
@@ -53,10 +53,17 @@ export function MobileSendFormShortcutsToolbar({
 						<UiIcon
 							aria-hidden={true}
 							data-icon="inline-start"
-							icon={Astroid}
+							icon={BrainCircuit}
 							size="md"
 						/>
 						{sillyTavernInterfaceTriggerLabel}
+						<span className="mobile-send-form-shortcuts__button-chevron">
+							<UiIcon
+								aria-hidden={true}
+								icon={ChevronDown}
+								size="xs"
+							/>
+						</span>
 					</Button>
 				</span>
 				{visibleQuickShortcuts.map((item) => {

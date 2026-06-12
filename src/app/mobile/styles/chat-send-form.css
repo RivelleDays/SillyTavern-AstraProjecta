@@ -121,12 +121,13 @@
 		border-top: 1px solid var(--border-color-base);
 	}
 
-	#form_sheld > #mobile-send-form-shortcuts-host {
+	#send_form > #mobile-send-form-composer-host {
 		box-sizing: border-box;
-		flex: 0 0 auto;
+		flex: 0 0 100%;
 		width: 100%;
 		min-width: 0;
-		padding-top: 2px;
+		padding: var(--mobile-chat-spacing)
+			calc(var(--mobile-chat-spacing) - 4px) 0;
 		background: transparent;
 	}
 
@@ -379,9 +380,42 @@
 		cursor: pointer;
 	}
 
-	#send_form > #mobile-send-form-input-row-host {
+	.mobile-send-form-composer {
 		box-sizing: border-box;
-		flex: 0 0 100%;
+		width: 100%;
+		min-width: 0;
+		padding: 0 0 8px;
+		border-radius: var(--radius-4xl);
+		background: var(--surface-muted-t20);
+		overflow: hidden;
+	}
+
+	.mobile-send-form-composer[data-shortcuts-visible="false"] {
+		padding-bottom: 0;
+	}
+
+	.mobile-send-form-composer__surface {
+		box-sizing: border-box;
+		width: 100%;
+		min-width: 0;
+		border-radius: var(--radius-4xl);
+		background: transparent;
+	}
+
+	.mobile-send-form-composer__shortcut-region {
+		box-sizing: border-box;
+		width: 100%;
+		min-width: 0;
+		padding: 8px 12px 0;
+	}
+
+	.mobile-send-form-composer[data-shortcuts-visible="false"] .mobile-send-form-composer__shortcut-region {
+		display: none;
+	}
+
+	.mobile-send-form-composer__surface > #mobile-send-form-input-row-host,
+	.mobile-send-form-composer__shortcut-region > #mobile-send-form-shortcuts-host {
+		box-sizing: border-box;
 		width: 100%;
 		min-width: 0;
 		background: transparent;
@@ -389,27 +423,16 @@
 
 	.mobile-send-form-shortcuts {
 		display: flex;
-		gap: 10px;
+		gap: 8px;
 		justify-content: flex-start;
 		align-items: center;
 		flex-wrap: nowrap;
 		position: relative;
 		width: 100%;
 		min-width: 0;
-		min-height: 40px;
-		padding: 0 var(--mobile-chat-spacing);
+		min-height: 30px;
+		padding: 0;
 		color: var(--color-muted-t90);
-	}
-
-	.mobile-send-form-shortcuts::after {
-		content: "";
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		height: 1px;
-		background: var(--border-color-base-t30);
-		pointer-events: none;
 	}
 
 	.mobile-send-form-shortcuts__strip {
@@ -441,6 +464,13 @@
 
 	.mobile-send-form-shortcuts__button[data-variant="ghost"] {
 		color: inherit;
+	}
+
+	.mobile-send-form-shortcuts__button-chevron {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--color-muted-t70);
 	}
 
 	.mobile-chat-context-usage-shortcut__trigger {
@@ -749,6 +779,10 @@
 		width: 100%;
 		padding: var(--mobile-chat-spacing) calc(var(--mobile-chat-spacing) - 4px);
 		padding-bottom: 0;
+	}
+
+	.mobile-send-form-composer__surface .mobile-send-form-input-row__left {
+		padding: 0;
 	}
 
 	.mobile-send-form-input-row__avatar {

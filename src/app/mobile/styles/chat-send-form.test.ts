@@ -63,14 +63,29 @@ describe("chat-send-form.css", () => {
 			"body.PWA #sheld",
 			"#form_sheld",
 			"#form_sheld::before",
+			"#mobile-send-form-composer-host",
 			"#mobile-send-form-shortcuts-host",
 			"#mobile-send-form-quick-reply-host",
 			"#mobile-send-form-input-row-host",
-			"#form_sheld > #mobile-send-form-shortcuts-host",
 			"#form_sheld > #mobile-send-form-quick-reply-host",
 			"#mobile-send-form-quick-reply-host > #qr--bar",
-			"#send_form > #mobile-send-form-input-row-host",
+			"#send_form > #mobile-send-form-composer-host",
+			".mobile-send-form-composer",
+			".mobile-send-form-composer__surface",
+			".mobile-send-form-composer__shortcut-region",
+			'.mobile-send-form-composer[data-shortcuts-visible="false"]',
+			'.mobile-send-form-composer[data-shortcuts-visible="false"] .mobile-send-form-composer__shortcut-region',
+			".mobile-send-form-composer__surface > #mobile-send-form-input-row-host",
+			".mobile-send-form-composer__shortcut-region > #mobile-send-form-shortcuts-host",
 		]);
+
+		const composerHostBlock = readBlock(
+			css,
+			"#send_form > #mobile-send-form-composer-host",
+		);
+
+		expect(composerHostBlock).toContain("padding:");
+		expect(composerHostBlock).toContain("--mobile-chat-spacing");
 	});
 
 	test("keeps mobile send-form input row selector and token contracts addressable", () => {
@@ -104,7 +119,7 @@ describe("chat-send-form.css", () => {
 		const quickReplySlice = readSlice(
 			css,
 			"#form_sheld > #mobile-send-form-quick-reply-host",
-			"#send_form > #mobile-send-form-input-row-host",
+			"body.astra-projecta-mobile-layout {",
 		);
 
 		expectSelectors(css, [
@@ -141,7 +156,7 @@ describe("chat-send-form.css", () => {
 		const quickReplyMenuSlice = readSlice(
 			css,
 			"body.astra-projecta-mobile-layout {",
-			"#send_form > #mobile-send-form-input-row-host",
+			".mobile-send-form-composer {",
 		);
 
 		expectSelectors(css, [

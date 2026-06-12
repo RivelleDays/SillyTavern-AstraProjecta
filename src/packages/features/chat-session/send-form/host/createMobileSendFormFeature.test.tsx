@@ -60,6 +60,9 @@ function setSillyTavernContext(context: unknown | { current: unknown }) {
 
 async function waitForSendFormHosts() {
 	return waitFor(() => {
+		const composerHost = document.getElementById(
+			"mobile-send-form-composer-host",
+		);
 		const quickReplyHost = document.getElementById(
 			"mobile-send-form-quick-reply-host",
 		);
@@ -70,11 +73,13 @@ async function waitForSendFormHosts() {
 			"mobile-send-form-input-row-host",
 		);
 
-		expect(quickReplyHost).toBeInTheDocument();
+		expect(composerHost).toBeInTheDocument();
 		expect(shortcutsHost).toBeInTheDocument();
 		expect(inputRowHost).toBeInTheDocument();
+		expect(quickReplyHost).toBeInTheDocument();
 
 		return {
+			composerHost: composerHost as HTMLElement,
 			inputRowHost: inputRowHost as HTMLElement,
 			quickReplyHost: quickReplyHost as HTMLElement,
 			shortcutsHost: shortcutsHost as HTMLElement,
@@ -539,7 +544,7 @@ describe("createMobileSendFormFeature", () => {
 		const feature = createMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
-		const { inputRowHost, quickReplyHost, shortcutsHost } =
+		const { composerHost, inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
 
 		expect(
@@ -554,19 +559,39 @@ describe("createMobileSendFormFeature", () => {
 		expect(
 			inputRowHost.querySelector(".mobile-send-form-input-row"),
 		).toBeInTheDocument();
-		expect(shortcutsHost.parentElement?.id).toBe("form_sheld");
-		expect(shortcutsHost.previousElementSibling?.id).toBe(
-			"mobile-send-form-quick-reply-host",
+		expect(composerHost).toHaveClass("mobile-send-form-composer-host");
+		expect(composerHost.parentElement?.id).toBe("send_form");
+		expect(composerHost.nextElementSibling?.id).toBe("nonQRFormItems");
+		const composer = composerHost.querySelector(
+			".mobile-send-form-composer",
+		);
+		expect(composer).toBeInTheDocument();
+		expect(composer).toHaveAttribute(
+			"data-shortcuts-visible",
+			"false",
+		);
+		expect(
+			composerHost.querySelector(".mobile-send-form-composer__surface"),
+		).toContainElement(inputRowHost);
+		expect(
+			composerHost.querySelector(
+				".mobile-send-form-composer__shortcut-region",
+			),
+		).toContainElement(shortcutsHost);
+		expect(shortcutsHost.parentElement).toHaveClass(
+			"mobile-send-form-composer__shortcut-region",
 		);
 		expect(shortcutsHost.nextElementSibling).toBeNull();
 		expect(quickReplyHost.parentElement?.id).toBe("form_sheld");
-		expect(quickReplyHost.previousElementSibling?.id).toBe("send_form");
+		expect(quickReplyHost.previousElementSibling).toBeNull();
 		expect(quickReplyHost.nextElementSibling?.id).toBe(
-			"mobile-send-form-shortcuts-host",
+			"send_form",
 		);
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
-		expect(inputRowHost.parentElement?.id).toBe("send_form");
-		expect(inputRowHost.nextElementSibling?.id).toBe("nonQRFormItems");
+		expect(inputRowHost.parentElement).toHaveClass(
+			"mobile-send-form-composer__surface",
+		);
+		expect(inputRowHost.nextElementSibling).toBeNull();
 
 		feature.unmount();
 		window.localStorage.removeItem(
@@ -732,25 +757,48 @@ describe("createMobileSendFormFeature", () => {
 		feature.mount();
 		feature.mount();
 
-		const { inputRowHost, quickReplyHost, shortcutsHost } =
+		const { composerHost, inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
 
+		expect(composerHost).toHaveClass("mobile-send-form-composer-host");
+		expect(composerHost.parentElement?.id).toBe("send_form");
+		expect(composerHost.nextElementSibling?.id).toBe("nonQRFormItems");
+		const composer = composerHost.querySelector(
+			".mobile-send-form-composer",
+		);
+		expect(composer).toBeInTheDocument();
+		expect(composer).toHaveAttribute(
+			"data-shortcuts-visible",
+			"true",
+		);
+		expect(
+			composerHost.querySelector(".mobile-send-form-composer__surface"),
+		).toContainElement(inputRowHost);
+		expect(
+			composerHost.querySelector(
+				".mobile-send-form-composer__shortcut-region",
+			),
+		).toContainElement(shortcutsHost);
 		expect(shortcutsHost).toHaveClass("mobile-send-form-shortcuts-host");
-		expect(shortcutsHost.parentElement?.id).toBe("form_sheld");
-		expect(shortcutsHost.previousElementSibling?.id).toBe(
-			"mobile-send-form-quick-reply-host",
+		expect(shortcutsHost.parentElement).toHaveClass(
+			"mobile-send-form-composer__shortcut-region",
 		);
 		expect(shortcutsHost.nextElementSibling).toBeNull();
 		expect(quickReplyHost).toHaveClass("mobile-send-form-quick-reply-host");
 		expect(quickReplyHost.parentElement?.id).toBe("form_sheld");
-		expect(quickReplyHost.previousElementSibling?.id).toBe("send_form");
+		expect(quickReplyHost.previousElementSibling).toBeNull();
 		expect(quickReplyHost.nextElementSibling?.id).toBe(
-			"mobile-send-form-shortcuts-host",
+			"send_form",
 		);
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 		expect(inputRowHost).toHaveClass("mobile-send-form-input-row-host");
-		expect(inputRowHost.parentElement?.id).toBe("send_form");
-		expect(inputRowHost.nextElementSibling?.id).toBe("nonQRFormItems");
+		expect(inputRowHost.parentElement).toHaveClass(
+			"mobile-send-form-composer__surface",
+		);
+		expect(inputRowHost.nextElementSibling).toBeNull();
+		expect(
+			document.querySelectorAll("#mobile-send-form-composer-host"),
+		).toHaveLength(1);
 		expect(
 			document.querySelectorAll("#mobile-send-form-shortcuts-host"),
 		).toHaveLength(1);
@@ -1057,6 +1105,9 @@ describe("createMobileSendFormFeature", () => {
 
 		expect(
 			document.getElementById("mobile-send-form-shortcuts-host"),
+		).not.toBeInTheDocument();
+		expect(
+			document.getElementById("mobile-send-form-composer-host"),
 		).not.toBeInTheDocument();
 		expect(
 			document.getElementById("mobile-send-form-quick-reply-host"),
@@ -2736,11 +2787,19 @@ describe("createMobileSendFormFeature", () => {
 		const feature = createMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
-		const { inputRowHost, shortcutsHost } = await waitForSendFormHosts();
+		const { composerHost, inputRowHost, shortcutsHost } =
+			await waitForSendFormHosts();
+		const composer = composerHost.querySelector(
+			".mobile-send-form-composer",
+		);
 
 		expect(
 			shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
 		).toBeInTheDocument();
+		expect(composer).toHaveAttribute(
+			"data-shortcuts-visible",
+			"true",
+		);
 
 		const menuButton = within(inputRowHost).getByRole("button", {
 			name: "Menu",
@@ -2766,6 +2825,10 @@ describe("createMobileSendFormFeature", () => {
 			expect(
 				shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
 			).not.toBeInTheDocument();
+			expect(composer).toHaveAttribute(
+				"data-shortcuts-visible",
+				"false",
+			);
 		});
 		expect(
 			window.localStorage.getItem(
@@ -2776,11 +2839,19 @@ describe("createMobileSendFormFeature", () => {
 		feature.unmount();
 		feature.mount();
 
-		const remountedHost = await waitForShortcutsHost();
+		const {
+			composerHost: remountedComposerHost,
+			shortcutsHost: remountedHost,
+		} = await waitForSendFormHosts();
 
 		expect(
 			remountedHost.querySelector(".mobile-send-form-shortcuts"),
 		).not.toBeInTheDocument();
+		expect(
+			remountedComposerHost.querySelector(
+				".mobile-send-form-composer",
+			),
+		).toHaveAttribute("data-shortcuts-visible", "false");
 
 		feature.unmount();
 		window.localStorage.removeItem(
@@ -3545,6 +3616,15 @@ describe("createMobileSendFormFeature", () => {
 			"id",
 			"sillytavern-interface-panel-trigger",
 		);
+		expect(shortcutButtons[0]).toHaveAccessibleName("ST menu");
+		expect(
+			shortcutButtons[0].querySelector(".lucide-brain-circuit"),
+		).toBeInTheDocument();
+		expect(
+			shortcutButtons[0].querySelector(
+				".mobile-send-form-shortcuts__button-chevron .lucide-chevron-down",
+			),
+		).toBeInTheDocument();
 		expect(
 			within(shortcutsHost).queryByRole("button", {
 				name: "Hide quick replies",
@@ -3803,8 +3883,16 @@ describe("createMobileSendFormFeature", () => {
 			shortcutsStrip as HTMLElement,
 		).getAllByRole("button");
 
-		expect(shortcutButtons[0]).toHaveAccessibleName("Main UI");
-		expect(shortcutButtons[0]).toHaveTextContent("Main UI");
+		expect(shortcutButtons[0]).toHaveAccessibleName("ST menu");
+		expect(shortcutButtons[0]).toHaveTextContent("ST menu");
+		expect(
+			shortcutButtons[0].querySelector(".lucide-brain-circuit"),
+		).toBeInTheDocument();
+		expect(
+			shortcutButtons[0].querySelector(
+				".mobile-send-form-shortcuts__button-chevron .lucide-chevron-down",
+			),
+		).toBeInTheDocument();
 		expect(shortcutButtons[0]).toHaveAttribute("data-variant", "outline");
 		expect(shortcutButtons[0]).toHaveAttribute("data-size", "sm");
 		expect(shortcutButtons[1]).toHaveAttribute("data-size", "icon-sm");

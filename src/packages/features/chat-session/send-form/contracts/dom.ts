@@ -19,6 +19,8 @@ export const NATIVE_QUICK_REPLY_ENABLED_TOGGLE_ID = "qr--isEnabled";
 
 export const MOBILE_SEND_FORM_SHORTCUTS_HOST_ID =
 	"mobile-send-form-shortcuts-host";
+export const MOBILE_SEND_FORM_COMPOSER_HOST_ID =
+	"mobile-send-form-composer-host";
 export const MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID =
 	"mobile-send-form-quick-reply-host";
 export const MOBILE_SEND_FORM_INPUT_ROW_HOST_ID =
