@@ -65,6 +65,15 @@ describe("mobile chat top-bar CSS contracts", () => {
 		expect(css).toContain("& #top-settings-holder");
 	});
 
+	test("keeps the top glass overlay masked so blur fades out with the surface", () => {
+		const css = readCss();
+		const overlayBlock = readBlock(css, "#mobile-chat-top-bar-host::before");
+
+		expect(overlayBlock).not.toBe("");
+		expect(overlayBlock).toContain("-webkit-mask-image:");
+		expect(overlayBlock).toContain("mask-image:");
+	});
+
 	test("keeps the enabled back button cursor affordance explicit", () => {
 		const css = readCss();
 

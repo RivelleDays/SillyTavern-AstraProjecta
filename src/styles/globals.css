@@ -541,7 +541,7 @@ body.astra-projecta-base-ui-body {
 	--astra-mobile-glass-blur: 18px;
 	--astra-mobile-glass-saturate: 1.18;
 	--astra-mobile-glass-top-fade-size: 36px;
-	--astra-mobile-glass-bottom-fade-size: 44px;
+	--astra-mobile-glass-bottom-fade-size: 36px;
 	--astra-mobile-glass-top-surface: color-mix(
 		in srgb,
 		var(--background) 34%,

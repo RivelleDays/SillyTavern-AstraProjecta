@@ -3,29 +3,104 @@ body.astra-projecta-mobile-layout {
 		--astra-chat-scroll-inline-padding: calc(
 			var(--mobile-chat-spacing) - 4px
 		);
-		--astra-chat-scroll-glass-clearance-block-start: var(
-			--astra-mobile-glass-top-fade-size,
-			36px
-		);
+		--astra-chat-scroll-glass-clearance-block-start: 0;
+		--astra-chat-scroll-glass-clearance-block-end: 0;
 		max-height: unset;
 		bottom: 0;
 		background-color: transparent !important;
 		border: none !important;
 		backdrop-filter: none !important;
 		padding-inline: var(--astra-chat-scroll-inline-padding);
-		padding-block-start: var(
-			--astra-chat-scroll-glass-clearance-block-start
-		);
+		padding-block-start: var(--astra-chat-scroll-glass-clearance-block-start);
+		padding-block-end: var(--astra-chat-scroll-glass-clearance-block-end);
 	}
 
 	& #chat[data-astra-projecta-chat-scroll="native"] {
+		--astra-chat-scroll-mask-visible: rgb(0 0 0);
+		--astra-chat-scroll-mask-hidden: transparent;
+		--astra-chat-scroll-mask-fade-block-start: var(
+			--astra-mobile-glass-top-fade-size,
+			36px
+		);
+		--astra-chat-scroll-mask-fade-block-end: var(
+			--astra-mobile-glass-bottom-fade-size,
+			36px
+		);
 		--astra-chat-scrollbar-size: 6px;
 		--astra-chat-scrollbar-thumb: var(--color-base-t30);
 		--astra-chat-scrollbar-thumb-hover: var(--color-base-t40);
 
 		position: relative;
+		-webkit-mask-image: none;
+		mask-image: none;
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		-webkit-mask-size: 100% 100%;
+		mask-size: 100% 100%;
 		scrollbar-color: var(--astra-chat-scrollbar-thumb) transparent;
 		scrollbar-width: thin;
+	}
+
+	&
+		#chat[data-astra-projecta-chat-scroll="native"][data-astra-projecta-chat-scroll-y-end]:not(
+			[data-astra-projecta-chat-scroll-y-start]
+		) {
+		-webkit-mask-image: linear-gradient(
+			to bottom,
+			var(--astra-chat-scroll-mask-visible) 0%,
+			var(--astra-chat-scroll-mask-visible)
+				calc(100% - var(--astra-chat-scroll-mask-fade-block-end)),
+			var(--astra-chat-scroll-mask-hidden) 100%
+		);
+		mask-image: linear-gradient(
+			to bottom,
+			var(--astra-chat-scroll-mask-visible) 0%,
+			var(--astra-chat-scroll-mask-visible)
+				calc(100% - var(--astra-chat-scroll-mask-fade-block-end)),
+			var(--astra-chat-scroll-mask-hidden) 100%
+		);
+	}
+
+	&
+		#chat[data-astra-projecta-chat-scroll="native"][data-astra-projecta-chat-scroll-y-start]:not(
+			[data-astra-projecta-chat-scroll-y-end]
+		) {
+		-webkit-mask-image: linear-gradient(
+			to bottom,
+			var(--astra-chat-scroll-mask-hidden) 0%,
+			var(--astra-chat-scroll-mask-visible)
+				var(--astra-chat-scroll-mask-fade-block-start),
+			var(--astra-chat-scroll-mask-visible) 100%
+		);
+		mask-image: linear-gradient(
+			to bottom,
+			var(--astra-chat-scroll-mask-hidden) 0%,
+			var(--astra-chat-scroll-mask-visible)
+				var(--astra-chat-scroll-mask-fade-block-start),
+			var(--astra-chat-scroll-mask-visible) 100%
+		);
+	}
+
+	&
+		#chat[data-astra-projecta-chat-scroll="native"][data-astra-projecta-chat-scroll-y-start][data-astra-projecta-chat-scroll-y-end] {
+		-webkit-mask-image: linear-gradient(
+			to bottom,
+			var(--astra-chat-scroll-mask-hidden) 0%,
+			var(--astra-chat-scroll-mask-visible)
+				var(--astra-chat-scroll-mask-fade-block-start),
+			var(--astra-chat-scroll-mask-visible)
+				calc(100% - var(--astra-chat-scroll-mask-fade-block-end)),
+			var(--astra-chat-scroll-mask-hidden) 100%
+		);
+		mask-image: linear-gradient(
+			to bottom,
+			var(--astra-chat-scroll-mask-hidden) 0%,
+			var(--astra-chat-scroll-mask-visible)
+				var(--astra-chat-scroll-mask-fade-block-start),
+			var(--astra-chat-scroll-mask-visible)
+				calc(100% - var(--astra-chat-scroll-mask-fade-block-end)),
+			var(--astra-chat-scroll-mask-hidden) 100%
+		);
 	}
 
 	&[data-astra-projecta-native-popup-active="true"]

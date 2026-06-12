@@ -107,9 +107,12 @@
 	}
 
 	#form_sheld::before {
+		--mobile-send-form-glass-mask-visible: rgb(0 0 0);
+		--mobile-send-form-glass-mask-hidden: transparent;
+
 		content: "";
 		position: absolute;
-		top: calc(0px - var(--astra-mobile-glass-bottom-fade-size));
+		top: -20px;
 		bottom: 0;
 		left: 50%;
 		z-index: 0;
@@ -127,6 +130,24 @@
 				var(--astra-mobile-glass-bottom-fade-size),
 			var(--astra-mobile-glass-bottom-surface) 100%
 		);
+		-webkit-mask-image: linear-gradient(
+			to bottom,
+			var(--mobile-send-form-glass-mask-hidden) 0%,
+			var(--mobile-send-form-glass-mask-visible)
+				var(--astra-mobile-glass-bottom-fade-size),
+			var(--mobile-send-form-glass-mask-visible) 100%
+		);
+		mask-image: linear-gradient(
+			to bottom,
+			var(--mobile-send-form-glass-mask-hidden) 0%,
+			var(--mobile-send-form-glass-mask-visible)
+				var(--astra-mobile-glass-bottom-fade-size),
+			var(--mobile-send-form-glass-mask-visible) 100%
+		);
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		-webkit-mask-size: 100% 100%;
+		mask-size: 100% 100%;
 		-webkit-backdrop-filter: blur(var(--astra-mobile-glass-blur))
 			saturate(var(--astra-mobile-glass-saturate));
 		backdrop-filter: blur(var(--astra-mobile-glass-blur))
@@ -402,7 +423,7 @@
 		width: 100%;
 		min-width: 0;
 		border-radius: var(--radius-4xl);
-		background: var(--surface-background-t90);
+		background: var(--surface-background-t60);
 		overflow: hidden;
 	}
 
@@ -2085,7 +2106,7 @@
 		gap: 8px;
 		border-radius: var(--radius-4xl);
 		border: 1px solid var(--border-color-base);
-		background: var(--surface-accent-t20);
+		background: var(--color-base-t5);
 		padding: 8px;
 		transition: height 160ms ease, max-height 160ms ease;
 	}

@@ -6,7 +6,7 @@
 ## Owned Paths / Responsibilities
 
 - `createMobileChatScrollFeature.ts`: lifecycle bridge that marks `#chat`, tracks native scroll edge state, subscribes to chat load/change events, and scrolls the native container to bottom after chat switches.
-- `chat-scroll.css`: mobile-only native scrollbar styling and `var(--background)` edge-fade overlay styling for `#chat[data-astra-projecta-chat-scroll='native']`.
+- `chat-scroll.css`: mobile-only native scrollbar styling and opacity-mask edge-fade styling for `#chat[data-astra-projecta-chat-scroll='native']`.
 
 ## SillyTavern Touchpoints
 

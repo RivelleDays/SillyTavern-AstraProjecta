@@ -555,6 +555,10 @@ describe("globals.css", () => {
 		expect(chatScrollCss).toContain(
 			"--astra-chat-scroll-glass-clearance-block-start:",
 		);
+		expect(chatScrollCss).toContain("--astra-chat-scroll-mask-visible:");
+		expect(chatScrollCss).toContain("--astra-chat-scroll-mask-hidden:");
+		expect(chatScrollCss).toContain("--astra-chat-scroll-mask-fade-block-start:");
+		expect(chatScrollCss).toContain("--astra-chat-scroll-mask-fade-block-end:");
 		expect(chatScrollCss).toContain("padding-block-start:");
 		expect(compactChatScrollCss).toContain(
 			"&[data-astra-projecta-native-popup-active='true'] #chat[data-astra-projecta-chat-scroll='native']",
@@ -563,11 +567,14 @@ describe("globals.css", () => {
 		expect(chatScrollCss).not.toContain(
 			"--astra-chat-scroll-fade-inline-outset:",
 		);
-		expect(compactChatScrollCss).not.toContain(
+		expect(compactChatScrollCss).toContain(
 			"#chat[data-astra-projecta-chat-scroll='native'][data-astra-projecta-chat-scroll-y-start]",
 		);
-		expect(compactChatScrollCss).not.toContain(
+		expect(compactChatScrollCss).toContain(
 			"#chat[data-astra-projecta-chat-scroll='native'][data-astra-projecta-chat-scroll-y-end]",
+		);
+		expect(compactChatScrollCss).toContain(
+			"#chat[data-astra-projecta-chat-scroll='native'][data-astra-projecta-chat-scroll-y-start][data-astra-projecta-chat-scroll-y-end]",
 		);
 		expect(compactChatScrollCss).not.toContain(
 			"#chat[data-astra-projecta-chat-scroll='native']::before",
@@ -579,8 +586,8 @@ describe("globals.css", () => {
 		expect(chatScrollCss).not.toContain(":has(#shadow_popup");
 		expect(chatScrollCss).not.toContain(":has(#bulk_tag_shadow_popup");
 		expect(chatScrollCss).not.toContain(":has(#shadow_select_chat_popup");
-		expect(chatScrollCss).not.toContain("-webkit-mask-image:");
-		expect(chatScrollCss).not.toContain("mask-image:");
+		expect(chatScrollCss).toContain("-webkit-mask-image:");
+		expect(chatScrollCss).toContain("mask-image:");
 		expect(chatScrollCss).not.toContain(
 			".astra-scroll-area__viewport #chat",
 		);

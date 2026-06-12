@@ -32,6 +32,9 @@ body.astra-projecta-mobile-layout {
 }
 
 #mobile-chat-top-bar-host::before {
+	--mobile-chat-top-bar-glass-mask-visible: rgb(0 0 0);
+	--mobile-chat-top-bar-glass-mask-hidden: transparent;
+
 	content: "";
 	position: absolute;
 	inset-inline: 0;
@@ -50,6 +53,24 @@ body.astra-projecta-mobile-layout {
 			calc(100% - var(--astra-mobile-glass-top-fade-size)),
 		transparent 100%
 	);
+	-webkit-mask-image: linear-gradient(
+		to bottom,
+		var(--mobile-chat-top-bar-glass-mask-visible) 0%,
+		var(--mobile-chat-top-bar-glass-mask-visible)
+			calc(100% - var(--astra-mobile-glass-top-fade-size)),
+		var(--mobile-chat-top-bar-glass-mask-hidden) 100%
+	);
+	mask-image: linear-gradient(
+		to bottom,
+		var(--mobile-chat-top-bar-glass-mask-visible) 0%,
+		var(--mobile-chat-top-bar-glass-mask-visible)
+			calc(100% - var(--astra-mobile-glass-top-fade-size)),
+		var(--mobile-chat-top-bar-glass-mask-hidden) 100%
+	);
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+	-webkit-mask-size: 100% 100%;
+	mask-size: 100% 100%;
 	-webkit-backdrop-filter: blur(var(--astra-mobile-glass-blur))
 		saturate(var(--astra-mobile-glass-saturate));
 	backdrop-filter: blur(var(--astra-mobile-glass-blur))

@@ -87,6 +87,15 @@ describe("chat-send-form.css", () => {
 		expect(composerHostBlock).toContain("--mobile-chat-spacing");
 	});
 
+	test("keeps the bottom glass overlay masked so blur fades in with the surface", () => {
+		const css = readCss();
+		const overlayBlock = readBlock(css, "#form_sheld::before");
+
+		expect(overlayBlock).not.toBe("");
+		expect(overlayBlock).toContain("-webkit-mask-image:");
+		expect(overlayBlock).toContain("mask-image:");
+	});
+
 	test("keeps mobile send-form input row selector and token contracts addressable", () => {
 		const css = readCss();
 
