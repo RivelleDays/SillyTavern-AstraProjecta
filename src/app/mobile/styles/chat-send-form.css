@@ -208,7 +208,6 @@
 
 	#mobile-send-form-quick-reply-host > #qr--bar .qr--button:focus-visible {
 		outline: none;
-		box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 60%, transparent);
 	}
 
 	#mobile-send-form-quick-reply-host > #qr--bar .qr--button:disabled {
