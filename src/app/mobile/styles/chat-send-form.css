@@ -843,10 +843,7 @@
 	}
 
 	.mobile-chat-main-menu-drawer__avatar-frame {
-		--mobile-chat-main-menu-drawer-avatar-size: max(
-			var(--astra-avatar-size-min),
-			var(--astra-avatar-size-mobile-main-menu-drawer)
-		);
+		--mobile-chat-main-menu-drawer-avatar-size: 40px;
 		display: flex;
 		width: var(--mobile-chat-main-menu-drawer-avatar-size);
 		height: var(--mobile-chat-main-menu-drawer-avatar-size);
@@ -934,7 +931,7 @@
 		max-width: 100%;
 		min-width: 0;
 		color: var(--foreground);
-		font-size: var(--text-sm);
+		font-size: var(--text-base);
 		font-weight: var(--font-weight-semibold);
 		white-space: nowrap;
 		overflow: hidden;
@@ -958,7 +955,7 @@
 		display: flex;
 		flex-direction: column;
 		min-width: 0;
-		gap: 6px;
+		gap: 8px;
 		margin-bottom: 16px;
 	}
 
@@ -1220,11 +1217,7 @@
 		);
 		--mobile-chat-main-menu-drawer-tile-padding: 12px;
 		--mobile-chat-main-menu-drawer-tile-padding-bottom: 12px;
-		--mobile-chat-main-menu-drawer-tile-title-size: clamp(
-			12px,
-			calc(var(--mobile-chat-main-menu-drawer-tile-size) * 0.113),
-			15px
-		);
+		--mobile-chat-main-menu-drawer-tile-title-size: 13px;
 		--mobile-chat-main-menu-drawer-tile-deco-icon-size: 72px;
 		--mobile-chat-main-menu-drawer-tile-deco-icon-top: 12px;
 		--mobile-chat-main-menu-drawer-tile-deco-icon-right: 10px;
@@ -1315,10 +1308,11 @@
 	}
 
 	.mobile-chat-main-menu-drawer__current-user-frame {
+		--mobile-chat-main-menu-drawer-user-avatar-size: 40px;
 		display: flex;
-		width: 36px;
-		height: 36px;
-		flex: 0 0 36px;
+		width: var(--mobile-chat-main-menu-drawer-user-avatar-size);
+		height: var(--mobile-chat-main-menu-drawer-user-avatar-size);
+		flex: 0 0 var(--mobile-chat-main-menu-drawer-user-avatar-size);
 	}
 
 	.mobile-chat-main-menu-drawer__current-user-image {
@@ -1351,12 +1345,6 @@
 		width: 100%;
 		max-width: 100%;
 		min-width: 0;
-		color: var(--foreground);
-		font-size: var(--text-sm);
-		font-weight: var(--font-weight-semibold);
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
 	}
 
 	.mobile-chat-main-menu-drawer__current-user-subtitle {
