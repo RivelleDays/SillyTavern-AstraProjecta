@@ -113,7 +113,7 @@
 
 		content: "";
 		position: absolute;
-		top: 20px;
+		top: -20px;
 		bottom: -2px;
 		left: 0;
 		z-index: 0;
