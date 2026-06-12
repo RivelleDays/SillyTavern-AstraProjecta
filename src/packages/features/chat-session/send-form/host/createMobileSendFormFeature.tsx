@@ -12,7 +12,6 @@ import { createPrimarySendActionStore } from "@/packages/core/st/primarySendActi
 import { createQuickShortcutStore } from "@/packages/core/st/quickShortcuts";
 import {
 	MOBILE_SEND_FORM_COMPOSER_HOST_ID,
-	MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID,
 	NATIVE_FORM_SHELD_ID,
 	NATIVE_NON_QR_FORM_ITEMS_ID,
 	NATIVE_RIGHT_SEND_FORM_ID,
@@ -134,6 +133,20 @@ export function createMobileSendFormFeature({
 		}
 	}
 
+	function handleQuickReplyHostChange(nextHost: HTMLDivElement | null) {
+		if (!(nextHost instanceof HTMLDivElement) || !nextHost.isConnected) {
+			quickReplyBarBridge?.restore();
+			quickReplyHost = null;
+			return;
+		}
+
+		quickReplyHost = markAstraProjectaUiRoot(nextHost);
+		quickReplyBarBridge ??= createNativeQuickReplyBarBridge({
+			documentRef,
+		});
+		quickReplyBarBridge.attachTo(quickReplyHost);
+	}
+
 	function restoreTextareaToNativeRow() {
 		const textarea = resolveManagedTextarea();
 		const nonQrFormItems = documentRef.getElementById(
@@ -229,34 +242,17 @@ export function createMobileSendFormFeature({
 	}
 
 	function mount() {
-		if (root && composerHost?.isConnected && quickReplyHost?.isConnected) {
+		if (root && composerHost?.isConnected) {
 			return;
 		}
 
-		if (
-			root &&
-			(!composerHost?.isConnected || !quickReplyHost?.isConnected)
-		) {
+		if (root && !composerHost?.isConnected) {
 			unmount();
 		}
 
 		const targets = resolveSendFormTargets(documentRef);
 		if (!targets) {
 			return;
-		}
-
-		quickReplyHost =
-			resolveHost(documentRef, MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID) ??
-			documentRef.createElement("div");
-		quickReplyHost.id = MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID;
-		quickReplyHost.className = "mobile-send-form-quick-reply-host";
-		markAstraProjectaUiRoot(quickReplyHost);
-
-		if (
-			quickReplyHost.parentElement !== targets.formSheld ||
-			quickReplyHost.nextElementSibling !== targets.sendForm
-		) {
-			targets.formSheld.insertBefore(quickReplyHost, targets.sendForm);
 		}
 
 		composerHost =
@@ -276,11 +272,6 @@ export function createMobileSendFormFeature({
 			);
 		}
 
-		quickReplyBarBridge ??= createNativeQuickReplyBarBridge({
-			documentRef,
-		});
-		quickReplyBarBridge.attachTo(quickReplyHost);
-
 		if (!root) {
 			root = createRoot(composerHost);
 		}
@@ -297,10 +288,10 @@ export function createMobileSendFormFeature({
 				}
 				currentUserAvatarStore={stores.currentUserAvatarStore}
 				documentRef={documentRef}
+				onQuickReplyHostChange={handleQuickReplyHostChange}
 				onTextareaHostChange={moveTextareaIntoHost}
 				primarySendActionStore={stores.primarySendActionStore}
 				quickReplyEnabledStore={stores.quickReplyEnabledStore}
-				quickReplyHost={quickReplyHost}
 				quickShortcutStore={stores.quickShortcutStore}
 			/>,
 		);
@@ -308,12 +299,11 @@ export function createMobileSendFormFeature({
 
 	function unmount() {
 		restoreTextareaToNativeRow();
+		quickReplyBarBridge?.restore();
 		root?.unmount();
 		root = null;
-		quickReplyBarBridge?.restore();
 		quickReplyBarBridge?.dispose();
 		quickReplyBarBridge = null;
-		quickReplyHost?.remove();
 		quickReplyHost = null;
 		composerHost?.remove();
 		composerHost = null;

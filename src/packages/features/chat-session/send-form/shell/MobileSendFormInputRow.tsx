@@ -8,6 +8,7 @@ import type { CurrentUserAvatarSnapshot } from "@/packages/core/st/currentUserAv
 import {
 	MOBILE_CHAT_MAIN_MENU_DRAWER_ID,
 	MOBILE_CHAT_MAIN_MENU_TRIGGER_ID,
+	MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { MobileSendFormExtensionsMenu } from "@/packages/features/chat-session/send-form/extensions-menu/MobileSendFormExtensionsMenu";
 import { MobileSendFormOptionsMenu } from "@/packages/features/chat-session/send-form/options-menu/MobileSendFormOptionsMenu";
@@ -27,6 +28,7 @@ export interface MobileSendFormInputRowProps {
 	): void;
 	onMainMenuTriggerPointerDownCapture(): void;
 	onPrimarySendActionClick(): void;
+	onQuickReplyHostChange(host: HTMLDivElement | null): void;
 	onQuickReplyHostVisibilityToggle(): void;
 	onShortcutsToolbarVisibilityChange(nextValue: boolean): void;
 	onTextareaHostChange(host: HTMLDivElement | null): void;
@@ -50,6 +52,7 @@ export function MobileSendFormInputRow({
 	onMainMenuTriggerKeyDownCapture,
 	onMainMenuTriggerPointerDownCapture,
 	onPrimarySendActionClick,
+	onQuickReplyHostChange,
 	onQuickReplyHostVisibilityToggle,
 	onShortcutsToolbarVisibilityChange,
 	onTextareaHostChange,
@@ -66,6 +69,9 @@ export function MobileSendFormInputRow({
 			className="mobile-send-form-input-row"
 			data-input-state="default"
 			data-slot="mobile-send-form-input-row"
+			data-active-panel={
+				isQuickReplyHostVisible ? "quick-reply" : "textarea"
+			}
 			data-textarea-layout={
 				isTextareaMultiline ? "multi-line" : "single-line"
 			}
@@ -77,7 +83,14 @@ export function MobileSendFormInputRow({
 				>
 					<div
 						className="mobile-send-form-input-row__textarea-main"
+						hidden={isQuickReplyHostVisible}
 						ref={onTextareaHostChange}
+					/>
+					<div
+						id={MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID}
+						className="mobile-send-form-quick-reply-host"
+						hidden={!isQuickReplyHostVisible}
+						ref={onQuickReplyHostChange}
 					/>
 					<div
 						className="mobile-send-form-input-row__controls-row"

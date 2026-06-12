@@ -67,7 +67,7 @@ describe("chat-send-form.css", () => {
 			"#mobile-send-form-shortcuts-host",
 			"#mobile-send-form-quick-reply-host",
 			"#mobile-send-form-input-row-host",
-			"#form_sheld > #mobile-send-form-quick-reply-host",
+			".mobile-send-form-input-row__textarea-host > #mobile-send-form-quick-reply-host",
 			"#mobile-send-form-quick-reply-host > #qr--bar",
 			"#send_form > #mobile-send-form-composer-host",
 			".mobile-send-form-composer",
@@ -85,6 +85,9 @@ describe("chat-send-form.css", () => {
 		);
 
 		expect(composerHostBlock).toContain("--mobile-chat-spacing");
+		expect(css).not.toContain(
+			"#form_sheld > #mobile-send-form-quick-reply-host",
+		);
 	});
 
 	test("keeps the bottom glass overlay masked so blur fades in with the surface", () => {
@@ -107,6 +110,8 @@ describe("chat-send-form.css", () => {
 			".mobile-send-form-input-row__avatar",
 			".mobile-send-form-input-row__textarea-host",
 			".mobile-send-form-input-row__textarea-main",
+			".mobile-send-form-input-row__textarea-main[hidden]",
+			".mobile-send-form-input-row__textarea-host > #mobile-send-form-quick-reply-host[hidden]",
 			".mobile-send-form-input-row__controls-row",
 			".mobile-send-form-input-row__textarea-actions",
 			".mobile-send-form-input-row__quick-reply-toggle",
@@ -126,11 +131,12 @@ describe("chat-send-form.css", () => {
 		const css = readCss();
 		const quickReplySlice = readSlice(
 			css,
-			"#form_sheld > #mobile-send-form-quick-reply-host",
+			".mobile-send-form-input-row__textarea-host > #mobile-send-form-quick-reply-host",
 			"body.astra-projecta-mobile-layout {",
 		);
 
 		expectSelectors(css, [
+			".mobile-send-form-input-row__textarea-host > #mobile-send-form-quick-reply-host",
 			"#mobile-send-form-quick-reply-host > #qr--bar > .qr--buttons",
 			"#mobile-send-form-quick-reply-host > #qr--bar .qr--button",
 			"#mobile-send-form-quick-reply-host > #qr--bar .qr--button-expander",

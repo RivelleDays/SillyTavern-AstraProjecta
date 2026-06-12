@@ -7605,7 +7605,7 @@
     -webkit-backdrop-filter: blur(var(--astra-mobile-glass-blur))	saturate(var(--astra-mobile-glass-saturate));
     backdrop-filter: blur(var(--astra-mobile-glass-blur))	saturate(var(--astra-mobile-glass-saturate));
   }
-  #form_sheld > #mobile-send-form-quick-reply-host,	#form_sheld > #send_form {
+  #form_sheld > #send_form {
     position: relative;
     z-index: 1;
   }
@@ -7617,19 +7617,23 @@
     padding-inline: calc(var(--mobile-chat-spacing) - 4px);
     background: transparent;
   }
-  #form_sheld > #mobile-send-form-quick-reply-host {
+  .mobile-send-form-input-row__textarea-host > #mobile-send-form-quick-reply-host {
     --mobile-send-form-quick-reply-gap: 8px;
     --mobile-send-form-quick-reply-button-padding-x: 0;
     --mobile-send-form-quick-reply-button-padding-y: 0;
     --mobile-send-form-quick-reply-button-font-size: var(--text-xs);
-    --mobile-send-form-quick-reply-max-block-size: unset;
+    --mobile-send-form-quick-reply-max-block-size: 18dvh;
     --mobile-send-form-quick-reply-expander-size: 20px;
+    display: flex;
+    align-items: stretch;
     box-sizing: border-box;
-    flex: 0 0 auto;
+    flex: 1 1 auto;
     width: 100%;
     min-width: 0;
-    padding: 8px var(--mobile-chat-spacing) 0;
+    min-height: var(--mobile-send-form-input-control-size);
+    padding: 0;
     background: transparent;
+    overflow: hidden;
   }
   #mobile-send-form-quick-reply-host > #qr--bar {
     box-sizing: border-box;
@@ -9265,6 +9269,9 @@
     min-width: 0;
     min-height: var(--mobile-send-form-input-control-size);
     overflow: hidden;
+  }
+  .mobile-send-form-input-row__textarea-main[hidden],	.mobile-send-form-input-row__textarea-host > #mobile-send-form-quick-reply-host[hidden] {
+    display: none;
   }
   .mobile-send-form-input-row__textarea-main > #send_textarea {
     order: 0;

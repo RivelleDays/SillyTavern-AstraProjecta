@@ -91,6 +91,25 @@ async function waitForInputRowHost() {
 	return (await waitForSendFormHosts()).inputRowHost;
 }
 
+function expectQuickReplyHostInTextareaSlot({
+	inputRowHost,
+	quickReplyHost,
+}: {
+	inputRowHost: HTMLElement;
+	quickReplyHost: HTMLElement;
+}) {
+	const textareaHost = inputRowHost.querySelector<HTMLElement>(
+		".mobile-send-form-input-row__textarea-host",
+	);
+	const textareaMain = inputRowHost.querySelector<HTMLElement>(
+		".mobile-send-form-input-row__textarea-main",
+	);
+
+	expect(textareaHost).toContainElement(textareaMain);
+	expect(textareaHost).toContainElement(quickReplyHost);
+	expect(textareaMain?.nextElementSibling).toBe(quickReplyHost);
+}
+
 async function waitForShortcutsHost() {
 	return (await waitForSendFormHosts()).shortcutsHost;
 }
@@ -582,11 +601,11 @@ describe("createMobileSendFormFeature", () => {
 			"mobile-send-form-composer__shortcut-region",
 		);
 		expect(shortcutsHost.nextElementSibling).toBeNull();
-		expect(quickReplyHost.parentElement?.id).toBe("form_sheld");
-		expect(quickReplyHost.previousElementSibling).toBeNull();
-		expect(quickReplyHost.nextElementSibling?.id).toBe(
-			"send_form",
-		);
+		expectQuickReplyHostInTextareaSlot({
+			inputRowHost,
+			quickReplyHost,
+		});
+		expect(quickReplyHost).toHaveAttribute("hidden");
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 		expect(inputRowHost.parentElement).toHaveClass(
 			"mobile-send-form-composer__surface",
@@ -785,11 +804,11 @@ describe("createMobileSendFormFeature", () => {
 		);
 		expect(shortcutsHost.nextElementSibling).toBeNull();
 		expect(quickReplyHost).toHaveClass("mobile-send-form-quick-reply-host");
-		expect(quickReplyHost.parentElement?.id).toBe("form_sheld");
-		expect(quickReplyHost.previousElementSibling).toBeNull();
-		expect(quickReplyHost.nextElementSibling?.id).toBe(
-			"send_form",
-		);
+		expectQuickReplyHostInTextareaSlot({
+			inputRowHost,
+			quickReplyHost,
+		});
+		expect(quickReplyHost).toHaveAttribute("hidden");
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 		expect(inputRowHost).toHaveClass("mobile-send-form-input-row-host");
 		expect(inputRowHost.parentElement).toHaveClass(
@@ -3591,11 +3610,17 @@ describe("createMobileSendFormFeature", () => {
 		feature.dispose();
 	});
 
-	test("renders the quick reply visibility toggle in the input row before the send button when native quick replies are enabled", async () => {
+	test("renders the quick reply visibility toggle with the textarea visible by default when native quick replies are enabled", async () => {
 		const feature = setupQuickReplyVisibilityFixture();
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
+		const inputRow = inputRowHost.querySelector(
+			".mobile-send-form-input-row",
+		);
+		const textareaMain = inputRowHost.querySelector(
+			".mobile-send-form-input-row__textarea-main",
+		);
 		const shortcutsStrip = shortcutsHost.querySelector(
 			".mobile-send-form-shortcuts__strip",
 		) as HTMLElement | null;
@@ -3608,7 +3633,7 @@ describe("createMobileSendFormFeature", () => {
 			".mobile-send-form-input-row__textarea-actions",
 		);
 		const quickReplyToggle = within(inputRowHost).getByRole("button", {
-			name: "Hide quick replies",
+			name: "Show quick replies",
 		});
 		const sendButton = within(inputRowHost).getByRole("button", {
 			name: "Send message",
@@ -3629,7 +3654,7 @@ describe("createMobileSendFormFeature", () => {
 		).toBeInTheDocument();
 		expect(
 			within(shortcutsHost).queryByRole("button", {
-				name: "Hide quick replies",
+				name: "Show quick replies",
 			}),
 		).not.toBeInTheDocument();
 		expect(quickReplyToggle).toHaveAttribute(
@@ -3637,59 +3662,75 @@ describe("createMobileSendFormFeature", () => {
 			"mobile-send-form-quick-reply-toggle",
 		);
 		expect(
-			quickReplyToggle.querySelector(".lucide-keyboard"),
+			quickReplyToggle.querySelector(".lucide-message-circle-reply"),
 		).toBeInTheDocument();
 		expect(textareaActions?.firstElementChild).toBe(quickReplyToggle);
 		expect(quickReplyToggle.nextElementSibling).toBe(sendButton);
 		expect(shortcutButtons[1]).toHaveAccessibleName("Impersonate");
-		expect(quickReplyHost).not.toHaveAttribute("hidden");
+		expectQuickReplyHostInTextareaSlot({
+			inputRowHost,
+			quickReplyHost,
+		});
+		expect(inputRow).toHaveAttribute("data-active-panel", "textarea");
+		expect(textareaMain).not.toHaveAttribute("hidden");
+		expect(quickReplyHost).toHaveAttribute("hidden");
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 
 		feature.dispose();
 	});
 
-	test("hides and shows the quick reply host from the persisted visibility toggle", async () => {
+	test("shows and hides the quick reply host from the persisted visibility toggle", async () => {
 		const feature = setupQuickReplyVisibilityFixture();
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
+		const inputRow = inputRowHost.querySelector(
+			".mobile-send-form-input-row",
+		);
+		const textareaMain = inputRowHost.querySelector(
+			".mobile-send-form-input-row__textarea-main",
+		);
 		expect(
 			within(shortcutsHost).queryByRole("button", {
-				name: "Hide quick replies",
+				name: "Show quick replies",
 			}),
 		).not.toBeInTheDocument();
-		const hideToggle = within(inputRowHost).getByRole("button", {
-			name: "Hide quick replies",
-		});
-
-		fireEvent.click(hideToggle);
-
-		await waitFor(() => {
-			expect(quickReplyHost).toHaveAttribute("hidden");
-		});
-		expect(
-			window.localStorage.getItem(
-				"astra_projecta.mobile_send_form.quick_reply_visible",
-			),
-		).toBe("false");
-
 		const showToggle = within(inputRowHost).getByRole("button", {
 			name: "Show quick replies",
 		});
-		expect(
-			showToggle.querySelector(".lucide-message-circle-reply"),
-		).toBeInTheDocument();
 
 		fireEvent.click(showToggle);
 
 		await waitFor(() => {
 			expect(quickReplyHost).not.toHaveAttribute("hidden");
 		});
+		expect(inputRow).toHaveAttribute("data-active-panel", "quick-reply");
+		expect(textareaMain).toHaveAttribute("hidden");
 		expect(
 			window.localStorage.getItem(
 				"astra_projecta.mobile_send_form.quick_reply_visible",
 			),
 		).toBe("true");
+
+		const hideToggle = within(inputRowHost).getByRole("button", {
+			name: "Hide quick replies",
+		});
+		expect(
+			hideToggle.querySelector(".lucide-keyboard"),
+		).toBeInTheDocument();
+
+		fireEvent.click(hideToggle);
+
+		await waitFor(() => {
+			expect(quickReplyHost).toHaveAttribute("hidden");
+		});
+		expect(inputRow).toHaveAttribute("data-active-panel", "textarea");
+		expect(textareaMain).not.toHaveAttribute("hidden");
+		expect(
+			window.localStorage.getItem(
+				"astra_projecta.mobile_send_form.quick_reply_visible",
+			),
+		).toBe("false");
 
 		feature.dispose();
 	});
@@ -3701,8 +3742,16 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
+		const inputRow = inputRowHost.querySelector(
+			".mobile-send-form-input-row",
+		);
+		const textareaMain = inputRowHost.querySelector(
+			".mobile-send-form-input-row__textarea-main",
+		);
 
 		expect(quickReplyHost).toHaveAttribute("hidden");
+		expect(inputRow).toHaveAttribute("data-active-panel", "textarea");
+		expect(textareaMain).not.toHaveAttribute("hidden");
 		expect(
 			within(shortcutsHost).queryByRole("button", {
 				name: "Show quick replies",
@@ -3720,6 +3769,8 @@ describe("createMobileSendFormFeature", () => {
 		await waitFor(() => {
 			expect(quickReplyHost).not.toHaveAttribute("hidden");
 		});
+		expect(inputRow).toHaveAttribute("data-active-panel", "quick-reply");
+		expect(textareaMain).toHaveAttribute("hidden");
 
 		feature.dispose();
 	});
@@ -3731,6 +3782,12 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
+		const inputRow = inputRowHost.querySelector(
+			".mobile-send-form-input-row",
+		);
+		const textareaMain = inputRowHost.querySelector(
+			".mobile-send-form-input-row__textarea-main",
+		);
 
 		expect(
 			within(shortcutsHost).queryByRole("button", {
@@ -3753,17 +3810,25 @@ describe("createMobileSendFormFeature", () => {
 			}),
 		).not.toBeInTheDocument();
 		expect(quickReplyHost).toHaveAttribute("hidden");
+		expect(inputRow).toHaveAttribute("data-active-panel", "textarea");
+		expect(textareaMain).not.toHaveAttribute("hidden");
 
 		feature.dispose();
 	});
 
-	test("hides only the quick reply visibility toggle when the native quick reply setting is unavailable", async () => {
+	test("hides the quick reply visibility toggle and keeps the textarea visible when the native quick reply setting is unavailable", async () => {
 		const feature = setupQuickReplyVisibilityFixture({
 			nativeToggle: "missing",
 		});
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
+		const inputRow = inputRowHost.querySelector(
+			".mobile-send-form-input-row",
+		);
+		const textareaMain = inputRowHost.querySelector(
+			".mobile-send-form-input-row__textarea-main",
+		);
 
 		expect(
 			within(shortcutsHost).queryByRole("button", {
@@ -3785,7 +3850,9 @@ describe("createMobileSendFormFeature", () => {
 				name: "Show quick replies",
 			}),
 		).not.toBeInTheDocument();
-		expect(quickReplyHost).not.toHaveAttribute("hidden");
+		expect(quickReplyHost).toHaveAttribute("hidden");
+		expect(inputRow).toHaveAttribute("data-active-panel", "textarea");
+		expect(textareaMain).not.toHaveAttribute("hidden");
 		expect(document.getElementById("qr--bar")).toBeInTheDocument();
 
 		feature.dispose();

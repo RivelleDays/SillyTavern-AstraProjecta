@@ -177,7 +177,7 @@ function persistShortcutsToolbarVisibility(
 function readStoredQuickReplyHostVisibility(documentRef: Document): boolean {
 	const storage = documentRef.defaultView?.localStorage;
 	if (!storage) {
-		return true;
+		return false;
 	}
 
 	try {
@@ -192,10 +192,10 @@ function readStoredQuickReplyHostVisibility(documentRef: Document): boolean {
 			return true;
 		}
 	} catch {
-		return true;
+		return false;
 	}
 
-	return true;
+	return false;
 }
 
 function persistQuickReplyHostVisibility(
@@ -225,10 +225,10 @@ export function AstraMobileSendForm({
 	currentPresetProfileControlsStore,
 	currentUserAvatarStore,
 	documentRef = document,
+	onQuickReplyHostChange,
 	onTextareaHostChange,
 	primarySendActionStore,
 	quickReplyEnabledStore,
-	quickReplyHost,
 	quickShortcutStore,
 }: {
 	chatContextUsageStore: ChatContextUsageStore;
@@ -238,10 +238,10 @@ export function AstraMobileSendForm({
 	currentPresetProfileControlsStore: CurrentPresetProfileControlsStore;
 	currentUserAvatarStore: CurrentUserAvatarStore;
 	documentRef?: Document;
+	onQuickReplyHostChange(host: HTMLDivElement | null): void;
 	onTextareaHostChange(host: HTMLDivElement | null): void;
 	primarySendActionStore: PrimarySendActionStore;
 	quickReplyEnabledStore: NativeQuickReplyEnabledStore;
-	quickReplyHost: HTMLDivElement | null;
 	quickShortcutStore: QuickShortcutStore;
 }) {
 	const contextUsageSnapshot = React.useSyncExternalStore(
@@ -357,25 +357,13 @@ export function AstraMobileSendForm({
 		clearTimeout(handle as ReturnType<typeof setTimeout>);
 	}, [documentRef]);
 
-	const shouldForceHideQuickReplyHost =
-		quickReplyEnabledSnapshot.hasNativeToggle &&
-		!quickReplyEnabledSnapshot.isEnabled;
-	const shouldShowQuickReplyVisibilityToggle =
+	const canShowQuickReplyHost =
 		quickReplyEnabledSnapshot.hasNativeToggle &&
 		quickReplyEnabledSnapshot.isEnabled;
-	const isQuickReplyHostVisible = shouldForceHideQuickReplyHost
-		? false
-		: !quickReplyEnabledSnapshot.hasNativeToggle
-			? true
-			: showQuickReplyHost;
-
-	React.useLayoutEffect(() => {
-		if (!(quickReplyHost instanceof HTMLDivElement)) {
-			return;
-		}
-
-		quickReplyHost.hidden = !isQuickReplyHostVisible;
-	}, [isQuickReplyHostVisible, quickReplyHost]);
+	const shouldShowQuickReplyVisibilityToggle = canShowQuickReplyHost;
+	const isQuickReplyHostVisible = canShowQuickReplyHost
+		? showQuickReplyHost
+		: false;
 
 	React.useEffect(() => {
 		return () => {
@@ -838,6 +826,7 @@ export function AstraMobileSendForm({
 				handleMainMenuTriggerPointerDownCapture
 			}
 			onPrimarySendActionClick={handlePrimarySendActionClick}
+			onQuickReplyHostChange={onQuickReplyHostChange}
 			onQuickReplyHostVisibilityToggle={
 				handleQuickReplyHostVisibilityToggle
 			}
