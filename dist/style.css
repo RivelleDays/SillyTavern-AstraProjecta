@@ -7500,6 +7500,9 @@
 :root {
   --mobile-chat-spacing: 12px;
 }
+body.no-blur #top-bar, body.no-blur #send_form {
+  background-color: transparent !important;
+}
 @keyframes mobile-chat-context-usage-dot-fade {
   0%,	100% {
     opacity: 1;
