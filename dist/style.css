@@ -7575,9 +7575,31 @@
     position: -webkit-sticky;
     position: sticky;
     isolation: isolate;
+    overflow: visible;
     background: transparent;
     border-top: none;
     padding-bottom: calc( var(--mobile-chat-spacing) / 2 + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)) );
+  }
+  #form_sheld::before {
+    content: "";
+    position: absolute;
+    top: calc(0px - var(--astra-mobile-glass-bottom-fade-size));
+    bottom: 0;
+    left: 50%;
+    z-index: 0;
+    width: 120dvw;
+    transform: translateX(-50%);
+    pointer-events: none;
+    background: linear-gradient(	to bottom,	transparent 0%,	var(--astra-mobile-glass-bottom-surface)	var(--astra-mobile-glass-bottom-fade-size),	var(--astra-mobile-glass-bottom-surface) 100%	);
+    @supports (color: color-mix(in lab, red, red)) {
+      background: linear-gradient(	to bottom,	transparent 0%,	color-mix(	in srgb,	var(--astra-mobile-glass-bottom-surface) 70%,	transparent	)	var(--astra-mobile-glass-bottom-fade-size),	var(--astra-mobile-glass-bottom-surface) 100%	);
+    }
+    -webkit-backdrop-filter: blur(var(--astra-mobile-glass-blur))	saturate(var(--astra-mobile-glass-saturate));
+    backdrop-filter: blur(var(--astra-mobile-glass-blur))	saturate(var(--astra-mobile-glass-saturate));
+  }
+  #form_sheld > #mobile-send-form-quick-reply-host,	#form_sheld > #send_form {
+    position: relative;
+    z-index: 1;
   }
   #send_form > #mobile-send-form-composer-host {
     box-sizing: border-box;
@@ -9344,12 +9366,31 @@ body.astra-projecta-mobile-layout {
 }
 #mobile-chat-top-bar-host {
   box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
   flex: 0 0 var(--mobile-chat-top-bar-block-size);
   min-width: 0;
   width: 100%;
   min-height: var(--mobile-chat-top-bar-block-size);
-  background: var(--background);
-  border-bottom: 1px solid var(--border);
+  overflow: visible;
+  background: transparent;
+  border-bottom: none;
+}
+#mobile-chat-top-bar-host::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  bottom: calc(0px - var(--astra-mobile-glass-top-fade-size));
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(	to bottom,	var(--astra-mobile-glass-top-surface) 0%,	var(--astra-mobile-glass-top-surface)	calc(100% - var(--astra-mobile-glass-top-fade-size)),	transparent 100%	);
+  @supports (color: color-mix(in lab, red, red)) {
+    background: linear-gradient(	to bottom,	var(--astra-mobile-glass-top-surface) 0%,	color-mix(	in srgb,	var(--astra-mobile-glass-top-surface) 68%,	transparent	)	calc(100% - var(--astra-mobile-glass-top-fade-size)),	transparent 100%	);
+  }
+  -webkit-backdrop-filter: blur(var(--astra-mobile-glass-blur))	saturate(var(--astra-mobile-glass-saturate));
+  backdrop-filter: blur(var(--astra-mobile-glass-blur))	saturate(var(--astra-mobile-glass-saturate));
 }
 #mobile-chat-top-bar-shell > #sheld {
   box-sizing: border-box;
@@ -9368,6 +9409,8 @@ body.astra-projecta-mobile-layout {
 }
 .mobile-chat-top-bar {
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -11331,7 +11374,6 @@ body.astra-projecta-mobile-layout {
     font-size: var(--text-xs);
     font-weight: var(--font-weight-semibold);
     border-radius: 20px;
-    height: 36px;
     margin-right: 4px;
   }
   .sillytavern-interface-panel {
@@ -12115,22 +12157,22 @@ body.astra-projecta-mobile-layout {
     --astra-chat-scroll-inline-padding: calc(
 			var(--mobile-chat-spacing) - 4px
 		);
+    --astra-chat-scroll-glass-clearance-block-start: var(
+			--astra-mobile-glass-top-fade-size,
+			36px
+		);
     max-height: unset;
     bottom: 0;
     background-color: transparent !important;
     border: none !important;
     backdrop-filter: none !important;
     padding-inline: var(--astra-chat-scroll-inline-padding);
+    padding-block-start: var(	--astra-chat-scroll-glass-clearance-block-start	);
   }
   & #chat[data-astra-projecta-chat-scroll="native"] {
     --astra-chat-scrollbar-size: 6px;
     --astra-chat-scrollbar-thumb: var(--color-base-t30);
     --astra-chat-scrollbar-thumb-hover: var(--color-base-t40);
-    --astra-chat-scroll-fade-size: 36px;
-    --astra-chat-scroll-fade-background: var(--background);
-    --astra-chat-scroll-fade-inline-outset: var(
-			--astra-chat-scroll-inline-padding
-		);
     position: relative;
     scrollbar-color: var(--astra-chat-scrollbar-thumb) transparent;
     scrollbar-width: thin;
@@ -12140,35 +12182,6 @@ body.astra-projecta-mobile-layout {
     overscroll-behavior: contain;
     touch-action: none;
     -webkit-overflow-scrolling: auto;
-  }
-  & #chat[data-astra-projecta-chat-scroll="native"]::before,	& #chat[data-astra-projecta-chat-scroll="native"]::after {
-    content: "";
-    position: sticky;
-    z-index: 2;
-    display: block;
-    align-self: stretch;
-    flex: 0 0 var(--astra-chat-scroll-fade-size);
-    inline-size: calc(	100% + (2 * var(--astra-chat-scroll-fade-inline-outset))	);
-    height: var(--astra-chat-scroll-fade-size);
-    margin-inline: calc(0px - var(--astra-chat-scroll-fade-inline-outset));
-    pointer-events: none;
-    opacity: 0;
-  }
-  & #chat[data-astra-projecta-chat-scroll="native"]::before {
-    top: 0;
-    margin-bottom: calc(0px - var(--astra-chat-scroll-fade-size));
-    background: linear-gradient(	to bottom,	var(--astra-chat-scroll-fade-background) 0%,	transparent 100%	);
-  }
-  & #chat[data-astra-projecta-chat-scroll="native"]::after {
-    bottom: 0;
-    margin-top: calc(0px - var(--astra-chat-scroll-fade-size));
-    background: linear-gradient(	to top,	var(--astra-chat-scroll-fade-background) 0%,	transparent 100%	);
-  }
-  &	#chat[data-astra-projecta-chat-scroll="native"][data-astra-projecta-chat-scroll-y-start]::before {
-    opacity: 1;
-  }
-  &	#chat[data-astra-projecta-chat-scroll="native"][data-astra-projecta-chat-scroll-y-end]::after {
-    opacity: 1;
   }
   & #chat[data-astra-projecta-chat-scroll="native"]::-webkit-scrollbar {
     width: var(--astra-chat-scrollbar-size);
@@ -13746,6 +13759,23 @@ body.astra-projecta-base-ui-body {
   --safe-bottom: calc(env(safe-area-inset-bottom, 0px) / 2);
   --astra-mobile-visual-viewport-bottom: 100vh;
   --astra-mobile-safe-bottom-effective: var(--safe-bottom);
+  --astra-mobile-glass-blur: 18px;
+  --astra-mobile-glass-saturate: 1.18;
+  --astra-mobile-glass-top-fade-size: 36px;
+  --astra-mobile-glass-bottom-fade-size: 44px;
+  --astra-mobile-glass-top-surface: color-mix(
+		in srgb,
+		var(--background) 34%,
+		transparent
+	);
+  --astra-mobile-glass-bottom-surface: color-mix(
+		in srgb,
+		var(--background) 42%,
+		transparent
+	);
+  --astra-chat-scroll-glass-clearance-block-start: var(
+		--astra-mobile-glass-top-fade-size
+	);
   --astra-icon-size-xs: 0.875rem;
   --astra-icon-size-sm: 1rem;
   --astra-icon-size-md: 1.125rem;

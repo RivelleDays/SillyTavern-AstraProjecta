@@ -100,9 +100,43 @@
 		position: -webkit-sticky;
 		position: sticky;
 		isolation: isolate;
+		overflow: visible;
 		background: transparent;
 		border-top: none;
 		padding-bottom: calc( var(--mobile-chat-spacing) / 2 + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)) );
+	}
+
+	#form_sheld::before {
+		content: "";
+		position: absolute;
+		top: calc(0px - var(--astra-mobile-glass-bottom-fade-size));
+		bottom: 0;
+		left: 50%;
+		z-index: 0;
+		width: 120dvw;
+		transform: translateX(-50%);
+		pointer-events: none;
+		background: linear-gradient(
+			to bottom,
+			transparent 0%,
+			color-mix(
+					in srgb,
+					var(--astra-mobile-glass-bottom-surface) 70%,
+					transparent
+				)
+				var(--astra-mobile-glass-bottom-fade-size),
+			var(--astra-mobile-glass-bottom-surface) 100%
+		);
+		-webkit-backdrop-filter: blur(var(--astra-mobile-glass-blur))
+			saturate(var(--astra-mobile-glass-saturate));
+		backdrop-filter: blur(var(--astra-mobile-glass-blur))
+			saturate(var(--astra-mobile-glass-saturate));
+	}
+
+	#form_sheld > #mobile-send-form-quick-reply-host,
+	#form_sheld > #send_form {
+		position: relative;
+		z-index: 1;
 	}
 
 	#send_form > #mobile-send-form-composer-host {

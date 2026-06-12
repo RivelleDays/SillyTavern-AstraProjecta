@@ -551,31 +551,29 @@ describe("globals.css", () => {
 		expect(compactChatScrollCss).toContain(
 			"& #chat[data-astra-projecta-chat-scroll='native']::-webkit-scrollbar-thumb",
 		);
-		expect(compactChatScrollCss).toContain(
-			"#chat[data-astra-projecta-chat-scroll='native'][data-astra-projecta-chat-scroll-y-start]",
-		);
-		expect(compactChatScrollCss).toContain(
-			"#chat[data-astra-projecta-chat-scroll='native'][data-astra-projecta-chat-scroll-y-end]",
-		);
-		expect(chatScrollCss).toContain("--astra-chat-scroll-fade-background:");
 		expect(chatScrollCss).toContain("--astra-chat-scroll-inline-padding:");
 		expect(chatScrollCss).toContain(
-			"--astra-chat-scroll-fade-inline-outset:",
+			"--astra-chat-scroll-glass-clearance-block-start:",
 		);
-		expect(compactChatScrollCss).toContain(
-			"#chat[data-astra-projecta-chat-scroll='native']::before",
-		);
-		expect(compactChatScrollCss).toContain(
-			"#chat[data-astra-projecta-chat-scroll='native']::after",
-		);
-		expect(compactChatScrollCss).toContain(
-			"#chat[data-astra-projecta-chat-scroll='native'][data-astra-projecta-chat-scroll-y-start]::before",
-		);
-		expect(compactChatScrollCss).toContain(
-			"#chat[data-astra-projecta-chat-scroll='native'][data-astra-projecta-chat-scroll-y-end]::after",
-		);
+		expect(chatScrollCss).toContain("padding-block-start:");
 		expect(compactChatScrollCss).toContain(
 			"&[data-astra-projecta-native-popup-active='true'] #chat[data-astra-projecta-chat-scroll='native']",
+		);
+		expect(chatScrollCss).not.toContain("--astra-chat-scroll-fade-background:");
+		expect(chatScrollCss).not.toContain(
+			"--astra-chat-scroll-fade-inline-outset:",
+		);
+		expect(compactChatScrollCss).not.toContain(
+			"#chat[data-astra-projecta-chat-scroll='native'][data-astra-projecta-chat-scroll-y-start]",
+		);
+		expect(compactChatScrollCss).not.toContain(
+			"#chat[data-astra-projecta-chat-scroll='native'][data-astra-projecta-chat-scroll-y-end]",
+		);
+		expect(compactChatScrollCss).not.toContain(
+			"#chat[data-astra-projecta-chat-scroll='native']::before",
+		);
+		expect(compactChatScrollCss).not.toContain(
+			"#chat[data-astra-projecta-chat-scroll='native']::after",
 		);
 		expect(chatScrollCss).not.toContain(":has(dialog.popup");
 		expect(chatScrollCss).not.toContain(":has(#shadow_popup");
@@ -705,6 +703,13 @@ describe("globals.css", () => {
 		expect(css).toContain("--safe-bottom:");
 		expect(css).toContain("--astra-mobile-visual-viewport-bottom:");
 		expect(css).toContain("--astra-mobile-safe-bottom-effective:");
+		expect(css).toContain("--astra-mobile-glass-blur:");
+		expect(css).toContain("--astra-mobile-glass-saturate:");
+		expect(css).toContain("--astra-mobile-glass-top-fade-size:");
+		expect(css).toContain("--astra-mobile-glass-bottom-fade-size:");
+		expect(css).toContain("--astra-mobile-glass-top-surface:");
+		expect(css).toContain("--astra-mobile-glass-bottom-surface:");
+		expect(css).toContain("--astra-chat-scroll-glass-clearance-block-start:");
 		expect(css).toContain("--astra-icon-size-xs:");
 		expect(css).toContain("--astra-icon-size-sm:");
 		expect(css).toContain("--astra-icon-size-md:");

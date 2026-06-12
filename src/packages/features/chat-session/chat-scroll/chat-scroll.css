@@ -3,23 +3,25 @@ body.astra-projecta-mobile-layout {
 		--astra-chat-scroll-inline-padding: calc(
 			var(--mobile-chat-spacing) - 4px
 		);
+		--astra-chat-scroll-glass-clearance-block-start: var(
+			--astra-mobile-glass-top-fade-size,
+			36px
+		);
 		max-height: unset;
 		bottom: 0;
 		background-color: transparent !important;
 		border: none !important;
 		backdrop-filter: none !important;
 		padding-inline: var(--astra-chat-scroll-inline-padding);
+		padding-block-start: var(
+			--astra-chat-scroll-glass-clearance-block-start
+		);
 	}
 
 	& #chat[data-astra-projecta-chat-scroll="native"] {
 		--astra-chat-scrollbar-size: 6px;
 		--astra-chat-scrollbar-thumb: var(--color-base-t30);
 		--astra-chat-scrollbar-thumb-hover: var(--color-base-t40);
-		--astra-chat-scroll-fade-size: 36px;
-		--astra-chat-scroll-fade-background: var(--background);
-		--astra-chat-scroll-fade-inline-outset: var(
-			--astra-chat-scroll-inline-padding
-		);
 
 		position: relative;
 		scrollbar-color: var(--astra-chat-scrollbar-thumb) transparent;
@@ -32,53 +34,6 @@ body.astra-projecta-mobile-layout {
 		overscroll-behavior: contain;
 		touch-action: none;
 		-webkit-overflow-scrolling: auto;
-	}
-
-	& #chat[data-astra-projecta-chat-scroll="native"]::before,
-	& #chat[data-astra-projecta-chat-scroll="native"]::after {
-		content: "";
-		position: sticky;
-		z-index: 2;
-		display: block;
-		align-self: stretch;
-		flex: 0 0 var(--astra-chat-scroll-fade-size);
-		inline-size: calc(
-			100% + (2 * var(--astra-chat-scroll-fade-inline-outset))
-		);
-		height: var(--astra-chat-scroll-fade-size);
-		margin-inline: calc(0px - var(--astra-chat-scroll-fade-inline-outset));
-		pointer-events: none;
-		opacity: 0;
-	}
-
-	& #chat[data-astra-projecta-chat-scroll="native"]::before {
-		top: 0;
-		margin-bottom: calc(0px - var(--astra-chat-scroll-fade-size));
-		background: linear-gradient(
-			to bottom,
-			var(--astra-chat-scroll-fade-background) 0%,
-			transparent 100%
-		);
-	}
-
-	& #chat[data-astra-projecta-chat-scroll="native"]::after {
-		bottom: 0;
-		margin-top: calc(0px - var(--astra-chat-scroll-fade-size));
-		background: linear-gradient(
-			to top,
-			var(--astra-chat-scroll-fade-background) 0%,
-			transparent 100%
-		);
-	}
-
-	&
-		#chat[data-astra-projecta-chat-scroll="native"][data-astra-projecta-chat-scroll-y-start]::before {
-		opacity: 1;
-	}
-
-	&
-		#chat[data-astra-projecta-chat-scroll="native"][data-astra-projecta-chat-scroll-y-end]::after {
-		opacity: 1;
 	}
 
 	& #chat[data-astra-projecta-chat-scroll="native"]::-webkit-scrollbar {

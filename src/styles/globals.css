@@ -538,6 +538,23 @@ body.astra-projecta-base-ui-body {
 	--safe-bottom: calc(env(safe-area-inset-bottom, 0px) / 2);
 	--astra-mobile-visual-viewport-bottom: 100vh;
 	--astra-mobile-safe-bottom-effective: var(--safe-bottom);
+	--astra-mobile-glass-blur: 18px;
+	--astra-mobile-glass-saturate: 1.18;
+	--astra-mobile-glass-top-fade-size: 36px;
+	--astra-mobile-glass-bottom-fade-size: 44px;
+	--astra-mobile-glass-top-surface: color-mix(
+		in srgb,
+		var(--background) 34%,
+		transparent
+	);
+	--astra-mobile-glass-bottom-surface: color-mix(
+		in srgb,
+		var(--background) 42%,
+		transparent
+	);
+	--astra-chat-scroll-glass-clearance-block-start: var(
+		--astra-mobile-glass-top-fade-size
+	);
 	--astra-icon-size-xs: 0.875rem;
 	--astra-icon-size-sm: 1rem;
 	--astra-icon-size-md: 1.125rem;

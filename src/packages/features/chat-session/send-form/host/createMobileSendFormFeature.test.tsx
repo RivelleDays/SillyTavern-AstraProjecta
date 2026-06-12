@@ -863,20 +863,22 @@ describe("createMobileSendFormFeature", () => {
 		expect(sendClicks).toBe(1);
 
 		const host = inputRowHost;
-		const inputRow = host.querySelector(".mobile-send-form-input-row");
-		const leftControls = host.querySelector(
+		const inputRow = host.querySelector<HTMLElement>(
+			".mobile-send-form-input-row",
+		);
+		const leftControls = host.querySelector<HTMLElement>(
 			".mobile-send-form-input-row__left-controls",
 		);
-		const controlsRow = host.querySelector(
+		const controlsRow = host.querySelector<HTMLElement>(
 			".mobile-send-form-input-row__controls-row",
 		);
-		const textareaHost = host.querySelector(
+		const textareaHost = host.querySelector<HTMLElement>(
 			".mobile-send-form-input-row__textarea-host",
 		);
-		const textareaMain = host.querySelector(
+		const textareaMain = host.querySelector<HTMLElement>(
 			".mobile-send-form-input-row__textarea-main",
 		);
-		const textareaActions = host.querySelector(
+		const textareaActions = host.querySelector<HTMLElement>(
 			".mobile-send-form-input-row__textarea-actions",
 		);
 		expect(inputRow).toHaveAttribute("data-input-state", "default");

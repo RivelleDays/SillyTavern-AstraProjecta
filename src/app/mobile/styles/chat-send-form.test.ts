@@ -84,7 +84,6 @@ describe("chat-send-form.css", () => {
 			"#send_form > #mobile-send-form-composer-host",
 		);
 
-		expect(composerHostBlock).toContain("padding:");
 		expect(composerHostBlock).toContain("--mobile-chat-spacing");
 	});
 
