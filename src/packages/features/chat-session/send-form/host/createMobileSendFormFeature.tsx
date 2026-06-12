@@ -254,6 +254,23 @@ export function createMobileSendFormFeature({
 			return;
 		}
 
+		quickReplyHost =
+			resolveHost(documentRef, MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID) ??
+			documentRef.createElement("div");
+		quickReplyHost.id = MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID;
+		quickReplyHost.className = "mobile-send-form-quick-reply-host";
+		markAstraProjectaUiRoot(quickReplyHost);
+
+		if (
+			quickReplyHost.parentElement !== targets.formSheld ||
+			quickReplyHost.previousElementSibling !== targets.sendForm
+		) {
+			targets.formSheld.insertBefore(
+				quickReplyHost,
+				targets.sendForm.nextSibling,
+			);
+		}
+
 		shortcutsHost =
 			resolveHost(documentRef, MOBILE_SEND_FORM_SHORTCUTS_HOST_ID) ??
 			documentRef.createElement("div");
@@ -263,22 +280,11 @@ export function createMobileSendFormFeature({
 
 		if (
 			shortcutsHost.parentElement !== targets.formSheld ||
-			shortcutsHost.nextElementSibling !== targets.sendForm
+			shortcutsHost.previousElementSibling !== quickReplyHost
 		) {
-			targets.formSheld.insertBefore(shortcutsHost, targets.sendForm);
-		}
-
-		quickReplyHost =
-			resolveHost(documentRef, MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID) ??
-			documentRef.createElement("div");
-		quickReplyHost.id = MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID;
-		quickReplyHost.className = "mobile-send-form-quick-reply-host";
-		markAstraProjectaUiRoot(quickReplyHost);
-
-		if (shortcutsHost.nextSibling !== quickReplyHost) {
 			targets.formSheld.insertBefore(
-				quickReplyHost,
-				shortcutsHost.nextSibling,
+				shortcutsHost,
+				quickReplyHost.nextSibling,
 			);
 		}
 

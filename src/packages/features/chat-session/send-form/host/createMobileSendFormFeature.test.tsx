@@ -555,14 +555,15 @@ describe("createMobileSendFormFeature", () => {
 			inputRowHost.querySelector(".mobile-send-form-input-row"),
 		).toBeInTheDocument();
 		expect(shortcutsHost.parentElement?.id).toBe("form_sheld");
-		expect(shortcutsHost.nextElementSibling?.id).toBe(
+		expect(shortcutsHost.previousElementSibling?.id).toBe(
 			"mobile-send-form-quick-reply-host",
 		);
+		expect(shortcutsHost.nextElementSibling).toBeNull();
 		expect(quickReplyHost.parentElement?.id).toBe("form_sheld");
-		expect(quickReplyHost.previousElementSibling?.id).toBe(
+		expect(quickReplyHost.previousElementSibling?.id).toBe("send_form");
+		expect(quickReplyHost.nextElementSibling?.id).toBe(
 			"mobile-send-form-shortcuts-host",
 		);
-		expect(quickReplyHost.nextElementSibling?.id).toBe("send_form");
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 		expect(inputRowHost.parentElement?.id).toBe("send_form");
 		expect(inputRowHost.nextElementSibling?.id).toBe("nonQRFormItems");
@@ -736,15 +737,16 @@ describe("createMobileSendFormFeature", () => {
 
 		expect(shortcutsHost).toHaveClass("mobile-send-form-shortcuts-host");
 		expect(shortcutsHost.parentElement?.id).toBe("form_sheld");
-		expect(shortcutsHost.nextElementSibling?.id).toBe(
+		expect(shortcutsHost.previousElementSibling?.id).toBe(
 			"mobile-send-form-quick-reply-host",
 		);
+		expect(shortcutsHost.nextElementSibling).toBeNull();
 		expect(quickReplyHost).toHaveClass("mobile-send-form-quick-reply-host");
 		expect(quickReplyHost.parentElement?.id).toBe("form_sheld");
-		expect(quickReplyHost.previousElementSibling?.id).toBe(
+		expect(quickReplyHost.previousElementSibling?.id).toBe("send_form");
+		expect(quickReplyHost.nextElementSibling?.id).toBe(
 			"mobile-send-form-shortcuts-host",
 		);
-		expect(quickReplyHost.nextElementSibling?.id).toBe("send_form");
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 		expect(inputRowHost).toHaveClass("mobile-send-form-input-row-host");
 		expect(inputRowHost.parentElement?.id).toBe("send_form");
@@ -779,11 +781,11 @@ describe("createMobileSendFormFeature", () => {
 				".mobile-send-form-input-row__left-controls-default",
 			),
 		).toBeInTheDocument();
-			expect(
-				inputRowHost.querySelector(
-					".mobile-send-form-input-row__left-controls-composing",
-				),
-			).not.toBeInTheDocument();
+		expect(
+			inputRowHost.querySelector(
+				".mobile-send-form-input-row__left-controls-composing",
+			),
+		).not.toBeInTheDocument();
 
 		const textarea = await waitFor(() => {
 			const textbox = within(inputRowHost).getByRole("textbox");
@@ -817,9 +819,28 @@ describe("createMobileSendFormFeature", () => {
 		const leftControls = host.querySelector(
 			".mobile-send-form-input-row__left-controls",
 		);
+		const controlsRow = host.querySelector(
+			".mobile-send-form-input-row__controls-row",
+		);
+		const textareaHost = host.querySelector(
+			".mobile-send-form-input-row__textarea-host",
+		);
+		const textareaMain = host.querySelector(
+			".mobile-send-form-input-row__textarea-main",
+		);
+		const textareaActions = host.querySelector(
+			".mobile-send-form-input-row__textarea-actions",
+		);
 		expect(inputRow).toHaveAttribute("data-input-state", "default");
+		expect(textareaHost).toContainElement(textareaMain);
+		expect(textareaHost).toContainElement(controlsRow);
+		expect(controlsRow).toContainElement(leftControls);
+		expect(controlsRow).toContainElement(textareaActions);
 		expect(leftControls).toHaveAttribute("data-left-state", "default");
 
+		const mainMenuTrigger = within(host).getByRole("button", {
+			name: "Current user avatar",
+		});
 		const leftControlsMenuButton = within(host).getByRole("button", {
 			name: "Menu",
 		});
@@ -834,9 +855,19 @@ describe("createMobileSendFormFeature", () => {
 			"id",
 			"mobile-send-form-menu-button",
 		);
+		expect(mainMenuTrigger).toHaveAttribute(
+			"id",
+			"mobile-chat-main-menu-trigger",
+		);
 		expect(leftControlsExtensionsButton).toHaveAttribute(
 			"id",
 			"mobile-send-form-extension-shortcuts-button",
+		);
+		expect(leftControls).toContainElement(mainMenuTrigger);
+		expect(leftControls).toContainElement(leftControlsMenuButton);
+		expect(leftControls).toContainElement(leftControlsExtensionsButton);
+		expect(textareaActions).toContainElement(
+			within(host).getByRole("button", { name: "Send message" }),
 		);
 		expect(leftControlsMenuButton).toHaveClass(
 			"mobile-send-form-input-row__left-control-button",
@@ -979,34 +1010,31 @@ describe("createMobileSendFormFeature", () => {
 		fireEvent.focus(textarea);
 		fireEvent.input(textarea, { target: { value: "line 1\nline 2" } });
 
-			await waitFor(() => {
-				expect(inputRow).toHaveAttribute("data-input-state", "default");
-				expect(inputRow).toHaveAttribute(
-					"data-textarea-layout",
-					"multi-line",
-				);
-				expect(leftControls).toHaveAttribute(
-					"data-left-state",
-					"default",
-				);
-			});
+		await waitFor(() => {
+			expect(inputRow).toHaveAttribute("data-input-state", "default");
+			expect(inputRow).toHaveAttribute(
+				"data-textarea-layout",
+				"multi-line",
+			);
+			expect(leftControls).toHaveAttribute("data-left-state", "default");
+		});
 
-			expect(
-				within(host).queryByRole("button", {
-					hidden: true,
-					name: "Expand left controls",
-				}),
-			).not.toBeInTheDocument();
-			expect(
-				document.getElementById("mobile-send-form-menu-button"),
-			).toBeInTheDocument();
-			expect(
-				document.getElementById(
-					"mobile-send-form-extension-shortcuts-button",
-				),
-			).toHaveAttribute("aria-hidden", "false");
+		expect(
+			within(host).queryByRole("button", {
+				hidden: true,
+				name: "Expand left controls",
+			}),
+		).not.toBeInTheDocument();
+		expect(
+			document.getElementById("mobile-send-form-menu-button"),
+		).toBeInTheDocument();
+		expect(
+			document.getElementById(
+				"mobile-send-form-extension-shortcuts-button",
+			),
+		).toHaveAttribute("aria-hidden", "false");
 
-			const avatarImage = within(host).getByAltText("Current user avatar");
+		const avatarImage = within(host).getByAltText("Current user avatar");
 		expect(avatarImage).toHaveAttribute("src", "/thumbs/hero-persona.png");
 		expect(avatarImage).toHaveClass(
 			"mobile-send-form-input-row__avatar-image",
@@ -2760,7 +2788,7 @@ describe("createMobileSendFormFeature", () => {
 		);
 	});
 
-		test("keeps the options drawer available while the textarea is multiline", async () => {
+	test("keeps the options drawer available while the textarea is multiline", async () => {
 		try {
 			document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>
@@ -2837,22 +2865,22 @@ describe("createMobileSendFormFeature", () => {
 			fireEvent.focus(textarea);
 			fireEvent.input(textarea, { target: { value: "line 1\nline 2" } });
 
-				await waitFor(() => {
-					expect(leftControls).toHaveAttribute(
-						"data-left-state",
-						"default",
-					);
-				});
+			await waitFor(() => {
+				expect(leftControls).toHaveAttribute(
+					"data-left-state",
+					"default",
+				);
+			});
 
-				const menuButton = within(host).getByRole("button", {
-					name: "Menu",
-				});
+			const menuButton = within(host).getByRole("button", {
+				name: "Menu",
+			});
 
-				fireEvent.pointerDown(menuButton);
-				fireEvent.click(menuButton);
+			fireEvent.pointerDown(menuButton);
+			fireEvent.click(menuButton);
 
-				await waitFor(() => {
-					expect(
+			await waitFor(() => {
+				expect(
 					document.getElementById("mobile-send-form-options-drawer"),
 				).toBeInTheDocument();
 			});
@@ -2863,7 +2891,7 @@ describe("createMobileSendFormFeature", () => {
 		}
 	});
 
-		test("keeps the extensions drawer available while the textarea is multiline", async () => {
+	test("keeps the extensions drawer available while the textarea is multiline", async () => {
 		try {
 			document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>
@@ -2940,21 +2968,21 @@ describe("createMobileSendFormFeature", () => {
 			fireEvent.focus(textarea);
 			fireEvent.input(textarea, { target: { value: "line 1\nline 2" } });
 
-				await waitFor(() => {
-					expect(leftControls).toHaveAttribute(
-						"data-left-state",
-						"default",
-					);
-				});
+			await waitFor(() => {
+				expect(leftControls).toHaveAttribute(
+					"data-left-state",
+					"default",
+				);
+			});
 
-				const extensionsButton = within(host).getByRole("button", {
-					name: "Extension shortcuts",
-				});
+			const extensionsButton = within(host).getByRole("button", {
+				name: "Extension shortcuts",
+			});
 
-				fireEvent.pointerDown(extensionsButton);
-				fireEvent.click(extensionsButton);
+			fireEvent.pointerDown(extensionsButton);
+			fireEvent.click(extensionsButton);
 
-				await waitFor(() => {
+			await waitFor(() => {
 				expect(
 					document.getElementById(
 						"mobile-send-form-extensions-drawer",
@@ -2968,7 +2996,7 @@ describe("createMobileSendFormFeature", () => {
 		}
 	});
 
-		test("does not render an expand button while the textarea is multiline", async () => {
+	test("does not render an expand button while the textarea is multiline", async () => {
 		document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>
       <div id="extensionsMenuButton" title="Extensions"></div>
@@ -3042,32 +3070,29 @@ describe("createMobileSendFormFeature", () => {
 		fireEvent.focus(textarea);
 		fireEvent.input(textarea, { target: { value: "line 1\nline 2" } });
 
-			await waitFor(() => {
-				expect(leftControls).toHaveAttribute(
-					"data-left-state",
-					"default",
-				);
-			});
-
-			expect(
-				within(host).queryByRole("button", {
-					hidden: true,
-					name: "Expand left controls",
-				}),
-			).not.toBeInTheDocument();
-			expect(
-				within(host).getByRole("button", { name: "Menu" }),
-			).toBeInTheDocument();
-			expect(
-				within(host).getByRole("button", {
-					name: "Extension shortcuts",
-				}),
-			).toBeInTheDocument();
-
-			feature.dispose();
+		await waitFor(() => {
+			expect(leftControls).toHaveAttribute("data-left-state", "default");
 		});
 
-		test("keeps left controls visible after textarea focus and outside pointerdown", async () => {
+		expect(
+			within(host).queryByRole("button", {
+				hidden: true,
+				name: "Expand left controls",
+			}),
+		).not.toBeInTheDocument();
+		expect(
+			within(host).getByRole("button", { name: "Menu" }),
+		).toBeInTheDocument();
+		expect(
+			within(host).getByRole("button", {
+				name: "Extension shortcuts",
+			}),
+		).toBeInTheDocument();
+
+		feature.dispose();
+	});
+
+	test("keeps left controls visible after textarea focus and outside pointerdown", async () => {
 		document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>
       <div id="extensionsMenuButton" title="Extensions"></div>
@@ -3141,12 +3166,9 @@ describe("createMobileSendFormFeature", () => {
 		fireEvent.focus(textarea);
 		fireEvent.input(textarea, { target: { value: "line 1\nline 2" } });
 
-			await waitFor(() => {
-				expect(leftControls).toHaveAttribute(
-					"data-left-state",
-					"default",
-				);
-			});
+		await waitFor(() => {
+			expect(leftControls).toHaveAttribute("data-left-state", "default");
+		});
 
 		fireEvent.pointerDown(
 			within(host).getByRole("button", { name: "Current user avatar" }),

@@ -62,76 +62,91 @@ export function MobileSendFormInputRow({
 			}
 		>
 			<div className="mobile-send-form-input-row__left">
-				<button
-					aria-controls={MOBILE_CHAT_MAIN_MENU_DRAWER_ID}
-					aria-expanded={isMainMenuOpen}
-					aria-haspopup="dialog"
-					aria-label={currentUserAvatarLabel}
-					className="mobile-send-form-input-row__avatar mobile-chat-main-menu__trigger"
-					data-avatar-source={userAvatarSnapshot.source}
-					id={MOBILE_CHAT_MAIN_MENU_TRIGGER_ID}
-					type="button"
-					onClick={onMainMenuOpen}
-					onKeyDownCapture={onMainMenuTriggerKeyDownCapture}
-					onPointerDownCapture={onMainMenuTriggerPointerDownCapture}
-				>
-					<img
-						alt={currentUserAvatarLabel}
-						className="mobile-send-form-input-row__avatar-image"
-						draggable={false}
-						loading="eager"
-						src={userAvatarSnapshot.thumbnailUrl}
-					/>
-				</button>
 				<div
 					className="mobile-send-form-input-row__textarea-host"
 					data-avatar-source={userAvatarSnapshot.source}
 				>
 					<div
-						aria-label={leftControlsLabel}
-						className="mobile-send-form-input-row__left-controls"
-						data-left-state="default"
-						role="toolbar"
-					>
-						<div className="mobile-send-form-input-row__left-controls-default">
-							<MobileSendFormOptionsMenu
-								documentRef={documentRef}
-								showShortcutsToolbar={showShortcutsToolbar}
-								onShowShortcutsToolbarChange={
-									onShortcutsToolbarVisibilityChange
-								}
-							/>
-							<MobileSendFormExtensionsMenu
-								documentRef={documentRef}
-							/>
-						</div>
-					</div>
-					<div
 						className="mobile-send-form-input-row__textarea-main"
 						ref={onTextareaHostChange}
 					/>
-					<div className="mobile-send-form-input-row__textarea-actions">
-						{primarySendActionSnapshot.visible ? (
-							<Button
-								aria-label={primarySendActionSnapshot.label}
-								className="mobile-send-form-input-row__send-button data-[action-kind=stop]:[&_svg]:fill-current"
-								data-action-kind={
-									primarySendActionSnapshot.kind
-								}
-								disabled={primarySendActionSnapshot.disabled}
-								size="icon"
-								title={primarySendActionSnapshot.label}
-								type="button"
-								variant="default"
-								onClick={onPrimarySendActionClick}
-							>
-								<UiIcon
-									aria-hidden={true}
-									icon={PrimarySendActionIcon}
-									size="sm"
+					<div
+						className="mobile-send-form-input-row__controls-row"
+						data-slot="mobile-send-form-input-controls"
+					>
+						<div
+							aria-label={leftControlsLabel}
+							className="mobile-send-form-input-row__left-controls"
+							data-left-state="default"
+							role="toolbar"
+						>
+							<div className="mobile-send-form-input-row__left-controls-default">
+								<button
+									aria-controls={
+										MOBILE_CHAT_MAIN_MENU_DRAWER_ID
+									}
+									aria-expanded={isMainMenuOpen}
+									aria-haspopup="dialog"
+									aria-label={currentUserAvatarLabel}
+									className="mobile-send-form-input-row__avatar mobile-chat-main-menu__trigger"
+									data-avatar-source={
+										userAvatarSnapshot.source
+									}
+									id={MOBILE_CHAT_MAIN_MENU_TRIGGER_ID}
+									type="button"
+									onClick={onMainMenuOpen}
+									onKeyDownCapture={
+										onMainMenuTriggerKeyDownCapture
+									}
+									onPointerDownCapture={
+										onMainMenuTriggerPointerDownCapture
+									}
+								>
+									<img
+										alt={currentUserAvatarLabel}
+										className="mobile-send-form-input-row__avatar-image"
+										draggable={false}
+										loading="eager"
+										src={userAvatarSnapshot.thumbnailUrl}
+									/>
+								</button>
+								<MobileSendFormOptionsMenu
+									documentRef={documentRef}
+									showShortcutsToolbar={showShortcutsToolbar}
+									onShowShortcutsToolbarChange={
+										onShortcutsToolbarVisibilityChange
+									}
 								/>
-							</Button>
-						) : null}
+								<MobileSendFormExtensionsMenu
+									documentRef={documentRef}
+								/>
+							</div>
+						</div>
+						<div className="mobile-send-form-input-row__textarea-actions">
+							{primarySendActionSnapshot.visible ? (
+								<Button
+									aria-label={primarySendActionSnapshot.label}
+									className="mobile-send-form-input-row__send-button data-[action-kind=stop]:[&_svg]:fill-current"
+									data-action-kind={
+										primarySendActionSnapshot.kind
+									}
+									disabled={
+										primarySendActionSnapshot.disabled
+									}
+									size="icon"
+									title={primarySendActionSnapshot.label}
+									type="button"
+									variant="default"
+									onClick={onPrimarySendActionClick}
+								>
+									<UiIcon
+										aria-hidden={true}
+										icon={PrimarySendActionIcon}
+										size="sm"
+									/>
+								</Button>
+							) : null}
+						</div>
 					</div>
 				</div>
 			</div>

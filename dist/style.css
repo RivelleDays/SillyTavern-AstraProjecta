@@ -7574,7 +7574,7 @@
     isolation: isolate;
     background: transparent;
     border-top: none;
-    padding-bottom: calc(var(--mobile-chat-spacing) + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)));
+    padding-bottom: calc(	var(--mobile-chat-spacing) +	var(--astra-mobile-safe-bottom-effective, var(--safe-bottom))	);
   }
   #form_sheld::before {
     content: "";
@@ -7593,6 +7593,7 @@
     flex: 0 0 auto;
     width: 100%;
     min-width: 0;
+    padding-top: 2px;
     background: transparent;
   }
   #form_sheld > #mobile-send-form-quick-reply-host {
@@ -7606,8 +7607,7 @@
     flex: 0 0 auto;
     width: 100%;
     min-width: 0;
-    padding: var(--mobile-chat-spacing);
-    padding-bottom: 0;
+    padding: 8px var(--mobile-chat-spacing) 0;
     background: transparent;
   }
   #mobile-send-form-quick-reply-host > #qr--bar {
@@ -7634,11 +7634,11 @@
   #mobile-send-form-quick-reply-host > #qr--bar > .qr--buttons.qr--color {
     background: transparent;
   }
-  #mobile-send-form-quick-reply-host > #qr--bar > .qr--buttons.qr--borderColor {
+  #mobile-send-form-quick-reply-host	> #qr--bar	> .qr--buttons.qr--borderColor {
     background: transparent;
     border: none;
   }
-  #mobile-send-form-quick-reply-host > #qr--bar > .qr--buttons .qr--button .qr--button-icon,	#mobile-send-form-quick-reply-host > #qr--popout > .qr--body > .qr--buttons .qr--button .qr--button-icon {
+  #mobile-send-form-quick-reply-host	> #qr--bar	> .qr--buttons	.qr--button	.qr--button-icon,	#mobile-send-form-quick-reply-host	> #qr--popout	> .qr--body	> .qr--buttons	.qr--button	.qr--button-icon {
     margin: 0 4px;
   }
   #mobile-send-form-quick-reply-host > #qr--bar .qr--button {
@@ -7661,7 +7661,7 @@
   #mobile-send-form-quick-reply-host > #qr--bar .qr--button:not(:disabled) {
     cursor: pointer;
   }
-  #mobile-send-form-quick-reply-host > #qr--bar .qr--button:hover:not(:disabled) {
+  #mobile-send-form-quick-reply-host	> #qr--bar	.qr--button:hover:not(:disabled) {
     background: var(--surface-muted-t50);
     border-color: var(--border-color-base);
   }
@@ -7695,7 +7695,9 @@
     --mobile-send-form-menu-surface: var(--background);
     --mobile-send-form-menu-border-color: var(--border-color-base);
     --mobile-send-form-menu-section-gap: 8px;
-    --mobile-send-form-menu-section-separator-color: var(--border-color-base);
+    --mobile-send-form-menu-section-separator-color: var(
+			--border-color-base
+		);
     --mobile-send-form-menu-label-padding-inline: 4px;
     --mobile-send-form-menu-label-font-size: var(--text-xs);
     --mobile-send-form-menu-row-height: 36px;
@@ -7711,7 +7713,7 @@
     gap: var(--mobile-send-form-quick-reply-gap);
     background: transparent;
   }
-  body.astra-projecta-mobile-layout #qr--popout > .qr--body > .qr--buttons.qr--color {
+  body.astra-projecta-mobile-layout	#qr--popout	> .qr--body	> .qr--buttons.qr--color {
     gap: var(--mobile-send-form-quick-reply-gap);
     background: transparent;
   }
@@ -7805,23 +7807,25 @@
   }
   .mobile-send-form-shortcuts {
     display: flex;
-    gap: var(--mobile-chat-spacing);
+    gap: 10px;
     justify-content: flex-start;
     align-items: center;
     flex-wrap: nowrap;
     position: relative;
     width: 100%;
-    padding-inline: var(--mobile-chat-spacing);
-    height: 52px;
+    min-width: 0;
+    min-height: 40px;
+    padding: 0 var(--mobile-chat-spacing);
+    color: var(--color-muted-t90);
   }
   .mobile-send-form-shortcuts::after {
     content: "";
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
+    top: 0;
     height: 1px;
-    background: var(--border-color-base);
+    background: var(--border-color-base-t30);
     pointer-events: none;
   }
   .mobile-send-form-shortcuts__strip {
@@ -7832,6 +7836,7 @@
     flex: 1 1 auto;
     overflow-x: auto;
     overflow-y: hidden;
+    gap: 6px;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
@@ -8114,35 +8119,29 @@
 			var(--mobile-send-form-input-control-size) - 8px
 		);
     --mobile-send-form-inline-send-gap: 3px;
-    --mobile-send-form-left-controls-gap: 4px;
+    --mobile-send-form-left-controls-gap: 6px;
     --mobile-send-form-left-control-size: calc(
 			var(--mobile-send-form-input-control-size) - 8px
 		);
-    --mobile-send-form-left-controls-width: calc(
-			var(--mobile-send-form-left-control-size) * 2 +
-				var(--mobile-send-form-left-controls-gap)
-		);
     --mobile-send-form-textarea-flex-basis: 0%;
     display: flex;
-    align-items: center;
-    gap: var(--mobile-chat-spacing);
+    align-items: stretch;
     width: 100%;
+    min-width: 0;
   }
   .mobile-send-form-input-row__left {
     display: flex;
-    align-items: flex-end;
-    gap: 6px;
+    align-items: stretch;
     flex: 1 1 auto;
     min-width: 0;
     width: 100%;
     padding: var(--mobile-chat-spacing);
-    padding-right: calc(var(--mobile-chat-spacing) - 4px);
     padding-bottom: 0;
   }
   .mobile-send-form-input-row__avatar {
-    --mobile-send-form-avatar-size: max(
-			var(--astra-avatar-size-min),
-			var(--astra-avatar-size-mobile-send-form-trigger)
+    --mobile-send-form-avatar-size: min(
+			var(--astra-avatar-size-mobile-send-form-trigger),
+			var(--mobile-send-form-left-control-size)
 		);
     display: inline-flex;
     align-items: center;
@@ -8165,7 +8164,7 @@
     appearance: none;
     padding: 0;
     border: 0;
-    background: transparent;
+    background: var(--surface-muted-t40);
     cursor: pointer;
   }
   .mobile-chat-main-menu__trigger:focus-visible {
@@ -8930,21 +8929,26 @@
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
-    flex: 0 0 var(--mobile-send-form-left-controls-width);
-    width: var(--mobile-send-form-left-controls-width);
+    flex: 1 1 auto;
+    width: auto;
     height: var(--mobile-send-form-input-control-size);
-    min-width: var(--mobile-send-form-left-controls-width);
-    max-width: var(--mobile-send-form-left-controls-width);
-    overflow: hidden;
-    padding-bottom: 2px;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
   }
   .mobile-send-form-input-row__left-controls-default {
     display: inline-flex;
     gap: var(--mobile-send-form-left-controls-gap);
-    width: 100%;
+    width: auto;
     height: 100%;
     align-items: center;
     justify-content: flex-start;
+    min-width: 0;
+  }
+  .mobile-send-form-input-row__left-controls::-webkit-scrollbar {
+    display: none;
   }
   .mobile-send-form-input-row__left-control-button {
     display: inline-flex;
@@ -9197,47 +9201,47 @@
   }
   .mobile-send-form-input-row__textarea-host {
     display: flex;
+    flex-direction: column;
     align-items: stretch;
     flex: 1 1 auto;
     min-width: 0;
-    min-height: var(--mobile-send-form-input-control-size);
-    height: var(--mobile-send-form-input-control-size);
-    max-height: var(--mobile-send-form-input-control-size);
-    gap: 4px;
-    border-radius: 24px;
-    border: 1px solid var(--border);
+    min-height: calc(var(--mobile-send-form-input-control-size) * 2 + 8px);
+    height: auto;
+    max-height: none;
+    gap: 8px;
+    border-radius: 22px;
+    border: 1px solid var(--border-color-base-t60);
+    background: var(--surface-background-t90);
+    box-shadow: 0 -8px 28px	var(--background);
     @supports (color: color-mix(in lab, red, red)) {
-      border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
-    }
-    background: var(--muted);
-    @supports (color: color-mix(in lab, red, red)) {
-      background: color-mix(in srgb, var(--muted) 35%, transparent);
+      box-shadow: 0 -8px 28px	color-mix(in srgb, var(--background) 78%, transparent);
     }
     overflow: hidden;
-    padding-left: var(--mobile-send-form-left-controls-gap);
+    padding: 10px;
     transition: height 160ms ease,	max-height 160ms ease;
   }
   .mobile-send-form-input-row[data-textarea-layout="multi-line"]	.mobile-send-form-input-row__textarea-host {
     height: auto;
-    max-height: 20dvh;
+    max-height: 28dvh;
   }
   .mobile-send-form-input-row__textarea-main {
     display: flex;
     align-items: stretch;
-    flex: 1 1 var(--mobile-send-form-textarea-flex-basis);
+    flex: 1 1 auto;
     min-width: 0;
+    min-height: var(--mobile-send-form-input-control-size);
     overflow: hidden;
   }
   .mobile-send-form-input-row__textarea-main > #send_textarea {
     order: 0;
-    flex: 1 1 var(--mobile-send-form-textarea-flex-basis);
-    width: auto;
+    flex: 1 1 auto;
+    width: 100%;
     margin: 0;
     min-width: 0;
     min-height: var(--mobile-send-form-input-control-size);
     height: auto;
-    max-height: 20dvh;
-    padding: 9px 0;
+    max-height: 18dvh;
+    padding: 4px 2px;
     background: transparent;
     border: 0;
     border-top: 0;
@@ -9249,11 +9253,11 @@
   }
   .mobile-send-form-input-row[data-input-state="default"]	.mobile-send-form-input-row__textarea-main	> #send_textarea {
     height: var(--mobile-send-form-input-control-size);
-    max-height: var(--mobile-send-form-input-control-size);
+    max-height: 18dvh;
   }
   .mobile-send-form-input-row[data-textarea-layout="multi-line"]	.mobile-send-form-input-row__textarea-main	> #send_textarea {
     height: auto;
-    max-height: 20dvh;
+    max-height: 18dvh;
     overflow-y: auto;
   }
   .mobile-send-form-input-row__textarea-main	> #send_textarea::-webkit-scrollbar {
@@ -9261,16 +9265,23 @@
     width: 0;
     height: 0;
   }
+  .mobile-send-form-input-row__controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    flex: 0 0 auto;
+  }
   .mobile-send-form-input-row__textarea-actions {
     display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    align-items: center;
+    justify-content: flex-end;
     flex: 0 0 auto;
     flex-shrink: 0;
     min-width: var(--mobile-send-form-inline-send-button-size);
-    padding-left: var(--mobile-send-form-left-controls-gap);
-    padding-right: var(--mobile-send-form-inline-send-gap);
-    padding-bottom: var(--mobile-send-form-inline-send-gap);
+    padding: 0;
   }
   .mobile-send-form-input-row__send-button {
     order: 1;

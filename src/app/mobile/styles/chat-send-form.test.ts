@@ -25,14 +25,20 @@ function readBlock(css: string, selector: string): string {
 	return match?.groups?.body ?? "";
 }
 
-function readSlice(css: string, startPattern: string, endPattern: string): string {
+function readSlice(
+	css: string,
+	startPattern: string,
+	endPattern: string,
+): string {
 	const startIndex = css.indexOf(startPattern);
 	if (startIndex === -1) {
 		return "";
 	}
 
 	const endIndex = css.indexOf(endPattern, startIndex + startPattern.length);
-	return endIndex === -1 ? css.slice(startIndex) : css.slice(startIndex, endIndex);
+	return endIndex === -1
+		? css.slice(startIndex)
+		: css.slice(startIndex, endIndex);
 }
 
 function expectSingleLineEllipsis(block: string) {
@@ -77,6 +83,7 @@ describe("chat-send-form.css", () => {
 			".mobile-send-form-input-row__left",
 			".mobile-send-form-input-row__textarea-host",
 			".mobile-send-form-input-row__textarea-main",
+			".mobile-send-form-input-row__controls-row",
 			".mobile-send-form-input-row__textarea-actions",
 			".mobile-send-form-input-row__send-button",
 			".mobile-send-form-input-row__left-control-button:not(:disabled)",
@@ -106,7 +113,9 @@ describe("chat-send-form.css", () => {
 			"#mobile-send-form-quick-reply-host > #qr--bar .qr--button",
 			"#mobile-send-form-quick-reply-host > #qr--bar .qr--button-expander",
 		]);
-		expect(quickReplySlice).toContain("--mobile-send-form-quick-reply-gap:");
+		expect(quickReplySlice).toContain(
+			"--mobile-send-form-quick-reply-gap:",
+		);
 		expect(quickReplySlice).toContain(
 			"--mobile-send-form-quick-reply-button-padding-x:",
 		);
@@ -137,8 +146,6 @@ describe("chat-send-form.css", () => {
 		);
 
 		expectSelectors(css, [
-			"body.astra-projecta-mobile-layout #qr--popout > .qr--body > .qr--buttons",
-			"body.astra-projecta-mobile-layout #qr--popout > .qr--body > .qr--buttons.qr--color",
 			"body.astra-projecta-mobile-layout .ctx-menu",
 			"body.astra-projecta-mobile-layout .ctx-sub-menu",
 			"body.astra-projecta-mobile-layout .ctx-item + .ctx-header",
@@ -149,6 +156,12 @@ describe("chat-send-form.css", () => {
 			"body.astra-projecta-mobile-layout .ctx-item .qr--button-label",
 			"body.astra-projecta-mobile-layout .ctx-item .ctx-expander",
 		]);
+		expect(css).toMatch(
+			/body\.astra-projecta-mobile-layout\s+#qr--popout\s*>\s*\.qr--body\s*>\s*\.qr--buttons\s*\{/u,
+		);
+		expect(css).toMatch(
+			/body\.astra-projecta-mobile-layout\s+#qr--popout\s*>\s*\.qr--body\s*>\s*\.qr--buttons\.qr--color\s*\{/u,
+		);
 		expect(quickReplyMenuSlice).toContain(
 			"--mobile-send-form-menu-surface-padding-inline:",
 		);
