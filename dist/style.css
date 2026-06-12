@@ -7500,9 +7500,6 @@
 :root {
   --mobile-chat-spacing: 12px;
 }
-body.no-blur #top-bar, body.no-blur #send_form {
-  background-color: transparent !important;
-}
 @keyframes mobile-chat-context-usage-dot-fade {
   0%,	100% {
     opacity: 1;
@@ -7526,6 +7523,9 @@ body.no-blur #top-bar, body.no-blur #send_form {
   }
 }
 @media screen and (max-width: 1000px) {
+  body.no-blur #top-bar, body.no-blur #send_form {
+    background-color: transparent !important;
+  }
   #sheld {
     height: calc(	100vh -	var(--mobile-chat-top-bar-block-size, var(--topBarBlockSize))	);
     height: calc(	var(--astra-mobile-visual-viewport-bottom, 100dvh) -	var(--mobile-chat-top-bar-block-size, var(--topBarBlockSize))	);
