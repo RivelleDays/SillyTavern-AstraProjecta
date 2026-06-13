@@ -166,7 +166,7 @@ body.astra-projecta-mobile-layout {
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		font-size: var(--text-lg);
+		font-size: var(--text-base);
 		font-weight: var(--font-weight-semibold);
 	}
 
