@@ -120,6 +120,21 @@ type ChatListActiveRowOverlay =
 			type: "rowAction";
 	  };
 
+interface ChatCatalogRowProps {
+	categoryDrawerOpen: boolean;
+	disabled: boolean;
+	entry: ChatCatalogEntry;
+	hasAssignedCategories: boolean;
+	onOpen: (entry: ChatCatalogEntry) => void;
+	onOpenActions: (entry: ChatCatalogEntry) => void;
+	onOpenCategories: (entry: ChatCatalogEntry) => void;
+	onRequestDelete: (entry: ChatCatalogEntry) => void;
+	onRequestRename: (entry: ChatCatalogEntry) => void;
+	previewLineCount: ChatMenuPreviewLineCount;
+	showAvatars: boolean;
+	variant: ChatListRowVariant;
+}
+
 export interface ChatListCopy {
 	controlsDescription: I18nKey;
 	controlsTitle: I18nKey;
@@ -1252,9 +1267,14 @@ export function ChatCatalogRowActionsDrawer({
 	const [retainedEntry, setRetainedEntry] =
 		React.useState<ChatCatalogEntry | null>(entry);
 	const isOpen = entry !== null;
+	const activeEntryKey = entry?.key ?? null;
 	const shouldRenderDrawer = useDelayedDrawerContentMount(isOpen);
 	const drawerEntry = entry ?? retainedEntry;
 	const isExporting = exportingFormat !== null;
+	const activeEntryKeyRef = React.useRef<string | null>(activeEntryKey);
+	const isMountedRef = React.useRef(false);
+	const isOpenRef = React.useRef(isOpen);
+	const latestExportRequestRef = React.useRef(0);
 	const title = translateAstra("astraMainInterface.chatMenu.actions");
 	const descriptionPrefix = translateAstra(
 		"astraMainInterface.chatMenu.actions.description",
@@ -1271,10 +1291,32 @@ export function ChatCatalogRowActionsDrawer({
 	}, []);
 
 	React.useEffect(() => {
+		isMountedRef.current = true;
+
+		return () => {
+			isMountedRef.current = false;
+			latestExportRequestRef.current += 1;
+		};
+	}, []);
+
+	React.useEffect(() => {
 		if (entry) {
 			setRetainedEntry(entry);
 		}
 	}, [entry]);
+
+	React.useLayoutEffect(() => {
+		const didEntryChange = activeEntryKeyRef.current !== activeEntryKey;
+		const didOpenChange = isOpenRef.current !== isOpen;
+
+		activeEntryKeyRef.current = activeEntryKey;
+		isOpenRef.current = isOpen;
+
+		if (didEntryChange || (didOpenChange && !isOpen)) {
+			latestExportRequestRef.current += 1;
+			setExportingFormat(null);
+		}
+	}, [activeEntryKey, isOpen]);
 
 	React.useEffect(() => {
 		if (!shouldRenderDrawer && !isOpen) {
@@ -1282,23 +1324,30 @@ export function ChatCatalogRowActionsDrawer({
 		}
 	}, [isOpen, shouldRenderDrawer]);
 
-	React.useEffect(() => {
-		if (!isOpen) {
-			setExportingFormat(null);
-		}
-	}, [isOpen]);
-
 	const handleExport = React.useCallback(
 		async (format: ChatCatalogExportFormat) => {
 			if (!entry || isExporting) {
 				return;
 			}
 
+			const exportEntry = entry;
+			const exportEntryKey = entry.key;
+			const exportRequestId = latestExportRequestRef.current + 1;
+			latestExportRequestRef.current = exportRequestId;
 			setExportingFormat(format);
-			const result = await exportChat(entry, format).catch(() => ({
+			const result = await exportChat(exportEntry, format).catch(() => ({
 				ok: false as const,
 				reason: "export-failed" as const,
 			}));
+			const isActiveRequest =
+				isMountedRef.current &&
+				isOpenRef.current &&
+				latestExportRequestRef.current === exportRequestId &&
+				activeEntryKeyRef.current === exportEntryKey;
+
+			if (!isActiveRequest) {
+				return;
+			}
 
 			if (result.ok) {
 				showAstraToast(
@@ -1500,7 +1549,7 @@ function ChatCatalogRowActionsDrawerFooter({
 	);
 }
 
-function GlobalChatCatalogRow({
+const ChatCatalogRow = React.memo(function ChatCatalogRow({
 	categoryDrawerOpen,
 	disabled,
 	entry,
@@ -1512,41 +1561,37 @@ function GlobalChatCatalogRow({
 	onRequestRename,
 	previewLineCount,
 	showAvatars,
-}: {
-	categoryDrawerOpen: boolean;
-	disabled: boolean;
-	entry: ChatCatalogEntry;
-	hasAssignedCategories: boolean;
-	onOpen: (entry: ChatCatalogEntry) => void;
-	onOpenActions: (entry: ChatCatalogEntry) => void;
-	onOpenCategories: (entry: ChatCatalogEntry) => void;
-	onRequestDelete: (entry: ChatCatalogEntry) => void;
-	onRequestRename: (entry: ChatCatalogEntry) => void;
-	previewLineCount: ChatMenuPreviewLineCount;
-	showAvatars: boolean;
-}) {
+	variant,
+}: ChatCatalogRowProps) {
 	const chatId = getChatCatalogRowChatId(entry);
 
-	function handleOpen() {
+	const handleOpen = React.useCallback(() => {
 		if (disabled) return;
 
 		onOpen(entry);
-	}
+	}, [disabled, entry, onOpen]);
 
-	function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
-		if (disabled) return;
-		if (event.key !== "Enter" && event.key !== " ") return;
+	const handleKeyDown = React.useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			if (disabled) return;
+			if (event.key !== "Enter" && event.key !== " ") return;
 
-		event.preventDefault();
-		onOpen(entry);
-	}
+			event.preventDefault();
+			onOpen(entry);
+		},
+		[disabled, entry, onOpen],
+	);
 
 	return (
 		<div
-			aria-disabled={disabled}
 			aria-current={entry.isCurrent ? "true" : undefined}
+			aria-disabled={disabled}
 			aria-label={`Open ${entry.entityName} ${chatId}`}
-			className="astra-main-interface-chat-row"
+			className={cn(
+				"astra-main-interface-chat-row",
+				variant === "current" &&
+					"astra-main-interface-current-chat-row",
+			)}
 			data-astra-smooth-tabs-swipe-allow={true}
 			data-preview-lines={
 				previewLineCount === 0 ? undefined : previewLineCount
@@ -1570,79 +1615,8 @@ function GlobalChatCatalogRow({
 			/>
 		</div>
 	);
-}
-
-function CurrentChatCatalogRow({
-	categoryDrawerOpen,
-	disabled,
-	entry,
-	hasAssignedCategories,
-	onOpen,
-	onOpenActions,
-	onOpenCategories,
-	onRequestDelete,
-	onRequestRename,
-	previewLineCount,
-	showAvatars,
-}: {
-	categoryDrawerOpen: boolean;
-	disabled: boolean;
-	entry: ChatCatalogEntry;
-	hasAssignedCategories: boolean;
-	onOpen: (entry: ChatCatalogEntry) => void;
-	onOpenActions: (entry: ChatCatalogEntry) => void;
-	onOpenCategories: (entry: ChatCatalogEntry) => void;
-	onRequestDelete: (entry: ChatCatalogEntry) => void;
-	onRequestRename: (entry: ChatCatalogEntry) => void;
-	previewLineCount: ChatMenuPreviewLineCount;
-	showAvatars: boolean;
-}) {
-	const chatId = getChatCatalogRowChatId(entry);
-
-	function handleOpen() {
-		if (disabled) return;
-
-		onOpen(entry);
-	}
-
-	function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
-		if (disabled) return;
-		if (event.key !== "Enter" && event.key !== " ") return;
-
-		event.preventDefault();
-		onOpen(entry);
-	}
-
-	return (
-		<div
-			aria-current={entry.isCurrent ? "true" : undefined}
-			aria-disabled={disabled}
-			aria-label={`Open ${entry.entityName} ${chatId}`}
-			className="astra-main-interface-chat-row astra-main-interface-current-chat-row"
-			data-astra-smooth-tabs-swipe-allow={true}
-			data-preview-lines={
-				previewLineCount === 0 ? undefined : previewLineCount
-			}
-			data-kind={entry.kind}
-			role="button"
-			tabIndex={disabled ? -1 : 0}
-			onClick={handleOpen}
-			onKeyDown={handleKeyDown}
-		>
-			<ChatCatalogRowBody
-				categoryDrawerOpen={categoryDrawerOpen}
-				entry={entry}
-				hasAssignedCategories={hasAssignedCategories}
-				previewLineCount={previewLineCount}
-				showAvatars={showAvatars}
-				onOpenActions={onOpenActions}
-				onOpenCategories={onOpenCategories}
-				onRequestDelete={onRequestDelete}
-				onRequestRename={onRequestRename}
-			/>
-		</div>
-	);
-}
+});
+ChatCatalogRow.displayName = "ChatCatalogRow";
 
 export function ChatListExperience<
 	Snapshot extends ChatListSnapshotLike = ChatListSnapshotLike,
@@ -1695,8 +1669,7 @@ export function ChatListExperience<
 	const [visibleCount, setVisibleCount] = React.useState(CHAT_LIST_PAGE_SIZE);
 	const [activeRowOverlay, setActiveRowOverlay] =
 		React.useState<ChatListActiveRowOverlay | null>(null);
-	const queuedRowOverlayRef =
-		React.useRef<ChatListActiveRowOverlay | null>(null);
+	const queuedRowOverlayRef = React.useRef<ChatListActiveRowOverlay[]>([]);
 	const searchInputId = React.useId();
 	const sentinelRef = React.useRef<HTMLDivElement | null>(null);
 	const {
@@ -1726,10 +1699,14 @@ export function ChatListExperience<
 		() => filteredEntries.slice(0, visibleCount),
 		[filteredEntries, visibleCount],
 	);
-	const hasAssignedCategories = React.useCallback(
-		(entry: ChatCatalogEntry) =>
-			chatCategoryStore.getChatCategoryIds(entry.key).length > 0,
-		[categorySnapshot, chatCategoryStore],
+	const assignedChatKeys = React.useMemo(
+		() =>
+			new Set(
+				Object.entries(categorySnapshot.chatMap)
+					.filter(([, categoryIds]) => categoryIds.length > 0)
+					.map(([chatKey]) => chatKey),
+			),
+		[categorySnapshot.chatMap],
 	);
 	const exportChatWithRefresh = React.useCallback<ExportChatCatalogEntry>(
 		async (entry, format) => {
@@ -1815,20 +1792,118 @@ export function ChatListExperience<
 		persistSortMode(getChatListDisplayStorage(), nextSortMode);
 	}
 
-	function openRowOverlay(nextOverlay: ChatListActiveRowOverlay) {
-		queuedRowOverlayRef.current = null;
-		setActiveRowOverlay(nextOverlay);
-	}
+	const openRowOverlay = React.useCallback(
+		(nextOverlay: ChatListActiveRowOverlay) => {
+			queuedRowOverlayRef.current = [];
+			setActiveRowOverlay(nextOverlay);
+		},
+		[],
+	);
 
-	function queueRowOverlay(nextOverlay: ChatListActiveRowOverlay) {
-		queuedRowOverlayRef.current = nextOverlay;
-	}
+	const queueRowOverlay = React.useCallback(
+		(nextOverlay: ChatListActiveRowOverlay) => {
+			queuedRowOverlayRef.current = [
+				...queuedRowOverlayRef.current,
+				nextOverlay,
+			];
+		},
+		[],
+	);
 
-	function handleRowOverlayClosed() {
-		const nextOverlay = queuedRowOverlayRef.current;
-		queuedRowOverlayRef.current = null;
-		setActiveRowOverlay(nextOverlay);
-	}
+	const handleRowOverlayClosed = React.useCallback(() => {
+		const [nextOverlay, ...remainingOverlays] = queuedRowOverlayRef.current;
+		queuedRowOverlayRef.current = remainingOverlays;
+		setActiveRowOverlay(nextOverlay ?? null);
+	}, []);
+
+	const handleOpenRow = React.useCallback(
+		(entry: ChatCatalogEntry) => {
+			void openChatWithFeedback(entry);
+		},
+		[openChatWithFeedback],
+	);
+
+	const handleOpenRowActions = React.useCallback(
+		(entry: ChatCatalogEntry) => {
+			openRowOverlay({
+				entry,
+				type: "actions",
+			});
+		},
+		[openRowOverlay],
+	);
+
+	const handleOpenRowCategories = React.useCallback(
+		(entry: ChatCatalogEntry) => {
+			openRowOverlay({
+				entry,
+				type: "categories",
+			});
+		},
+		[openRowOverlay],
+	);
+
+	const handleRequestRowDelete = React.useCallback(
+		(entry: ChatCatalogEntry) => {
+			openRowOverlay({
+				action: {
+					entry,
+					mode: "delete",
+				},
+				type: "rowAction",
+			});
+		},
+		[openRowOverlay],
+	);
+
+	const handleRequestRowRename = React.useCallback(
+		(entry: ChatCatalogEntry) => {
+			openRowOverlay({
+				action: {
+					entry,
+					mode: "rename",
+				},
+				type: "rowAction",
+			});
+		},
+		[openRowOverlay],
+	);
+
+	const handleQueueRowCategories = React.useCallback(
+		(entry: ChatCatalogEntry) => {
+			queueRowOverlay({
+				entry,
+				type: "categories",
+			});
+		},
+		[queueRowOverlay],
+	);
+
+	const handleQueueRowDelete = React.useCallback(
+		(entry: ChatCatalogEntry) => {
+			queueRowOverlay({
+				action: {
+					entry,
+					mode: "delete",
+				},
+				type: "rowAction",
+			});
+		},
+		[queueRowOverlay],
+	);
+
+	const handleQueueRowRename = React.useCallback(
+		(entry: ChatCatalogEntry) => {
+			queueRowOverlay({
+				action: {
+					entry,
+					mode: "rename",
+				},
+				type: "rowAction",
+			});
+		},
+		[queueRowOverlay],
+	);
 
 	return (
 		<>
@@ -1912,105 +1987,24 @@ export function ChatListExperience<
 								key={entry.key}
 								role="listitem"
 							>
-								{isGlobalRow ? (
-									<GlobalChatCatalogRow
-										categoryDrawerOpen={
-											activeCategoryEntry?.key ===
-											entry.key
-										}
-										disabled={openingKey !== null}
-										entry={entry}
-										hasAssignedCategories={hasAssignedCategories(
-											entry,
-										)}
-										previewLineCount={previewLineCount}
-										showAvatars={showAvatars}
-										onOpenActions={(entry) => {
-											openRowOverlay({
-												entry,
-												type: "actions",
-											});
-										}}
-										onOpenCategories={(entry) => {
-											openRowOverlay({
-												entry,
-												type: "categories",
-											});
-										}}
-										onRequestDelete={(entry) => {
-											openRowOverlay({
-												action: {
-													entry,
-													mode: "delete",
-												},
-												type: "rowAction",
-											});
-										}}
-										onRequestRename={(entry) => {
-											openRowOverlay({
-												action: {
-													entry,
-													mode: "rename",
-												},
-												type: "rowAction",
-											});
-										}}
-										onOpen={(nextEntry) => {
-											void openChatWithFeedback(
-												nextEntry,
-											);
-										}}
-									/>
-								) : (
-									<CurrentChatCatalogRow
-										categoryDrawerOpen={
-											activeCategoryEntry?.key ===
-											entry.key
-										}
-										disabled={openingKey !== null}
-										entry={entry}
-										hasAssignedCategories={hasAssignedCategories(
-											entry,
-										)}
-										previewLineCount={previewLineCount}
-										showAvatars={showAvatars}
-										onOpenActions={(entry) => {
-											openRowOverlay({
-												entry,
-												type: "actions",
-											});
-										}}
-										onOpenCategories={(entry) => {
-											openRowOverlay({
-												entry,
-												type: "categories",
-											});
-										}}
-										onRequestDelete={(entry) => {
-											openRowOverlay({
-												action: {
-													entry,
-													mode: "delete",
-												},
-												type: "rowAction",
-											});
-										}}
-										onRequestRename={(entry) => {
-											openRowOverlay({
-												action: {
-													entry,
-													mode: "rename",
-												},
-												type: "rowAction",
-											});
-										}}
-										onOpen={(nextEntry) => {
-											void openChatWithFeedback(
-												nextEntry,
-											);
-										}}
-									/>
-								)}
+								<ChatCatalogRow
+									categoryDrawerOpen={
+										activeCategoryEntry?.key === entry.key
+									}
+									disabled={openingKey !== null}
+									entry={entry}
+									hasAssignedCategories={assignedChatKeys.has(
+										entry.key,
+									)}
+									previewLineCount={previewLineCount}
+									showAvatars={showAvatars}
+									variant={rowVariant}
+									onOpen={handleOpenRow}
+									onOpenActions={handleOpenRowActions}
+									onOpenCategories={handleOpenRowCategories}
+									onRequestDelete={handleRequestRowDelete}
+									onRequestRename={handleRequestRowRename}
+								/>
 							</div>
 						))
 					: null}
@@ -2151,42 +2145,21 @@ export function ChatListExperience<
 				exportChat={exportChatWithRefresh}
 				hasAssignedCategories={
 					activeActionsEntry
-						? hasAssignedCategories(activeActionsEntry)
+						? assignedChatKeys.has(activeActionsEntry.key)
 						: activeCategoryEntry
-							? hasAssignedCategories(activeCategoryEntry)
+							? assignedChatKeys.has(activeCategoryEntry.key)
 							: false
 				}
 				onOpenEntry={openChatWithFeedback}
-				onOpenCategories={(entry) => {
-					queueRowOverlay({
-						entry,
-						type: "categories",
-					});
-				}}
+				onOpenCategories={handleQueueRowCategories}
 				onOpenChange={(isOpen) => {
 					if (!isOpen) {
 						handleRowOverlayClosed();
 					}
 				}}
 				openEntryDisabled={openingKey !== null}
-				onRequestDelete={(entry) => {
-					queueRowOverlay({
-						action: {
-							entry,
-							mode: "delete",
-						},
-						type: "rowAction",
-					});
-				}}
-				onRequestRename={(entry) => {
-					queueRowOverlay({
-						action: {
-							entry,
-							mode: "rename",
-						},
-						type: "rowAction",
-					});
-				}}
+				onRequestDelete={handleQueueRowDelete}
+				onRequestRename={handleQueueRowRename}
 			/>
 
 			<ChatCategoryAssignmentDrawer

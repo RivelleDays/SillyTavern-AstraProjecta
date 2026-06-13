@@ -4804,6 +4804,72 @@ describe("AstraMainInterface", () => {
 		).not.toBeInTheDocument();
 	});
 
+	test("opens queued row overlays from the actions drawer in FIFO order", async () => {
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [
+					createEntry({
+						chatId: "campfire",
+						entityId: "party",
+						entityName: "Party",
+						key: "group:party:campfire",
+						kind: "group",
+					}),
+				],
+			}),
+		);
+
+		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+		const row = screen.getByRole("button", {
+			name: "Open Party campfire",
+		});
+		fireEvent.click(
+			within(row).getByRole("button", {
+				name: "Chat actions",
+			}),
+		);
+		const actionsDrawer = await screen.findByRole("dialog", {
+			name: "Chat actions",
+		});
+		const categoryAction = within(actionsDrawer).getByRole("button", {
+			name: "Edit categories",
+		});
+		const deleteAction = within(actionsDrawer).getByRole("button", {
+			name: "Delete chat",
+		});
+
+		fireEvent.click(categoryAction);
+		fireEvent.click(deleteAction);
+
+		const categoryDrawer = await screen.findByRole(
+			"dialog",
+			{
+				name: "Edit categories",
+			},
+			{ timeout: ROW_OVERLAY_UNMOUNT_TIMEOUT_MS },
+		);
+		expect(
+			screen.queryByRole("dialog", {
+				name: "Delete chat",
+			}),
+		).not.toBeInTheDocument();
+		fireEvent.click(
+			within(categoryDrawer).getByRole("button", {
+				name: "Cancel",
+			}),
+		);
+
+		const deleteDialog = await screen.findByRole(
+			"dialog",
+			{
+				name: "Delete chat",
+			},
+			{ timeout: ROW_OVERLAY_UNMOUNT_TIMEOUT_MS },
+		);
+		expect(within(deleteDialog).getByText("campfire")).toBeInTheDocument();
+	});
+
 	test("opens delete confirmation from the chat actions drawer body without opening the chat", async () => {
 		const storeStub = createStoreStub(
 			createSnapshot({
@@ -5287,6 +5353,96 @@ describe("AstraMainInterface", () => {
 		expect(
 			document.getElementById("astra-main-interface-chat-actions-drawer"),
 		).not.toBeInTheDocument();
+	});
+
+	test("ignores stale export completion after switching the active actions drawer row", async () => {
+		const successToast = vi.fn();
+		(
+			globalThis as { toastr?: { success?: (message: string) => void } }
+		).toastr = {
+			success: successToast,
+		};
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [
+					createEntry({
+						chatId: "chapter-1",
+						entityName: "Hero",
+					}),
+					createEntry({
+						chatId: "campfire",
+						entityId: "party",
+						entityName: "Party",
+						key: "group:party:campfire",
+						kind: "group",
+					}),
+				],
+			}),
+		);
+		const deferred =
+			createDeferred<Awaited<ReturnType<ExportChatCatalogEntry>>>();
+		const exportChat = vi.fn<ExportChatCatalogEntry>(
+			() => deferred.promise,
+		);
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				exportChat={exportChat}
+			/>,
+		);
+
+		const heroRow = screen.getByRole("button", {
+			name: "Open Hero chapter-1",
+		});
+		fireEvent.click(
+			within(heroRow).getByRole("button", {
+				name: "Chat actions",
+			}),
+		);
+		const firstDrawer = await screen.findByRole("dialog", {
+			name: "Chat actions",
+		});
+		fireEvent.click(
+			within(firstDrawer).getByRole("button", {
+				name: "Export JSONL chat file",
+			}),
+		);
+
+		const partyRow = screen.getByRole("button", {
+			hidden: true,
+			name: "Open Party campfire",
+		});
+		fireEvent.click(
+			within(partyRow).getByRole("button", {
+				hidden: true,
+				name: "Chat actions",
+			}),
+		);
+		const secondDrawer = await screen.findByRole("dialog", {
+			name: "Chat actions",
+		});
+		await waitFor(() => {
+			expect(
+				within(secondDrawer).getByText("campfire"),
+			).toBeInTheDocument();
+		});
+
+		deferred.resolve({
+			fileName: "chapter-1.jsonl",
+			ok: true,
+		});
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		expect(successToast).not.toHaveBeenCalled();
+		expect(
+			screen.getByRole("dialog", {
+				name: "Chat actions",
+			}),
+		).not.toHaveAttribute("data-state", "closed");
+		expect(within(secondDrawer).getByText("campfire")).toBeInTheDocument();
 	});
 
 	test("exports plain text from the drawer for the active row", async () => {
