@@ -44,6 +44,7 @@ src/packages/core/
 ## Forbidden Patterns
 
 - Feature view code, Shadcn wrappers, or product layout composition in `core`.
+- Importing `src/app/*` product assembly from `core`; app layers inject concrete runtimes into core-hosted infrastructure instead.
 - Hiding undocumented DOM assumptions inside generic-sounding helpers.
 - Reaching into SillyTavern internals when a public extension surface exists.
 - Letting features bypass core and scatter duplicate selector/event logic without a clear reason.
@@ -61,5 +62,6 @@ src/packages/core/
 ## Verification Checklist
 
 - Confirm `core` still owns SillyTavern integration and runtime infrastructure.
+- Confirm production `core` source does not import app-layer assembly.
 - Confirm each adapter rule requires consumed API/selector/event documentation and fallback behavior.
 - Confirm feature views and Shadcn wrappers are still explicitly forbidden here.

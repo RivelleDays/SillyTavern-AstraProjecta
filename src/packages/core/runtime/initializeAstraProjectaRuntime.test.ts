@@ -9,19 +9,19 @@ import { initializeAstraProjectaRuntime } from "@/packages/core/runtime/initiali
 import { THEME_BODY_CLASS } from "@/packages/core/constants";
 
 describe("initializeAstraProjectaRuntime", () => {
-	test("applies the global theme body class and leaves mobile feature mounting to the mobile runtime", () => {
-		const firstMobileDispose = vi.fn();
-		const secondMobileDispose = vi.fn();
-		const createMobileRuntime = vi
+	test("applies global runtime infrastructure and disposes an injected child runtime", () => {
+		const firstChildDispose = vi.fn();
+		const secondChildDispose = vi.fn();
+		const createRuntime = vi
 			.fn()
-			.mockReturnValueOnce({ dispose: firstMobileDispose })
-			.mockReturnValueOnce({ dispose: secondMobileDispose });
+			.mockReturnValueOnce({ dispose: firstChildDispose })
+			.mockReturnValueOnce({ dispose: secondChildDispose });
 		const windowRef = {
 			matchMedia: vi.fn(),
 		};
 
 		const firstRuntime = initializeAstraProjectaRuntime({
-			createMobileRuntime,
+			createRuntime,
 			documentRef: document,
 			windowRef: windowRef as never,
 		});
@@ -39,11 +39,11 @@ describe("initializeAstraProjectaRuntime", () => {
 
 		firstRuntime.dispose();
 
-		expect(firstMobileDispose).toHaveBeenCalledTimes(1);
+		expect(firstChildDispose).toHaveBeenCalledTimes(1);
 		expect(document.body).not.toHaveClass(THEME_BODY_CLASS);
 
 		const secondRuntime = initializeAstraProjectaRuntime({
-			createMobileRuntime,
+			createRuntime,
 			documentRef: document,
 			windowRef: windowRef as never,
 		});
@@ -58,10 +58,14 @@ describe("initializeAstraProjectaRuntime", () => {
 
 		secondRuntime.dispose();
 
-		expect(secondMobileDispose).toHaveBeenCalledTimes(1);
+		expect(secondChildDispose).toHaveBeenCalledTimes(1);
 		expect(document.body).not.toHaveClass(THEME_BODY_CLASS);
-		expect(createMobileRuntime).toHaveBeenCalledTimes(2);
-		expect(firstRuntime).not.toHaveProperty("messageHeaderLayout");
-		expect(secondRuntime).not.toHaveProperty("messageHeaderLayout");
+		expect(createRuntime).toHaveBeenCalledTimes(2);
+		expect(createRuntime).toHaveBeenCalledWith({
+			documentRef: document,
+			windowRef,
+		});
+		expect(firstRuntime).not.toHaveProperty("mobile");
+		expect(secondRuntime).not.toHaveProperty("mobile");
 	});
 });
