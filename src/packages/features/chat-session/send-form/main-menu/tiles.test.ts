@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { MOBILE_CHAT_MAIN_MENU_TILE_ICON_SOURCES } from "@/packages/features/sillytavern-interface/icons/registry";
-import { SILLYTAVERN_INTERFACE_ROUTES } from "@/packages/features/sillytavern-interface";
+import { SILLYTAVERN_INTERFACE_ROUTES } from "@/app/shared/sillytavern-interface";
+import { SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES } from "@/packages/features/sillytavern-interface/icons/registry";
 import {
 	MOBILE_CHAT_MAIN_MENU_TILES,
 	splitMobileChatMainMenuTileLabel,
@@ -11,15 +11,15 @@ describe("MOBILE_CHAT_MAIN_MENU_TILES", () => {
 	test("maps every tile iconKey to a centralized SVG source entry", () => {
 		expect(MOBILE_CHAT_MAIN_MENU_TILES).toHaveLength(6);
 
-		for (const tile of MOBILE_CHAT_MAIN_MENU_TILES) {
-			expect(tile.iconKey).toBeTruthy();
-			expect(
-				MOBILE_CHAT_MAIN_MENU_TILE_ICON_SOURCES[tile.iconKey],
-			).toContain("<svg");
-			expect(
-				MOBILE_CHAT_MAIN_MENU_TILE_ICON_SOURCES[tile.iconKey],
-			).toContain("viewBox=");
-		}
+			for (const tile of MOBILE_CHAT_MAIN_MENU_TILES) {
+				expect(tile.iconKey).toBeTruthy();
+				expect(
+					SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES[tile.iconKey],
+				).toContain("<svg");
+				expect(
+					SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES[tile.iconKey],
+				).toContain("viewBox=");
+			}
 	});
 
 	test("defines unique stable wrapper ids for every tile", () => {

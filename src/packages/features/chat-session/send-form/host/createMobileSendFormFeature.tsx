@@ -25,6 +25,10 @@ import {
 } from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyBarBridge";
 import { createNativeQuickReplyEnabledStore } from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyEnabledStore";
 import { SEND_FORM_SHORTCUTS } from "@/packages/features/chat-session/send-form/contracts/shortcuts";
+import {
+	NOOP_MOBILE_SEND_FORM_SILLYTAVERN_INTERFACE,
+	type MobileSendFormSillyTavernInterfaceAdapter,
+} from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 import { AstraMobileSendForm } from "@/packages/features/chat-session/send-form/shell/AstraMobileSendForm";
 
 export interface MobileSendFormFeature {
@@ -74,8 +78,10 @@ function resolveHost(
 
 export function createMobileSendFormFeature({
 	documentRef = document,
+	sillyTavernInterface = NOOP_MOBILE_SEND_FORM_SILLYTAVERN_INTERFACE,
 }: {
 	documentRef?: Document;
+	sillyTavernInterface?: MobileSendFormSillyTavernInterfaceAdapter;
 } = {}): MobileSendFormFeature {
 	let composerHost: HTMLDivElement | null = null;
 	let composerShell: HTMLDivElement | null = null;
@@ -359,11 +365,12 @@ export function createMobileSendFormFeature({
 				documentRef={documentRef}
 				onQuickReplyHostChange={handleQuickReplyHostChange}
 				onTextareaHostChange={moveTextareaIntoHost}
-				primarySendActionStore={stores.primarySendActionStore}
-				quickReplyEnabledStore={stores.quickReplyEnabledStore}
-				quickShortcutStore={stores.quickShortcutStore}
-			/>,
-		);
+					primarySendActionStore={stores.primarySendActionStore}
+					quickReplyEnabledStore={stores.quickReplyEnabledStore}
+					quickShortcutStore={stores.quickShortcutStore}
+					sillyTavernInterface={sillyTavernInterface}
+				/>,
+			);
 	}
 
 	function unmount() {

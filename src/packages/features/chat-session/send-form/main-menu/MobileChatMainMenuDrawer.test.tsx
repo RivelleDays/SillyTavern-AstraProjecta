@@ -20,7 +20,10 @@ import type {
 	CurrentPresetProfileControlsSnapshot,
 } from "@/packages/core/st/currentPresetProfileControls";
 import type { CurrentUserAvatarSnapshot } from "@/packages/core/st/currentUserAvatar";
-import { SILLYTAVERN_INTERFACE_ROUTES } from "@/packages/features/sillytavern-interface";
+import {
+	SILLYTAVERN_INTERFACE_ROUTES,
+	type SillyTavernInterfaceRouteIconKey,
+} from "@/app/shared/sillytavern-interface";
 import { MobileChatMainMenuDrawer } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawer";
 
 const ST_MERIDIEM_TIMESTAMP_MS = Date.parse("2025-05-04T14:20:00.000Z");
@@ -152,6 +155,22 @@ function createPresetProfileControlsSnapshot({
 	};
 }
 
+function renderTestRouteIcon({
+	className,
+	iconKey,
+}: {
+	className?: string;
+	iconKey: SillyTavernInterfaceRouteIconKey;
+}) {
+	return (
+		<span
+			aria-hidden={true}
+			className={className}
+			data-icon-key={iconKey}
+		/>
+	);
+}
+
 function ControlledMainMenuDrawer(
 	props: Omit<
 		React.ComponentProps<typeof MobileChatMainMenuDrawer>,
@@ -161,11 +180,14 @@ function ControlledMainMenuDrawer(
 	const [open, setOpen] = React.useState(true);
 
 	return (
-		<MobileChatMainMenuDrawer
-			{...props}
-			onOpenChange={setOpen}
-			open={open}
-		/>
+			<MobileChatMainMenuDrawer
+				{...props}
+				onOpenChange={setOpen}
+				open={open}
+				renderSillyTavernInterfaceRouteIcon={
+					props.renderSillyTavernInterfaceRouteIcon ?? renderTestRouteIcon
+				}
+			/>
 	);
 }
 
@@ -462,12 +484,13 @@ describe("MobileChatMainMenuDrawer", () => {
 		render(
 			<MobileChatMainMenuDrawer
 				chatContextUsageSnapshot={createContextUsageSnapshot()}
-				chatInfoSnapshot={createInfoSnapshot()}
-				onOpenChange={() => {}}
-				open={true}
-				snapshot={createIdentitySnapshot()}
-			/>,
-		);
+					chatInfoSnapshot={createInfoSnapshot()}
+					onOpenChange={() => {}}
+					open={true}
+					renderSillyTavernInterfaceRouteIcon={renderTestRouteIcon}
+					snapshot={createIdentitySnapshot()}
+				/>,
+			);
 
 		const userSettingsButton = await screen.findByRole("button", {
 			name: "User Settings",

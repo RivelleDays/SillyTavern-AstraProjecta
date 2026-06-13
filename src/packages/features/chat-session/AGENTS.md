@@ -38,7 +38,7 @@ src/packages/features/chat-session/
     - cleanup of listeners, observers, timers, and moved nodes
 - `packages/core` should own reusable adapter logic. `chat-session` should own feature behavior and feature-local bridge composition.
 - `app/mobile` owns shell placement and layout policy. `chat-session` owns the feature logic mounted into that shell.
-- The right-side SillyTavern interface lives in `src/packages/features/sillytavern-interface`.
+- The right-side SillyTavern interface implementation lives in `src/packages/features/sillytavern-interface`; mobile assembly and send-form adapter wiring live in `src/app/mobile/sillytavern-interface-panel`.
 - The mobile top-bar and left-side main interface panel live in `src/app/mobile`.
 - `chat-scroll` may style and align the native `#chat` scroll container, but must not wrap, move, or replace it because SillyTavern commands and chat lifecycle code read and write `#chat.scrollTop`.
 - `chat-switch-loading` may append a transient Astra-owned loading overlay over `#sheld` during chat-file switches, but must not mutate SillyTavern-owned message nodes or depend on `#chat` children surviving reload.
@@ -56,6 +56,7 @@ src/packages/features/chat-session/
 - Pushing send-form behavior into the mobile shell just because the current primary surface is mobile.
 - Storing generic SillyTavern adapter logic in this feature when multiple features could reuse it.
 - Letting feature state leak into UI wrapper components.
+- Importing production code from `src/packages/features/sillytavern-interface`; consume `app/shared` route/icon contracts and injected adapters instead.
 
 ## Naming Rules
 

@@ -37,7 +37,8 @@ import type { CurrentUserAvatarSnapshot } from "@/packages/core/st/currentUserAv
 import {
 	SILLYTAVERN_INTERFACE_ROUTES,
 	type SillyTavernInterfaceRouteKey,
-} from "@/packages/features/sillytavern-interface";
+} from "@/app/shared/sillytavern-interface";
+import type { MobileSendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 import {
 	MOBILE_CHAT_MAIN_MENU_DRAWER_BODY_ID,
 	MOBILE_CHAT_MAIN_MENU_DRAWER_CONTENT_ID,
@@ -59,7 +60,6 @@ import {
 	splitMobileChatMainMenuTileLabel,
 } from "@/packages/features/chat-session/send-form/main-menu/tiles";
 import { MobileChatMainMenuDrawerDetails } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawerDetails";
-import { MobileChatMainMenuDrawerTileIcon } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawerTileIcon";
 
 const MOBILE_CHAT_MAIN_MENU_HEADER_ACTIONS = [
 	{
@@ -210,6 +210,7 @@ export function MobileChatMainMenuDrawer({
 	onOpenChange,
 	onRequestDelete,
 	onRequestRename,
+	renderSillyTavernInterfaceRouteIcon = () => null,
 	snapshot,
 }: {
 	chatContextUsageSnapshot: ChatContextUsageSnapshot;
@@ -227,6 +228,7 @@ export function MobileChatMainMenuDrawer({
 	onRequestDelete?(): void;
 	onRequestRename?(): void;
 	open: boolean;
+	renderSillyTavernInterfaceRouteIcon?: MobileSendFormSillyTavernInterfaceAdapter["renderRouteIcon"];
 	snapshot: CurrentChatIdentitySnapshot;
 }) {
 	const [isDrawerHostMounted, setIsDrawerHostMounted] = React.useState(open);
@@ -566,10 +568,11 @@ export function MobileChatMainMenuDrawer({
 												aria-hidden={true}
 												className="mobile-chat-main-menu-drawer__tile-glow"
 											/>
-											<MobileChatMainMenuDrawerTileIcon
-												className="mobile-chat-main-menu-drawer__tile-deco-icon"
-												iconKey={iconKey}
-											/>
+												{renderSillyTavernInterfaceRouteIcon({
+													className:
+														"mobile-chat-main-menu-drawer__tile-deco-icon",
+													iconKey,
+												})}
 											<span
 												aria-hidden={true}
 												className="mobile-chat-main-menu-drawer__tile-fade"

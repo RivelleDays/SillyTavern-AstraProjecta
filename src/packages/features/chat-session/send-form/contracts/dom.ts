@@ -26,6 +26,8 @@ export const MOBILE_CHAT_INPUT_HOST_ID = "mobile-chat-input-host";
 export const MOBILE_SEND_FORM_QUICK_REPLY_TOGGLE_ID =
 	"mobile-send-form-quick-reply-toggle";
 export const MOBILE_CHAT_MAIN_MENU_TRIGGER_ID = "mobile-chat-main-menu-trigger";
+export const SILLYTAVERN_INTERFACE_TRIGGER_ID =
+	"sillytavern-interface-panel-trigger";
 export const MOBILE_CHAT_MAIN_MENU_DRAWER_ID = "mobile-chat-main-menu-drawer";
 export const MOBILE_CHAT_MAIN_MENU_DRAWER_TITLE_ID =
 	"mobile-chat-main-menu-drawer-title";

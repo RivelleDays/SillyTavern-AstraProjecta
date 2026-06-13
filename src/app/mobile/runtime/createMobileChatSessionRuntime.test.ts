@@ -186,21 +186,35 @@ describe("createMobileChatSessionRuntime", () => {
 		const chatSwitchLoadingMount = vi.fn();
 		const chatSwitchLoadingUnmount = vi.fn();
 		const chatSwitchLoadingDispose = vi.fn();
-		const topBarMount = vi.fn();
-		const topBarUnmount = vi.fn();
-		const topBarDispose = vi.fn();
-		const messageHeaderMount = vi.fn();
-		const messageHeaderUnmount = vi.fn();
-		const messageHeaderDispose = vi.fn();
-		const featureFactory = vi.fn(() => ({
-			dispose,
-			mount,
-			unmount,
-		}));
-		const messageActionsFeatureFactory = vi.fn(() => ({
-			dispose: messageActionsDispose,
-			mount: messageActionsMount,
-			unmount: messageActionsUnmount,
+			const topBarMount = vi.fn();
+			const topBarUnmount = vi.fn();
+			const topBarDispose = vi.fn();
+			const sillyTavernInterfacePanelMount = vi.fn();
+			const sillyTavernInterfacePanelUnmount = vi.fn();
+			const sillyTavernInterfacePanelDispose = vi.fn();
+			const messageHeaderMount = vi.fn();
+			const messageHeaderUnmount = vi.fn();
+			const messageHeaderDispose = vi.fn();
+			const sillyTavernInterface = {
+				openCurrentPage: vi.fn(),
+				openRoute: vi.fn(),
+				renderRouteIcon: vi.fn(),
+			};
+			const featureFactory = vi.fn(() => ({
+				dispose,
+				mount,
+				unmount,
+			}));
+			const sillyTavernInterfacePanelFeatureFactory = vi.fn(() => ({
+				dispose: sillyTavernInterfacePanelDispose,
+				getSendFormAdapter: () => sillyTavernInterface,
+				mount: sillyTavernInterfacePanelMount,
+				unmount: sillyTavernInterfacePanelUnmount,
+			}));
+			const messageActionsFeatureFactory = vi.fn(() => ({
+				dispose: messageActionsDispose,
+				mount: messageActionsMount,
+				unmount: messageActionsUnmount,
 		}));
 		const chatScrollFeatureFactory = vi.fn(() => ({
 			dispose: chatScrollDispose,
@@ -229,76 +243,92 @@ describe("createMobileChatSessionRuntime", () => {
 		const runtime = createMobileChatSessionRuntime({
 			createChatScrollFeature: chatScrollFeatureFactory,
 			createChatSwitchLoadingFeature: chatSwitchLoadingFeatureFactory,
-			createMessageHeaderLayoutFeature: messageHeaderLayoutFeatureFactory,
-			createMessageActionsFeature: messageActionsFeatureFactory,
-			createSendFormFeature: featureFactory,
-			createTopBarFeature: topBarFeatureFactory,
-			documentRef: document,
-			getLayoutModeStore: () => layoutModeStore.store,
-		});
+				createMessageHeaderLayoutFeature: messageHeaderLayoutFeatureFactory,
+				createMessageActionsFeature: messageActionsFeatureFactory,
+				createSendFormFeature: featureFactory,
+				createSillyTavernInterfacePanelFeature:
+					sillyTavernInterfacePanelFeatureFactory,
+				createTopBarFeature: topBarFeatureFactory,
+				documentRef: document,
+				getLayoutModeStore: () => layoutModeStore.store,
+			});
 
-		expect(featureFactory).toHaveBeenCalledTimes(1);
-		expect(messageActionsFeatureFactory).toHaveBeenCalledTimes(1);
-		expect(chatScrollFeatureFactory).toHaveBeenCalledTimes(1);
-		expect(chatSwitchLoadingFeatureFactory).toHaveBeenCalledTimes(1);
-		expect(topBarFeatureFactory).toHaveBeenCalledTimes(1);
-		expect(messageHeaderLayoutFeatureFactory).toHaveBeenCalledTimes(1);
+			expect(featureFactory).toHaveBeenCalledTimes(1);
+			expect(featureFactory).toHaveBeenCalledWith({
+				documentRef: document,
+				sillyTavernInterface,
+			});
+			expect(sillyTavernInterfacePanelFeatureFactory).toHaveBeenCalledTimes(1);
+			expect(sillyTavernInterfacePanelFeatureFactory).toHaveBeenCalledWith({
+				documentRef: document,
+			});
+			expect(messageActionsFeatureFactory).toHaveBeenCalledTimes(1);
+			expect(chatScrollFeatureFactory).toHaveBeenCalledTimes(1);
+			expect(chatSwitchLoadingFeatureFactory).toHaveBeenCalledTimes(1);
+			expect(topBarFeatureFactory).toHaveBeenCalledTimes(1);
+			expect(messageHeaderLayoutFeatureFactory).toHaveBeenCalledTimes(1);
 		expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
 		expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
-		expect(messageHeaderMount).toHaveBeenCalledTimes(1);
-		expect(mount).toHaveBeenCalledTimes(1);
-		expect(messageActionsMount).toHaveBeenCalledTimes(1);
-		expect(chatScrollMount).toHaveBeenCalledTimes(1);
-		expect(chatSwitchLoadingMount).toHaveBeenCalledTimes(1);
-		expect(topBarMount).toHaveBeenCalledTimes(1);
-		expect(unmount).not.toHaveBeenCalled();
-		expect(messageActionsUnmount).not.toHaveBeenCalled();
-		expect(chatScrollUnmount).not.toHaveBeenCalled();
-		expect(chatSwitchLoadingUnmount).not.toHaveBeenCalled();
+			expect(messageHeaderMount).toHaveBeenCalledTimes(1);
+			expect(sillyTavernInterfacePanelMount).toHaveBeenCalledTimes(1);
+			expect(mount).toHaveBeenCalledTimes(1);
+			expect(messageActionsMount).toHaveBeenCalledTimes(1);
+			expect(chatScrollMount).toHaveBeenCalledTimes(1);
+			expect(chatSwitchLoadingMount).toHaveBeenCalledTimes(1);
+			expect(topBarMount).toHaveBeenCalledTimes(1);
+			expect(sillyTavernInterfacePanelUnmount).not.toHaveBeenCalled();
+			expect(unmount).not.toHaveBeenCalled();
+			expect(messageActionsUnmount).not.toHaveBeenCalled();
+			expect(chatScrollUnmount).not.toHaveBeenCalled();
+			expect(chatSwitchLoadingUnmount).not.toHaveBeenCalled();
 		expect(topBarUnmount).not.toHaveBeenCalled();
 		expect(messageHeaderUnmount).not.toHaveBeenCalled();
 		expect(layoutModeStore.store.subscribe).toHaveBeenCalledTimes(1);
 
 		layoutModeStore.dispatch("desktop");
 
-		expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
-		expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
-		expect(messageHeaderUnmount).toHaveBeenCalledTimes(1);
-		expect(unmount).toHaveBeenCalledTimes(1);
-		expect(messageActionsUnmount).toHaveBeenCalledTimes(1);
-		expect(chatScrollUnmount).toHaveBeenCalledTimes(1);
-		expect(chatSwitchLoadingUnmount).toHaveBeenCalledTimes(1);
+			expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
+			expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
+			expect(messageHeaderUnmount).toHaveBeenCalledTimes(1);
+			expect(sillyTavernInterfacePanelUnmount).toHaveBeenCalledTimes(1);
+			expect(unmount).toHaveBeenCalledTimes(1);
+			expect(messageActionsUnmount).toHaveBeenCalledTimes(1);
+			expect(chatScrollUnmount).toHaveBeenCalledTimes(1);
+			expect(chatSwitchLoadingUnmount).toHaveBeenCalledTimes(1);
 		expect(topBarUnmount).toHaveBeenCalledTimes(1);
 
 		layoutModeStore.dispatch("mobile");
 
-		expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
-		expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
-		expect(messageHeaderMount).toHaveBeenCalledTimes(2);
-		expect(mount).toHaveBeenCalledTimes(2);
-		expect(messageActionsMount).toHaveBeenCalledTimes(2);
-		expect(chatScrollMount).toHaveBeenCalledTimes(2);
-		expect(chatSwitchLoadingMount).toHaveBeenCalledTimes(2);
+			expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
+			expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
+			expect(messageHeaderMount).toHaveBeenCalledTimes(2);
+			expect(sillyTavernInterfacePanelMount).toHaveBeenCalledTimes(2);
+			expect(mount).toHaveBeenCalledTimes(2);
+			expect(messageActionsMount).toHaveBeenCalledTimes(2);
+			expect(chatScrollMount).toHaveBeenCalledTimes(2);
+			expect(chatSwitchLoadingMount).toHaveBeenCalledTimes(2);
 		expect(topBarMount).toHaveBeenCalledTimes(2);
 
 		runtime.dispose();
 
-		expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
-		expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
-		expect(messageHeaderDispose).toHaveBeenCalledTimes(1);
-		expect(dispose).toHaveBeenCalledTimes(1);
-		expect(messageActionsDispose).toHaveBeenCalledTimes(1);
-		expect(chatScrollDispose).toHaveBeenCalledTimes(1);
-		expect(chatSwitchLoadingDispose).toHaveBeenCalledTimes(1);
+			expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
+			expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
+			expect(messageHeaderDispose).toHaveBeenCalledTimes(1);
+			expect(sillyTavernInterfacePanelDispose).toHaveBeenCalledTimes(1);
+			expect(dispose).toHaveBeenCalledTimes(1);
+			expect(messageActionsDispose).toHaveBeenCalledTimes(1);
+			expect(chatScrollDispose).toHaveBeenCalledTimes(1);
+			expect(chatSwitchLoadingDispose).toHaveBeenCalledTimes(1);
 		expect(topBarDispose).toHaveBeenCalledTimes(1);
 		expect(layoutModeStore.unsubscribe).toHaveBeenCalledTimes(1);
 
-		layoutModeStore.dispatch("mobile");
+			layoutModeStore.dispatch("mobile");
 
-		expect(messageHeaderMount).toHaveBeenCalledTimes(2);
-		expect(mount).toHaveBeenCalledTimes(2);
-		expect(messageActionsMount).toHaveBeenCalledTimes(2);
-		expect(chatScrollMount).toHaveBeenCalledTimes(2);
+			expect(messageHeaderMount).toHaveBeenCalledTimes(2);
+			expect(sillyTavernInterfacePanelMount).toHaveBeenCalledTimes(2);
+			expect(mount).toHaveBeenCalledTimes(2);
+			expect(messageActionsMount).toHaveBeenCalledTimes(2);
+			expect(chatScrollMount).toHaveBeenCalledTimes(2);
 		expect(chatSwitchLoadingMount).toHaveBeenCalledTimes(2);
 		expect(topBarMount).toHaveBeenCalledTimes(2);
 	});

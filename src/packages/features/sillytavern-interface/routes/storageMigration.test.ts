@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test } from "vitest";
 
+import { SILLYTAVERN_INTERFACE_ROUTES } from "@/app/shared/sillytavern-interface";
 import {
 	LEGACY_SILLYTAVERN_INTERFACE_ACTIVE_PAGE_KEY_STORAGE_KEY,
 	LEGACY_SILLYTAVERN_INTERFACE_AI_SETTINGS_ACTIVE_PAGE_KEY_STORAGE_KEY,
@@ -10,10 +11,7 @@ import {
 	SILLYTAVERN_INTERFACE_CHARACTER_MANAGEMENT_ACTIVE_TAB_STORAGE_KEY,
 	SILLYTAVERN_INTERFACE_PERSONA_MANAGEMENT_ACTIVE_TAB_STORAGE_KEY,
 } from "@/packages/features/sillytavern-interface/contracts/dom";
-import {
-	SILLYTAVERN_INTERFACE_ROUTES,
-	readStoredSillyTavernInterfacePageKey,
-} from "@/packages/features/sillytavern-interface/routes/registry";
+import { readStoredSillyTavernInterfacePageKey } from "@/packages/features/sillytavern-interface/routes/registry";
 import {
 	readStoredAiSettingsPageKey,
 	readStoredCharacterManagementTabValue,

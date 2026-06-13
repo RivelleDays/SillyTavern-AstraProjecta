@@ -1,7 +1,7 @@
 import * as React from "react";
 
+import type { SillyTavernInterfaceRouteIconKey } from "@/app/shared/sillytavern-interface";
 import type { LucideIcon } from "@/components/ui/shared/icons";
-import type { SillyTavernInterfaceRouteIconKey } from "@/packages/features/sillytavern-interface/icons/registry";
 
 export type SillyTavernInterfacePageHeaderIcon =
 	| {

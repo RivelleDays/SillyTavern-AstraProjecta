@@ -1,5 +1,3 @@
-export const SILLYTAVERN_INTERFACE_TRIGGER_ID =
-	"sillytavern-interface-panel-trigger";
 export const SILLYTAVERN_INTERFACE_ID = "sillytavern-interface-panel";
 export const SILLYTAVERN_INTERFACE_CLOSE_BUTTON_WRAPPER_ID =
 	"sillytavern-interface-panel-close-button-wrapper";

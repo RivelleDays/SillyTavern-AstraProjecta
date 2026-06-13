@@ -7381,7 +7381,7 @@
   width: 100%;
   min-width: 0;
   flex: 0 0 auto;
-  height: 48px;
+  height: 40px;
   align-items: center;
   justify-content: center;
   border-bottom: 1px solid var(--border);
@@ -7434,7 +7434,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
 }
 .astra-smooth-tabs__indicator {
@@ -7444,7 +7444,7 @@
 	);
   position: absolute;
   left: 0;
-  bottom: -8px;
+  bottom: -4px;
   width: 1px;
   height: 2px;
   background: var(--foreground);
@@ -11789,7 +11789,7 @@ body.astra-projecta-mobile-layout {
   }
   .sillytavern-interface__main-nav-toggle-button {
     flex: 0 0 auto;
-    width: 56px !important;
+    width: 60px !important;
     height: 32px !important;
     border-radius: 20px;
   }

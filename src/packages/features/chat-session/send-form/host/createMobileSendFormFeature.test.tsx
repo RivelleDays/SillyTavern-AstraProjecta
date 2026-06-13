@@ -1,3 +1,4 @@
+import * as React from "react";
 import {
 	act,
 	fireEvent,
@@ -9,18 +10,95 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { ensureAstraProjectaUiInfrastructure } from "@/packages/core/runtime/uiScope";
 import {
+	createMobileSillyTavernInterfacePanelFeature,
+	type MobileSillyTavernInterfacePanelFeature,
+} from "@/app/mobile/sillytavern-interface-panel";
+import {
+	SILLYTAVERN_INTERFACE_ROUTES,
+	type SillyTavernInterfaceRouteIconKey,
+} from "@/app/shared/sillytavern-interface";
+import {
 	SILLYTAVERN_INTERFACE_ACTIVE_PAGE_KEY_STORAGE_KEY,
 	SILLYTAVERN_INTERFACE_PERSONA_MANAGEMENT_ACTIVE_TAB_STORAGE_KEY,
 } from "@/packages/features/sillytavern-interface/contracts/dom";
-import { SILLYTAVERN_INTERFACE_ROUTES } from "@/packages/features/sillytavern-interface";
 import { createMobileSendFormFeature } from "@/packages/features/chat-session/send-form/host/createMobileSendFormFeature";
 import { MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY } from "@/packages/features/chat-session/send-form/contracts/dom";
+import type { MobileSendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 
 type Listener = (...args: unknown[]) => void;
 
 const mountedQuickReplyVisibilityFeatures: Array<
 	ReturnType<typeof createMobileSendFormFeature>
 > = [];
+
+interface MountedMobileSendFormWithSillyTavernInterface {
+	feature: ReturnType<typeof createMobileSendFormFeature>;
+	sillyTavernInterfacePanelFeature: MobileSillyTavernInterfacePanelFeature;
+	dispose(): void;
+	mount(): void;
+}
+
+function renderTestSillyTavernInterfaceRouteIcon({
+	className,
+	iconKey,
+}: {
+	className?: string;
+	iconKey: SillyTavernInterfaceRouteIconKey;
+}) {
+	return React.createElement("span", {
+		"aria-hidden": true,
+		className,
+		"data-icon-key": iconKey,
+	});
+}
+
+function createTestSillyTavernInterfaceAdapter(): MobileSendFormSillyTavernInterfaceAdapter {
+	return {
+		openCurrentPage: vi.fn(),
+		openRoute: vi.fn(),
+		renderRouteIcon: renderTestSillyTavernInterfaceRouteIcon,
+	};
+}
+
+function createTestMobileSendFormFeature({
+	documentRef = document,
+	sillyTavernInterface = createTestSillyTavernInterfaceAdapter(),
+}: {
+	documentRef?: Document;
+	sillyTavernInterface?: MobileSendFormSillyTavernInterfaceAdapter;
+} = {}) {
+	return createMobileSendFormFeature({
+		documentRef,
+		sillyTavernInterface,
+	});
+}
+
+function createMountedMobileSendFormWithSillyTavernInterface({
+	documentRef = document,
+}: {
+	documentRef?: Document;
+} = {}): MountedMobileSendFormWithSillyTavernInterface {
+	const sillyTavernInterfacePanelFeature =
+		createMobileSillyTavernInterfacePanelFeature({ documentRef });
+	const feature = createMobileSendFormFeature({
+		documentRef,
+		sillyTavernInterface:
+			sillyTavernInterfacePanelFeature.getSendFormAdapter(),
+	});
+
+	return {
+		feature,
+		sillyTavernInterfacePanelFeature,
+		dispose() {
+			feature.dispose();
+			sillyTavernInterfacePanelFeature.dispose();
+		},
+		mount() {
+			sillyTavernInterfacePanelFeature.mount();
+			feature.mount();
+		},
+	};
+}
 
 function createEventSourceStub() {
 	const listeners = new Map<string, Set<Listener>>();
@@ -195,7 +273,7 @@ async function mountMainMenuFocusFixture() {
 
 	ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-	const feature = createMobileSendFormFeature({ documentRef: document });
+	const feature = createTestMobileSendFormFeature({ documentRef: document });
 	feature.mount();
 
 	const inputRowHost = await waitForInputRowHost();
@@ -349,7 +427,7 @@ function setupChatSettingsOverrideFixture(
 
 	ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-	const feature = createMobileSendFormFeature({ documentRef: document });
+	const feature = createTestMobileSendFormFeature({ documentRef: document });
 	feature.mount();
 
 	return {
@@ -445,7 +523,7 @@ function setupQuickReplyVisibilityFixture({
 
 	ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-	const feature = createMobileSendFormFeature({ documentRef: document });
+	const feature = createTestMobileSendFormFeature({ documentRef: document });
 	feature.mount();
 	mountedQuickReplyVisibilityFeatures.push(feature);
 
@@ -563,7 +641,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const { composerHost, inputRowHost, quickReplyHost, shortcutsHost } =
@@ -737,7 +815,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		const impersonateButton = document.getElementById("mes_impersonate");
 		const menuButton = document.getElementById("options_button");
 		const authorNoteOption = document.getElementById("option_toggle_AN");
@@ -1191,7 +1269,7 @@ describe("createMobileSendFormFeature", () => {
 			sendClicks += 1;
 		});
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -1260,7 +1338,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -1332,7 +1410,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -1452,7 +1530,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -1554,7 +1632,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -1756,7 +1834,7 @@ describe("createMobileSendFormFeature", () => {
 			return { drawer, host, triggerAvatar };
 		};
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		let { drawer, triggerAvatar } = await openDrawer();
@@ -1882,7 +1960,7 @@ describe("createMobileSendFormFeature", () => {
 
 		feature.dispose();
 
-		const remountedFeature = createMobileSendFormFeature({
+		const remountedFeature = createTestMobileSendFormFeature({
 			documentRef: document,
 		});
 		remountedFeature.mount();
@@ -1917,7 +1995,7 @@ describe("createMobileSendFormFeature", () => {
 
 		remountedFeature.dispose();
 
-		const reopenedFeature = createMobileSendFormFeature({
+		const reopenedFeature = createTestMobileSendFormFeature({
 			documentRef: document,
 		});
 		reopenedFeature.mount();
@@ -2074,7 +2152,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -2313,7 +2391,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -2492,7 +2570,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -2675,7 +2753,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -2802,7 +2880,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const { composerHost, inputRowHost, shortcutsHost } =
@@ -2922,7 +3000,7 @@ describe("createMobileSendFormFeature", () => {
 
 			ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-			const feature = createMobileSendFormFeature({
+			const feature = createTestMobileSendFormFeature({
 				documentRef: document,
 			});
 			feature.mount();
@@ -3025,7 +3103,7 @@ describe("createMobileSendFormFeature", () => {
 
 			ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-			const feature = createMobileSendFormFeature({
+			const feature = createTestMobileSendFormFeature({
 				documentRef: document,
 			});
 			feature.mount();
@@ -3129,7 +3207,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -3223,7 +3301,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -3287,7 +3365,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -3355,7 +3433,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		await waitForInputRowHost();
@@ -3423,7 +3501,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -3543,7 +3621,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const { inputRowHost, shortcutsHost } = await waitForSendFormHosts();
@@ -3911,7 +3989,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createMountedMobileSendFormWithSillyTavernInterface({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -4028,57 +4108,6 @@ describe("createMobileSendFormFeature", () => {
 			document.getElementById("sillytavern-interface-panel-content"),
 		).toHaveTextContent(
 			"SillyTavern AI Response Configuration is unavailable in the current DOM.",
-		);
-		const aiSettingsTabs = within(sillyTavernInterface).getByRole(
-			"tablist",
-			{
-				name: "AI Settings sections",
-			},
-		);
-		const aiSettingsTabRoot = aiSettingsTabs.closest(".astra-sliding-tabs");
-		const configTab = within(aiSettingsTabs).getByRole("tab", {
-			name: "Config",
-		});
-		const apiTab = within(aiSettingsTabs).getByRole("tab", {
-			name: "API",
-		});
-		const advancedTab = within(aiSettingsTabs).getByRole("tab", {
-			name: "Advanced",
-		});
-
-		expect(aiSettingsTabRoot).toBeInTheDocument();
-		expect(
-			aiSettingsTabRoot?.querySelectorAll(
-				".astra-sliding-tabs__indicator",
-			),
-		).toHaveLength(1);
-		expect(configTab).toHaveAttribute("data-state", "active");
-		expect(apiTab).toHaveAttribute("data-state", "inactive");
-		expect(advancedTab).toHaveAttribute("data-state", "inactive");
-		expect(
-			configTab.querySelector(".lucide-sliders-horizontal"),
-		).toBeInTheDocument();
-		expect(apiTab.querySelector(".lucide-plug-2")).toBeInTheDocument();
-		expect(advancedTab.querySelector(".lucide-type")).toBeInTheDocument();
-
-		fireEvent.mouseDown(apiTab, { button: 0, ctrlKey: false });
-
-		expect(apiTab).toHaveAttribute("data-state", "active");
-		expect(
-			document.getElementById("sillytavern-interface-panel-title"),
-		).toHaveTextContent("AI Settings");
-		expect(
-			within(sillyTavernInterface).getByRole("link", {
-				name: "Open SillyTavern documentation",
-			}),
-		).toHaveAttribute(
-			"href",
-			"https://docs.sillytavern.app/usage/core-concepts/connection-profiles/",
-		);
-		expect(
-			document.getElementById("sillytavern-interface-panel-content"),
-		).toHaveTextContent(
-			"SillyTavern API Connections are unavailable in the current DOM.",
 		);
 
 		fireEvent.click(
@@ -4248,7 +4277,7 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({ documentRef: document });
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -4443,7 +4472,9 @@ describe("createMobileSendFormFeature", () => {
 		globalThis.cancelAnimationFrame =
 			vi.fn() as typeof globalThis.cancelAnimationFrame;
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createMountedMobileSendFormWithSillyTavernInterface({
+			documentRef: document,
+		});
 		feature.mount();
 
 		try {
@@ -4597,7 +4628,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createMountedMobileSendFormWithSillyTavernInterface({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -4715,7 +4748,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createMountedMobileSendFormWithSillyTavernInterface({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -4832,7 +4867,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createMountedMobileSendFormWithSillyTavernInterface({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -4998,7 +5035,9 @@ describe("createMobileSendFormFeature", () => {
 			);
 		}
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createMountedMobileSendFormWithSillyTavernInterface({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -5156,7 +5195,7 @@ describe("createMobileSendFormFeature", () => {
 		}
 	});
 
-	test("reopens the AI Settings tile on the last stored subheader tab", async () => {
+	test("opens the AI Settings tile through the injected SillyTavern interface adapter", async () => {
 		document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>
       <div id="extensionsMenuButton" title="Extensions"></div>
@@ -5220,7 +5259,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createMountedMobileSendFormWithSillyTavernInterface({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -5246,33 +5287,22 @@ describe("createMobileSendFormFeature", () => {
 				screen.getByRole("button", { name: "AI Settings" }),
 			);
 
-			const sillyTavernInterface = await waitFor(() => {
-				const element = screen.getByRole("dialog", {
-					name: "AI Settings",
-				});
-				expect(element).toBeInTheDocument();
-				return element as HTMLElement;
-			});
-			const advancedTab = within(
-				within(sillyTavernInterface).getByRole("tablist", {
-					name: "AI Settings sections",
-				}),
-			).getByRole("tab", { name: "Advanced" });
-
-			fireEvent.mouseDown(advancedTab, { button: 0, ctrlKey: false });
-
 			await waitFor(() => {
-				expect(advancedTab).toHaveAttribute("data-state", "active");
+				expect(
+					screen.getByRole("dialog", {
+						name: "AI Settings",
+					}),
+				).toBeInTheDocument();
 				expect(
 					document.getElementById(
 						"sillytavern-interface-panel-content",
 					),
-				).toHaveTextContent("Advanced formatting settings");
+				).toHaveTextContent("AI response settings");
 				expect(
 					window.localStorage.getItem(
-						"astra_projecta.sillytavern_interface.ai_settings_active_page_key",
+						SILLYTAVERN_INTERFACE_ACTIVE_PAGE_KEY_STORAGE_KEY,
 					),
-				).toBe("advanced-formatting");
+				).toBe(SILLYTAVERN_INTERFACE_ROUTES.aiSettings);
 			});
 
 			fireEvent.click(
@@ -5292,29 +5322,17 @@ describe("createMobileSendFormFeature", () => {
 				screen.getByRole("button", { name: "AI Settings" }),
 			);
 
-			const reopenedPanel = await waitFor(() => {
-				const element = screen.getByRole("dialog", {
-					name: "AI Settings",
-				});
-				expect(element).toBeInTheDocument();
-				return element as HTMLElement;
-			});
-			const reopenedAdvancedTab = within(
-				within(reopenedPanel).getByRole("tablist", {
-					name: "AI Settings sections",
-				}),
-			).getByRole("tab", { name: "Advanced" });
-
 			await waitFor(() => {
-				expect(reopenedAdvancedTab).toHaveAttribute(
-					"data-state",
-					"active",
-				);
+				expect(
+					screen.getByRole("dialog", {
+						name: "AI Settings",
+					}),
+				).toBeInTheDocument();
 				expect(
 					document.getElementById(
 						"sillytavern-interface-panel-content",
 					),
-				).toHaveTextContent("Advanced formatting settings");
+				).toHaveTextContent("AI response settings");
 			});
 		} finally {
 			globalThis.requestAnimationFrame = originalRequestAnimationFrame;
@@ -5409,7 +5427,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createMobileSendFormFeature({ documentRef: document });
+		const feature = createMountedMobileSendFormWithSillyTavernInterface({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();

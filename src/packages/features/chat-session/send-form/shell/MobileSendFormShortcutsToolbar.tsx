@@ -5,7 +5,7 @@ import { UiIcon } from "@/components/ui/shared/icon";
 import { BrainCircuit, ChevronDown } from "@/components/ui/shared/icons";
 import type { LucideIcon } from "@/components/ui/shared/icons";
 import type { ChatContextUsageSnapshot } from "@/packages/core/st/chatContextUsage";
-import { SILLYTAVERN_INTERFACE_TRIGGER_ID } from "@/packages/features/sillytavern-interface/contracts/dom";
+import { SILLYTAVERN_INTERFACE_TRIGGER_ID } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { MobileChatContextUsageShortcut } from "@/packages/features/chat-session/send-form/context-usage/MobileChatContextUsageShortcut";
 
 export interface VisibleMobileSendFormShortcut {

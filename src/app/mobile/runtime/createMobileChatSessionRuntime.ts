@@ -36,6 +36,11 @@ import {
 	type MobileSendFormFeature,
 	createMobileSendFormFeature,
 } from "@/packages/features/chat-session/send-form/createMobileSendFormFeature";
+import type { MobileSendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
+import {
+	createMobileSillyTavernInterfacePanelFeature,
+	type MobileSillyTavernInterfacePanelFeature,
+} from "@/app/mobile/sillytavern-interface-panel";
 import {
 	createMobileChatTopBarFeature,
 	type MobileChatTopBarFeature,
@@ -53,6 +58,7 @@ export function createMobileChatSessionRuntime({
 	createMessageActionsFeature = createMobileMessageActionsFeature,
 	createMessageHeaderLayoutFeature = createDefaultMessageHeaderLayoutFeature,
 	createSendFormFeature = createMobileSendFormFeature,
+	createSillyTavernInterfacePanelFeature = createMobileSillyTavernInterfacePanelFeature,
 	createTopBarFeature = createMobileChatTopBarFeature,
 	documentRef = document,
 	getLayoutModeStore = getDefaultLayoutModeStore,
@@ -81,7 +87,11 @@ export function createMobileChatSessionRuntime({
 	}) => MessageHeaderLayoutFeature;
 	createSendFormFeature?: (args?: {
 		documentRef?: Document;
+		sillyTavernInterface?: MobileSendFormSillyTavernInterfaceAdapter;
 	}) => MobileSendFormFeature;
+	createSillyTavernInterfacePanelFeature?: (args?: {
+		documentRef?: Document;
+	}) => MobileSillyTavernInterfacePanelFeature;
 	createTopBarFeature?: (args?: {
 		documentRef?: Document;
 	}) => MobileChatTopBarFeature;
@@ -92,7 +102,13 @@ export function createMobileChatSessionRuntime({
 	windowRef?: LayoutModeWindowLike & MobileKeyboardViewportBridgeWindowLike;
 } = {}): MobileChatSessionRuntime {
 	const messageActionsFeature = createMessageActionsFeature({ documentRef });
-	const sendFormFeature = createSendFormFeature({ documentRef });
+	const sillyTavernInterfacePanelFeature =
+		createSillyTavernInterfacePanelFeature({ documentRef });
+	const sendFormFeature = createSendFormFeature({
+		documentRef,
+		sillyTavernInterface:
+			sillyTavernInterfacePanelFeature.getSendFormAdapter(),
+	});
 	const chatScrollFeature = createChatScrollFeature({
 		documentRef,
 		windowRef,
@@ -118,6 +134,7 @@ export function createMobileChatSessionRuntime({
 		messageActionsFeature.unmount();
 		chatSwitchLoadingFeature.unmount();
 		messageHeaderLayout.unmount();
+		sillyTavernInterfacePanelFeature.unmount();
 		topBarFeature.unmount();
 		nativePopupBridge.unmount();
 		keyboardViewportBridge.unmount();
@@ -135,6 +152,7 @@ export function createMobileChatSessionRuntime({
 			messageHeaderLayout.mount();
 			chatSwitchLoadingFeature.mount();
 			messageActionsFeature.mount();
+			sillyTavernInterfacePanelFeature.mount();
 			sendFormFeature.mount();
 			chatScrollFeature.mount();
 			return;
@@ -160,6 +178,7 @@ export function createMobileChatSessionRuntime({
 			chatSwitchLoadingFeature.dispose();
 			messageHeaderLayout.dispose();
 			sendFormFeature.dispose();
+			sillyTavernInterfacePanelFeature.dispose();
 			messageActionsFeature.dispose();
 			topBarFeature.dispose();
 			nativePopupBridge.dispose();

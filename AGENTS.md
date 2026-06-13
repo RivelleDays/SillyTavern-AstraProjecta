@@ -57,9 +57,11 @@ SillyTavern-AstraProjecta/
 │  │  ├─ mobile/                     # Phase 1 product assembly
 │  │  │  ├─ AGENTS.md
 │  │  │  ├─ top-bar/                 # mobile wrapper around native #sheld
-│  │  │  └─ astra-main-interface-panel/ # left-side mobile Astra main interface shell
+│  │  │  ├─ astra-main-interface-panel/ # left-side mobile Astra main interface shell
+│  │  │  └─ sillytavern-interface-panel/ # right-side mobile SillyTavern interface assembly
 │  │  ├─ shared/                     # Phase 1 shared contracts and cross-platform abstractions
-│  │  │  └─ AGENTS.md
+│  │  │  ├─ AGENTS.md
+│  │  │  └─ sillytavern-interface/   # portable SillyTavern interface route/icon contracts
 │  │  └─ desktop/                    # reserved formal assembly, kept thin during Phase 1
 │  │     └─ AGENTS.md
 │  ├─ packages/

@@ -1,9 +1,9 @@
 import * as React from "react";
 
+import type { SillyTavernInterfaceRouteIconKey } from "@/app/shared/sillytavern-interface";
 import { cn } from "@/lib/utils";
 import {
 	SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES,
-	type SillyTavernInterfaceRouteIconKey,
 } from "@/packages/features/sillytavern-interface/icons/registry";
 
 export function SillyTavernInterfaceRouteIcon({

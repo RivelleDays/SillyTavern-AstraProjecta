@@ -12,6 +12,11 @@ import {
 	VenetianMask,
 } from "@/components/ui/shared/icons";
 import type { LucideIcon } from "@/components/ui/shared/icons";
+import {
+	DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY,
+	SILLYTAVERN_INTERFACE_ROUTES,
+	type SillyTavernInterfaceRouteKey,
+} from "@/app/shared/sillytavern-interface";
 import { translateAstra } from "@/packages/core/i18n";
 import {
 	LEGACY_SILLYTAVERN_INTERFACE_ACTIVE_PAGE_KEY_STORAGE_KEY,
@@ -50,20 +55,6 @@ interface SillyTavernInterfacePageRouteDefinition {
 	summaryKey: I18nKey;
 	titleKey: I18nKey;
 }
-
-export const DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY =
-	"ai-response-configuration";
-export const SILLYTAVERN_INTERFACE_ROUTES = {
-	aiSettings: DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY,
-	backgrounds: "backgrounds",
-	characterManagement: "character-management",
-	extensions: "extensions",
-	lorebook: "worlds-lorebooks",
-	personaManagement: "persona-management",
-	userSettings: "user-settings",
-} as const;
-export type SillyTavernInterfaceRouteKey =
-	(typeof SILLYTAVERN_INTERFACE_ROUTES)[keyof typeof SILLYTAVERN_INTERFACE_ROUTES];
 
 const AI_SETTINGS_CHILD_PAGES = [
 	{

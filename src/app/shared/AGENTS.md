@@ -8,14 +8,14 @@
 - Cross-platform types.
 - Shared adapter interfaces that do not directly own product layout.
 - Service contracts, event abstractions, and state abstractions that can be consumed by both assemblies.
-- Shared route or composition contracts if AstraProjecta later needs them.
+- `sillytavern-interface/` owns portable SillyTavern interface route keys, icon keys, and default route contracts only.
 
 ## Structure Tree
 
 ```text
 src/app/shared/
 ├─ AGENTS.md
-└─ future shared contracts only
+└─ sillytavern-interface/ # route/icon-key contracts only; no DOM or panel implementation
 ```
 
 ## SillyTavern Touchpoints

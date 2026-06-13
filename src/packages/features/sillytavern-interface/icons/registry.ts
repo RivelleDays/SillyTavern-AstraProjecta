@@ -1,3 +1,4 @@
+import type { SillyTavernInterfaceRouteIconKey } from "@/app/shared/sillytavern-interface";
 import aiSettings from "@/packages/features/sillytavern-interface/icons/ai-settings.svg?raw";
 import backgrounds from "@/packages/features/sillytavern-interface/icons/backgrounds.svg?raw";
 import characterManagement from "@/packages/features/sillytavern-interface/icons/character-management.svg?raw";
@@ -16,11 +17,4 @@ export const SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES = {
 	extensions,
 	lorebook,
 	"user-settings": userSettings,
-} as const;
-
-export const MOBILE_CHAT_MAIN_MENU_TILE_ICON_SOURCES =
-	SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES;
-
-export type SillyTavernInterfaceRouteIconKey =
-	keyof typeof SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES;
-export type MobileChatMainMenuTileIconKey = SillyTavernInterfaceRouteIconKey;
+} as const satisfies Record<SillyTavernInterfaceRouteIconKey, string>;

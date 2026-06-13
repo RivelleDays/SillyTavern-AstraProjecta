@@ -9,9 +9,9 @@
 - The `host/` subfolder owns mount/unmount bootstrap, `#mobile-chat-composer-shell` wrapping, native host ordering, and textarea reparent/restore lifecycle.
 - The `shell/` subfolder owns React view composition for the composer wrapper, chat input, and shortcuts row.
 - The `bridges/` subfolder owns quick shortcut click-through, native quick-reply bar reparent/restore, native options click-through, and shared send-form focus-release compatibility helpers.
-- This feature owns the SillyTavern interface trigger wiring only; the panel shell, descriptors, ids, and route icons live under `src/packages/features/sillytavern-interface/`.
+- This feature owns the SillyTavern interface trigger/menu calls only; the mobile runtime injects a `sillyTavernInterface` adapter from `src/app/mobile/sillytavern-interface-panel/`.
 - The `context-usage/` subfolder owns the shortcut popover surface and presentation helpers for context-usage summaries.
-- The `main-menu/` subfolder owns the current-chat drawer presentation and static tile metadata. Route SVG assets live under `src/packages/features/sillytavern-interface/icons/`.
+- The `main-menu/` subfolder owns the current-chat drawer presentation and static tile metadata. Tile metadata consumes route/icon-key contracts from `src/app/shared/sillytavern-interface/`; icon rendering is provided by the injected adapter.
 - The `options-menu/` subfolder owns the mobile send-form menu taxonomy, visibility rules, and action bridge for `mobile-send-form-menu-button`.
 - The `extensions-menu/` subfolder owns the live DOM bridge between the mobile send-form drawer and SillyTavern's native `#extensionsMenu`.
 
@@ -34,4 +34,4 @@
 - Keep the semantic mobile chat DOM contract stable for the composer and input hosts while this compatibility slice is active.
 - The current-chat drawer in this folder is presentation-only: it consumes the core current-chat identity store and must not rebuild identity resolution locally.
 - Do not move SillyTavern interface title/content logic back into send-form; this folder only opens and closes the SillyTavern interface surface.
-- Keep `mobile-chat-main-menu__trigger` scoped to opening the Astra-owned drawer; main-menu tiles are currently visual-only, and any future actions beyond stable identity display belong in separate modules, not this first drawer.
+- Keep `mobile-chat-main-menu__trigger` scoped to opening the Astra-owned drawer; main-menu tiles may request SillyTavern interface route opens through the injected adapter but must not import the panel implementation.

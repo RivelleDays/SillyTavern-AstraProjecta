@@ -1,9 +1,9 @@
 import type { I18nKey } from "@/types/i18n";
 import {
 	SILLYTAVERN_INTERFACE_ROUTES,
+	type SillyTavernInterfaceRouteIconKey,
 	type SillyTavernInterfaceRouteKey,
-} from "@/packages/features/sillytavern-interface";
-import type { MobileChatMainMenuTileIconKey } from "@/packages/features/sillytavern-interface/icons/registry";
+} from "@/app/shared/sillytavern-interface";
 
 function buildMobileChatMainMenuTileWrapperId(key: string) {
 	const wrapperIds = {
@@ -19,7 +19,7 @@ function buildMobileChatMainMenuTileWrapperId(key: string) {
 }
 
 export interface MobileChatMainMenuTileDescriptor {
-	iconKey: MobileChatMainMenuTileIconKey;
+	iconKey: SillyTavernInterfaceRouteIconKey;
 	key: string;
 	labelKey: I18nKey;
 	labelLines: readonly number[];

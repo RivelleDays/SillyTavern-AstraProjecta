@@ -24,8 +24,11 @@ import {
 	MOBILE_CHAT_SHORTCUTS_HOST_ID,
 	MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
-import { SILLYTAVERN_INTERFACE_ID } from "@/packages/features/sillytavern-interface/contracts/dom";
-import type { SillyTavernInterfaceRouteKey } from "@/packages/features/sillytavern-interface";
+import type { SillyTavernInterfaceRouteKey } from "@/app/shared/sillytavern-interface";
+import {
+	NOOP_MOBILE_SEND_FORM_SILLYTAVERN_INTERFACE,
+	type MobileSendFormSillyTavernInterfaceAdapter,
+} from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 import { SEND_FORM_SHORTCUTS } from "@/packages/features/chat-session/send-form/contracts/shortcuts";
 import {
 	isMenuOpenKeyboardEvent,
@@ -34,13 +37,11 @@ import {
 import { triggerNativeChatSettingsOverride } from "@/packages/features/chat-session/send-form/bridges/nativeChatSettingsOverrideBridge";
 import { triggerNativeQuickShortcut } from "@/packages/features/chat-session/send-form/bridges/nativeQuickShortcutBridge";
 import { shouldShowContextUsageShortcut } from "@/packages/features/chat-session/send-form/context-usage/presentation";
-import { MobileSillyTavernInterfacePanel } from "@/packages/features/sillytavern-interface";
 import { CurrentChatDeleteDialog } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatDeleteDialog";
 import { CurrentChatRenameDialog } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatRenameDialog";
 import { MobileChatMainMenuDrawer } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawer";
 import { MobileChatInput } from "@/packages/features/chat-session/send-form/shell/MobileChatInput";
 import { MobileSendFormShortcutsToolbar } from "@/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar";
-import { useSillyTavernInterfaceController } from "@/packages/features/chat-session/send-form/shell/useSillyTavernInterfaceController";
 import {
 	deleteCurrentChat,
 	type DeleteCurrentChatResult,
@@ -230,6 +231,7 @@ export function AstraMobileSendForm({
 	primarySendActionStore,
 	quickReplyEnabledStore,
 	quickShortcutStore,
+	sillyTavernInterface = NOOP_MOBILE_SEND_FORM_SILLYTAVERN_INTERFACE,
 }: {
 	chatContextUsageStore: ChatContextUsageStore;
 	currentConnectionInfoStore: CurrentConnectionInfoStore;
@@ -243,6 +245,7 @@ export function AstraMobileSendForm({
 	primarySendActionStore: PrimarySendActionStore;
 	quickReplyEnabledStore: NativeQuickReplyEnabledStore;
 	quickShortcutStore: QuickShortcutStore;
+	sillyTavernInterface?: MobileSendFormSillyTavernInterfaceAdapter;
 }) {
 	const contextUsageSnapshot = React.useSyncExternalStore(
 		chatContextUsageStore.subscribe,
@@ -298,9 +301,6 @@ export function AstraMobileSendForm({
 	const [showQuickReplyHost, setShowQuickReplyHost] = React.useState(() =>
 		readStoredQuickReplyHostVisibility(documentRef),
 	);
-	const sillyTavernInterface = useSillyTavernInterfaceController({
-		documentRef,
-	});
 	const [isMainMenuOpen, setIsMainMenuOpen] = React.useState(false);
 	const [currentChatActionDialog, setCurrentChatActionDialog] =
 		React.useState<CurrentChatActionDialogState>(null);
@@ -561,11 +561,8 @@ export function AstraMobileSendForm({
 
 	const handleSillyTavernInterfaceShortcutSelect = React.useCallback(
 		(pageKey: SillyTavernInterfaceRouteKey) => {
-			sillyTavernInterface.openRoute(pageKey, {
-				beforeOpen: () => {
-					handleMainMenuOpenChange(false);
-				},
-			});
+			handleMainMenuOpenChange(false);
+			sillyTavernInterface.openRoute(pageKey);
 		},
 		[sillyTavernInterface, handleMainMenuOpenChange],
 	);
@@ -877,24 +874,16 @@ export function AstraMobileSendForm({
 				onRequestChatSettingsOverride={
 					handleChatSettingsOverrideRequest
 				}
-				onRequestDelete={handleMainMenuDeleteRequest}
-				onOpenChange={handleMainMenuOpenChange}
-				onRequestRename={handleMainMenuRenameRequest}
-				open={isMainMenuOpen}
-				snapshot={currentChatIdentitySnapshot}
-			/>
-			<MobileSillyTavernInterfacePanel
-				activePageKey={sillyTavernInterface.activePageKey}
-				currentChatIdentitySnapshot={currentChatIdentitySnapshot}
-				currentUserAvatarSnapshot={avatarSnapshot}
-				key={SILLYTAVERN_INTERFACE_ID}
-				open={sillyTavernInterface.open}
-				onActivePageKeyChange={
-					sillyTavernInterface.handleActivePageKeyChange
-				}
-				onOpenChange={sillyTavernInterface.handleOpenChange}
-			/>
-			<CurrentChatDeleteDialog
+					onRequestDelete={handleMainMenuDeleteRequest}
+					onOpenChange={handleMainMenuOpenChange}
+					onRequestRename={handleMainMenuRenameRequest}
+					open={isMainMenuOpen}
+					renderSillyTavernInterfaceRouteIcon={
+						sillyTavernInterface.renderRouteIcon
+					}
+					snapshot={currentChatIdentitySnapshot}
+				/>
+				<CurrentChatDeleteDialog
 				chatInfoSnapshot={currentChatActionDialogInfoSnapshot}
 				open={isDeleteDialogOpen}
 				snapshot={currentChatActionDialogSnapshot}

@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { translateAstra } from "@/packages/core/i18n";
 import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identity";
 import type { CurrentUserAvatarSnapshot } from "@/packages/core/st/currentUserAvatar";
+import { DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY } from "@/app/shared/sillytavern-interface";
 import {
 	SillyTavernInterfaceAiSettingsTabs,
 	isAiSettingsSillyTavernInterfaceRoute,
@@ -40,7 +41,6 @@ import {
 	SILLYTAVERN_INTERFACE_TITLE_ID,
 } from "@/packages/features/sillytavern-interface/contracts/dom";
 import {
-	DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY,
 	getDefaultSillyTavernInterfacePageDescriptors,
 	getDefaultSillyTavernInterfacePageMainNavigationItems,
 } from "@/packages/features/sillytavern-interface/routes/registry";

@@ -7,7 +7,7 @@ import {
 import { Plug2, SlidersHorizontal, Type } from "@/components/ui/shared/icons";
 import type { LucideIcon } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
-import { DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY } from "@/packages/features/sillytavern-interface/routes/registry";
+import { DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY } from "@/app/shared/sillytavern-interface";
 import type { I18nKey } from "@/types/i18n";
 
 interface AiSettingsTabDefinition {

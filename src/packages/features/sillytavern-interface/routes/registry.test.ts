@@ -1,9 +1,11 @@
 import { describe, expect, test, vi } from "vitest";
 
+import {
+	DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY,
+	SILLYTAVERN_INTERFACE_ROUTES,
+} from "@/app/shared/sillytavern-interface";
 import { SILLYTAVERN_INTERFACE_ACTIVE_PAGE_KEY_STORAGE_KEY } from "@/packages/features/sillytavern-interface/contracts/dom";
 import {
-	SILLYTAVERN_INTERFACE_ROUTES,
-	DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY,
 	isDefaultSillyTavernInterfacePageKey,
 	persistStoredSillyTavernInterfacePageKey,
 	readStoredSillyTavernInterfacePageKey,
