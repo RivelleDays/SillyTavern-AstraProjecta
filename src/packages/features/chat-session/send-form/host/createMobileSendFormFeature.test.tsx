@@ -795,6 +795,10 @@ describe("createMobileSendFormFeature", () => {
 
 		setSillyTavernContext({
 			chat: [{ is_system: false, is_user: true }],
+			chatCompletionSettings: {
+				openai_max_context: 4096,
+				openai_max_tokens: 512,
+			},
 			chatId: "chat-1",
 			chatMetadata: { main_chat: "parent-chat" },
 			characterId: 0,
@@ -806,6 +810,7 @@ describe("createMobileSendFormFeature", () => {
 			},
 			executeSlashCommandsWithOptions,
 			getThumbnailUrl: vi.fn(() => "/thumbs/hero-persona.png"),
+			mainApi: "openai",
 			powerUserSettings: {
 				continue_on_send: false,
 				quick_continue: true,
@@ -914,11 +919,17 @@ describe("createMobileSendFormFeature", () => {
 		expect(
 			shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
 		).toBeInTheDocument();
-		expect(
-			shortcutsHost.querySelector(
-				".mobile-send-form-shortcuts__context-slot",
-			),
-		).not.toBeInTheDocument();
+		const contextSlot = shortcutsHost.querySelector(
+			".mobile-send-form-shortcuts__context-slot",
+		) as HTMLElement | null;
+		const contextUsageTrigger = contextSlot?.querySelector(
+			'[data-slot="mobile-chat-context-usage-shortcut"]',
+		) as HTMLButtonElement | null;
+
+		expect(contextSlot).toBeInTheDocument();
+		expect(contextUsageTrigger).toBeInTheDocument();
+		expect(contextUsageTrigger).toHaveClass("is-idle");
+		expect(contextUsageTrigger).not.toBeDisabled();
 		expect(
 			shortcutsHost.querySelector(".mobile-chat-input"),
 		).not.toBeInTheDocument();

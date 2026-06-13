@@ -54,7 +54,7 @@ describe("MobileChatContextUsageShortcut", () => {
 		expect(screen.queryByRole("button")).not.toBeInTheDocument();
 	});
 
-	test("renders nothing before SillyTavern marks a prepared context", () => {
+	test("renders an idle trigger before SillyTavern marks a prepared context", () => {
 		setSillyTavernContext({
 			translate: (text: string, key: string) => `${key}::${text}`,
 		});
@@ -63,10 +63,33 @@ describe("MobileChatContextUsageShortcut", () => {
 			<MobileChatContextUsageShortcut
 				snapshot={createSnapshot({
 					hasPreparedContext: false,
-					status: "ready",
-					usagePercent: 42,
-					usedContextTokens: 3424,
-					usedPromptTokens: 2400,
+					status: "idle",
+				})}
+			/>,
+		);
+
+		const trigger = screen.getByRole("button", {
+			name: "sendForm.contextUsage.trigger.open::Open context usage details",
+		});
+
+		expect(trigger).toHaveClass("is-idle");
+		expect(trigger).not.toBeDisabled();
+		expect(
+			trigger.querySelector(".mobile-chat-context-usage-shortcut__idle-icon"),
+		).toBeInTheDocument();
+	});
+
+	test("renders nothing when the context budget is unavailable", () => {
+		setSillyTavernContext({
+			translate: (text: string, key: string) => `${key}::${text}`,
+		});
+
+		render(
+			<MobileChatContextUsageShortcut
+				snapshot={createSnapshot({
+					maxContextTokens: 0,
+					promptBudgetTokens: 0,
+					reservedResponseTokens: 0,
 				})}
 			/>,
 		);

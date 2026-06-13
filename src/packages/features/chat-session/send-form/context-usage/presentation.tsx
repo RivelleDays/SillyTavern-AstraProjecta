@@ -47,8 +47,7 @@ export function shouldShowContextUsageShortcut(
 ): boolean {
 	if (
 		snapshot.mainApi !== SUPPORTED_CONTEXT_USAGE_MAIN_API ||
-		snapshot.maxContextTokens <= 0 ||
-		!snapshot.hasPreparedContext
+		snapshot.maxContextTokens <= 0
 	) {
 		return false;
 	}
