@@ -19,7 +19,6 @@ import {
 } from "@/packages/core/st/timestamps";
 import {
 	defaultUnstableChatCatalogInternals,
-	type ChatCatalogUnstableStInternals,
 } from "@/packages/core/st/chat-catalog/unstable-st-internals";
 
 type Listener = () => void;
@@ -108,28 +107,6 @@ type WriteCacheOptions = {
 	entries: ChatCatalogEntry[];
 	now?: number;
 	storage?: Storage | null;
-};
-
-type OpenChatCatalogEntryOptions = {
-	getContext?: () => unknown;
-};
-
-type ExportChatCatalogEntryOptions = {
-	downloadImpl?: (
-		content: string,
-		fileName: string,
-		mimeType: string,
-	) => void;
-	fetchImpl?: FetchLike;
-	getContext?: () => unknown;
-};
-
-type RenameChatCatalogEntryOptions = {
-	unstableInternals?: ChatCatalogUnstableStInternals;
-};
-
-type DeleteChatCatalogEntryOptions = {
-	unstableInternals?: ChatCatalogUnstableStInternals;
 };
 
 export const CHAT_CATALOG_CACHE_KEY =
@@ -1669,13 +1646,8 @@ export function createChatCatalogStore({
 export async function exportChatCatalogEntry(
 	entry: ChatCatalogEntry,
 	format: ChatCatalogExportFormat,
-	{
-		downloadImpl,
-		fetchImpl = fetch,
-		getContext = getStContext,
-	}: ExportChatCatalogEntryOptions = {},
 ): Promise<ExportChatCatalogResult> {
-	const context = readContextSafe<StChatCatalogContextLike>(getContext);
+	const context = readContextSafe<StChatCatalogContextLike>();
 	if (!context) {
 		return {
 			ok: false,
@@ -1707,7 +1679,7 @@ export async function exportChatCatalogEntry(
 
 	let response: Response;
 	try {
-		response = await fetchImpl("/api/chats/export", {
+		response = await fetch("/api/chats/export", {
 			body: JSON.stringify(payload),
 			headers: resolveExportRequestHeaders(context),
 			method: "POST",
@@ -1739,11 +1711,7 @@ export async function exportChatCatalogEntry(
 		exportFormat === "txt" ? "text/plain" : "application/octet-stream";
 
 	try {
-		if (downloadImpl) {
-			downloadImpl(content, fileName, mimeType);
-		} else {
-			downloadWithBrowserFallback(content, fileName, mimeType);
-		}
+		downloadWithBrowserFallback(content, fileName, mimeType);
 	} catch {
 		return {
 			ok: false,
@@ -1760,9 +1728,6 @@ export async function exportChatCatalogEntry(
 export async function renameChatCatalogEntry(
 	entry: ChatCatalogEntry,
 	newFileName: string,
-	{
-		unstableInternals = defaultUnstableChatCatalogInternals,
-	}: RenameChatCatalogEntryOptions = {},
 ): Promise<RenameChatCatalogResult> {
 	const oldName = normalizeChatActionName(entry.chatId);
 	const nextName = normalizeChatActionName(newFileName);
@@ -1788,7 +1753,7 @@ export async function renameChatCatalogEntry(
 				? entry.characterId
 				: (asNullableInteger(entityId) ?? entityId);
 
-	return unstableInternals.renameChat({
+	return defaultUnstableChatCatalogInternals.renameChat({
 		characterId,
 		entityId,
 		kind: entry.kind,
@@ -1799,9 +1764,6 @@ export async function renameChatCatalogEntry(
 
 export async function deleteChatCatalogEntry(
 	entry: ChatCatalogEntry,
-	{
-		unstableInternals = defaultUnstableChatCatalogInternals,
-	}: DeleteChatCatalogEntryOptions = {},
 ): Promise<DeleteChatCatalogResult> {
 	const chatId = normalizeChatActionName(entry.chatId);
 	const entityId = asTrimmedIdentifier(entry.entityId);
@@ -1812,7 +1774,7 @@ export async function deleteChatCatalogEntry(
 		};
 	}
 
-	return unstableInternals.deleteChat({
+	return defaultUnstableChatCatalogInternals.deleteChat({
 		chatId,
 		entityId,
 		kind: entry.kind,
@@ -2027,9 +1989,8 @@ async function openCharacterChatInActiveContext(
 
 export async function openChatCatalogEntry(
 	entry: ChatCatalogEntry,
-	{ getContext = getStContext }: OpenChatCatalogEntryOptions = {},
 ): Promise<OpenChatCatalogResult> {
-	const context = readContextSafe<StChatCatalogContextLike>(getContext);
+	const context = readContextSafe<StChatCatalogContextLike>();
 	if (!context) {
 		return {
 			ok: false,
@@ -2075,14 +2036,14 @@ export async function openChatCatalogEntry(
 					context,
 					groupId,
 					entry.chatId,
-					getContext,
+					getStContext,
 				);
 		if (!activeGroupResult.ok) {
 			const fallbackGroupResult = await activateGroupThroughPublicApi(
 				context,
 				groupId,
 				entry.entityName,
-				getContext,
+				getStContext,
 			);
 			activeGroupResult = fallbackGroupResult.ok
 				? fallbackGroupResult
@@ -2160,7 +2121,7 @@ export async function openChatCatalogEntry(
 			context,
 			characterId,
 			entry.chatId,
-			getContext,
+			getStContext,
 		);
 
 		if (!activeCharacterResult.ok) {
@@ -2170,7 +2131,7 @@ export async function openChatCatalogEntry(
 					characterId,
 					entry.chatId,
 					entry.entityName,
-					getContext,
+					getStContext,
 				);
 			activeCharacterResult = fallbackCharacterResult.ok
 				? fallbackCharacterResult
@@ -2190,7 +2151,7 @@ export async function openChatCatalogEntry(
 			activeCharacterResult.context,
 			characterId,
 			entry.chatId,
-			getContext,
+			getStContext,
 		);
 	}
 

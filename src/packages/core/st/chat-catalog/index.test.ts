@@ -1,6 +1,23 @@
 import { waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+const unstableChatCatalogInternalsMock = vi.hoisted(() => ({
+	deleteChat: vi.fn(),
+	renameChat: vi.fn(),
+}));
+
+vi.mock("@/packages/core/st/chat-catalog/unstable-st-internals", async () => {
+	const actual = await vi.importActual<
+		typeof import("@/packages/core/st/chat-catalog/unstable-st-internals")
+	>("@/packages/core/st/chat-catalog/unstable-st-internals");
+
+	return {
+		...actual,
+		defaultUnstableChatCatalogInternals:
+			unstableChatCatalogInternalsMock,
+	};
+});
+
 import {
 	CHAT_CATALOG_CACHE_KEY,
 	CHAT_CATALOG_CACHE_STALE_MS,
@@ -51,9 +68,51 @@ function createEventSourceStub() {
 	};
 }
 
+function stubFetch(payload: unknown, ok = true) {
+	const fetchMock = vi.fn().mockResolvedValue(createJsonResponse(payload, ok));
+	vi.stubGlobal("fetch", fetchMock);
+	return fetchMock;
+}
+
+function stubBrowserDownload() {
+	const clickSpy = vi
+		.spyOn(HTMLAnchorElement.prototype, "click")
+		.mockImplementation(() => {});
+	if (typeof URL.createObjectURL !== "function") {
+		Object.defineProperty(URL, "createObjectURL", {
+			configurable: true,
+			value: vi.fn(),
+		});
+	}
+	if (typeof URL.revokeObjectURL !== "function") {
+		Object.defineProperty(URL, "revokeObjectURL", {
+			configurable: true,
+			value: vi.fn(),
+		});
+	}
+	const createObjectUrlSpy = vi
+		.spyOn(URL, "createObjectURL")
+		.mockReturnValue("blob:chat-export");
+	const revokeObjectUrlSpy = vi
+		.spyOn(URL, "revokeObjectURL")
+		.mockImplementation(() => {});
+
+	return {
+		clickSpy,
+		createObjectUrlSpy,
+		revokeObjectUrlSpy,
+	};
+}
+
 function setSillyTavernContext(context: unknown) {
 	(globalThis as { SillyTavern?: unknown }).SillyTavern = {
 		getContext: () => context,
+	};
+}
+
+function setMutableSillyTavernContext(contextRef: { current: unknown }) {
+	(globalThis as { SillyTavern?: unknown }).SillyTavern = {
+		getContext: () => contextRef.current,
 	};
 }
 
@@ -77,15 +136,41 @@ function createEntry(
 	};
 }
 
+function assertActionExportSignaturesDoNotExposeTestSeams() {
+	const entry = createEntry();
+
+	// @ts-expect-error action exports should use the global fetch contract
+	void exportChatCatalogEntry(entry, "jsonl", { fetchImpl: fetch });
+	// @ts-expect-error action exports should use the global SillyTavern context
+	void openChatCatalogEntry(entry, { getContext: () => ({}) });
+	// @ts-expect-error action exports should use the default unstable bridge
+	void renameChatCatalogEntry(entry, "chapter-2", {
+		unstableInternals: {
+			deleteChat: async () => ({ ok: true }),
+			renameChat: async () => ({ ok: true }),
+		},
+	});
+	// @ts-expect-error action exports should use the default unstable bridge
+	void deleteChatCatalogEntry(entry, {
+		unstableInternals: {
+			deleteChat: async () => ({ ok: true }),
+			renameChat: async () => ({ ok: true }),
+		},
+	});
+}
+
 describe("chat catalog adapter", () => {
 	beforeEach(() => {
 		vi.useRealTimers();
 		localStorage.clear();
+		unstableChatCatalogInternalsMock.deleteChat.mockReset();
+		unstableChatCatalogInternalsMock.renameChat.mockReset();
 	});
 
 	afterEach(() => {
 		localStorage.clear();
 		document.body.innerHTML = "";
+		vi.unstubAllGlobals();
 		Reflect.deleteProperty(
 			globalThis as Record<string, unknown>,
 			"SillyTavern",
@@ -516,13 +601,11 @@ describe("chat catalog adapter", () => {
 	});
 
 	test("exports character chat files lazily with resolved avatar metadata", async () => {
-		const fetchImpl = vi.fn().mockResolvedValue(
-			createJsonResponse({
-				message: "Chat exported.",
-				result: '{"mes":"hello"}',
-			}),
-		);
-		const downloadImpl = vi.fn();
+		const fetchMock = stubFetch({
+			message: "Chat exported.",
+			result: '{"mes":"hello"}',
+		});
+		const { clickSpy } = stubBrowserDownload();
 		setSillyTavernContext({
 			characters: [
 				{
@@ -535,16 +618,13 @@ describe("chat catalog adapter", () => {
 			}),
 		});
 
-		const result = await exportChatCatalogEntry(createEntry(), "jsonl", {
-			downloadImpl,
-			fetchImpl,
-		});
+		const result = await exportChatCatalogEntry(createEntry(), "jsonl");
 
 		expect(result).toEqual({
 			fileName: "chapter-1.jsonl",
 			ok: true,
 		});
-		expect(fetchImpl).toHaveBeenCalledWith("/api/chats/export", {
+		expect(fetchMock).toHaveBeenCalledWith("/api/chats/export", {
 			body: JSON.stringify({
 				avatar_url: "hero.png",
 				exportfilename: "chapter-1.jsonl",
@@ -559,25 +639,19 @@ describe("chat catalog adapter", () => {
 			},
 			method: "POST",
 		});
-		expect(downloadImpl).toHaveBeenCalledWith(
-			'{"mes":"hello"}',
-			"chapter-1.jsonl",
-			"application/octet-stream",
-		);
+		expect(clickSpy).toHaveBeenCalledTimes(1);
 	});
 
 	test("exports group chat files without avatar metadata", async () => {
-		const fetchImpl = vi.fn().mockResolvedValue(
-			createJsonResponse({
-				result: "plain text",
-			}),
-		);
-		const downloadImpl = vi.fn();
+		const fetchMock = stubFetch({
+			result: "plain text",
+		});
+		const { clickSpy } = stubBrowserDownload();
 		setSillyTavernContext({
 			getRequestHeaders: () => ({}),
 		});
 
-		await exportChatCatalogEntry(
+		const result = await exportChatCatalogEntry(
 			createEntry({
 				chatId: "campfire",
 				entityId: "party",
@@ -585,13 +659,13 @@ describe("chat catalog adapter", () => {
 				kind: "group",
 			}),
 			"txt",
-			{
-				downloadImpl,
-				fetchImpl,
-			},
 		);
 
-		expect(fetchImpl).toHaveBeenCalledWith(
+		expect(result).toEqual({
+			fileName: "campfire.txt",
+			ok: true,
+		});
+		expect(fetchMock).toHaveBeenCalledWith(
 			"/api/chats/export",
 			expect.objectContaining({
 				body: JSON.stringify({
@@ -603,74 +677,43 @@ describe("chat catalog adapter", () => {
 				}),
 			}),
 		);
-		expect(downloadImpl).toHaveBeenCalledWith(
-			"plain text",
-			"campfire.txt",
-			"text/plain",
-		);
+		expect(clickSpy).toHaveBeenCalledTimes(1);
 	});
 
 	test("returns a typed failure when chat export request fails", async () => {
-		const fetchImpl = vi.fn().mockResolvedValue(
-			createJsonResponse(
-				{
-					message: "No chat file found.",
-				},
-				false,
-			),
+		const fetchMock = stubFetch(
+			{
+				message: "No chat file found.",
+			},
+			false,
 		);
-		const downloadImpl = vi.fn();
+		const { clickSpy } = stubBrowserDownload();
 		setSillyTavernContext({
 			getRequestHeaders: () => ({}),
 		});
 
-		const result = await exportChatCatalogEntry(createEntry(), "jsonl", {
-			downloadImpl,
-			fetchImpl,
-		});
+		const result = await exportChatCatalogEntry(createEntry(), "jsonl");
 
 		expect(result).toEqual({
 			message: "No chat file found.",
 			ok: false,
 			reason: "export-failed",
 		});
-		expect(downloadImpl).not.toHaveBeenCalled();
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+		expect(clickSpy).not.toHaveBeenCalled();
 	});
 
-	test("falls back to a browser blob download when no downloader is injected", async () => {
-		const fetchImpl = vi.fn().mockResolvedValue(
-			createJsonResponse({
-				result: "plain text",
-			}),
-		);
-		const clickSpy = vi
-			.spyOn(HTMLAnchorElement.prototype, "click")
-			.mockImplementation(() => {});
-		if (typeof URL.createObjectURL !== "function") {
-			Object.defineProperty(URL, "createObjectURL", {
-				configurable: true,
-				value: vi.fn(),
-			});
-		}
-		if (typeof URL.revokeObjectURL !== "function") {
-			Object.defineProperty(URL, "revokeObjectURL", {
-				configurable: true,
-				value: vi.fn(),
-			});
-		}
-		const createObjectUrlSpy = vi
-			.spyOn(URL, "createObjectURL")
-			.mockReturnValue("blob:chat-export");
-		const revokeObjectUrlSpy = vi
-			.spyOn(URL, "revokeObjectURL")
-			.mockImplementation(() => {});
+	test("uses a browser blob download for exported chat content", async () => {
+		stubFetch({
+			result: "plain text",
+		});
+		const { clickSpy, createObjectUrlSpy, revokeObjectUrlSpy } =
+			stubBrowserDownload();
 		setSillyTavernContext({
 			getRequestHeaders: () => ({}),
 		});
 
-		const result = await exportChatCatalogEntry(createEntry(), "txt", {
-			fetchImpl,
-		});
+		const result = await exportChatCatalogEntry(createEntry(), "txt");
 
 		expect(result).toEqual({
 			fileName: "chapter-1.txt",
@@ -679,14 +722,12 @@ describe("chat catalog adapter", () => {
 		expect(clickSpy).toHaveBeenCalledTimes(1);
 		expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
 		expect(revokeObjectUrlSpy).toHaveBeenCalledWith("blob:chat-export");
-
-		clickSpy.mockRestore();
-		createObjectUrlSpy.mockRestore();
-		revokeObjectUrlSpy.mockRestore();
 	});
 
 	test("renames character chat files through the unstable internals bridge", async () => {
-		const renameChat = vi.fn().mockResolvedValue({ ok: true });
+		unstableChatCatalogInternalsMock.renameChat.mockResolvedValue({
+			ok: true,
+		});
 
 		const result = await renameChatCatalogEntry(
 			createEntry({
@@ -696,16 +737,10 @@ describe("chat catalog adapter", () => {
 				kind: "character",
 			}),
 			"chapter-2.jsonl",
-			{
-				unstableInternals: {
-					deleteChat: vi.fn(),
-					renameChat,
-				},
-			},
 		);
 
 		expect(result).toEqual({ ok: true });
-		expect(renameChat).toHaveBeenCalledWith({
+		expect(unstableChatCatalogInternalsMock.renameChat).toHaveBeenCalledWith({
 			characterId: 0,
 			entityId: "0",
 			kind: "character",
@@ -715,7 +750,9 @@ describe("chat catalog adapter", () => {
 	});
 
 	test("renames group chat files through the unstable internals bridge", async () => {
-		const renameChat = vi.fn().mockResolvedValue({ ok: true });
+		unstableChatCatalogInternalsMock.renameChat.mockResolvedValue({
+			ok: true,
+		});
 
 		const result = await renameChatCatalogEntry(
 			createEntry({
@@ -725,16 +762,10 @@ describe("chat catalog adapter", () => {
 				kind: "group",
 			}),
 			"campfire-2",
-			{
-				unstableInternals: {
-					deleteChat: vi.fn(),
-					renameChat,
-				},
-			},
 		);
 
 		expect(result).toEqual({ ok: true });
-		expect(renameChat).toHaveBeenCalledWith({
+		expect(unstableChatCatalogInternalsMock.renameChat).toHaveBeenCalledWith({
 			characterId: undefined,
 			entityId: "party",
 			kind: "group",
@@ -744,17 +775,14 @@ describe("chat catalog adapter", () => {
 	});
 
 	test("deletes character chat files through the unstable internals bridge", async () => {
-		const deleteChat = vi.fn().mockResolvedValue({ ok: true });
-
-		const result = await deleteChatCatalogEntry(createEntry(), {
-			unstableInternals: {
-				deleteChat,
-				renameChat: vi.fn(),
-			},
+		unstableChatCatalogInternalsMock.deleteChat.mockResolvedValue({
+			ok: true,
 		});
 
+		const result = await deleteChatCatalogEntry(createEntry());
+
 		expect(result).toEqual({ ok: true });
-		expect(deleteChat).toHaveBeenCalledWith({
+		expect(unstableChatCatalogInternalsMock.deleteChat).toHaveBeenCalledWith({
 			chatId: "chapter-1",
 			entityId: "0",
 			kind: "character",
@@ -762,7 +790,9 @@ describe("chat catalog adapter", () => {
 	});
 
 	test("deletes group chat files through the unstable internals bridge", async () => {
-		const deleteChat = vi.fn().mockResolvedValue({ ok: true });
+		unstableChatCatalogInternalsMock.deleteChat.mockResolvedValue({
+			ok: true,
+		});
 
 		const result = await deleteChatCatalogEntry(
 			createEntry({
@@ -771,16 +801,10 @@ describe("chat catalog adapter", () => {
 				key: "group:party:campfire",
 				kind: "group",
 			}),
-			{
-				unstableInternals: {
-					deleteChat,
-					renameChat: vi.fn(),
-				},
-			},
 		);
 
 		expect(result).toEqual({ ok: true });
-		expect(deleteChat).toHaveBeenCalledWith({
+		expect(unstableChatCatalogInternalsMock.deleteChat).toHaveBeenCalledWith({
 			chatId: "campfire",
 			entityId: "party",
 			kind: "group",
@@ -794,17 +818,11 @@ describe("chat catalog adapter", () => {
 			ok: false,
 			reason: "invalid-name",
 		});
-		await expect(
-			deleteChatCatalogEntry(createEntry(), {
-				unstableInternals: {
-					deleteChat: vi.fn().mockResolvedValue({
-						ok: false,
-						reason: "api-unavailable",
-					}),
-					renameChat: vi.fn(),
-				},
-			}),
-		).resolves.toEqual({
+		unstableChatCatalogInternalsMock.deleteChat.mockResolvedValue({
+			ok: false,
+			reason: "api-unavailable",
+		});
+		await expect(deleteChatCatalogEntry(createEntry())).resolves.toEqual({
 			ok: false,
 			reason: "api-unavailable",
 		});
@@ -1042,10 +1060,9 @@ describe("chat catalog adapter", () => {
 					groupId: null,
 				};
 			});
+		setMutableSillyTavernContext(contextRef);
 
-		const result = await openChatCatalogEntry(createEntry(), {
-			getContext: () => contextRef.current,
-		});
+		const result = await openChatCatalogEntry(createEntry());
 
 		expect(result).toEqual({ ok: true });
 		expect(selectCharacterById).not.toHaveBeenCalled();
@@ -1089,10 +1106,9 @@ describe("chat catalog adapter", () => {
 					};
 				}, 300);
 			});
+		setMutableSillyTavernContext(contextRef);
 
-		const resultPromise = openChatCatalogEntry(createEntry(), {
-			getContext: () => contextRef.current,
-		});
+		const resultPromise = openChatCatalogEntry(createEntry());
 
 		await vi.advanceTimersByTimeAsync(300);
 
@@ -1133,10 +1149,9 @@ describe("chat catalog adapter", () => {
 					groupId: null,
 				};
 			});
+		setMutableSillyTavernContext(contextRef);
 
-		const result = await openChatCatalogEntry(createEntry(), {
-			getContext: () => contextRef.current,
-		});
+		const result = await openChatCatalogEntry(createEntry());
 
 		expect(result).toEqual({ ok: true });
 		expect(contextRef.current.groupId).toBeNull();
@@ -1179,10 +1194,9 @@ describe("chat catalog adapter", () => {
 				saveSettingsDebounced,
 			},
 		};
+		setMutableSillyTavernContext(contextRef);
 
-		const result = await openChatCatalogEntry(createEntry(), {
-			getContext: () => contextRef.current,
-		});
+		const result = await openChatCatalogEntry(createEntry());
 
 		expect(result).toEqual({ ok: true });
 		expect(executeSlashCommandsWithOptions).toHaveBeenCalledWith(
@@ -1208,17 +1222,16 @@ describe("chat catalog adapter", () => {
 		const executeSlashCommandsWithOptions = vi.fn().mockResolvedValue({
 			pipe: "Hero",
 		});
-
-		const resultPromise = openChatCatalogEntry(createEntry(), {
-			getContext: () => ({
-				characterId: 2,
-				characters,
-				chatId: "other-chat",
-				executeSlashCommandsWithOptions,
-				groupId: null,
-				openCharacterChat: vi.fn().mockResolvedValue(undefined),
-			}),
+		setSillyTavernContext({
+			characterId: 2,
+			characters,
+			chatId: "other-chat",
+			executeSlashCommandsWithOptions,
+			groupId: null,
+			openCharacterChat: vi.fn().mockResolvedValue(undefined),
 		});
+
+		const resultPromise = openChatCatalogEntry(createEntry());
 
 		await vi.advanceTimersByTimeAsync(1_000);
 
@@ -1239,17 +1252,16 @@ describe("chat catalog adapter", () => {
 		];
 		const openCharacterChat = vi.fn().mockResolvedValue(undefined);
 		const selectCharacterById = vi.fn().mockResolvedValue(undefined);
-
-		const result = await openChatCatalogEntry(createEntry(), {
-			getContext: () => ({
-				characterId: 2,
-				characters,
-				chatId: "other-chat",
-				groupId: null,
-				openCharacterChat,
-				selectCharacterById,
-			}),
+		setSillyTavernContext({
+			characterId: 2,
+			characters,
+			chatId: "other-chat",
+			groupId: null,
+			openCharacterChat,
+			selectCharacterById,
 		});
+
+		const result = await openChatCatalogEntry(createEntry());
 
 		expect(result).toEqual({
 			ok: false,
@@ -1263,15 +1275,14 @@ describe("chat catalog adapter", () => {
 	test("skips reopening the already-current character chat", async () => {
 		const selectCharacterById = vi.fn();
 		const openCharacterChat = vi.fn();
-
-		const result = await openChatCatalogEntry(createEntry(), {
-			getContext: () => ({
-				characterId: 0,
-				getCurrentChatId: () => "chapter-1",
-				openCharacterChat,
-				selectCharacterById,
-			}),
+		setSillyTavernContext({
+			characterId: 0,
+			getCurrentChatId: () => "chapter-1",
+			openCharacterChat,
+			selectCharacterById,
 		});
+
+		const result = await openChatCatalogEntry(createEntry());
 
 		expect(result).toEqual({ alreadyCurrent: true, ok: true });
 		expect(selectCharacterById).not.toHaveBeenCalled();
@@ -1281,15 +1292,14 @@ describe("chat catalog adapter", () => {
 	test("opens an already-active different character chat without reselecting the character", async () => {
 		const selectCharacterById = vi.fn();
 		const openCharacterChat = vi.fn().mockResolvedValue(undefined);
-
-		const result = await openChatCatalogEntry(createEntry(), {
-			getContext: () => ({
-				characterId: 0,
-				getCurrentChatId: () => "chapter-old",
-				openCharacterChat,
-				selectCharacterById,
-			}),
+		setSillyTavernContext({
+			characterId: 0,
+			getCurrentChatId: () => "chapter-old",
+			openCharacterChat,
+			selectCharacterById,
 		});
+
+		const result = await openChatCatalogEntry(createEntry());
 
 		expect(result).toEqual({ ok: true });
 		expect(selectCharacterById).not.toHaveBeenCalled();
@@ -1328,6 +1338,7 @@ describe("chat catalog adapter", () => {
 					groupId: group.id,
 				};
 			});
+		setMutableSillyTavernContext(contextRef);
 
 		const result = await openChatCatalogEntry(
 			createEntry({
@@ -1337,9 +1348,6 @@ describe("chat catalog adapter", () => {
 				key: "group:party:campfire",
 				kind: "group",
 			}),
-			{
-				getContext: () => contextRef.current,
-			},
 		);
 
 		expect(result).toEqual({ ok: true });
@@ -1360,6 +1368,12 @@ describe("chat catalog adapter", () => {
 			id: "party",
 			name: "Party",
 		};
+		setSillyTavernContext({
+			chatId: "other-chat",
+			groupId: null,
+			groups: [group],
+			openGroupChat: vi.fn().mockResolvedValue(undefined),
+		});
 
 		const resultPromise = openChatCatalogEntry(
 			createEntry({
@@ -1369,14 +1383,6 @@ describe("chat catalog adapter", () => {
 				key: "group:party:campfire",
 				kind: "group",
 			}),
-			{
-				getContext: () => ({
-					chatId: "other-chat",
-					groupId: null,
-					groups: [group],
-					openGroupChat: vi.fn().mockResolvedValue(undefined),
-				}),
-			},
 		);
 
 		await vi.advanceTimersByTimeAsync(1_000);
@@ -1415,6 +1421,7 @@ describe("chat catalog adapter", () => {
 				saveSettingsDebounced: vi.fn(),
 			},
 		};
+		setMutableSillyTavernContext(contextRef);
 
 		const result = await openChatCatalogEntry(
 			createEntry({
@@ -1424,9 +1431,6 @@ describe("chat catalog adapter", () => {
 				key: "group:party:campfire",
 				kind: "group",
 			}),
-			{
-				getContext: () => contextRef.current,
-			},
 		);
 
 		expect(result).toEqual({ ok: true });
@@ -1438,6 +1442,11 @@ describe("chat catalog adapter", () => {
 
 	test("opens already-active group chats directly with openGroupChat", async () => {
 		const openGroupChat = vi.fn().mockResolvedValue(undefined);
+		setSillyTavernContext({
+			chatId: "other-chat",
+			groupId: "party",
+			openGroupChat,
+		});
 
 		const result = await openChatCatalogEntry(
 			createEntry({
@@ -1445,13 +1454,6 @@ describe("chat catalog adapter", () => {
 				key: "group:party:campfire",
 				kind: "group",
 			}),
-			{
-				getContext: () => ({
-					chatId: "other-chat",
-					groupId: "party",
-					openGroupChat,
-				}),
-			},
 		);
 
 		expect(result).toEqual({ ok: true });
@@ -1460,6 +1462,17 @@ describe("chat catalog adapter", () => {
 
 	test("fails inactive group activation when public slash execution is unavailable", async () => {
 		const openGroupChat = vi.fn().mockResolvedValue(undefined);
+		setSillyTavernContext({
+			chatId: "other-chat",
+			groupId: null,
+			groups: [
+				{
+					id: "party",
+					name: "Party",
+				},
+			],
+			openGroupChat,
+		});
 
 		const result = await openChatCatalogEntry(
 			createEntry({
@@ -1469,19 +1482,6 @@ describe("chat catalog adapter", () => {
 				key: "group:party:campfire",
 				kind: "group",
 			}),
-			{
-				getContext: () => ({
-					chatId: "other-chat",
-					groupId: null,
-					groups: [
-						{
-							id: "party",
-							name: "Party",
-						},
-					],
-					openGroupChat,
-				}),
-			},
 		);
 
 		expect(result).toEqual({
@@ -1494,6 +1494,22 @@ describe("chat catalog adapter", () => {
 	test("fails inactive group activation when the group name is ambiguous", async () => {
 		const executeSlashCommandsWithOptions = vi.fn();
 		const openGroupChat = vi.fn().mockResolvedValue(undefined);
+		setSillyTavernContext({
+			chatId: "other-chat",
+			executeSlashCommandsWithOptions,
+			groupId: null,
+			groups: [
+				{
+					id: "party",
+					name: "Party",
+				},
+				{
+					id: "other-party",
+					name: "party",
+				},
+			],
+			openGroupChat,
+		});
 
 		const result = await openChatCatalogEntry(
 			createEntry({
@@ -1503,24 +1519,6 @@ describe("chat catalog adapter", () => {
 				key: "group:party:campfire",
 				kind: "group",
 			}),
-			{
-				getContext: () => ({
-					chatId: "other-chat",
-					executeSlashCommandsWithOptions,
-					groupId: null,
-					groups: [
-						{
-							id: "party",
-							name: "Party",
-						},
-						{
-							id: "other-party",
-							name: "party",
-						},
-					],
-					openGroupChat,
-				}),
-			},
 		);
 
 		expect(result).toEqual({
@@ -1536,6 +1534,18 @@ describe("chat catalog adapter", () => {
 			pipe: "Party",
 		});
 		const openGroupChat = vi.fn().mockResolvedValue(undefined);
+		setSillyTavernContext({
+			chatId: "other-chat",
+			executeSlashCommandsWithOptions,
+			groupId: null,
+			groups: [
+				{
+					id: "party",
+					name: "Party",
+				},
+			],
+			openGroupChat,
+		});
 
 		const result = await openChatCatalogEntry(
 			createEntry({
@@ -1545,20 +1555,6 @@ describe("chat catalog adapter", () => {
 				key: "group:party:campfire",
 				kind: "group",
 			}),
-			{
-				getContext: () => ({
-					chatId: "other-chat",
-					executeSlashCommandsWithOptions,
-					groupId: null,
-					groups: [
-						{
-							id: "party",
-							name: "Party",
-						},
-					],
-					openGroupChat,
-				}),
-			},
 		);
 
 		expect(result).toEqual({
@@ -1569,14 +1565,14 @@ describe("chat catalog adapter", () => {
 	});
 
 	test("returns a failure result when the SillyTavern open API rejects", async () => {
-		const result = await openChatCatalogEntry(createEntry(), {
-			getContext: () => ({
-				characterId: 0,
-				chatId: "other-chat",
-				groupId: null,
-				openCharacterChat: vi.fn().mockRejectedValue(new Error("boom")),
-			}),
+		setSillyTavernContext({
+			characterId: 0,
+			chatId: "other-chat",
+			groupId: null,
+			openCharacterChat: vi.fn().mockRejectedValue(new Error("boom")),
 		});
+
+		const result = await openChatCatalogEntry(createEntry());
 
 		expect(result).toEqual({
 			ok: false,

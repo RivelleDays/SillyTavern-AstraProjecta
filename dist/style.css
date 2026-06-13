@@ -11417,7 +11417,7 @@ body.astra-projecta-mobile-layout {
   display: inline-flex;
   width: var(--astra-button-min-size);
   min-width: var(--astra-button-min-size);
-  height: var(--astra-button-min-size);
+  height: 32px;
   align-items: center;
   justify-content: center;
   border: 0;

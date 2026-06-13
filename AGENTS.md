@@ -110,6 +110,10 @@ SillyTavern-AstraProjecta/
 - English for code, comments, TODOs, commit-facing repo docs, selectors, and user-facing copy during Alpha.
 - i18n-ready English strings: `locales/en.json` is the source of truth for Astra-owned English copy, using flat dotted keys instead of English text as keys.
 - Typed i18n usage: generate `src/types/i18n.d.ts` from `locales/en.json` via `scripts/manage-i18n.mjs`, fail the build pipeline on unused catalog keys, and prefer typed catalog keys over inline English literals in Astra-owned code.
+- Production exports should expose domain inputs by default instead of test-only dependency injection parameters.
+- Keep fake clocks and fake storage seams in true store/cache layers when they protect time-sensitive or persistence behavior.
+- During the phased test-seam cleanup, `fetchImpl` may remain on store factories that own remote refresh behavior, but feature-facing action exports should use the runtime `fetch` contract.
+- Test DOM, window, and SillyTavern context behavior through `vi.stubGlobal`, `vi.mock`, or focused helpers that set `globalThis.SillyTavern` instead of expanding production signatures.
 - Stable, semantic selector names. Use `id` for stable singular anchors and `class` for repeatable groups.
 - Mobile layout CSS should scope through `body.astra-projecta-mobile-layout`; when multiple selectors share that scope, prefer native CSS nesting with explicit `&` selectors over repeating the body prefix.
 - The `1000px` mobile layout media query belongs to `src/packages/core/layout-mode`; mobile-only stylesheet rules should consume the resolved body-class contract instead of introducing a second layout breakpoint.
@@ -150,6 +154,7 @@ SillyTavern-AstraProjecta/
 - Reintroducing a deprecated coss-based UI stack into this repository. The active standard here is Shadcn.
 - Untracked DOM takeover. Every bridge must be reversible, documented, and owned by a clear module.
 - Expanding `src/index.js` into long-term feature architecture.
+- Adding test-only `documentRef`, `windowRef`, `getContext`, `fetchImpl`, `storage`, or clock parameters to public production exports without a store/cache or documented integration-boundary reason.
 - Editing upstream shadcn component sources under `src/components/ui/shadcn` without prior approval.
 - Mixing AstraProjecta-specific customizations back into upstream shadcn component files.
 - Decorative looping animation, ambient motion, or always-on animated polish that is not tied to a transient loading or user-triggered state change.
