@@ -11,9 +11,13 @@ import type {
 	ChatCatalogStatus,
 } from "@/packages/core/st/chat-catalog";
 import {
+	asTrimmedIdentifier,
+	asTrimmedString,
 	type EventSourceLike,
 	type EventTypesLike,
 	isRecord,
+	normalizeChatId,
+	readContextSafe,
 	resolveEventTypes,
 } from "@/packages/core/st/shared";
 import {
@@ -127,21 +131,6 @@ export const CURRENT_CHAT_CATALOG_CACHE_KEY_PREFIX =
 export const CURRENT_CHAT_CATALOG_CACHE_STALE_MS = 5 * 60 * 1000;
 
 const JSONL_EXTENSION_PATTERN = /\.jsonl$/i;
-function asTrimmedString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
-}
-
-function asTrimmedIdentifier(value: unknown): string {
-	if (typeof value === "string") {
-		return value.trim();
-	}
-
-	if (typeof value === "number" && Number.isFinite(value)) {
-		return String(value);
-	}
-
-	return "";
-}
 
 function asNullableInteger(value: unknown): number | null {
 	if (typeof value === "number" && Number.isInteger(value)) {
@@ -156,10 +145,6 @@ function asNullableInteger(value: unknown): number | null {
 	return null;
 }
 
-function normalizeChatId(value: unknown): string {
-	return asTrimmedString(value).replace(JSONL_EXTENSION_PATTERN, "");
-}
-
 function normalizeFileName(value: unknown, chatId: string): string {
 	const fileName = asTrimmedString(value);
 	if (!fileName) {
@@ -169,19 +154,6 @@ function normalizeFileName(value: unknown, chatId: string): string {
 	return JSONL_EXTENSION_PATTERN.test(fileName)
 		? fileName
 		: `${fileName}.jsonl`;
-}
-
-function readContextSafe(
-	getContext = getStContext,
-): StCurrentChatCatalogContextLike | null {
-	try {
-		const context = getContext();
-		return isRecord(context)
-			? (context as StCurrentChatCatalogContextLike)
-			: null;
-	} catch {
-		return null;
-	}
 }
 
 function resolveStorage(storage?: Storage | null): Storage | null {
@@ -627,7 +599,7 @@ function normalizeEntriesForEntity(
 
 export function normalizeCurrentChatCatalogEntries(
 	payload: unknown,
-	context = readContextSafe(),
+	context = readContextSafe<StCurrentChatCatalogContextLike>(),
 ): ChatCatalogEntry[] {
 	return normalizeEntriesForEntity(payload, resolveActiveEntity(context));
 }
@@ -948,7 +920,8 @@ function createEntityChatCatalogStore({
 		listener: Listener;
 	}> = [];
 
-	const initialContext = readContextSafe();
+	const initialContext =
+		readContextSafe<StCurrentChatCatalogContextLike>();
 	const initialEntity = resolveEntity(initialContext);
 	const initialCache = initialEntity
 		? readCache({
@@ -1004,7 +977,7 @@ function createEntityChatCatalogStore({
 	}
 
 	function syncEventListeners() {
-		const context = readContextSafe();
+		const context = readContextSafe<StCurrentChatCatalogContextLike>();
 		const nextEventSource =
 			context && isRecord(context.eventSource)
 				? (context.eventSource as EventSourceLike)
@@ -1043,7 +1016,9 @@ function createEntityChatCatalogStore({
 				entity,
 				fetchImpl,
 			});
-			const currentEntity = resolveEntity(readContextSafe());
+			const currentEntity = resolveEntity(
+				readContextSafe<StCurrentChatCatalogContextLike>(),
+			);
 			if (
 				disposed ||
 				activeRequestToken !== requestToken ||
@@ -1086,7 +1061,7 @@ function createEntityChatCatalogStore({
 			return;
 		}
 
-		const context = readContextSafe();
+		const context = readContextSafe<StCurrentChatCatalogContextLike>();
 		const entity = resolveEntity(context);
 		requestToken += 1;
 

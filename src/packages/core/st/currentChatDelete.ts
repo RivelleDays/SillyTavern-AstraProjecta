@@ -1,6 +1,11 @@
 import { getStContext } from "@/packages/core/st/context";
 import { normalizeChatFileName } from "@/packages/core/st/currentChatRename";
-import { isRecord, resolveEventTypes } from "@/packages/core/st/shared";
+import {
+	asTrimmedIdentifier,
+	asTrimmedString,
+	isRecord,
+	resolveEventTypes,
+} from "@/packages/core/st/shared";
 import { parseStTimestampToMs } from "@/packages/core/st/timestamps";
 
 type FetchLike = typeof fetch;
@@ -64,26 +69,6 @@ export type DeleteCurrentChatResult =
 				| "invalid-payload"
 				| "replacement-failed";
 	  };
-
-function asTrimmedString(value: unknown): string {
-	if (typeof value !== "string") {
-		return "";
-	}
-
-	return value.trim();
-}
-
-function asTrimmedIdentifier(value: unknown): string {
-	if (typeof value === "string") {
-		return value.trim();
-	}
-
-	if (typeof value === "number" && Number.isFinite(value)) {
-		return String(value);
-	}
-
-	return "";
-}
 
 function asNullableInteger(value: unknown): number | null {
 	if (typeof value === "number" && Number.isInteger(value)) {

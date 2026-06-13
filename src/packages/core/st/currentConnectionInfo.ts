@@ -1,5 +1,6 @@
 import { getStContext } from "@/packages/core/st/context";
 import {
+	asTrimmedString,
 	type EventSourceLike,
 	type EventTypesLike,
 	isRecord,
@@ -90,10 +91,6 @@ export interface CurrentConnectionInfoStore {
 	getSnapshot(): CurrentConnectionInfoSnapshot;
 	refresh(): void;
 	subscribe(listener: Listener): () => void;
-}
-
-function asTrimmedString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
 }
 
 function resolveContextSafe(): StContextLike | null {

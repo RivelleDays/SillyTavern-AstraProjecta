@@ -1,6 +1,6 @@
 import type { ChatMessageRevisionHistoryItem } from "@/packages/core/st/chatMessageRevisionHistory";
 import { getStContext } from "@/packages/core/st/context";
-import { isRecord } from "@/packages/core/st/shared";
+import { asTrimmedString, isRecord } from "@/packages/core/st/shared";
 import {
 	resolveMessageModelIconKey,
 	resolveMessageModelLabel,
@@ -35,10 +35,6 @@ export function resolveContextSafe(): MessageActionsContextLike | null {
 	} catch {
 		return null;
 	}
-}
-
-function asTrimmedString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
 }
 
 function asChatMessage(value: unknown): MessageActionsChatMessageLike | null {

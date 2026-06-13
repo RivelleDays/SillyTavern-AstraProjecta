@@ -1,3 +1,5 @@
+import { getStContext } from "@/packages/core/st/context";
+
 export type EventSourceLike = {
 	emit?(event: string, ...args: unknown[]): void | Promise<void>;
 	on(
@@ -61,8 +63,53 @@ export const queueMicrotaskSafe =
 		? queueMicrotask
 		: (callback: () => void) => Promise.resolve().then(callback);
 
+const JSONL_EXTENSION_PATTERN = /\.jsonl$/i;
+
+export function asTrimmedString(value: unknown): string {
+	return typeof value === "string" ? value.trim() : "";
+}
+
+export function asTrimmedIdentifier(value: unknown): string {
+	if (typeof value === "string") {
+		return value.trim();
+	}
+
+	if (typeof value === "number" && Number.isFinite(value)) {
+		return String(value);
+	}
+
+	return "";
+}
+
+export function asTrimmedPrimitiveString(value: unknown): string {
+	if (
+		typeof value === "boolean" ||
+		typeof value === "number" ||
+		typeof value === "string"
+	) {
+		return String(value).trim();
+	}
+
+	return "";
+}
+
 export function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function normalizeChatId(value: unknown): string {
+	return asTrimmedString(value).replace(JSONL_EXTENSION_PATTERN, "");
+}
+
+export function readContextSafe<
+	TContext extends Record<string, unknown> = Record<string, unknown>,
+>(getContext: () => unknown = getStContext): TContext | null {
+	try {
+		const context = getContext();
+		return isRecord(context) ? (context as TContext) : null;
+	} catch {
+		return null;
+	}
 }
 
 export function resolveEventTypes(

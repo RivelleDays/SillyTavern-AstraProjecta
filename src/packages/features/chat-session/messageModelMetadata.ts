@@ -1,6 +1,4 @@
-function asTrimmedString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
-}
+import { asTrimmedString } from "@/packages/core/st/shared";
 
 export interface MessageModelLabelSources {
 	iconTitle?: unknown;

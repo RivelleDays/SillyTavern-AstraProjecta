@@ -1,6 +1,10 @@
 import { getStContext } from "@/packages/core/st/context";
 import { translateAstra } from "@/packages/core/i18n";
 import {
+	asTrimmedString,
+	isRecord,
+} from "@/packages/core/st/shared";
+import {
 	formatStAbsoluteTimestamp,
 	formatStTimestampDateDivider,
 	formatStTimestampTimeOnly,
@@ -200,14 +204,6 @@ function createMetadataItem(
 	item.className = META_ITEM_CLASS;
 	item.appendChild(metadataElement);
 	return item;
-}
-
-function asTrimmedString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null;
 }
 
 function isEventSourceLike(value: unknown): value is EventSourceLike {

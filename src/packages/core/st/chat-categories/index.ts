@@ -1,5 +1,10 @@
 import { getStContext } from "@/packages/core/st/context";
-import { isRecord } from "@/packages/core/st/shared";
+import {
+	asTrimmedIdentifier,
+	asTrimmedString,
+	isRecord,
+	readContextSafe,
+} from "@/packages/core/st/shared";
 
 type Listener = () => void;
 
@@ -157,22 +162,6 @@ function createDefaultId(): string {
 	return `cat_${Date.now().toString(36)}_${Math.random()
 		.toString(36)
 		.slice(2, 8)}`;
-}
-
-function asTrimmedString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
-}
-
-function asTrimmedIdentifier(value: unknown): string {
-	if (typeof value === "string") {
-		return value.trim();
-	}
-
-	if (typeof value === "number" && Number.isFinite(value)) {
-		return String(value);
-	}
-
-	return "";
 }
 
 function countCodePoints(value: string): number {
@@ -536,19 +525,6 @@ function collectChatKeysByCategory(
 	return result;
 }
 
-function readContextSafe(
-	getContext = getStContext,
-): StChatCategoriesContextLike | null {
-	try {
-		const context = getContext();
-		return isRecord(context)
-			? (context as StChatCategoriesContextLike)
-			: null;
-	} catch {
-		return null;
-	}
-}
-
 function resolveSettingsRoot(
 	context: StChatCategoriesContextLike | null,
 ): ChatCategoriesRoot | null {
@@ -638,7 +614,8 @@ export function createChatCategoryStore({
 		context: StChatCategoriesContextLike | null;
 		root: ChatCategoriesRoot;
 	} {
-		const context = readContextSafe(getContext);
+		const context =
+			readContextSafe<StChatCategoriesContextLike>(getContext);
 		const root = resolveSettingsRoot(context) ?? createEmptyRoot();
 		return { context, root };
 	}

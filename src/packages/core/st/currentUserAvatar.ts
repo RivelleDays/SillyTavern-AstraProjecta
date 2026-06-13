@@ -1,5 +1,6 @@
 import { getStContext } from "@/packages/core/st/context";
 import {
+	asTrimmedString,
 	type EventSourceLike,
 	type EventTypesLike,
 	isRecord,
@@ -72,14 +73,6 @@ export interface CurrentUserAvatarStore {
 	getSnapshot(): CurrentUserAvatarSnapshot;
 	refresh(): void;
 	subscribe(listener: Listener): () => void;
-}
-
-function asTrimmedString(value: unknown): string {
-	if (typeof value !== "string") {
-		return "";
-	}
-
-	return value.trim();
 }
 
 function readSelectedPersonaId(documentRef: Document): string {

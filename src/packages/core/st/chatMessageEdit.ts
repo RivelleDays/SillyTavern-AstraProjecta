@@ -1,5 +1,6 @@
 import { getStContext } from "@/packages/core/st/context";
 import {
+	asTrimmedString,
 	type EventSourceLike,
 	type EventTypesLike,
 	isRecord,
@@ -104,10 +105,6 @@ function resolveContextSafe(): StContextLike | null {
 
 function asChatMessage(value: unknown): ChatMessageEditLike | null {
 	return isRecord(value) ? (value as ChatMessageEditLike) : null;
-}
-
-function asTrimmedString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
 }
 
 function isValidMessageId(chat: unknown[], messageId: number): boolean {

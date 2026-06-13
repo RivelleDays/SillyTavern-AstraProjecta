@@ -7,6 +7,7 @@ import {
 	readRevisionRoots,
 } from "@/packages/core/st/chat-message-revisions/storage";
 import {
+	asTrimmedString,
 	type EventSourceLike,
 	type EventTypesLike,
 	isRecord,
@@ -76,10 +77,6 @@ function resolveContextSafe(): StContextLike | null {
 
 function asChatMessage(value: unknown): ChatMessageRevisionHistoryLike | null {
 	return isRecord(value) ? (value as ChatMessageRevisionHistoryLike) : null;
-}
-
-function asTrimmedString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
 }
 
 function clampIndex(index: number, total: number): number {

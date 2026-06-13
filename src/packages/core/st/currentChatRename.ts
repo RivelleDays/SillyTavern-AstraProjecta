@@ -1,5 +1,5 @@
 import { getStContext } from "@/packages/core/st/context";
-import { isRecord } from "@/packages/core/st/shared";
+import { isRecord, normalizeChatId } from "@/packages/core/st/shared";
 
 type StRenameContextLike = Record<string, unknown> & {
 	renameChat?: unknown;
@@ -19,10 +19,8 @@ export type RenameCurrentChatResult =
 			reason: "api-unavailable" | "invalid-name" | "rename-failed";
 	  };
 
-const JSONL_EXTENSION_PATTERN = /\.jsonl$/i;
-
 export function normalizeChatFileName(value: string): string {
-	return value.trim().replace(JSONL_EXTENSION_PATTERN, "");
+	return normalizeChatId(value);
 }
 
 function readRenameChatApi():

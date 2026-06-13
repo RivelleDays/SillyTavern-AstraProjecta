@@ -1,5 +1,6 @@
 import { getStContext } from "@/packages/core/st/context";
 import {
+	asTrimmedPrimitiveString as asTrimmedString,
 	type EventSourceLike,
 	isRecord,
 	queueMicrotaskSafe,
@@ -147,18 +148,6 @@ const TEXT_COMPLETION_PROFILE_COMMANDS = [
 	"secret-id",
 	"regex-preset",
 ] as const;
-
-function asTrimmedString(value: unknown): string {
-	if (
-		typeof value === "boolean" ||
-		typeof value === "number" ||
-		typeof value === "string"
-	) {
-		return String(value).trim();
-	}
-
-	return "";
-}
 
 function resolveContextSafe(): StContextLike | null {
 	try {

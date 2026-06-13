@@ -1,4 +1,4 @@
-import { isRecord } from "@/packages/core/st/shared";
+import { asTrimmedString, isRecord } from "@/packages/core/st/shared";
 
 export type ChatAvatarCharacterLike = Record<string, unknown> & {
 	avatar?: unknown;
@@ -49,10 +49,6 @@ const GROUP_DEFAULT_AVATAR_PATTERNS = [
 	/^\/?img\/five\.png$/i,
 ] as const;
 const MAX_GROUP_AVATAR_URLS = 4;
-
-function asTrimmedString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
-}
 
 export function normalizeImageUrl(value: unknown): string {
 	const trimmed = asTrimmedString(value);

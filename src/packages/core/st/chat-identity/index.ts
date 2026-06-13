@@ -9,6 +9,7 @@ import {
 } from "@/packages/core/st/chat-avatar";
 import { getStContext } from "@/packages/core/st/context";
 import {
+	asTrimmedString,
 	type EventSourceLike,
 	type EventTypesLike,
 	isRecord,
@@ -70,14 +71,6 @@ export interface CurrentChatIdentityStore {
 	getSnapshot(): CurrentChatIdentitySnapshot;
 	refresh(): void;
 	subscribe(listener: Listener): () => void;
-}
-
-function asTrimmedString(value: unknown): string {
-	if (typeof value !== "string") {
-		return "";
-	}
-
-	return value.trim();
 }
 
 function asNullableInteger(value: unknown): number | null {

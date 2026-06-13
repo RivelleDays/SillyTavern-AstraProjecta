@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import { getStContext } from "@/packages/core/st/context";
+import { isRecord } from "@/packages/core/st/shared";
 import { NATIVE_OPTIONS_ROOT_ID } from "@/packages/features/chat-session/send-form/contracts/dom";
 import type {
 	MobileSendFormMenuActionDescriptor,
@@ -229,10 +230,6 @@ const MENU_ACTIONS: readonly MenuActionSeed[] = [
 		variant: "destructive",
 	},
 ] as const;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 function getContextSafe(): StContextLike | null {
 	try {

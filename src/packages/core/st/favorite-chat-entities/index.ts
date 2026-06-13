@@ -11,10 +11,13 @@ import type {
 } from "@/packages/core/st/chat-catalog";
 import { getStContext } from "@/packages/core/st/context";
 import {
+	asTrimmedIdentifier,
+	asTrimmedString,
 	type EventSourceLike,
 	type EventTypesLike,
 	isRecord,
 	queueMicrotaskSafe,
+	readContextSafe,
 	resolveEventTypes,
 } from "@/packages/core/st/shared";
 
@@ -120,22 +123,6 @@ export interface CreateFavoriteChatEntitiesStoreOptions {
 	now?: () => number;
 }
 
-function asTrimmedString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
-}
-
-function asTrimmedIdentifier(value: unknown): string {
-	if (typeof value === "string") {
-		return value.trim();
-	}
-
-	if (typeof value === "number" && Number.isFinite(value)) {
-		return String(value);
-	}
-
-	return "";
-}
-
 function asNullableInteger(value: unknown): number | null {
 	if (typeof value === "number" && Number.isInteger(value)) {
 		return value;
@@ -213,19 +200,6 @@ function normalizeLimit(value: number | undefined): number {
 	}
 
 	return Math.floor(value);
-}
-
-function readContextSafe(
-	getContext = getStContext,
-): StFavoriteChatEntitiesContextLike | null {
-	try {
-		const context = getContext();
-		return isRecord(context)
-			? (context as StFavoriteChatEntitiesContextLike)
-			: null;
-	} catch {
-		return null;
-	}
 }
 
 function collectCharacters(context: StFavoriteChatEntitiesContextLike): Array<{
@@ -548,7 +522,7 @@ export function readFavoriteChatEntitiesSnapshot({
 	const resolvedLimit = normalizeLimit(limit);
 	const context =
 		providedContext === undefined
-			? readContextSafe(getContext)
+			? readContextSafe<StFavoriteChatEntitiesContextLike>(getContext)
 			: providedContext;
 	const statsByEntity = aggregateChatCatalogStats(chatCatalogEntries);
 	const currentScopeValue = resolveCurrentScopeValue(context);
@@ -586,7 +560,8 @@ export function createFavoriteChatEntitiesStore({
 	now = Date.now,
 }: CreateFavoriteChatEntitiesStoreOptions = {}): FavoriteChatEntitiesStore {
 	const listeners = new Set<Listener>();
-	const initialContext = readContextSafe();
+	const initialContext =
+		readContextSafe<StFavoriteChatEntitiesContextLike>();
 	const eventSource =
 		initialContext && isRecord(initialContext.eventSource)
 			? (initialContext.eventSource as EventSourceLike)

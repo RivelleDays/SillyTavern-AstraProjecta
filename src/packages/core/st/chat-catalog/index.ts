@@ -4,9 +4,13 @@ import {
 } from "@/packages/core/st/chat-avatar";
 import { getStContext } from "@/packages/core/st/context";
 import {
+	asTrimmedIdentifier,
+	asTrimmedString,
 	type EventSourceLike,
 	type EventTypesLike,
 	isRecord,
+	normalizeChatId,
+	readContextSafe,
 	resolveEventTypes,
 } from "@/packages/core/st/shared";
 import {
@@ -132,7 +136,6 @@ export const CHAT_CATALOG_CACHE_KEY =
 	"astra_projecta:astra-main-interface:global-chat-catalog:v1";
 export const CHAT_CATALOG_CACHE_STALE_MS = 5 * 60 * 1000;
 
-const JSONL_EXTENSION_PATTERN = /\.jsonl$/i;
 const TARGET_FIRST_CONTEXT_WAIT_ATTEMPTS = 40;
 const TARGET_FIRST_CONTEXT_WAIT_MS = 25;
 
@@ -272,22 +275,6 @@ function createEmptySnapshot(): ChatCatalogSnapshot {
 	};
 }
 
-function asTrimmedString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
-}
-
-function asTrimmedIdentifier(value: unknown): string {
-	if (typeof value === "string") {
-		return value.trim();
-	}
-
-	if (typeof value === "number" && Number.isFinite(value)) {
-		return String(value);
-	}
-
-	return "";
-}
-
 function asNullableInteger(value: unknown): number | null {
 	if (typeof value === "number" && Number.isInteger(value)) {
 		return value;
@@ -301,11 +288,6 @@ function asNullableInteger(value: unknown): number | null {
 	return null;
 }
 
-function normalizeChatId(value: unknown): string {
-	const trimmed = asTrimmedString(value);
-	return trimmed.replace(JSONL_EXTENSION_PATTERN, "");
-}
-
 function normalizeChatActionName(value: unknown): string {
 	return normalizeChatId(value);
 }
@@ -313,17 +295,6 @@ function normalizeChatActionName(value: unknown): string {
 function normalizeFileName(value: unknown, chatId: string): string {
 	const fileName = asTrimmedString(value);
 	return fileName || (chatId ? `${chatId}.jsonl` : "");
-}
-
-function readContextSafe(
-	getContext = getStContext,
-): StChatCatalogContextLike | null {
-	try {
-		const context = getContext();
-		return isRecord(context) ? (context as StChatCatalogContextLike) : null;
-	} catch {
-		return null;
-	}
 }
 
 function waitForNextContextProbe(): Promise<void> {
@@ -341,7 +312,7 @@ async function waitForContextMatch(
 		attempt < TARGET_FIRST_CONTEXT_WAIT_ATTEMPTS;
 		attempt += 1
 	) {
-		const context = readContextSafe(getContext);
+		const context = readContextSafe<StChatCatalogContextLike>(getContext);
 		if (context && isMatch(context)) {
 			return context;
 		}
@@ -1079,7 +1050,7 @@ function isCurrentChatCatalogEntry(
 
 function markCurrentChatCatalogEntries(
 	entries: ChatCatalogEntry[],
-	context = readContextSafe(),
+	context = readContextSafe<StChatCatalogContextLike>(),
 ): ChatCatalogEntry[] {
 	return entries.map((entry) => {
 		const isCurrent = context
@@ -1239,7 +1210,8 @@ async function activateGroupThroughPublicApi(
 		};
 	}
 
-	const nextContext = readContextSafe(getContext);
+	const nextContext =
+		readContextSafe<StChatCatalogContextLike>(getContext);
 	if (!nextContext || asTrimmedIdentifier(nextContext.groupId) !== groupId) {
 		return {
 			ok: false,
@@ -1339,7 +1311,7 @@ function buildRefreshEventNames(eventTypes: EventTypesLike): string[] {
 
 export function normalizeRecentChatCatalogEntries(
 	payload: unknown,
-	context = readContextSafe(),
+	context = readContextSafe<StChatCatalogContextLike>(),
 ): ChatCatalogEntry[] {
 	if (!Array.isArray(payload) || !context) {
 		return [];
@@ -1506,7 +1478,7 @@ async function fetchRecentChatCatalogEntries({
 }: {
 	fetchImpl: FetchLike;
 }): Promise<ChatCatalogEntry[]> {
-	const context = readContextSafe();
+	const context = readContextSafe<StChatCatalogContextLike>();
 	let response: Response;
 
 	try {
@@ -1587,7 +1559,7 @@ export function createChatCatalogStore({
 	}
 
 	function syncEventListeners() {
-		const context = readContextSafe();
+		const context = readContextSafe<StChatCatalogContextLike>();
 		const nextEventSource =
 			context && isRecord(context.eventSource)
 				? (context.eventSource as EventSourceLike)
@@ -1703,7 +1675,7 @@ export async function exportChatCatalogEntry(
 		getContext = getStContext,
 	}: ExportChatCatalogEntryOptions = {},
 ): Promise<ExportChatCatalogResult> {
-	const context = readContextSafe(getContext);
+	const context = readContextSafe<StChatCatalogContextLike>(getContext);
 	if (!context) {
 		return {
 			ok: false,
@@ -2035,7 +2007,7 @@ async function openCharacterChatInActiveContext(
 	const verifiedContext =
 		(await waitForContextMatch(getContext, (nextContext) =>
 			isActiveCharacterChatContext(nextContext, characterId, chatId),
-		)) ?? readContextSafe(getContext);
+		)) ?? readContextSafe<StChatCatalogContextLike>(getContext);
 
 	if (
 		!verifiedContext ||
@@ -2057,7 +2029,7 @@ export async function openChatCatalogEntry(
 	entry: ChatCatalogEntry,
 	{ getContext = getStContext }: OpenChatCatalogEntryOptions = {},
 ): Promise<OpenChatCatalogResult> {
-	const context = readContextSafe(getContext);
+	const context = readContextSafe<StChatCatalogContextLike>(getContext);
 	if (!context) {
 		return {
 			ok: false,

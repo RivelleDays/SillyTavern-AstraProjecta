@@ -1,9 +1,12 @@
 import { EXTENSION_LOG_PREFIX } from "@/packages/core/constants";
 import { getStContext } from "@/packages/core/st/context";
 import {
+	asTrimmedIdentifier,
+	asTrimmedString,
 	type EventSourceLike,
 	type EventTypesLike,
 	isRecord,
+	normalizeChatId,
 	queueMicrotaskSafe,
 	resolveEventTypes,
 } from "@/packages/core/st/shared";
@@ -90,7 +93,6 @@ const REMOTE_REFRESH_SHORT_DEBOUNCE_MS = 120;
 const REMOTE_REFRESH_LONG_DEBOUNCE_MS = 400;
 const BOOTSTRAP_RETRY_DELAYS_MS = [120, 400, 1200, 2400] as const;
 const REMOTE_RETRY_DELAYS_MS = [600, 1600, 4000] as const;
-const JSONL_EXTENSION_PATTERN = /\.jsonl$/i;
 
 export type CurrentChatInfoMetadataStatus =
 	| "idle"
@@ -146,26 +148,6 @@ function createEmptySnapshot({
 	};
 }
 
-function asTrimmedString(value: unknown): string {
-	if (typeof value !== "string") {
-		return "";
-	}
-
-	return value.trim();
-}
-
-function asTrimmedIdentifier(value: unknown): string {
-	if (typeof value === "string") {
-		return value.trim();
-	}
-
-	if (typeof value === "number" && Number.isFinite(value)) {
-		return String(value);
-	}
-
-	return "";
-}
-
 function asNullableInteger(value: unknown): number | null {
 	if (typeof value === "number" && Number.isInteger(value)) {
 		return value;
@@ -179,15 +161,6 @@ function asNullableInteger(value: unknown): number | null {
 	}
 
 	return null;
-}
-
-function normalizeChatId(value: unknown): string {
-	const trimmed = asTrimmedString(value);
-	if (!trimmed) {
-		return "";
-	}
-
-	return trimmed.replace(JSONL_EXTENSION_PATTERN, "");
 }
 
 function extractModelName(value: unknown): string {

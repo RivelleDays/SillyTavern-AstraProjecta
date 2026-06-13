@@ -6,6 +6,7 @@
 ## Owned Paths / Responsibilities
 
 - `context.ts` for safe `SillyTavern.getContext()` access.
+- `shared.ts` for reusable SillyTavern adapter helpers, including event-like shapes, safe context reads, record guards, string/id normalization, chat id normalization, and microtask scheduling.
 - Snapshot readers and stores for current-user avatar, current chat identity, shared chat avatar resolution, primary send action, quick shortcuts, message actions, and future chat-session adapters.
 - `current-chat-catalog/` owns the scoped chat catalog for the currently active character/group and explicit Astra-selected character/group scopes, including per-entity cache and `/api/chats/search` normalization.
 - `chat-categories/` owns extension-settings backed global and owner-scoped chat category persistence, membership maps, and chat key maintenance.
@@ -29,6 +30,17 @@
 - `favorite-chat-entities/` owns favorite character/group list derivation and may consume `chat-avatar`, `SillyTavern.getContext()`, and existing global `ChatCatalogEntry[]` data only.
 - Feature/UI code must not re-read `group.avatar_url`, manually compose group member thumbnails, or invent its own current-chat filename fallback chain.
 - Consumers should depend on the exported current-chat snapshot/store contract instead of rebuilding identity state locally.
+
+## Shared ST Helpers
+
+- Use `@/packages/core/st/shared` as the canonical implementation entrypoint for tiny reusable SillyTavern adapter helpers.
+- Import `asTrimmedString`, `asTrimmedIdentifier`, `asTrimmedPrimitiveString`, `isRecord`, `normalizeChatId`, and `readContextSafe` instead of redefining them in adapters or features.
+- Use `asTrimmedString` for string-only SillyTavern fields.
+- Use `asTrimmedIdentifier` only for identifiers that may be strings or finite numbers.
+- Use `asTrimmedPrimitiveString` only when an existing SillyTavern profile/settings surface intentionally serializes boolean, number, or string primitives.
+- Keep `normalizeChatId` for chat ids and `.jsonl` suffix normalization; keep compatibility wrappers such as `normalizeChatFileName` thin when another adapter already exports them.
+- When adding or renaming a canonical shared helper, update `shared.ts`, `shared.test.ts`, and `scripts/check-st-shared-helpers.mjs` together.
+- Run `npm run check:st-shared-helpers` after touching ST helpers or files that previously carried local copies of those helpers.
 
 ## SillyTavern Touchpoints
 
@@ -59,3 +71,10 @@
 - Treat `[swipeIndex]` paths as true original/root selection in user-facing apply flows when Astra or legacy root data exists; only fall back to mutable native swipe text for native swipe-only history. Treat deeper paths as Astra revision node selection. Undo flows may explicitly apply a root revision path without changing native swipe semantics.
 - Do not persist derived runtime pointers for revision history. Derive active state from each root's `active` path.
 - Reusable native drawer bridges must preserve the live source node, capture origin parent/sibling/class state before attach, keep `openDrawer` normalization scoped to the attached period only, and restore on close, replacement, or dispose.
+
+## Verification Checklist
+
+- Confirm `core` ST adapters still degrade to a fallback snapshot when ST context or anchors are missing.
+- Confirm `chat-avatar`, `chat-identity`, `favorite-chat-entities`, `current-chat-catalog`, and `chat-categories` still own their documented contracts.
+- Confirm feature/UI code does not rebuild current-chat identity, chat avatar, group collage, favorite entity, or chat category behavior locally.
+- Confirm reusable ST helper definitions remain centralized in `shared.ts`; run `npm run check:st-shared-helpers` when this boundary changes.
