@@ -685,9 +685,8 @@ describe("chat catalog adapter", () => {
 		revokeObjectUrlSpy.mockRestore();
 	});
 
-	test("renames character chat files through the lazy SillyTavern core module", async () => {
-		const renameGroupOrCharacterChat = vi.fn().mockResolvedValue(undefined);
-		const updateRemoteChatName = vi.fn().mockResolvedValue(undefined);
+	test("renames character chat files through the unstable internals bridge", async () => {
+		const renameChat = vi.fn().mockResolvedValue({ ok: true });
 
 		const result = await renameChatCatalogEntry(
 			createEntry({
@@ -698,26 +697,25 @@ describe("chat catalog adapter", () => {
 			}),
 			"chapter-2.jsonl",
 			{
-				loadCoreModule: vi.fn().mockResolvedValue({
-					renameGroupOrCharacterChat,
-					updateRemoteChatName,
-				}),
+				unstableInternals: {
+					deleteChat: vi.fn(),
+					renameChat,
+				},
 			},
 		);
 
 		expect(result).toEqual({ ok: true });
-		expect(renameGroupOrCharacterChat).toHaveBeenCalledWith({
-			characterId: "0",
-			groupId: undefined,
-			loader: false,
-			newFileName: "chapter-2",
-			oldFileName: "chapter-1",
+		expect(renameChat).toHaveBeenCalledWith({
+			characterId: 0,
+			entityId: "0",
+			kind: "character",
+			newName: "chapter-2",
+			oldName: "chapter-1",
 		});
-		expect(updateRemoteChatName).toHaveBeenCalledWith(0, "chapter-2");
 	});
 
-	test("renames group chat files through the lazy SillyTavern core module", async () => {
-		const renameGroupOrCharacterChat = vi.fn().mockResolvedValue(undefined);
+	test("renames group chat files through the unstable internals bridge", async () => {
+		const renameChat = vi.fn().mockResolvedValue({ ok: true });
 
 		const result = await renameChatCatalogEntry(
 			createEntry({
@@ -728,40 +726,43 @@ describe("chat catalog adapter", () => {
 			}),
 			"campfire-2",
 			{
-				loadCoreModule: vi.fn().mockResolvedValue({
-					renameGroupOrCharacterChat,
-				}),
+				unstableInternals: {
+					deleteChat: vi.fn(),
+					renameChat,
+				},
 			},
 		);
 
 		expect(result).toEqual({ ok: true });
-		expect(renameGroupOrCharacterChat).toHaveBeenCalledWith({
+		expect(renameChat).toHaveBeenCalledWith({
 			characterId: undefined,
-			groupId: "party",
-			loader: false,
-			newFileName: "campfire-2",
-			oldFileName: "campfire",
+			entityId: "party",
+			kind: "group",
+			newName: "campfire-2",
+			oldName: "campfire",
 		});
 	});
 
-	test("deletes character chat files through the lazy SillyTavern core module", async () => {
-		const deleteCharacterChatByName = vi.fn().mockResolvedValue(undefined);
+	test("deletes character chat files through the unstable internals bridge", async () => {
+		const deleteChat = vi.fn().mockResolvedValue({ ok: true });
 
 		const result = await deleteChatCatalogEntry(createEntry(), {
-			loadCoreModule: vi.fn().mockResolvedValue({
-				deleteCharacterChatByName,
-			}),
+			unstableInternals: {
+				deleteChat,
+				renameChat: vi.fn(),
+			},
 		});
 
 		expect(result).toEqual({ ok: true });
-		expect(deleteCharacterChatByName).toHaveBeenCalledWith(
-			"0",
-			"chapter-1",
-		);
+		expect(deleteChat).toHaveBeenCalledWith({
+			chatId: "chapter-1",
+			entityId: "0",
+			kind: "character",
+		});
 	});
 
-	test("deletes group chat files through the lazy SillyTavern group module", async () => {
-		const deleteGroupChatByName = vi.fn().mockResolvedValue(undefined);
+	test("deletes group chat files through the unstable internals bridge", async () => {
+		const deleteChat = vi.fn().mockResolvedValue({ ok: true });
 
 		const result = await deleteChatCatalogEntry(
 			createEntry({
@@ -771,14 +772,19 @@ describe("chat catalog adapter", () => {
 				kind: "group",
 			}),
 			{
-				loadGroupModule: vi.fn().mockResolvedValue({
-					deleteGroupChatByName,
-				}),
+				unstableInternals: {
+					deleteChat,
+					renameChat: vi.fn(),
+				},
 			},
 		);
 
 		expect(result).toEqual({ ok: true });
-		expect(deleteGroupChatByName).toHaveBeenCalledWith("party", "campfire");
+		expect(deleteChat).toHaveBeenCalledWith({
+			chatId: "campfire",
+			entityId: "party",
+			kind: "group",
+		});
 	});
 
 	test("returns typed failures for invalid chat rename and unavailable delete APIs", async () => {
@@ -790,7 +796,13 @@ describe("chat catalog adapter", () => {
 		});
 		await expect(
 			deleteChatCatalogEntry(createEntry(), {
-				loadCoreModule: vi.fn().mockResolvedValue({}),
+				unstableInternals: {
+					deleteChat: vi.fn().mockResolvedValue({
+						ok: false,
+						reason: "api-unavailable",
+					}),
+					renameChat: vi.fn(),
+				},
 			}),
 		).resolves.toEqual({
 			ok: false,
@@ -1044,6 +1056,50 @@ describe("chat catalog adapter", () => {
 		expect(saveSettingsDebounced).toHaveBeenCalled();
 	});
 
+	test("keeps waiting long enough for delayed native character activation to verify", async () => {
+		vi.useFakeTimers();
+		document.body.innerHTML =
+			'<button class="character_select" data-chid="0"></button>';
+		const characters = [
+			{
+				avatar: "hero.png",
+				chat: "chapter-old",
+				name: "Hero",
+			},
+		];
+		const contextRef: { current: Record<string, unknown> } = {
+			current: {
+				characterId: 2,
+				characters,
+				chatId: "other-chat",
+				groupId: null,
+				openCharacterChat: vi.fn().mockResolvedValue(undefined),
+				saveSettingsDebounced: vi.fn(),
+			},
+		};
+		document
+			.querySelector(".character_select")
+			?.addEventListener("click", () => {
+				setTimeout(() => {
+					contextRef.current = {
+						...contextRef.current,
+						characterId: 0,
+						chatId: characters[0].chat,
+						groupId: null,
+					};
+				}, 300);
+			});
+
+		const resultPromise = openChatCatalogEntry(createEntry(), {
+			getContext: () => contextRef.current,
+		});
+
+		await vi.advanceTimersByTimeAsync(300);
+
+		await expect(resultPromise).resolves.toEqual({ ok: true });
+		expect(characters[0].chat).toBe("chapter-1");
+	});
+
 	test("does not treat a matching character id as active while a group is selected", async () => {
 		document.body.innerHTML =
 			'<button class="character_select" data-chid="0"></button>';
@@ -1138,6 +1194,39 @@ describe("chat catalog adapter", () => {
 		expect(openCharacterChat).not.toHaveBeenCalled();
 		expect(characters[0].chat).toBe("chapter-1");
 		expect(saveSettingsDebounced).toHaveBeenCalled();
+	});
+
+	test("restores the character chat pointer when public fallback activation fails", async () => {
+		vi.useFakeTimers();
+		const characters = [
+			{
+				avatar: "hero.png",
+				chat: "chapter-old",
+				name: "Hero",
+			},
+		];
+		const executeSlashCommandsWithOptions = vi.fn().mockResolvedValue({
+			pipe: "Hero",
+		});
+
+		const resultPromise = openChatCatalogEntry(createEntry(), {
+			getContext: () => ({
+				characterId: 2,
+				characters,
+				chatId: "other-chat",
+				executeSlashCommandsWithOptions,
+				groupId: null,
+				openCharacterChat: vi.fn().mockResolvedValue(undefined),
+			}),
+		});
+
+		await vi.advanceTimersByTimeAsync(1_000);
+
+		await expect(resultPromise).resolves.toEqual({
+			ok: false,
+			reason: "open-failed",
+		});
+		expect(characters[0].chat).toBe("chapter-old");
 	});
 
 	test("fails inactive character activation instead of silently using non-persisting selection", async () => {
@@ -1260,6 +1349,43 @@ describe("chat catalog adapter", () => {
 		expect(contextRef.current.openGroupChat).not.toHaveBeenCalled();
 		expect(loadedChats).toEqual(["campfire"]);
 		expect(group.chat_id).toBe("campfire");
+	});
+
+	test("restores the group chat pointer when native group activation times out", async () => {
+		vi.useFakeTimers();
+		document.body.innerHTML =
+			'<button class="group_select" data-grid="party"></button>';
+		const group = {
+			chat_id: "party-home",
+			id: "party",
+			name: "Party",
+		};
+
+		const resultPromise = openChatCatalogEntry(
+			createEntry({
+				chatId: "campfire",
+				entityId: "party",
+				entityName: "Party",
+				key: "group:party:campfire",
+				kind: "group",
+			}),
+			{
+				getContext: () => ({
+					chatId: "other-chat",
+					groupId: null,
+					groups: [group],
+					openGroupChat: vi.fn().mockResolvedValue(undefined),
+				}),
+			},
+		);
+
+		await vi.advanceTimersByTimeAsync(1_000);
+
+		await expect(resultPromise).resolves.toEqual({
+			ok: false,
+			reason: "open-failed",
+		});
+		expect(group.chat_id).toBe("party-home");
 	});
 
 	test("skips opening a group file when public activation lands on the requested chat", async () => {

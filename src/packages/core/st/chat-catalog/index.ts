@@ -13,6 +13,10 @@ import {
 	formatStAbsoluteTimestamp,
 	parseStTimestampToMs,
 } from "@/packages/core/st/timestamps";
+import {
+	defaultUnstableChatCatalogInternals,
+	type ChatCatalogUnstableStInternals,
+} from "@/packages/core/st/chat-catalog/unstable-st-internals";
 
 type Listener = () => void;
 type FetchLike = typeof fetch;
@@ -116,26 +120,12 @@ type ExportChatCatalogEntryOptions = {
 	getContext?: () => unknown;
 };
 
-type ChatCatalogCoreModule = Record<string, unknown> & {
-	deleteCharacterChatByName?: unknown;
-	renameGroupOrCharacterChat?: unknown;
-	updateRemoteChatName?: unknown;
-};
-
-type ChatCatalogGroupModule = Record<string, unknown> & {
-	deleteGroupChatByName?: unknown;
-};
-
-type ChatCatalogCoreModuleLoader = () => Promise<ChatCatalogCoreModule>;
-type ChatCatalogGroupModuleLoader = () => Promise<ChatCatalogGroupModule>;
-
 type RenameChatCatalogEntryOptions = {
-	loadCoreModule?: ChatCatalogCoreModuleLoader;
+	unstableInternals?: ChatCatalogUnstableStInternals;
 };
 
 type DeleteChatCatalogEntryOptions = {
-	loadCoreModule?: ChatCatalogCoreModuleLoader;
-	loadGroupModule?: ChatCatalogGroupModuleLoader;
+	unstableInternals?: ChatCatalogUnstableStInternals;
 };
 
 export const CHAT_CATALOG_CACHE_KEY =
@@ -143,13 +133,8 @@ export const CHAT_CATALOG_CACHE_KEY =
 export const CHAT_CATALOG_CACHE_STALE_MS = 5 * 60 * 1000;
 
 const JSONL_EXTENSION_PATTERN = /\.jsonl$/i;
-const TARGET_FIRST_CONTEXT_WAIT_ATTEMPTS = 10;
+const TARGET_FIRST_CONTEXT_WAIT_ATTEMPTS = 40;
 const TARGET_FIRST_CONTEXT_WAIT_MS = 25;
-const CORE_SCRIPT_MODULE_PATH = "/script.js";
-const GROUP_CHATS_MODULE_PATH = "/scripts/group-chats.js";
-
-let coreModulePromise: Promise<ChatCatalogCoreModule> | null = null;
-let groupModulePromise: Promise<ChatCatalogGroupModule> | null = null;
 
 export type ChatCatalogEntryKind = "character" | "group";
 
@@ -323,22 +308,6 @@ function normalizeChatId(value: unknown): string {
 
 function normalizeChatActionName(value: unknown): string {
 	return normalizeChatId(value);
-}
-
-function loadDefaultCoreModule(): Promise<ChatCatalogCoreModule> {
-	coreModulePromise ??= import(
-		/* webpackIgnore: true */
-		CORE_SCRIPT_MODULE_PATH
-	) as Promise<ChatCatalogCoreModule>;
-	return coreModulePromise;
-}
-
-function loadDefaultGroupModule(): Promise<ChatCatalogGroupModule> {
-	groupModulePromise ??= import(
-		/* webpackIgnore: true */
-		GROUP_CHATS_MODULE_PATH
-	) as Promise<ChatCatalogGroupModule>;
-	return groupModulePromise;
 }
 
 function normalizeFileName(value: unknown, chatId: string): string {
@@ -1315,34 +1284,40 @@ async function activateGroupThroughNativeRowTargetFirst(
 	}
 
 	const previousChatId = group.chat_id;
+	let activatedGroup = false;
+
 	try {
 		group.chat_id = chatId;
 		triggerNativeGroupSelectElement(groupElement);
+
+		const activeContext = await waitForContextMatch(
+			getContext,
+			(nextContext) =>
+				asTrimmedIdentifier(nextContext.groupId) === groupId &&
+				resolveCurrentChatId(nextContext) === chatId,
+		);
+		if (!activeContext) {
+			return {
+				ok: false,
+				reason: "open-failed",
+			};
+		}
+
+		activatedGroup = true;
+		return {
+			context: activeContext,
+			ok: true,
+		};
 	} catch {
-		group.chat_id = previousChatId;
 		return {
 			ok: false,
 			reason: "open-failed",
 		};
+	} finally {
+		if (!activatedGroup) {
+			group.chat_id = previousChatId;
+		}
 	}
-
-	const activeContext = await waitForContextMatch(
-		getContext,
-		(nextContext) =>
-			asTrimmedIdentifier(nextContext.groupId) === groupId &&
-			resolveCurrentChatId(nextContext) === chatId,
-	);
-	if (!activeContext) {
-		return {
-			ok: false,
-			reason: "open-failed",
-		};
-	}
-
-	return {
-		context: activeContext,
-		ok: true,
-	};
 }
 
 function buildRefreshEventNames(eventTypes: EventTypesLike): string[] {
@@ -1814,7 +1789,7 @@ export async function renameChatCatalogEntry(
 	entry: ChatCatalogEntry,
 	newFileName: string,
 	{
-		loadCoreModule = loadDefaultCoreModule,
+		unstableInternals = defaultUnstableChatCatalogInternals,
 	}: RenameChatCatalogEntryOptions = {},
 ): Promise<RenameChatCatalogResult> {
 	const oldName = normalizeChatActionName(entry.chatId);
@@ -1834,63 +1809,26 @@ export async function renameChatCatalogEntry(
 		};
 	}
 
-	let coreModule: ChatCatalogCoreModule;
-	try {
-		coreModule = await loadCoreModule();
-	} catch {
-		return {
-			ok: false,
-			reason: "api-unavailable",
-		};
-	}
+	const characterId =
+		entry.kind === "group"
+			? undefined
+			: typeof entry.characterId === "number"
+				? entry.characterId
+				: (asNullableInteger(entityId) ?? entityId);
 
-	const renameGroupOrCharacterChat = coreModule.renameGroupOrCharacterChat;
-	if (typeof renameGroupOrCharacterChat !== "function") {
-		return {
-			ok: false,
-			reason: "api-unavailable",
-		};
-	}
-
-	try {
-		await renameGroupOrCharacterChat({
-			characterId: entry.kind === "group" ? undefined : entityId,
-			groupId: entry.kind === "group" ? entityId : undefined,
-			loader: false,
-			newFileName: nextName,
-			oldFileName: oldName,
-		});
-
-		if (
-			entry.kind !== "group" &&
-			typeof coreModule.updateRemoteChatName === "function"
-		) {
-			const characterId =
-				typeof entry.characterId === "number"
-					? entry.characterId
-					: asNullableInteger(entityId);
-			await coreModule.updateRemoteChatName(
-				characterId ?? entityId,
-				nextName,
-			);
-		}
-
-		return {
-			ok: true,
-		};
-	} catch {
-		return {
-			ok: false,
-			reason: "rename-failed",
-		};
-	}
+	return unstableInternals.renameChat({
+		characterId,
+		entityId,
+		kind: entry.kind,
+		newName: nextName,
+		oldName,
+	});
 }
 
 export async function deleteChatCatalogEntry(
 	entry: ChatCatalogEntry,
 	{
-		loadCoreModule = loadDefaultCoreModule,
-		loadGroupModule = loadDefaultGroupModule,
+		unstableInternals = defaultUnstableChatCatalogInternals,
 	}: DeleteChatCatalogEntryOptions = {},
 ): Promise<DeleteChatCatalogResult> {
 	const chatId = normalizeChatActionName(entry.chatId);
@@ -1902,42 +1840,11 @@ export async function deleteChatCatalogEntry(
 		};
 	}
 
-	try {
-		if (entry.kind === "group") {
-			const groupModule = await loadGroupModule();
-			const deleteGroupChatByName = groupModule.deleteGroupChatByName;
-			if (typeof deleteGroupChatByName !== "function") {
-				return {
-					ok: false,
-					reason: "api-unavailable",
-				};
-			}
-
-			await deleteGroupChatByName(entityId, chatId);
-			return {
-				ok: true,
-			};
-		}
-
-		const coreModule = await loadCoreModule();
-		const deleteCharacterChatByName = coreModule.deleteCharacterChatByName;
-		if (typeof deleteCharacterChatByName !== "function") {
-			return {
-				ok: false,
-				reason: "api-unavailable",
-			};
-		}
-
-		await deleteCharacterChatByName(entityId, chatId);
-		return {
-			ok: true,
-		};
-	} catch {
-		return {
-			ok: false,
-			reason: "delete-failed",
-		};
-	}
+	return unstableInternals.deleteChat({
+		chatId,
+		entityId,
+		kind: entry.kind,
+	});
 }
 
 async function openInactiveCharacterChatTargetFirst(

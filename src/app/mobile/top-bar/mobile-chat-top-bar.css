@@ -189,16 +189,15 @@ body.astra-projecta-mobile-layout {
 }
 
 .mobile-chat-top-bar__name {
-	display: block;
-	width: 100%;
-	max-width: 100%;
-	flex: 1 1 auto;
-	min-width: 0;
-	overflow: hidden;
-	color: var(--color-base);
-	font-size: var(--text-base);
-	font-weight: var(--font-weight-semibold);
-	/* line-height: 1.25; */
-	text-overflow: ellipsis;
-	white-space: nowrap;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-base);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

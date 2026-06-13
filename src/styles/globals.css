@@ -538,8 +538,8 @@ body.astra-projecta-base-ui-body {
 	--safe-bottom: calc(env(safe-area-inset-bottom, 0px) / 2);
 	--astra-mobile-visual-viewport-bottom: 100vh;
 	--astra-mobile-safe-bottom-effective: var(--safe-bottom);
-	--astra-mobile-glass-blur: 18px;
-	--astra-mobile-glass-saturate: 1.18;
+	--astra-mobile-glass-blur: 8px;
+	--astra-mobile-glass-saturate: 1.2;
 	--astra-mobile-glass-top-fade-size: 36px;
 	--astra-mobile-glass-bottom-fade-size: 36px;
 	--astra-mobile-glass-top-surface: color-mix(
