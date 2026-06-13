@@ -6,7 +6,7 @@
 ## SillyTavern Touchpoints
 
 - Source node: native `#sheld`.
-- Target host: Astra-owned `#mobile-chat-top-bar-shell`, with `#mobile-chat-top-bar-host` before `#sheld`.
+- Target host: Astra-owned `#mobile-chat-session-shell`, with `#mobile-chat-top-bar-host` before `#sheld`.
 - Restore path: unmount must move `#sheld` back to its original parent and next sibling before removing the shell.
 - Lifecycle trigger: `createMobileChatSessionRuntime` mounts this feature only while layout mode resolves to mobile.
 - Fallback behavior: missing `#sheld`, pre-existing shell, or already-wrapped `#sheld` must no-op cleanly.

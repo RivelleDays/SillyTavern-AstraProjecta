@@ -7,13 +7,13 @@ function readSource(relativePath: string): string {
 	return readFileSync(resolve(process.cwd(), relativePath), "utf8");
 }
 
-describe("left-controls default drawer contract", () => {
+describe("mobile chat input tool drawer contract", () => {
 	test("replaces the menu proxy button with the Astra mobile options menu", () => {
 		const sendFormSource = readSource(
 			"src/packages/features/chat-session/send-form/shell/AstraMobileSendForm.tsx",
 		);
 		const inputRowSource = readSource(
-			"src/packages/features/chat-session/send-form/shell/MobileSendFormInputRow.tsx",
+			"src/packages/features/chat-session/send-form/shell/MobileChatInput.tsx",
 		);
 		const shortcutsToolbarSource = readSource(
 			"src/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar.tsx",
@@ -35,12 +35,12 @@ describe("left-controls default drawer contract", () => {
 		expect(inputRowSource).not.toContain("expandLeftControlsLabel");
 		expect(inputRowSource).not.toContain("onExpandLeftControlsClick");
 		expect(inputRowSource).not.toContain(
-			"mobile-send-form-input-row__left-controls-composing",
+			"mobile-chat-input__tools-composing",
 		);
 		expect(sendFormSource).not.toContain("armLeftControlsInteractionBlock");
 		expect(sendFormSource).not.toContain("isComposingLeftControlsTarget");
 		expect(sendFormSource).not.toContain(
-			".mobile-send-form-input-row__left-controls-composing",
+			".mobile-chat-input__tools-composing",
 		);
 		expect(inputRowSource).not.toContain("interactionBlocked={");
 		expect(inputRowSource).toContain("documentRef={documentRef}");
@@ -90,6 +90,22 @@ describe("left-controls default drawer contract", () => {
 		expect(optionsMenuSource).toContain("onPointerDownCapture");
 	});
 
+	test("keeps semantic input host and trigger ids before className in source", () => {
+		const sendFormSource = readSource(
+			"src/packages/features/chat-session/send-form/shell/AstraMobileSendForm.tsx",
+		);
+		const inputSource = readSource(
+			"src/packages/features/chat-session/send-form/shell/MobileChatInput.tsx",
+		);
+
+		expect(sendFormSource).toMatch(
+			/<div\s+id=\{MOBILE_CHAT_INPUT_HOST_ID\}\s+className="mobile-chat-input-host"/,
+		);
+		expect(inputSource).toMatch(
+			/<button\s+[^>]*id=\{MOBILE_CHAT_MAIN_MENU_TRIGGER_ID\}\s+className="mobile-chat-input__avatar-button mobile-chat-main-menu__trigger"/,
+		);
+	});
+
 	test("keeps mobile send-form shortcuts on compact button sizes", () => {
 		const shortcutsToolbarSource = readSource(
 			"src/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar.tsx",
@@ -106,8 +122,8 @@ describe("left-controls default drawer contract", () => {
 			"src/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar.tsx",
 		);
 
-		expect(shortcutsToolbarSource).toContain('icon={BrainCircuit}');
-		expect(shortcutsToolbarSource).toContain('icon={ChevronDown}');
+		expect(shortcutsToolbarSource).toContain("icon={BrainCircuit}");
+		expect(shortcutsToolbarSource).toContain("icon={ChevronDown}");
 		expect(shortcutsToolbarSource).toContain("icon={ShortcutIcon}");
 		expect(shortcutsToolbarSource).toContain('size="md"');
 	});

@@ -557,13 +557,19 @@ describe("globals.css", () => {
 		);
 		expect(chatScrollCss).toContain("--astra-chat-scroll-mask-visible:");
 		expect(chatScrollCss).toContain("--astra-chat-scroll-mask-hidden:");
-		expect(chatScrollCss).toContain("--astra-chat-scroll-mask-fade-block-start:");
-		expect(chatScrollCss).toContain("--astra-chat-scroll-mask-fade-block-end:");
+		expect(chatScrollCss).toContain(
+			"--astra-chat-scroll-mask-fade-block-start:",
+		);
+		expect(chatScrollCss).toContain(
+			"--astra-chat-scroll-mask-fade-block-end:",
+		);
 		expect(chatScrollCss).toContain("padding-block-start:");
 		expect(compactChatScrollCss).toContain(
 			"&[data-astra-projecta-native-popup-active='true'] #chat[data-astra-projecta-chat-scroll='native']",
 		);
-		expect(chatScrollCss).not.toContain("--astra-chat-scroll-fade-background:");
+		expect(chatScrollCss).not.toContain(
+			"--astra-chat-scroll-fade-background:",
+		);
 		expect(chatScrollCss).not.toContain(
 			"--astra-chat-scroll-fade-inline-outset:",
 		);
@@ -716,7 +722,9 @@ describe("globals.css", () => {
 		expect(css).toContain("--astra-mobile-glass-bottom-fade-size:");
 		expect(css).toContain("--astra-mobile-glass-top-surface:");
 		expect(css).toContain("--astra-mobile-glass-bottom-surface:");
-		expect(css).toContain("--astra-chat-scroll-glass-clearance-block-start:");
+		expect(css).toContain(
+			"--astra-chat-scroll-glass-clearance-block-start:",
+		);
 		expect(css).toContain("--astra-icon-size-xs:");
 		expect(css).toContain("--astra-icon-size-sm:");
 		expect(css).toContain("--astra-icon-size-md:");
@@ -740,7 +748,7 @@ describe("globals.css", () => {
 		expect(css).toContain("--astra-avatar-size-main-interface-chat-row:");
 		expect(css).toContain("--astra-avatar-size-chat-library-row:");
 		expect(css).not.toContain(
-			"#form_sheld,\n  #send_form,\n  #mobile-send-form-shortcuts-host",
+			"#form_sheld,\n  #send_form,\n  #mobile-chat-shortcuts-host",
 		);
 	});
 });

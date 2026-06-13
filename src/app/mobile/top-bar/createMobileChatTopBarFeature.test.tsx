@@ -12,7 +12,7 @@ import {
 	createMobileChatTopBarFeature,
 	MOBILE_ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
 	MOBILE_CHAT_TOP_BAR_HOST_ID,
-	MOBILE_CHAT_TOP_BAR_SHELL_ID,
+	MOBILE_CHAT_SESSION_SHELL_ID,
 } from "@/app/mobile/top-bar/createMobileChatTopBarFeature";
 
 function createIdentitySnapshot(
@@ -103,7 +103,7 @@ describe("createMobileChatTopBarFeature", () => {
 			feature.mount();
 		});
 
-		const shell = document.getElementById(MOBILE_CHAT_TOP_BAR_SHELL_ID);
+		const shell = document.getElementById(MOBILE_CHAT_SESSION_SHELL_ID);
 		const topBarHost = document.getElementById(MOBILE_CHAT_TOP_BAR_HOST_ID);
 		const sheld = document.getElementById("sheld");
 
@@ -119,7 +119,7 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 
 		expect(
-			document.getElementById(MOBILE_CHAT_TOP_BAR_SHELL_ID),
+			document.getElementById(MOBILE_CHAT_SESSION_SHELL_ID),
 		).toBeNull();
 		expect([...document.body.children].map((child) => child.id)).toEqual([
 			"before",
@@ -143,7 +143,7 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 
 		expect(
-			document.querySelectorAll(`#${MOBILE_CHAT_TOP_BAR_SHELL_ID}`),
+			document.querySelectorAll(`#${MOBILE_CHAT_SESSION_SHELL_ID}`),
 		).toHaveLength(1);
 		expect(store.factory).toHaveBeenCalledTimes(1);
 
@@ -153,7 +153,7 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 
 		expect(
-			document.getElementById(MOBILE_CHAT_TOP_BAR_SHELL_ID),
+			document.getElementById(MOBILE_CHAT_SESSION_SHELL_ID),
 		).toBeNull();
 		expect(store.store.dispose).toHaveBeenCalledTimes(1);
 	});
@@ -170,7 +170,7 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 
 		expect(
-			document.getElementById(MOBILE_CHAT_TOP_BAR_SHELL_ID),
+			document.getElementById(MOBILE_CHAT_SESSION_SHELL_ID),
 		).toBeNull();
 		expect(store.factory).not.toHaveBeenCalled();
 

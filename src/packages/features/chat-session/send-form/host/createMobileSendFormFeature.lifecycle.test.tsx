@@ -276,13 +276,13 @@ describe("createMobileSendFormFeature lifecycle", () => {
 		expect(contextUsageStoreFactory).not.toHaveBeenCalled();
 		expect(primarySendActionStoreFactory).not.toHaveBeenCalled();
 		expect(
-			document.getElementById("mobile-send-form-shortcuts-host"),
+			document.getElementById("mobile-chat-shortcuts-host"),
 		).not.toBeInTheDocument();
 		expect(
-			document.getElementById("mobile-send-form-quick-reply-host"),
+			document.getElementById("mobile-chat-quick-replies-host"),
 		).not.toBeInTheDocument();
 		expect(
-			document.getElementById("mobile-send-form-input-row-host"),
+			document.getElementById("mobile-chat-input-host"),
 		).not.toBeInTheDocument();
 
 		feature.dispose();
@@ -308,13 +308,13 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-send-form-shortcuts-host"),
+				document.getElementById("mobile-chat-shortcuts-host"),
 			).toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-send-form-quick-reply-host"),
+				document.getElementById("mobile-chat-quick-replies-host"),
 			).toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-send-form-input-row-host"),
+				document.getElementById("mobile-chat-input-host"),
 			).toBeInTheDocument();
 		});
 
@@ -363,13 +363,13 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-send-form-shortcuts-host"),
+				document.getElementById("mobile-chat-shortcuts-host"),
 			).not.toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-send-form-quick-reply-host"),
+				document.getElementById("mobile-chat-quick-replies-host"),
 			).not.toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-send-form-input-row-host"),
+				document.getElementById("mobile-chat-input-host"),
 			).not.toBeInTheDocument();
 		});
 
@@ -389,13 +389,13 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-send-form-shortcuts-host"),
+				document.getElementById("mobile-chat-shortcuts-host"),
 			).toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-send-form-quick-reply-host"),
+				document.getElementById("mobile-chat-quick-replies-host"),
 			).toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-send-form-input-row-host"),
+				document.getElementById("mobile-chat-input-host"),
 			).toBeInTheDocument();
 		});
 
@@ -509,9 +509,7 @@ describe("createMobileSendFormFeature lifecycle", () => {
 		feature.mount();
 
 		const host = await waitFor(() => {
-			const element = document.getElementById(
-				"mobile-send-form-input-row-host",
-			);
+			const element = document.getElementById("mobile-chat-input-host");
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
 		});
@@ -584,9 +582,7 @@ describe("createMobileSendFormFeature lifecycle", () => {
 		feature.mount();
 
 		const host = await waitFor(() => {
-			const element = document.getElementById(
-				"mobile-send-form-input-row-host",
-			);
+			const element = document.getElementById("mobile-chat-input-host");
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
 		});
@@ -623,7 +619,7 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 		const quickReplyHost = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-quick-reply-host",
+				"mobile-chat-quick-replies-host",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -666,7 +662,7 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 		const quickReplyHost = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-quick-reply-host",
+				"mobile-chat-quick-replies-host",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -694,9 +690,7 @@ describe("createMobileSendFormFeature lifecycle", () => {
 		sendForm.insertBefore(replacementQuickReplyBar, nonQrFormItems);
 
 		await waitFor(() => {
-			expect(replacementQuickReplyBar.parentElement).toBe(
-				quickReplyHost,
-			);
+			expect(replacementQuickReplyBar.parentElement).toBe(quickReplyHost);
 		});
 
 		feature.dispose();

@@ -412,8 +412,8 @@ export function MobileChatMainMenuDrawer({
 			<DrawerContent
 				aria-describedby={MOBILE_CHAT_MAIN_MENU_DRAWER_DESCRIPTION_ID}
 				aria-labelledby={MOBILE_CHAT_MAIN_MENU_DRAWER_TITLE_ID}
-				className="mobile-chat-main-menu-drawer"
 				id={MOBILE_CHAT_MAIN_MENU_DRAWER_ID}
+				className="mobile-chat-main-menu-drawer"
 			>
 				<DrawerHeader className="sr-only">
 					<DrawerTitle asChild={true}>

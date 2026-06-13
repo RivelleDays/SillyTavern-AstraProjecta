@@ -7,7 +7,7 @@ describe("createNativeQuickReplyBarBridge", () => {
 	test("attaches an existing quick reply bar to the provided host and restores it on dispose", async () => {
 		document.body.innerHTML = `
       <div id="form_sheld">
-        <div id="mobile-send-form-quick-reply-host"></div>
+        <div id="mobile-chat-quick-replies-host"></div>
         <form id="send_form">
           <div id="qr--bar">Quick reply</div>
           <div id="nonQRFormItems"></div>
@@ -15,7 +15,7 @@ describe("createNativeQuickReplyBarBridge", () => {
       </div>
     `;
 
-		const host = document.getElementById("mobile-send-form-quick-reply-host");
+		const host = document.getElementById("mobile-chat-quick-replies-host");
 		const sendForm = document.getElementById("send_form");
 		const nonQrFormItems = document.getElementById("nonQRFormItems");
 		if (
@@ -26,7 +26,9 @@ describe("createNativeQuickReplyBarBridge", () => {
 			throw new Error("expected quick reply bridge fixture");
 		}
 
-		const bridge = createNativeQuickReplyBarBridge({ documentRef: document });
+		const bridge = createNativeQuickReplyBarBridge({
+			documentRef: document,
+		});
 		bridge.attachTo(host);
 
 		await waitFor(() => {
@@ -47,7 +49,7 @@ describe("createNativeQuickReplyBarBridge", () => {
 	test("re-attaches replacement quick reply bars that appear after the first one is removed", async () => {
 		document.body.innerHTML = `
       <div id="form_sheld">
-        <div id="mobile-send-form-quick-reply-host"></div>
+        <div id="mobile-chat-quick-replies-host"></div>
         <form id="send_form">
           <div id="qr--bar">Initial</div>
           <div id="nonQRFormItems"></div>
@@ -55,7 +57,7 @@ describe("createNativeQuickReplyBarBridge", () => {
       </div>
     `;
 
-		const host = document.getElementById("mobile-send-form-quick-reply-host");
+		const host = document.getElementById("mobile-chat-quick-replies-host");
 		const sendForm = document.getElementById("send_form");
 		const nonQrFormItems = document.getElementById("nonQRFormItems");
 		const initialBar = document.getElementById("qr--bar");
@@ -68,7 +70,9 @@ describe("createNativeQuickReplyBarBridge", () => {
 			throw new Error("expected replacement quick reply fixture");
 		}
 
-		const bridge = createNativeQuickReplyBarBridge({ documentRef: document });
+		const bridge = createNativeQuickReplyBarBridge({
+			documentRef: document,
+		});
 		bridge.attachTo(host);
 
 		await waitFor(() => {
@@ -99,10 +103,10 @@ describe("createNativeQuickReplyBarBridge", () => {
           <div id="qr--bar">Quick reply</div>
         </form>
       </div>
-      <div id="mobile-send-form-quick-reply-host"></div>
+      <div id="mobile-chat-quick-replies-host"></div>
     `;
 
-		const host = document.getElementById("mobile-send-form-quick-reply-host");
+		const host = document.getElementById("mobile-chat-quick-replies-host");
 		const sendForm = document.getElementById("send_form");
 		if (
 			!(host instanceof HTMLElement) ||
@@ -111,7 +115,9 @@ describe("createNativeQuickReplyBarBridge", () => {
 			throw new Error("expected disconnected parent fixture");
 		}
 
-		const bridge = createNativeQuickReplyBarBridge({ documentRef: document });
+		const bridge = createNativeQuickReplyBarBridge({
+			documentRef: document,
+		});
 		bridge.attachTo(host);
 
 		await waitFor(() => {

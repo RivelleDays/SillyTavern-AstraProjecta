@@ -269,14 +269,14 @@ export function MobileSendFormOptionsMenu({
 				aria-controls={MOBILE_SEND_FORM_OPTIONS_DRAWER_ID}
 				aria-expanded={isOpen}
 				aria-label={triggerLabel}
+				id={MOBILE_SEND_FORM_MENU_BUTTON_ID}
 				className={cn(
 					buttonVariants({
 						size: "icon-xs",
 						variant: "ghost",
 					}),
-					"mobile-send-form-input-row__left-control-button",
+					"mobile-chat-input__tool-button",
 				)}
-				id={MOBILE_SEND_FORM_MENU_BUTTON_ID}
 				title={triggerLabel}
 				type="button"
 				onClick={handleOpenRequest}
@@ -290,8 +290,8 @@ export function MobileSendFormOptionsMenu({
 					MOBILE_SEND_FORM_OPTIONS_DRAWER_DESCRIPTION_ID
 				}
 				aria-labelledby={MOBILE_SEND_FORM_OPTIONS_DRAWER_TITLE_ID}
-				className="mobile-send-form-options-drawer"
 				id={MOBILE_SEND_FORM_OPTIONS_DRAWER_ID}
+				className="mobile-send-form-options-drawer"
 			>
 				<DrawerHeader className="sr-only">
 					<DrawerTitle asChild={true}>
@@ -329,8 +329,8 @@ export function MobileSendFormOptionsMenu({
 					}}
 				>
 					<div
-						className="mobile-send-form-options-drawer__menu"
 						id={MOBILE_SEND_FORM_OPTIONS_DRAWER_MENU_ID}
+						className="mobile-send-form-options-drawer__menu"
 					>
 						{groups.map((group) => {
 							const groupSection = (
@@ -385,10 +385,10 @@ export function MobileSendFormOptionsMenu({
 									<section className="mobile-send-form-options-drawer__group mobile-send-form-options-drawer__group--shortcuts-visibility">
 										<div className="mobile-send-form-options-drawer__group-items">
 											<div
-												className="mobile-send-form-options-drawer__toggle"
 												id={
 													MOBILE_SEND_FORM_SHORTCUTS_TOGGLE_ID
 												}
+												className="mobile-send-form-options-drawer__toggle"
 											>
 												<Label
 													className="mobile-send-form-options-drawer__toggle-label"

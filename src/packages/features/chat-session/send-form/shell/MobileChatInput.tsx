@@ -8,13 +8,13 @@ import type { CurrentUserAvatarSnapshot } from "@/packages/core/st/currentUserAv
 import {
 	MOBILE_CHAT_MAIN_MENU_DRAWER_ID,
 	MOBILE_CHAT_MAIN_MENU_TRIGGER_ID,
-	MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID,
+	MOBILE_CHAT_QUICK_REPLIES_HOST_ID,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { MobileSendFormExtensionsMenu } from "@/packages/features/chat-session/send-form/extensions-menu/MobileSendFormExtensionsMenu";
 import { MobileSendFormOptionsMenu } from "@/packages/features/chat-session/send-form/options-menu/MobileSendFormOptionsMenu";
 import { MobileSendFormQuickReplyToggleButton } from "@/packages/features/chat-session/send-form/shell/MobileSendFormQuickReplyToggleButton";
 
-export interface MobileSendFormInputRowProps {
+export interface MobileChatInputProps {
 	currentUserAvatarLabel: string;
 	documentRef: Document;
 	inputRowLabel: string;
@@ -40,7 +40,7 @@ export interface MobileSendFormInputRowProps {
 	userAvatarSnapshot: CurrentUserAvatarSnapshot;
 }
 
-export function MobileSendFormInputRow({
+export function MobileChatInput({
 	currentUserAvatarLabel,
 	documentRef,
 	inputRowLabel,
@@ -62,13 +62,13 @@ export function MobileSendFormInputRow({
 	showQuickReplyVisibilityToggle,
 	showShortcutsToolbar,
 	userAvatarSnapshot,
-}: MobileSendFormInputRowProps) {
+}: MobileChatInputProps) {
 	return (
 		<div
 			aria-label={inputRowLabel}
-			className="mobile-send-form-input-row"
+			className="mobile-chat-input"
 			data-input-state="default"
-			data-slot="mobile-send-form-input-row"
+			data-slot="mobile-chat-input"
 			data-active-panel={
 				isQuickReplyHostVisible ? "quick-reply" : "textarea"
 			}
@@ -76,33 +76,33 @@ export function MobileSendFormInputRow({
 				isTextareaMultiline ? "multi-line" : "single-line"
 			}
 		>
-			<div className="mobile-send-form-input-row__left">
+			<div className="mobile-chat-input__content">
 				<div
-					className="mobile-send-form-input-row__textarea-host"
+					className="mobile-chat-input__field"
 					data-avatar-source={userAvatarSnapshot.source}
 				>
 					<div
-						className="mobile-send-form-input-row__textarea-main"
+						className="mobile-chat-input__textarea-slot"
 						hidden={isQuickReplyHostVisible}
 						ref={onTextareaHostChange}
 					/>
 					<div
-						id={MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID}
-						className="mobile-send-form-quick-reply-host"
+						id={MOBILE_CHAT_QUICK_REPLIES_HOST_ID}
+						className="mobile-chat-quick-replies-host"
 						hidden={!isQuickReplyHostVisible}
 						ref={onQuickReplyHostChange}
 					/>
 					<div
-						className="mobile-send-form-input-row__controls-row"
+						className="mobile-chat-input__toolbar"
 						data-slot="mobile-send-form-input-controls"
 					>
 						<div
 							aria-label={leftControlsLabel}
-							className="mobile-send-form-input-row__left-controls"
+							className="mobile-chat-input__tools"
 							data-left-state="default"
 							role="toolbar"
 						>
-							<div className="mobile-send-form-input-row__left-controls-default">
+							<div className="mobile-chat-input__tool-list">
 								<button
 									aria-controls={
 										MOBILE_CHAT_MAIN_MENU_DRAWER_ID
@@ -110,11 +110,11 @@ export function MobileSendFormInputRow({
 									aria-expanded={isMainMenuOpen}
 									aria-haspopup="dialog"
 									aria-label={currentUserAvatarLabel}
-									className="mobile-send-form-input-row__avatar mobile-chat-main-menu__trigger"
+									id={MOBILE_CHAT_MAIN_MENU_TRIGGER_ID}
+									className="mobile-chat-input__avatar-button mobile-chat-main-menu__trigger"
 									data-avatar-source={
 										userAvatarSnapshot.source
 									}
-									id={MOBILE_CHAT_MAIN_MENU_TRIGGER_ID}
 									type="button"
 									onClick={onMainMenuOpen}
 									onKeyDownCapture={
@@ -126,7 +126,7 @@ export function MobileSendFormInputRow({
 								>
 									<img
 										alt={currentUserAvatarLabel}
-										className="mobile-send-form-input-row__avatar-image"
+										className="mobile-chat-input__avatar-image"
 										draggable={false}
 										loading="eager"
 										src={userAvatarSnapshot.thumbnailUrl}
@@ -144,23 +144,21 @@ export function MobileSendFormInputRow({
 								/>
 							</div>
 						</div>
-						<div className="mobile-send-form-input-row__textarea-actions">
+						<div className="mobile-chat-input__actions">
 							{showQuickReplyVisibilityToggle ? (
 								<MobileSendFormQuickReplyToggleButton
-									className="mobile-send-form-input-row__quick-reply-toggle"
+									className="mobile-chat-input__quick-reply-toggle"
 									isQuickReplyHostVisible={
 										isQuickReplyHostVisible
 									}
 									label={quickReplyVisibilityToggleLabel}
-									onClick={
-										onQuickReplyHostVisibilityToggle
-									}
+									onClick={onQuickReplyHostVisibilityToggle}
 								/>
 							) : null}
 							{primarySendActionSnapshot.visible ? (
 								<Button
 									aria-label={primarySendActionSnapshot.label}
-									className="mobile-send-form-input-row__send-button data-[action-kind=stop]:[&_svg]:fill-current"
+									className="mobile-chat-input__send-button data-[action-kind=stop]:[&_svg]:fill-current"
 									data-action-kind={
 										primarySendActionSnapshot.kind
 									}

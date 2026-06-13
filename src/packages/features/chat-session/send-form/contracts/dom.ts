@@ -17,14 +17,12 @@ export const NATIVE_QUICK_REPLY_CONTAINER_ID = "qr_container";
 export const NATIVE_QUICK_REPLY_BAR_ID = "qr--bar";
 export const NATIVE_QUICK_REPLY_ENABLED_TOGGLE_ID = "qr--isEnabled";
 
-export const MOBILE_SEND_FORM_SHORTCUTS_HOST_ID =
-	"mobile-send-form-shortcuts-host";
-export const MOBILE_SEND_FORM_COMPOSER_HOST_ID =
-	"mobile-send-form-composer-host";
-export const MOBILE_SEND_FORM_QUICK_REPLY_HOST_ID =
-	"mobile-send-form-quick-reply-host";
-export const MOBILE_SEND_FORM_INPUT_ROW_HOST_ID =
-	"mobile-send-form-input-row-host";
+export const MOBILE_CHAT_COMPOSER_SHELL_ID = "mobile-chat-composer-shell";
+export const MOBILE_CHAT_SHORTCUTS_HOST_ID = "mobile-chat-shortcuts-host";
+export const MOBILE_CHAT_COMPOSER_HOST_ID = "mobile-chat-composer-host";
+export const MOBILE_CHAT_QUICK_REPLIES_HOST_ID =
+	"mobile-chat-quick-replies-host";
+export const MOBILE_CHAT_INPUT_HOST_ID = "mobile-chat-input-host";
 export const MOBILE_SEND_FORM_QUICK_REPLY_TOGGLE_ID =
 	"mobile-send-form-quick-reply-toggle";
 export const MOBILE_CHAT_MAIN_MENU_TRIGGER_ID = "mobile-chat-main-menu-trigger";

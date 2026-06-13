@@ -21,7 +21,7 @@ describe("mobile chat top-bar CSS contracts", () => {
 	test("keeps the shell and top-bar selector contracts addressable", () => {
 		const css = readCss();
 
-		expect(css).toContain("#mobile-chat-top-bar-shell");
+		expect(css).toContain("#mobile-chat-session-shell");
 		expect(css).toContain("#mobile-chat-top-bar-host");
 		expect(css).toContain("--mobile-chat-top-bar-block-size");
 		expect(css).toContain(".mobile-chat-top-bar");
@@ -42,7 +42,7 @@ describe("mobile chat top-bar CSS contracts", () => {
 
 	test("keeps wrapped #sheld owned by the top-bar shell layout contract", () => {
 		const css = readCss();
-		const block = readBlock(css, "#mobile-chat-top-bar-shell > #sheld");
+		const block = readBlock(css, "#mobile-chat-session-shell > #sheld");
 
 		expect(block).not.toBe("");
 		expect(block).toContain("position:");
@@ -67,7 +67,10 @@ describe("mobile chat top-bar CSS contracts", () => {
 
 	test("keeps the top glass overlay masked so blur fades out with the surface", () => {
 		const css = readCss();
-		const overlayBlock = readBlock(css, "#mobile-chat-top-bar-host::before");
+		const overlayBlock = readBlock(
+			css,
+			"#mobile-chat-top-bar-host::before",
+		);
 
 		expect(overlayBlock).not.toBe("");
 		expect(overlayBlock).toContain("-webkit-mask-image:");

@@ -5,7 +5,7 @@
 
 ## Owned Paths / Responsibilities
 
-- `createMobileChatScrollFeature.ts`: lifecycle bridge that marks `#chat`, tracks native scroll edge state, subscribes to chat load/change events, and scrolls the native container to bottom after chat switches.
+- `createMobileChatScrollFeature.ts`: lifecycle bridge that marks `#chat` with `mobile-chat-transcript` and `data-astra-projecta-chat-scroll`, tracks native scroll edge state, subscribes to chat load/change events, and scrolls the native container to bottom after chat switches.
 - `chat-scroll.css`: mobile-only native scrollbar styling and opacity-mask edge-fade styling for `#chat[data-astra-projecta-chat-scroll='native']`.
 
 ## SillyTavern Touchpoints
@@ -19,5 +19,5 @@
 
 - Do not wrap, move, replace, or reparent SillyTavern-owned message nodes.
 - Do not introduce a Base UI `ScrollArea.Viewport` around `#chat`; Astra only styles the native scrollbar here.
-- Clean up event listeners, animation frames, timers, resize observers, and Astra scroll data attributes on unmount/dispose.
+- Clean up event listeners, animation frames, timers, resize observers, Astra scroll data attributes, and the `mobile-chat-transcript` class on unmount/dispose.
 - Keep this bridge mobile-gated through `app/mobile/runtime`; desktop behavior must not depend on it.

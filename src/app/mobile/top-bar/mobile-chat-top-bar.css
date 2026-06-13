@@ -5,7 +5,7 @@ body.astra-projecta-mobile-layout {
 	}
 }
 
-#mobile-chat-top-bar-shell {
+#mobile-chat-session-shell {
 	--mobile-chat-top-bar-block-size: 52px;
 	box-sizing: border-box;
 	display: flex;
@@ -78,7 +78,7 @@ body.astra-projecta-mobile-layout {
 		saturate(var(--astra-mobile-glass-saturate));
 }
 
-#mobile-chat-top-bar-shell > #sheld {
+#mobile-chat-session-shell > #sheld {
 	box-sizing: border-box;
 	position: relative !important;
 	top: auto !important;

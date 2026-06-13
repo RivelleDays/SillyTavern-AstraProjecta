@@ -43,8 +43,8 @@ export function MobileSendFormShortcutsToolbar({
 			<div className="mobile-send-form-shortcuts__strip">
 				<span className="mobile-send-form-shortcuts__item">
 					<Button
-						className="mobile-send-form-shortcuts__button"
 						id={SILLYTAVERN_INTERFACE_TRIGGER_ID}
+						className="mobile-send-form-shortcuts__button"
 						size="sm"
 						type="button"
 						variant="outline"

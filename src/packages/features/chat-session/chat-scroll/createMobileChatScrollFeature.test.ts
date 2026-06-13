@@ -82,11 +82,17 @@ describe("createMobileChatScrollFeature", () => {
 			"data-astra-projecta-chat-scroll",
 			"native",
 		);
+		expect(document.getElementById("chat")).toHaveClass(
+			"mobile-chat-transcript",
+		);
 
 		feature.unmount();
 
 		expect(document.getElementById("chat")).not.toHaveAttribute(
 			"data-astra-projecta-chat-scroll",
+		);
+		expect(document.getElementById("chat")).not.toHaveClass(
+			"mobile-chat-transcript",
 		);
 	});
 

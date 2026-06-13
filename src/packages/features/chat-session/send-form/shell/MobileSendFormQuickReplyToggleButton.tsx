@@ -2,10 +2,7 @@ import * as React from "react";
 
 import { Button } from "@/components/ui/shadcn/button";
 import { UiIcon } from "@/components/ui/shared/icon";
-import {
-	Keyboard,
-	MessageCircleReply,
-} from "@/components/ui/shared/icons";
+import { Keyboard, MessageCircleReply } from "@/components/ui/shared/icons";
 import { MOBILE_SEND_FORM_QUICK_REPLY_TOGGLE_ID } from "@/packages/features/chat-session/send-form/contracts/dom";
 
 export interface MobileSendFormQuickReplyToggleButtonProps {
@@ -28,8 +25,8 @@ export function MobileSendFormQuickReplyToggleButton({
 	return (
 		<Button
 			aria-label={label}
-			className={className}
 			id={MOBILE_SEND_FORM_QUICK_REPLY_TOGGLE_ID}
+			className={className}
 			size="icon-sm"
 			type="button"
 			variant="ghost"

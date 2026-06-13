@@ -1,13 +1,13 @@
 ## Purpose
 
-- Own the AstraProjecta mobile send-form host inside SillyTavern's single-chat input surface.
-- Keep textarea reparent/restore behavior, quick shortcut composition, native quick-reply wrapper bridging, and input-row UI together.
+- Own the AstraProjecta mobile chat composer shell inside SillyTavern's single-chat input surface.
+- Keep `#form_sheld` wrapping, textarea reparent/restore behavior, quick shortcut composition, native quick-reply wrapper bridging, and chat input UI together.
 
 ## Owned Paths / Responsibilities
 
 - The `contracts/` subfolder owns native send-form anchor ids, Astra host ids, drawer ids, storage keys, and shortcut descriptors.
-- The `host/` subfolder owns mount/unmount bootstrap, native host ordering, and textarea reparent/restore lifecycle.
-- The `shell/` subfolder owns React view composition for the composer wrapper, input row, and shortcuts row.
+- The `host/` subfolder owns mount/unmount bootstrap, `#mobile-chat-composer-shell` wrapping, native host ordering, and textarea reparent/restore lifecycle.
+- The `shell/` subfolder owns React view composition for the composer wrapper, chat input, and shortcuts row.
 - The `bridges/` subfolder owns quick shortcut click-through, native quick-reply bar reparent/restore, native options click-through, and shared send-form focus-release compatibility helpers.
 - This feature owns the SillyTavern interface trigger wiring only; the panel shell, descriptors, ids, and route icons live under `src/packages/features/sillytavern-interface/`.
 - The `context-usage/` subfolder owns the shortcut popover surface and presentation helpers for context-usage summaries.
@@ -17,8 +17,9 @@
 
 ## SillyTavern Touchpoints
 
-- Mount the composer host inside `#send_form` before `#nonQRFormItems`.
-- Render the input-row host inside the composer surface, the quick-reply host inside the input-row textarea panel slot, and the shortcuts host inside the composer shortcut region; the composer host owns outer mobile spacing.
+- Wrap native `#form_sheld` in Astra-owned `#mobile-chat-composer-shell` while mounted, and restore `#form_sheld` to its original parent/sibling ordering on teardown.
+- Mount the composer host `#mobile-chat-composer-host` inside `#send_form` before `#nonQRFormItems`.
+- Render `#mobile-chat-input-host` inside the composer input region, `#mobile-chat-quick-replies-host` inside the chat input textarea slot, and `#mobile-chat-shortcuts-host` inside the composer shortcuts region; the composer host owns outer mobile spacing.
 - Reparent `#send_textarea` only while mounted, and restore it before `#rightSendForm` on teardown.
 - Reparent native `#qr--bar` only while mounted, and restore it to its original parent/sibling ordering on teardown when the origin still exists.
 - Observe native shortcut/send-button visibility without mutating unrelated ST nodes.
@@ -28,9 +29,9 @@
 
 - Mount/unmount must stay idempotent.
 - Missing ST anchors must cleanly no-op.
-- Keep Quick Reply as a restore-safe native bridge attached to the input-row quick-reply slot; the Astra composer wrapper owns the input surface, bottom shortcuts region, rounded group shape, and shortcuts visibility state.
+- Keep Quick Reply as a restore-safe native bridge attached to the chat input quick-reply slot; the Astra composer wrapper owns the input surface, bottom shortcuts region, rounded group shape, and shortcuts visibility state.
 - Treat `#qr--bar` as a native node owned by SillyTavern Quick Reply; Astra only provides the mobile wrapper host and restore-safe bridge.
-- Keep the legacy mobile DOM contract stable for the input row while this compatibility slice is active.
+- Keep the semantic mobile chat DOM contract stable for the composer and input hosts while this compatibility slice is active.
 - The current-chat drawer in this folder is presentation-only: it consumes the core current-chat identity store and must not rebuild identity resolution locally.
 - Do not move SillyTavern interface title/content logic back into send-form; this folder only opens and closes the SillyTavern interface surface.
 - Keep `mobile-chat-main-menu__trigger` scoped to opening the Astra-owned drawer; main-menu tiles are currently visual-only, and any future actions beyond stable identity display belong in separate modules, not this first drawer.

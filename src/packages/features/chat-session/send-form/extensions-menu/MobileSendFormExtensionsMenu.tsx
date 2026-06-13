@@ -177,16 +177,16 @@ export function MobileSendFormExtensionsMenu({
 				aria-expanded={bridgeSnapshot.hasItems ? isOpen : false}
 				aria-hidden={bridgeSnapshot.hasItems ? "false" : "true"}
 				aria-label={triggerLabel}
+				id={MOBILE_SEND_FORM_EXTENSION_SHORTCUTS_BUTTON_ID}
 				className={cn(
 					buttonVariants({
 						size: "icon-xs",
 						variant: "ghost",
 					}),
-					"mobile-send-form-input-row__left-control-button",
+					"mobile-chat-input__tool-button",
 				)}
 				data-availability={bridgeSnapshot.hasItems ? "ready" : "empty"}
 				disabled={!bridgeSnapshot.hasItems}
-				id={MOBILE_SEND_FORM_EXTENSION_SHORTCUTS_BUTTON_ID}
 				tabIndex={bridgeSnapshot.hasItems ? undefined : -1}
 				title={triggerLabel}
 				type="button"
@@ -201,8 +201,8 @@ export function MobileSendFormExtensionsMenu({
 					MOBILE_SEND_FORM_EXTENSIONS_DRAWER_DESCRIPTION_ID
 				}
 				aria-labelledby={MOBILE_SEND_FORM_EXTENSIONS_DRAWER_TITLE_ID}
-				className="mobile-send-form-extensions-drawer"
 				id={MOBILE_SEND_FORM_EXTENSIONS_DRAWER_ID}
+				className="mobile-send-form-extensions-drawer"
 			>
 				<DrawerHeader className="sr-only">
 					<DrawerTitle asChild={true}>
@@ -244,8 +244,8 @@ export function MobileSendFormExtensionsMenu({
 							{sectionLabel}
 						</div>
 						<div
-							className="mobile-send-form-extensions-drawer__menu-host"
 							id={MOBILE_SEND_FORM_EXTENSIONS_MENU_HOST_ID}
+							className="mobile-send-form-extensions-drawer__menu-host"
 							ref={setHostNode}
 						/>
 					</div>

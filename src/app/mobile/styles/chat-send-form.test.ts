@@ -11,8 +11,9 @@ function readCss() {
 }
 
 function expectSelectors(css: string, selectors: string[]) {
+	const searchableCss = css.replace(/\s+/gu, " ");
 	for (const selector of selectors) {
-		expect(css).toContain(selector);
+		expect(searchableCss).toContain(selector.replace(/\s+/gu, " "));
 	}
 }
 
@@ -49,7 +50,7 @@ function expectSingleLineEllipsis(block: string) {
 }
 
 describe("chat-send-form.css", () => {
-	test("keeps the legacy mobile send-form host selectors for compatibility", () => {
+	test("keeps semantic mobile chat composer host selectors addressable", () => {
 		const css = readCss();
 
 		expectSelectors(css, [
@@ -61,38 +62,44 @@ describe("chat-send-form.css", () => {
 			"#send_form #rightSendForm",
 			"#send_form #nonQRFormItems",
 			"body.PWA #sheld",
+			"#mobile-chat-composer-shell",
+			"#mobile-chat-composer-shell::before",
+			"#mobile-chat-composer-shell > #form_sheld",
 			"#form_sheld",
-			"#form_sheld::before",
-			"#mobile-send-form-composer-host",
-			"#mobile-send-form-shortcuts-host",
-			"#mobile-send-form-quick-reply-host",
-			"#mobile-send-form-input-row-host",
-			".mobile-send-form-input-row__textarea-host > #mobile-send-form-quick-reply-host",
-			"#mobile-send-form-quick-reply-host > #qr--bar",
-			"#send_form > #mobile-send-form-composer-host",
-			".mobile-send-form-composer",
-			".mobile-send-form-composer__surface",
-			".mobile-send-form-composer__shortcut-region",
-			'.mobile-send-form-composer[data-shortcuts-visible="false"]',
-			'.mobile-send-form-composer[data-shortcuts-visible="false"] .mobile-send-form-composer__shortcut-region',
-			".mobile-send-form-composer__surface > #mobile-send-form-input-row-host",
-			".mobile-send-form-composer__shortcut-region > #mobile-send-form-shortcuts-host",
+			"#mobile-chat-composer-host",
+			"#mobile-chat-shortcuts-host",
+			"#mobile-chat-quick-replies-host",
+			"#mobile-chat-input-host",
+			".mobile-chat-input__field > #mobile-chat-quick-replies-host",
+			"#mobile-chat-quick-replies-host > #qr--bar",
+			"#send_form > #mobile-chat-composer-host",
+			".mobile-chat-composer",
+			".mobile-chat-composer__input-region",
+			".mobile-chat-composer__shortcuts-region",
+			'.mobile-chat-composer[data-shortcuts-visible="false"]',
+			'.mobile-chat-composer[data-shortcuts-visible="false"] .mobile-chat-composer__shortcuts-region',
+			".mobile-chat-composer__input-region > #mobile-chat-input-host",
+			".mobile-chat-composer__shortcuts-region > #mobile-chat-shortcuts-host",
 		]);
 
 		const composerHostBlock = readBlock(
 			css,
-			"#send_form > #mobile-send-form-composer-host",
+			"#send_form > #mobile-chat-composer-host",
 		);
 
 		expect(composerHostBlock).toContain("--mobile-chat-spacing");
 		expect(css).not.toContain(
-			"#form_sheld > #mobile-send-form-quick-reply-host",
+			"#form_sheld > #mobile-chat-quick-replies-host",
 		);
+		expect(css).not.toContain("mobile-send-form-input-row");
 	});
 
 	test("keeps the bottom glass overlay masked so blur fades in with the surface", () => {
 		const css = readCss();
-		const overlayBlock = readBlock(css, "#form_sheld::before");
+		const overlayBlock = readBlock(
+			css,
+			"#mobile-chat-composer-shell::before",
+		);
 
 		expect(overlayBlock).not.toBe("");
 		expect(overlayBlock).toContain("-webkit-mask-image:");
@@ -105,41 +112,38 @@ describe("chat-send-form.css", () => {
 		expectSelectors(css, [
 			".mobile-send-form-shortcuts",
 			".mobile-send-form-shortcuts__strip",
-			".mobile-send-form-input-row",
-			".mobile-send-form-input-row__left",
-			".mobile-send-form-input-row__avatar",
-			".mobile-send-form-input-row__textarea-host",
-			".mobile-send-form-input-row__textarea-main",
-			".mobile-send-form-input-row__textarea-main[hidden]",
-			".mobile-send-form-input-row__textarea-host > #mobile-send-form-quick-reply-host[hidden]",
-			".mobile-send-form-input-row__controls-row",
-			".mobile-send-form-input-row__textarea-actions",
-			".mobile-send-form-input-row__quick-reply-toggle",
-			".mobile-send-form-input-row__send-button",
-			".mobile-send-form-input-row__left-control-button:not(:disabled)",
-			".mobile-send-form-input-row__left-control-button:disabled",
+			".mobile-chat-input",
+			".mobile-chat-input__content",
+			".mobile-chat-input__avatar-button",
+			".mobile-chat-input__field",
+			".mobile-chat-input__textarea-slot",
+			".mobile-chat-input__textarea-slot[hidden]",
+			".mobile-chat-input__field > #mobile-chat-quick-replies-host[hidden]",
+			".mobile-chat-input__toolbar",
+			".mobile-chat-input__actions",
+			".mobile-chat-input__quick-reply-toggle",
+			".mobile-chat-input__send-button",
+			".mobile-chat-input__tool-button:not(:disabled)",
+			".mobile-chat-input__tool-button:disabled",
 		]);
 		expect(css).toContain("--mobile-send-form-textarea-flex-basis:");
 		expect(css).toContain("--mobile-send-form-avatar-size:");
-		expect(css).not.toContain(
-			".mobile-send-form-input-row__left-controls-composing",
-		);
+		expect(css).not.toContain(".mobile-chat-input__tools-composing");
 		expect(css).not.toContain('[data-left-state="composing"]');
 	});
 
 	test("keeps mobile quick reply host styling scoped to Astra token contracts", () => {
 		const css = readCss();
-		const quickReplySlice = readSlice(
+		const quickReplySlice = readBlock(
 			css,
-			".mobile-send-form-input-row__textarea-host > #mobile-send-form-quick-reply-host",
-			"body.astra-projecta-mobile-layout {",
+			".mobile-chat-input__field > #mobile-chat-quick-replies-host",
 		);
 
 		expectSelectors(css, [
-			".mobile-send-form-input-row__textarea-host > #mobile-send-form-quick-reply-host",
-			"#mobile-send-form-quick-reply-host > #qr--bar > .qr--buttons",
-			"#mobile-send-form-quick-reply-host > #qr--bar .qr--button",
-			"#mobile-send-form-quick-reply-host > #qr--bar .qr--button-expander",
+			".mobile-chat-input__field > #mobile-chat-quick-replies-host",
+			"#mobile-chat-quick-replies-host > #qr--bar > .qr--buttons",
+			"#mobile-chat-quick-replies-host > #qr--bar .qr--button",
+			"#mobile-chat-quick-replies-host > #qr--bar .qr--button-expander",
 		]);
 		expect(quickReplySlice).toContain(
 			"--mobile-send-form-quick-reply-gap:",
@@ -170,7 +174,7 @@ describe("chat-send-form.css", () => {
 		const quickReplyMenuSlice = readSlice(
 			css,
 			"body.astra-projecta-mobile-layout {",
-			".mobile-send-form-composer {",
+			".mobile-chat-composer {",
 		);
 
 		expectSelectors(css, [
@@ -248,10 +252,7 @@ describe("chat-send-form.css", () => {
 
 	test("keeps the inline send button on the input-row size token", () => {
 		const css = readCss();
-		const block = readBlock(
-			css,
-			".mobile-send-form-input-row__send-button",
-		);
+		const block = readBlock(css, ".mobile-chat-input__send-button");
 
 		expect(block).not.toBe("");
 		expect(block).toContain(

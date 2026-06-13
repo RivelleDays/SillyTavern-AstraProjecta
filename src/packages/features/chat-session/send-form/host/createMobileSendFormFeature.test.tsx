@@ -60,25 +60,28 @@ function setSillyTavernContext(context: unknown | { current: unknown }) {
 
 async function waitForSendFormHosts() {
 	return waitFor(() => {
+		const composerShell = document.getElementById(
+			"mobile-chat-composer-shell",
+		);
 		const composerHost = document.getElementById(
-			"mobile-send-form-composer-host",
+			"mobile-chat-composer-host",
 		);
 		const quickReplyHost = document.getElementById(
-			"mobile-send-form-quick-reply-host",
+			"mobile-chat-quick-replies-host",
 		);
 		const shortcutsHost = document.getElementById(
-			"mobile-send-form-shortcuts-host",
+			"mobile-chat-shortcuts-host",
 		);
-		const inputRowHost = document.getElementById(
-			"mobile-send-form-input-row-host",
-		);
+		const inputRowHost = document.getElementById("mobile-chat-input-host");
 
+		expect(composerShell).toBeInTheDocument();
 		expect(composerHost).toBeInTheDocument();
 		expect(shortcutsHost).toBeInTheDocument();
 		expect(inputRowHost).toBeInTheDocument();
 		expect(quickReplyHost).toBeInTheDocument();
 
 		return {
+			composerShell: composerShell as HTMLElement,
 			composerHost: composerHost as HTMLElement,
 			inputRowHost: inputRowHost as HTMLElement,
 			quickReplyHost: quickReplyHost as HTMLElement,
@@ -99,10 +102,10 @@ function expectQuickReplyHostInTextareaSlot({
 	quickReplyHost: HTMLElement;
 }) {
 	const textareaHost = inputRowHost.querySelector<HTMLElement>(
-		".mobile-send-form-input-row__textarea-host",
+		".mobile-chat-input__field",
 	);
 	const textareaMain = inputRowHost.querySelector<HTMLElement>(
-		".mobile-send-form-input-row__textarea-main",
+		".mobile-chat-input__textarea-slot",
 	);
 
 	expect(textareaHost).toContainElement(textareaMain);
@@ -565,40 +568,42 @@ describe("createMobileSendFormFeature", () => {
 
 		const { composerHost, inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
+		const composerShell = document.getElementById(
+			"mobile-chat-composer-shell",
+		);
+		const formSheld = document.getElementById("form_sheld");
 
 		expect(
 			shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
 		).not.toBeInTheDocument();
 		expect(
-			shortcutsHost.querySelector(".mobile-send-form-input-row"),
+			shortcutsHost.querySelector(".mobile-chat-input"),
 		).not.toBeInTheDocument();
 		expect(
 			inputRowHost.querySelector(".mobile-send-form-shortcuts"),
 		).not.toBeInTheDocument();
 		expect(
-			inputRowHost.querySelector(".mobile-send-form-input-row"),
+			inputRowHost.querySelector(".mobile-chat-input"),
 		).toBeInTheDocument();
-		expect(composerHost).toHaveClass("mobile-send-form-composer-host");
+		expect(composerShell).toHaveClass("mobile-chat-composer-shell");
+		expect(composerShell).toContainElement(formSheld);
+		expect(composerShell?.children[0]).toBe(formSheld);
+		expect(composerHost).toHaveClass("mobile-chat-composer-host");
 		expect(composerHost.parentElement?.id).toBe("send_form");
 		expect(composerHost.nextElementSibling?.id).toBe("nonQRFormItems");
-		const composer = composerHost.querySelector(
-			".mobile-send-form-composer",
-		);
+		const composer = composerHost.querySelector(".mobile-chat-composer");
 		expect(composer).toBeInTheDocument();
-		expect(composer).toHaveAttribute(
-			"data-shortcuts-visible",
-			"false",
-		);
+		expect(composer).toHaveAttribute("data-shortcuts-visible", "false");
 		expect(
-			composerHost.querySelector(".mobile-send-form-composer__surface"),
+			composerHost.querySelector(".mobile-chat-composer__input-region"),
 		).toContainElement(inputRowHost);
 		expect(
 			composerHost.querySelector(
-				".mobile-send-form-composer__shortcut-region",
+				".mobile-chat-composer__shortcuts-region",
 			),
 		).toContainElement(shortcutsHost);
 		expect(shortcutsHost.parentElement).toHaveClass(
-			"mobile-send-form-composer__shortcut-region",
+			"mobile-chat-composer__shortcuts-region",
 		);
 		expect(shortcutsHost.nextElementSibling).toBeNull();
 		expectQuickReplyHostInTextareaSlot({
@@ -608,7 +613,7 @@ describe("createMobileSendFormFeature", () => {
 		expect(quickReplyHost).toHaveAttribute("hidden");
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 		expect(inputRowHost.parentElement).toHaveClass(
-			"mobile-send-form-composer__surface",
+			"mobile-chat-composer__input-region",
 		);
 		expect(inputRowHost.nextElementSibling).toBeNull();
 
@@ -776,53 +781,57 @@ describe("createMobileSendFormFeature", () => {
 		feature.mount();
 		feature.mount();
 
-		const { composerHost, inputRowHost, quickReplyHost, shortcutsHost } =
-			await waitForSendFormHosts();
+		const {
+			composerHost,
+			composerShell,
+			inputRowHost,
+			quickReplyHost,
+			shortcutsHost,
+		} = await waitForSendFormHosts();
+		const formSheld = document.getElementById("form_sheld");
 
-		expect(composerHost).toHaveClass("mobile-send-form-composer-host");
+		expect(composerShell).toHaveClass("mobile-chat-composer-shell");
+		expect(composerShell).toContainElement(formSheld);
+		expect(composerShell.children[0]).toBe(formSheld);
+		expect(composerHost).toHaveClass("mobile-chat-composer-host");
 		expect(composerHost.parentElement?.id).toBe("send_form");
 		expect(composerHost.nextElementSibling?.id).toBe("nonQRFormItems");
-		const composer = composerHost.querySelector(
-			".mobile-send-form-composer",
-		);
+		const composer = composerHost.querySelector(".mobile-chat-composer");
 		expect(composer).toBeInTheDocument();
-		expect(composer).toHaveAttribute(
-			"data-shortcuts-visible",
-			"true",
-		);
+		expect(composer).toHaveAttribute("data-shortcuts-visible", "true");
 		expect(
-			composerHost.querySelector(".mobile-send-form-composer__surface"),
+			composerHost.querySelector(".mobile-chat-composer__input-region"),
 		).toContainElement(inputRowHost);
 		expect(
 			composerHost.querySelector(
-				".mobile-send-form-composer__shortcut-region",
+				".mobile-chat-composer__shortcuts-region",
 			),
 		).toContainElement(shortcutsHost);
-		expect(shortcutsHost).toHaveClass("mobile-send-form-shortcuts-host");
+		expect(shortcutsHost).toHaveClass("mobile-chat-shortcuts-host");
 		expect(shortcutsHost.parentElement).toHaveClass(
-			"mobile-send-form-composer__shortcut-region",
+			"mobile-chat-composer__shortcuts-region",
 		);
 		expect(shortcutsHost.nextElementSibling).toBeNull();
-		expect(quickReplyHost).toHaveClass("mobile-send-form-quick-reply-host");
+		expect(quickReplyHost).toHaveClass("mobile-chat-quick-replies-host");
 		expectQuickReplyHostInTextareaSlot({
 			inputRowHost,
 			quickReplyHost,
 		});
 		expect(quickReplyHost).toHaveAttribute("hidden");
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
-		expect(inputRowHost).toHaveClass("mobile-send-form-input-row-host");
+		expect(inputRowHost).toHaveClass("mobile-chat-input-host");
 		expect(inputRowHost.parentElement).toHaveClass(
-			"mobile-send-form-composer__surface",
+			"mobile-chat-composer__input-region",
 		);
 		expect(inputRowHost.nextElementSibling).toBeNull();
 		expect(
-			document.querySelectorAll("#mobile-send-form-composer-host"),
+			document.querySelectorAll("#mobile-chat-composer-host"),
 		).toHaveLength(1);
 		expect(
-			document.querySelectorAll("#mobile-send-form-shortcuts-host"),
+			document.querySelectorAll("#mobile-chat-shortcuts-host"),
 		).toHaveLength(1);
 		expect(
-			document.querySelectorAll("#mobile-send-form-quick-reply-host"),
+			document.querySelectorAll("#mobile-chat-quick-replies-host"),
 		).toHaveLength(1);
 		expect(
 			shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
@@ -833,25 +842,19 @@ describe("createMobileSendFormFeature", () => {
 			),
 		).not.toBeInTheDocument();
 		expect(
-			shortcutsHost.querySelector(".mobile-send-form-input-row"),
+			shortcutsHost.querySelector(".mobile-chat-input"),
 		).not.toBeInTheDocument();
 		expect(
-			inputRowHost.querySelector(".mobile-send-form-input-row"),
+			inputRowHost.querySelector(".mobile-chat-input"),
 		).toBeInTheDocument();
 		expect(
-			inputRowHost.querySelector(
-				".mobile-send-form-input-row__left-controls",
-			),
+			inputRowHost.querySelector(".mobile-chat-input__tools"),
 		).toBeInTheDocument();
 		expect(
-			inputRowHost.querySelector(
-				".mobile-send-form-input-row__left-controls-default",
-			),
+			inputRowHost.querySelector(".mobile-chat-input__tool-list"),
 		).toBeInTheDocument();
 		expect(
-			inputRowHost.querySelector(
-				".mobile-send-form-input-row__left-controls-composing",
-			),
+			inputRowHost.querySelector(".mobile-chat-input__tools-composing"),
 		).not.toBeInTheDocument();
 
 		const textarea = await waitFor(() => {
@@ -882,23 +885,21 @@ describe("createMobileSendFormFeature", () => {
 		expect(sendClicks).toBe(1);
 
 		const host = inputRowHost;
-		const inputRow = host.querySelector<HTMLElement>(
-			".mobile-send-form-input-row",
-		);
+		const inputRow = host.querySelector<HTMLElement>(".mobile-chat-input");
 		const leftControls = host.querySelector<HTMLElement>(
-			".mobile-send-form-input-row__left-controls",
+			".mobile-chat-input__tools",
 		);
 		const controlsRow = host.querySelector<HTMLElement>(
-			".mobile-send-form-input-row__controls-row",
+			".mobile-chat-input__toolbar",
 		);
 		const textareaHost = host.querySelector<HTMLElement>(
-			".mobile-send-form-input-row__textarea-host",
+			".mobile-chat-input__field",
 		);
 		const textareaMain = host.querySelector<HTMLElement>(
-			".mobile-send-form-input-row__textarea-main",
+			".mobile-chat-input__textarea-slot",
 		);
 		const textareaActions = host.querySelector<HTMLElement>(
-			".mobile-send-form-input-row__textarea-actions",
+			".mobile-chat-input__actions",
 		);
 		expect(inputRow).toHaveAttribute("data-input-state", "default");
 		expect(textareaHost).toContainElement(textareaMain);
@@ -939,10 +940,10 @@ describe("createMobileSendFormFeature", () => {
 			within(host).getByRole("button", { name: "Send message" }),
 		);
 		expect(leftControlsMenuButton).toHaveClass(
-			"mobile-send-form-input-row__left-control-button",
+			"mobile-chat-input__tool-button",
 		);
 		expect(leftControlsExtensionsButton).toHaveClass(
-			"mobile-send-form-input-row__left-control-button",
+			"mobile-chat-input__tool-button",
 		);
 		expect(leftControlsExtensionsButton).not.toBeDisabled();
 		expect(leftControlsExtensionsButton).toHaveAttribute(
@@ -1105,15 +1106,13 @@ describe("createMobileSendFormFeature", () => {
 
 		const avatarImage = within(host).getByAltText("Current user avatar");
 		expect(avatarImage).toHaveAttribute("src", "/thumbs/hero-persona.png");
-		expect(avatarImage).toHaveClass(
-			"mobile-send-form-input-row__avatar-image",
-		);
+		expect(avatarImage).toHaveClass("mobile-chat-input__avatar-image");
 		expect(within(host).getByLabelText("Current user avatar")).toHaveClass(
-			"mobile-send-form-input-row__avatar",
+			"mobile-chat-input__avatar-button",
 			"mobile-chat-main-menu__trigger",
 		);
 		expect(within(host).getByLabelText("Send message")).toHaveClass(
-			"mobile-send-form-input-row__send-button",
+			"mobile-chat-input__send-button",
 		);
 
 		feature.unmount();
@@ -1125,16 +1124,16 @@ describe("createMobileSendFormFeature", () => {
 		const sendForm = document.getElementById("send_form");
 
 		expect(
-			document.getElementById("mobile-send-form-shortcuts-host"),
+			document.getElementById("mobile-chat-shortcuts-host"),
 		).not.toBeInTheDocument();
 		expect(
-			document.getElementById("mobile-send-form-composer-host"),
+			document.getElementById("mobile-chat-composer-host"),
 		).not.toBeInTheDocument();
 		expect(
-			document.getElementById("mobile-send-form-quick-reply-host"),
+			document.getElementById("mobile-chat-quick-replies-host"),
 		).not.toBeInTheDocument();
 		expect(
-			document.getElementById("mobile-send-form-input-row-host"),
+			document.getElementById("mobile-chat-input-host"),
 		).not.toBeInTheDocument();
 		expect(restoredQuickReplyBar?.parentElement).toBe(sendForm);
 		expect(restoredQuickReplyBar?.nextElementSibling).toBe(nonQrFormItems);
@@ -1200,9 +1199,7 @@ describe("createMobileSendFormFeature", () => {
 		const primarySendButton = await within(host).findByRole("button", {
 			name: "Send message",
 		});
-		expect(primarySendButton).toHaveClass(
-			"mobile-send-form-input-row__send-button",
-		);
+		expect(primarySendButton).toHaveClass("mobile-chat-input__send-button");
 
 		fireEvent.click(primarySendButton);
 
@@ -2810,17 +2807,12 @@ describe("createMobileSendFormFeature", () => {
 
 		const { composerHost, inputRowHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const composer = composerHost.querySelector(
-			".mobile-send-form-composer",
-		);
+		const composer = composerHost.querySelector(".mobile-chat-composer");
 
 		expect(
 			shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
 		).toBeInTheDocument();
-		expect(composer).toHaveAttribute(
-			"data-shortcuts-visible",
-			"true",
-		);
+		expect(composer).toHaveAttribute("data-shortcuts-visible", "true");
 
 		const menuButton = within(inputRowHost).getByRole("button", {
 			name: "Menu",
@@ -2846,10 +2838,7 @@ describe("createMobileSendFormFeature", () => {
 			expect(
 				shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
 			).not.toBeInTheDocument();
-			expect(composer).toHaveAttribute(
-				"data-shortcuts-visible",
-				"false",
-			);
+			expect(composer).toHaveAttribute("data-shortcuts-visible", "false");
 		});
 		expect(
 			window.localStorage.getItem(
@@ -2869,9 +2858,7 @@ describe("createMobileSendFormFeature", () => {
 			remountedHost.querySelector(".mobile-send-form-shortcuts"),
 		).not.toBeInTheDocument();
 		expect(
-			remountedComposerHost.querySelector(
-				".mobile-send-form-composer",
-			),
+			remountedComposerHost.querySelector(".mobile-chat-composer"),
 		).toHaveAttribute("data-shortcuts-visible", "false");
 
 		feature.unmount();
@@ -2946,7 +2933,7 @@ describe("createMobileSendFormFeature", () => {
 				"textbox",
 			) as HTMLTextAreaElement;
 			const leftControls = host.querySelector(
-				".mobile-send-form-input-row__left-controls",
+				".mobile-chat-input__tools",
 			);
 
 			Object.defineProperty(textarea, "scrollHeight", {
@@ -3049,7 +3036,7 @@ describe("createMobileSendFormFeature", () => {
 				"textbox",
 			) as HTMLTextAreaElement;
 			const leftControls = host.querySelector(
-				".mobile-send-form-input-row__left-controls",
+				".mobile-chat-input__tools",
 			);
 
 			Object.defineProperty(textarea, "scrollHeight", {
@@ -3150,9 +3137,7 @@ describe("createMobileSendFormFeature", () => {
 		const textarea = within(host).getByRole(
 			"textbox",
 		) as HTMLTextAreaElement;
-		const leftControls = host.querySelector(
-			".mobile-send-form-input-row__left-controls",
-		);
+		const leftControls = host.querySelector(".mobile-chat-input__tools");
 
 		Object.defineProperty(textarea, "scrollHeight", {
 			configurable: true,
@@ -3246,9 +3231,7 @@ describe("createMobileSendFormFeature", () => {
 		const textarea = within(host).getByRole(
 			"textbox",
 		) as HTMLTextAreaElement;
-		const leftControls = host.querySelector(
-			".mobile-send-form-input-row__left-controls",
-		);
+		const leftControls = host.querySelector(".mobile-chat-input__tools");
 
 		Object.defineProperty(textarea, "scrollHeight", {
 			configurable: true,
@@ -3615,11 +3598,9 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const inputRow = inputRowHost.querySelector(
-			".mobile-send-form-input-row",
-		);
+		const inputRow = inputRowHost.querySelector(".mobile-chat-input");
 		const textareaMain = inputRowHost.querySelector(
-			".mobile-send-form-input-row__textarea-main",
+			".mobile-chat-input__textarea-slot",
 		);
 		const shortcutsStrip = shortcutsHost.querySelector(
 			".mobile-send-form-shortcuts__strip",
@@ -3630,7 +3611,7 @@ describe("createMobileSendFormFeature", () => {
 			shortcutsStrip as HTMLElement,
 		).getAllByRole("button");
 		const textareaActions = inputRowHost.querySelector(
-			".mobile-send-form-input-row__textarea-actions",
+			".mobile-chat-input__actions",
 		);
 		const quickReplyToggle = within(inputRowHost).getByRole("button", {
 			name: "Show quick replies",
@@ -3684,11 +3665,9 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const inputRow = inputRowHost.querySelector(
-			".mobile-send-form-input-row",
-		);
+		const inputRow = inputRowHost.querySelector(".mobile-chat-input");
 		const textareaMain = inputRowHost.querySelector(
-			".mobile-send-form-input-row__textarea-main",
+			".mobile-chat-input__textarea-slot",
 		);
 		expect(
 			within(shortcutsHost).queryByRole("button", {
@@ -3742,11 +3721,9 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const inputRow = inputRowHost.querySelector(
-			".mobile-send-form-input-row",
-		);
+		const inputRow = inputRowHost.querySelector(".mobile-chat-input");
 		const textareaMain = inputRowHost.querySelector(
-			".mobile-send-form-input-row__textarea-main",
+			".mobile-chat-input__textarea-slot",
 		);
 
 		expect(quickReplyHost).toHaveAttribute("hidden");
@@ -3782,11 +3759,9 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const inputRow = inputRowHost.querySelector(
-			".mobile-send-form-input-row",
-		);
+		const inputRow = inputRowHost.querySelector(".mobile-chat-input");
 		const textareaMain = inputRowHost.querySelector(
-			".mobile-send-form-input-row__textarea-main",
+			".mobile-chat-input__textarea-slot",
 		);
 
 		expect(
@@ -3823,11 +3798,9 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const inputRow = inputRowHost.querySelector(
-			".mobile-send-form-input-row",
-		);
+		const inputRow = inputRowHost.querySelector(".mobile-chat-input");
 		const textareaMain = inputRowHost.querySelector(
-			".mobile-send-form-input-row__textarea-main",
+			".mobile-chat-input__textarea-slot",
 		);
 
 		expect(

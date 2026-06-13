@@ -19,9 +19,9 @@ import type {
 import type { QuickShortcutStore } from "@/packages/core/st/quickShortcuts";
 import type { NativeQuickReplyEnabledStore } from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyEnabledStore";
 import {
-	MOBILE_SEND_FORM_INPUT_ROW_HOST_ID,
+	MOBILE_CHAT_INPUT_HOST_ID,
 	MOBILE_SEND_FORM_QUICK_REPLY_VISIBILITY_STORAGE_KEY,
-	MOBILE_SEND_FORM_SHORTCUTS_HOST_ID,
+	MOBILE_CHAT_SHORTCUTS_HOST_ID,
 	MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { SILLYTAVERN_INTERFACE_ID } from "@/packages/features/sillytavern-interface/contracts/dom";
@@ -38,7 +38,7 @@ import { MobileSillyTavernInterfacePanel } from "@/packages/features/sillytavern
 import { CurrentChatDeleteDialog } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatDeleteDialog";
 import { CurrentChatRenameDialog } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatRenameDialog";
 import { MobileChatMainMenuDrawer } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawer";
-import { MobileSendFormInputRow } from "@/packages/features/chat-session/send-form/shell/MobileSendFormInputRow";
+import { MobileChatInput } from "@/packages/features/chat-session/send-form/shell/MobileChatInput";
 import { MobileSendFormShortcutsToolbar } from "@/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar";
 import { useSillyTavernInterfaceController } from "@/packages/features/chat-session/send-form/shell/useSillyTavernInterfaceController";
 import {
@@ -54,7 +54,7 @@ import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identi
 import type { CurrentChatInfoSnapshot } from "@/packages/core/st/currentChatInfo";
 
 function readInputControlSize(textarea: HTMLTextAreaElement): number {
-	const inputRow = textarea.closest(".mobile-send-form-input-row");
+	const inputRow = textarea.closest(".mobile-chat-input");
 	if (!(inputRow instanceof HTMLElement)) {
 		return 36;
 	}
@@ -802,7 +802,7 @@ export function AstraMobileSendForm({
 		/>
 	) : null;
 	const inputRow = (
-		<MobileSendFormInputRow
+		<MobileChatInput
 			currentUserAvatarLabel={currentUserAvatarLabel}
 			documentRef={documentRef}
 			inputRowLabel={inputRowLabel}
@@ -840,24 +840,22 @@ export function AstraMobileSendForm({
 	return (
 		<>
 			<div
-				className="mobile-send-form-composer"
-				data-shortcuts-visible={
-					showShortcutsToolbar ? "true" : "false"
-				}
-				data-slot="mobile-send-form-composer"
+				className="mobile-chat-composer"
+				data-shortcuts-visible={showShortcutsToolbar ? "true" : "false"}
+				data-slot="mobile-chat-composer"
 			>
-				<div className="mobile-send-form-composer__surface">
+				<div className="mobile-chat-composer__input-region">
 					<div
-						className="mobile-send-form-input-row-host"
-						id={MOBILE_SEND_FORM_INPUT_ROW_HOST_ID}
+						id={MOBILE_CHAT_INPUT_HOST_ID}
+						className="mobile-chat-input-host"
 					>
 						{inputRow}
 					</div>
 				</div>
-				<div className="mobile-send-form-composer__shortcut-region">
+				<div className="mobile-chat-composer__shortcuts-region">
 					<div
-						className="mobile-send-form-shortcuts-host"
-						id={MOBILE_SEND_FORM_SHORTCUTS_HOST_ID}
+						id={MOBILE_CHAT_SHORTCUTS_HOST_ID}
+						className="mobile-chat-shortcuts-host"
 					>
 						{shortcutsToolbar}
 					</div>

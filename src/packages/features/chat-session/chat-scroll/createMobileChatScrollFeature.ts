@@ -21,6 +21,7 @@ type ChatScrollWindowLike = {
 
 const CHAT_SCROLL_ATTRIBUTE = "data-astra-projecta-chat-scroll";
 const CHAT_SCROLL_ATTRIBUTE_VALUE = "native";
+const CHAT_TRANSCRIPT_CLASS = "mobile-chat-transcript";
 const CHAT_SCROLL_Y_START_ATTRIBUTE = "data-astra-projecta-chat-scroll-y-start";
 const CHAT_SCROLL_Y_END_ATTRIBUTE = "data-astra-projecta-chat-scroll-y-end";
 const CHAT_SCROLL_EDGE_EPSILON = 0.5;
@@ -182,6 +183,7 @@ export function createMobileChatScrollFeature({
 			CHAT_SCROLL_ATTRIBUTE,
 			CHAT_SCROLL_ATTRIBUTE_VALUE,
 		);
+		chatElement.classList.add(CHAT_TRANSCRIPT_CLASS);
 	}
 
 	function clearChatElementContract(chatElement: HTMLElement) {
@@ -191,6 +193,7 @@ export function createMobileChatScrollFeature({
 		) {
 			chatElement.removeAttribute(CHAT_SCROLL_ATTRIBUTE);
 		}
+		chatElement.classList.remove(CHAT_TRANSCRIPT_CLASS);
 		clearChatScrollFadeAttributes(chatElement);
 	}
 

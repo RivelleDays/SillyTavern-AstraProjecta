@@ -11,7 +11,8 @@ import { createCurrentUserAvatarStore } from "@/packages/core/st/currentUserAvat
 import { createPrimarySendActionStore } from "@/packages/core/st/primarySendAction";
 import { createQuickShortcutStore } from "@/packages/core/st/quickShortcuts";
 import {
-	MOBILE_SEND_FORM_COMPOSER_HOST_ID,
+	MOBILE_CHAT_COMPOSER_HOST_ID,
+	MOBILE_CHAT_COMPOSER_SHELL_ID,
 	NATIVE_FORM_SHELD_ID,
 	NATIVE_NON_QR_FORM_ITEMS_ID,
 	NATIVE_RIGHT_SEND_FORM_ID,
@@ -77,10 +78,14 @@ export function createMobileSendFormFeature({
 	documentRef?: Document;
 } = {}): MobileSendFormFeature {
 	let composerHost: HTMLDivElement | null = null;
+	let composerShell: HTMLDivElement | null = null;
 	let quickReplyBarBridge: NativeQuickReplyBarBridge | null = null;
 	let quickReplyHost: HTMLDivElement | null = null;
 	let root: Root | null = null;
 	let managedTextarea: HTMLTextAreaElement | null = null;
+	let originalFormSheldNextSibling: ChildNode | null = null;
+	let originalFormSheldParent: Node | null = null;
+	let ownsComposerShell = false;
 	let currentChatIdentityStore: ReturnType<
 		typeof createCurrentChatIdentityStore
 	> | null = null;
@@ -145,6 +150,69 @@ export function createMobileSendFormFeature({
 			documentRef,
 		});
 		quickReplyBarBridge.attachTo(quickReplyHost);
+	}
+
+	function ensureComposerShell(formSheld: HTMLElement) {
+		if (formSheld.parentElement?.id === MOBILE_CHAT_COMPOSER_SHELL_ID) {
+			const parent = formSheld.parentElement;
+			if (parent instanceof HTMLDivElement) {
+				composerShell = markAstraProjectaUiRoot(parent);
+				return composerShell;
+			}
+		}
+
+		const existingShell = documentRef.getElementById(
+			MOBILE_CHAT_COMPOSER_SHELL_ID,
+		);
+		if (existingShell) {
+			return null;
+		}
+
+		if (!formSheld.parentNode) {
+			return null;
+		}
+
+		originalFormSheldParent = formSheld.parentNode;
+		originalFormSheldNextSibling = formSheld.nextSibling;
+
+		composerShell = documentRef.createElement("div");
+		composerShell.id = MOBILE_CHAT_COMPOSER_SHELL_ID;
+		composerShell.className = "mobile-chat-composer-shell";
+		markAstraProjectaUiRoot(composerShell);
+
+		originalFormSheldParent.insertBefore(composerShell, formSheld);
+		composerShell.appendChild(formSheld);
+		ownsComposerShell = true;
+
+		return composerShell;
+	}
+
+	function restoreFormSheld() {
+		const formSheld = documentRef.getElementById(NATIVE_FORM_SHELD_ID);
+		if (
+			!(formSheld instanceof HTMLElement) ||
+			!composerShell?.contains(formSheld)
+		) {
+			return;
+		}
+
+		if (originalFormSheldParent) {
+			if (
+				originalFormSheldNextSibling &&
+				originalFormSheldNextSibling.parentNode ===
+					originalFormSheldParent
+			) {
+				originalFormSheldParent.insertBefore(
+					formSheld,
+					originalFormSheldNextSibling,
+				);
+			} else {
+				originalFormSheldParent.appendChild(formSheld);
+			}
+			return;
+		}
+
+		composerShell.parentNode?.insertBefore(formSheld, composerShell);
 	}
 
 	function restoreTextareaToNativeRow() {
@@ -255,21 +323,22 @@ export function createMobileSendFormFeature({
 			return;
 		}
 
+		if (!ensureComposerShell(targets.formSheld)) {
+			return;
+		}
+
 		composerHost =
-			resolveHost(documentRef, MOBILE_SEND_FORM_COMPOSER_HOST_ID) ??
+			resolveHost(documentRef, MOBILE_CHAT_COMPOSER_HOST_ID) ??
 			documentRef.createElement("div");
-		composerHost.id = MOBILE_SEND_FORM_COMPOSER_HOST_ID;
-		composerHost.className = "mobile-send-form-composer-host";
+		composerHost.id = MOBILE_CHAT_COMPOSER_HOST_ID;
+		composerHost.className = "mobile-chat-composer-host";
 		markAstraProjectaUiRoot(composerHost);
 
 		if (
 			composerHost.parentElement !== targets.sendForm ||
 			composerHost.nextElementSibling !== targets.nonQrFormItems
 		) {
-			targets.sendForm.insertBefore(
-				composerHost,
-				targets.nonQrFormItems,
-			);
+			targets.sendForm.insertBefore(composerHost, targets.nonQrFormItems);
 		}
 
 		if (!root) {
@@ -307,6 +376,14 @@ export function createMobileSendFormFeature({
 		quickReplyHost = null;
 		composerHost?.remove();
 		composerHost = null;
+		restoreFormSheld();
+		if (ownsComposerShell) {
+			composerShell?.remove();
+		}
+		composerShell = null;
+		originalFormSheldNextSibling = null;
+		originalFormSheldParent = null;
+		ownsComposerShell = false;
 		disposeStores();
 	}
 
