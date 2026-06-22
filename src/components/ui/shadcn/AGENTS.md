@@ -13,8 +13,8 @@
 
 - Default feature and wrapper imports to this layer for upstream shadcn components.
 - If a same-name Astra wrapper exists for a SillyTavern-adapted surface, prefer the Astra version and leave this vendored source untouched.
-- `scroll-area` is a permanent exception: feature and wrapper code must import from `src/components/ui/astra/scroll-area`, not from this vendored shadcn layer.
-- Keep `src/components/ui/shadcn/scroll-area.tsx` as upstream source only. Do not use it as the import target for new AstraProjecta product code.
+- Keep this folder pruned to shadcn primitives that AstraProjecta actually imports.
+- When a new primitive is intentionally needed, add it through the shadcn CLI and update `src/components/ui/dependency-hygiene.test.ts` so the allowlist stays intentional.
 - Do not manually edit files in this folder unless the user explicitly approves a direct upstream change.
 - Do not place AstraProjecta-specific portal handling, icon policy, or business logic in this folder.
 - If a component needs AstraProjecta-specific customization, keep the upstream file untouched and add a stable helper in `src/components/ui/shared`, runtime support in `src/packages/core/runtime` or `src/app/mobile`, or a CSS fix in `src/styles/shadcn-overrides.css`.
