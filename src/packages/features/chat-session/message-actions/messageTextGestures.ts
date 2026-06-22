@@ -1,3 +1,8 @@
+import {
+	hasNativeMessageEditTextarea,
+	resolveMessageTextGestureTarget,
+} from "@/packages/features/chat-session/message-actions/contracts/dom";
+
 const MESSAGE_TEXT_LONG_PRESS_DURATION_MS = 240;
 const MESSAGE_TEXT_LONG_PRESS_MOVE_THRESHOLD_PX = 12;
 const MESSAGE_TEXT_SUPPRESS_ACTIVATION_MS = 500;
@@ -89,25 +94,15 @@ export function createMessageTextGestureController({
 		messageId: number;
 		messageText: HTMLElement;
 	} | null {
-		if (!(eventTarget instanceof Element)) {
-			return null;
-		}
-
-		const messageText = eventTarget.closest("#chat .mes[mesid] .mes_text");
-		if (!(messageText instanceof HTMLElement)) {
-			return null;
-		}
-
-		const messageElement = messageText.closest("#chat .mes[mesid]");
-		const messageId = Number(messageElement?.getAttribute("mesid"));
-		if (!messageElement || !Number.isInteger(messageId)) {
+		const target = resolveMessageTextGestureTarget(eventTarget, "text");
+		if (!target) {
 			return null;
 		}
 
 		return {
-			messageElement,
-			messageId,
-			messageText,
+			messageElement: target.messageElement,
+			messageId: target.messageId,
+			messageText: target.messagePart,
 		};
 	}
 
@@ -115,26 +110,14 @@ export function createMessageTextGestureController({
 		messageElement: Element;
 		messageId: number;
 	} | null {
-		if (!(eventTarget instanceof Element)) {
-			return null;
-		}
-
-		const editableMessagePart = eventTarget.closest(
-			"#chat .mes[mesid] .mes_text, #chat .mes[mesid] .mes_reasoning",
-		);
-		if (!(editableMessagePart instanceof HTMLElement)) {
-			return null;
-		}
-
-		const messageElement = editableMessagePart.closest("#chat .mes[mesid]");
-		const messageId = Number(messageElement?.getAttribute("mesid"));
-		if (!messageElement || !Number.isInteger(messageId)) {
+		const target = resolveMessageTextGestureTarget(eventTarget, "editable");
+		if (!target) {
 			return null;
 		}
 
 		return {
-			messageElement,
-			messageId,
+			messageElement: target.messageElement,
+			messageId: target.messageId,
 		};
 	}
 
@@ -144,11 +127,7 @@ export function createMessageTextGestureController({
 	}
 
 	function hasNativeEditTextarea(): boolean {
-		return Boolean(
-			documentRef.querySelector(
-				".edit_textarea, .reasoning_edit_textarea",
-			),
-		);
+		return hasNativeMessageEditTextarea(documentRef);
 	}
 
 	function stopNativeMessageTextActivation(event: Event) {

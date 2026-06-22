@@ -6,6 +6,7 @@
 ## SillyTavern Touchpoints
 
 - Consumes `SillyTavern.getContext()` for `characters`, `groups`, `getRequestHeaders`, `getThumbnailUrl`, `eventSource`, `eventTypes`, `executeSlashCommandsWithOptions`, `selectCharacterById`, `openCharacterChat`, `openGroupChat`, `saveSettingsDebounced`, `characterId`, `groupId`, `chatId`, and `getCurrentChatId`.
+- `contracts/dom.ts` is the single audit point for native character/group row selectors and their jQuery/native click activation fallback.
 - Fetches `/api/chats/recent` with SillyTavern request headers and an empty JSON body to load the complete recent-chat set.
 - Uses the public event bus to refresh on chat, message, and group changes when event names are exposed.
 - Uses a CharacterLibrary-inspired target-first jump pattern for inactive character/group chat opens: set the target `character.chat` or `group.chat_id` before native activation so SillyTavern does not first load the entity's previous chat.
@@ -23,5 +24,6 @@
 
 - Keep category, preview-loading, and per-entity menu behavior out of this adapter until later slices add those contracts.
 - Keep chat jump, ordering, and loading behavior aligned with the documented target-first pattern without adding another extension as a runtime dependency.
+- Keep raw native character/group list selectors out of `index.ts`; target-first activation must resolve and trigger rows through `contracts/dom.ts`.
 - Keep arbitrary chat rename/delete operations lazy and action-scoped; do not add per-row module imports, subscriptions, or metadata hydration for the full catalog. Public SillyTavern extension surfaces do not currently expose arbitrary inactive-chat rename/delete, so this unstable bridge is a narrow exception rather than a general precedent.
 - Keep cache payloads versioned and safe to discard.

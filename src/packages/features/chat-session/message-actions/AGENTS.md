@@ -5,8 +5,9 @@
 
 ## Owned Paths / Responsibilities
 
-- `createMobileMessageActionsFeature.tsx`: mobile orchestration for stores, controllers, and drawer render callbacks. Keep direct DOM parsing, gesture state, observer scheduling, portal root lifecycle, and edit-draft state in the focused helpers listed below.
-- `messageActionTargetResolver.ts`: feature-local SillyTavern chat DOM and message metadata resolution for `#chat .mes[mesid]`, rendered message snapshots, and native action elements.
+- `createMobileMessageActionsFeature.tsx`: mobile orchestration for stores, controllers, and drawer render callbacks. Keep DOM contracts, gesture state, observer scheduling, portal root lifecycle, and edit-draft state in the focused helpers listed below.
+- `contracts/dom.ts`: the single audit point for SillyTavern message selectors, message/template lookup, native message-action lookup and activation, gesture targets, metadata nodes, and legacy Astra action-host cleanup.
+- `messageActionTargetResolver.ts`: feature-local message/context metadata resolution built on the DOM contract; it must not define raw SillyTavern selectors.
 - `messageHeaderActionRoots.tsx`: lifecycle for per-message `.astra-mesHeaderActions` React roots inside bridged message headers.
 - `messageTextGestures.ts`: mobile long-press and `click_to_edit` gesture delegation for live message text/reasoning nodes.
 - `frameScheduler.ts` and `chatDomReconciler.ts`: requestAnimationFrame coalescing and MutationObserver start/stop/cancel behavior for chat DOM reconciliation.
@@ -21,6 +22,7 @@
 
 - Source chat root: `#chat`.
 - Source message selector: `#chat .mes[mesid]`.
+- Keep the concrete native selector and activation details in `contracts/dom.ts`; other production files consume its named resolvers instead of duplicating selector strings.
 - Footer target host: direct Astra-owned `.astra-mesActions[data-astra-component="mes-actions"][data-astra-slot="footer"]` under the target message `.mes`, placed immediately after `.mes_block`.
 - Header target host: direct Astra-owned `.astra-mesHeaderActions[data-astra-component="mes-header-actions"]` inside the target message `.astra-mesHeader`, rendered only when the message header bridge has provided that header node.
 - The revision bar and swipe pager render directly inside the footer action container; do not add per-action wrapper hosts or mount these controls into a top/header action slot.
@@ -34,6 +36,7 @@
 - Clean up React roots, subscriptions, and empty Astra-owned containers on unmount/dispose.
 - Keep portal drawer roots managed through `packages/core/runtime/reactPortalRootManager`; do not add new drawer-specific ensure/unmount copies in the feature factory.
 - Keep `createMobileMessageActionsFeature.tsx` as an orchestration layer. New DOM selectors, gesture timers, observer state, or edit-draft state should belong to the focused helper/controller that owns that concern.
+- Add or revise SillyTavern message selectors only in `contracts/dom.ts`, then update its contract tests and the documented touchpoint list in this file.
 - Do not insert empty top/header `.astra-mesActions` hosts during normal message action rendering; the only production `.astra-mesActions` slot is `data-astra-slot="footer"`. Header buttons use the separate `.astra-mesHeaderActions` host.
 - Production mobile rendering must not create `.astra-mesActions__revisionHost`, `.astra-mesActions__historyHost`, `.astra-mesActions__moreHost`, `.astra-mesActions__leftDefault`, or `.astra-mesActions__rightDefault`; keep those names only as legacy cleanup selectors if needed.
 - The More actions Drawer entry points are mobile long-press on live `#chat .mes .mes_text` and the header ellipsis button. The Drawer still owns history, edit, prompt visibility, and extra action handoffs after the selected message target is resolved.

@@ -7,11 +7,11 @@ import {
 } from "@/packages/features/chat-session/messageModelMetadata";
 import type { MessageActionsTarget } from "@/packages/features/chat-session/message-actions/more-actions/MoreActionsDrawer";
 import { createMessageContentSnapshot } from "@/packages/features/chat-session/message-actions/more-actions/messageContentSnapshot";
-
-export interface LoadedMessageElement {
-	messageElement: Element;
-	messageId: number;
-}
+import {
+	type LoadedMessageElement,
+	resolveMessageMetadataElements,
+	resolveMessageSenderNameText,
+} from "@/packages/features/chat-session/message-actions/contracts/dom";
 
 export type MessageActionsContextLike = Record<string, unknown> & {
 	chat?: unknown;
@@ -88,7 +88,8 @@ function resolveMessageDisplayId(
 	messageElement: Element,
 	messageId: number,
 ): string {
-	const domText = messageElement.querySelector(".mesIDDisplay")?.textContent;
+	const domText =
+		resolveMessageMetadataElements(messageElement).displayId?.textContent;
 	const normalizedDomText = asTrimmedString(domText);
 
 	return normalizedDomText || `#${messageId}`;
@@ -98,10 +99,8 @@ function resolveAvatarUrl(
 	message: MessageActionsChatMessageLike | null,
 	messageElement: Element,
 ): string {
-	const image = messageElement.querySelector(
-		".mesAvatarWrapper img, .mes_avatar img, .avatar img",
-	);
-	if (image instanceof HTMLImageElement) {
+	const image = resolveMessageMetadataElements(messageElement).avatarImage;
+	if (image) {
 		const imageUrl =
 			asTrimmedString(image.getAttribute("src")) ||
 			asTrimmedString(image.currentSrc) ||
@@ -127,29 +126,7 @@ function resolveAvatarUrl(
 }
 
 function resolveDomSenderName(messageElement: Element): string {
-	const nameText = asTrimmedString(
-		messageElement.querySelector(".name_text")?.textContent,
-	);
-	if (nameText) {
-		return nameText;
-	}
-
-	const nameElement = messageElement.querySelector(".ch_name");
-	if (!nameElement) {
-		return "";
-	}
-
-	const clone = nameElement.cloneNode(true);
-	if (!(clone instanceof Element)) {
-		return "";
-	}
-
-	clone
-		.querySelectorAll(
-			".astra-mesModel, .timestamp, .timestamp-icon, .mes_buttons",
-		)
-		.forEach((element) => element.remove());
-	return asTrimmedString(clone.textContent);
+	return asTrimmedString(resolveMessageSenderNameText(messageElement));
 }
 
 function resolveSenderName(
@@ -173,14 +150,11 @@ function resolveSenderName(
 	return message?.is_user === true ? "User" : "Character";
 }
 
-function resolveElementText(messageElement: Element, selector: string): string {
-	return asTrimmedString(messageElement.querySelector(selector)?.textContent);
-}
-
 function resolveTimestamp(messageElement: Element): string {
+	const { timestamp } = resolveMessageMetadataElements(messageElement);
 	return (
 		asTrimmedString(messageElement.getAttribute("timestamp")) ||
-		resolveElementText(messageElement, ".timestamp")
+		asTrimmedString(timestamp?.textContent)
 	);
 }
 
@@ -213,7 +187,8 @@ function resolveMessageModelMetadata(
 	MessageActionsTarget["metadata"],
 	"modelIconHtml" | "modelIconKey" | "modelLabel"
 > {
-	const timestampIcon = messageElement.querySelector(".timestamp-icon");
+	const timestampIcon =
+		resolveMessageMetadataElements(messageElement).timestampIcon;
 	const iconTitle =
 		timestampIcon instanceof Element
 			? asTrimmedString(timestampIcon.getAttribute("title"))
@@ -253,17 +228,19 @@ function resolveMessageMetadata(
 	messageElement: Element,
 ): MessageActionsTarget["metadata"] {
 	const modelMetadata = resolveMessageModelMetadata(message, messageElement);
+	const metadataElements = resolveMessageMetadataElements(messageElement);
 
 	return {
 		bookmarkLink:
 			asTrimmedString(messageElement.getAttribute("bookmark_link")) ||
 			undefined,
 		generationTime:
-			resolveElementText(messageElement, ".mes_timer") || undefined,
+			asTrimmedString(metadataElements.generationTime?.textContent) ||
+			undefined,
 		...modelMetadata,
 		timestamp: resolveTimestamp(messageElement) || undefined,
 		tokenCount:
-			resolveElementText(messageElement, ".tokenCounterDisplay") ||
+			asTrimmedString(metadataElements.tokenCount?.textContent) ||
 			undefined,
 	};
 }
@@ -331,93 +308,6 @@ export function resolveMoreActionsTarget({
 		swipeIndex,
 		swipeTotal,
 	};
-}
-
-export function resolveMessageElement(
-	documentRef: Document,
-	messageId: number,
-): Element | null {
-	return documentRef.querySelector(`#chat .mes[mesid="${messageId}"]`);
-}
-
-export function resolveNativeMessageActionElement({
-	documentRef,
-	messageId,
-	selector,
-}: {
-	documentRef: Document;
-	messageId: number;
-	selector: string;
-}): HTMLElement | null {
-	const actionElement = resolveMessageElement(
-		documentRef,
-		messageId,
-	)?.querySelector(selector);
-
-	return actionElement instanceof HTMLElement ? actionElement : null;
-}
-
-export function dispatchNativeClick({
-	documentRef,
-	element,
-}: {
-	documentRef: Document;
-	element: HTMLElement;
-}) {
-	const view = documentRef.defaultView;
-	const event =
-		typeof view?.MouseEvent === "function"
-			? new view.MouseEvent("click", {
-					bubbles: true,
-					cancelable: true,
-				})
-			: new Event("click", { bubbles: true, cancelable: true });
-
-	element.dispatchEvent(event);
-}
-
-export function dispatchNativePointerUp({
-	documentRef,
-	element,
-}: {
-	documentRef: Document;
-	element: HTMLElement;
-}) {
-	const view = documentRef.defaultView;
-	const event =
-		typeof view?.PointerEvent === "function"
-			? new view.PointerEvent("pointerup", {
-					bubbles: true,
-					cancelable: true,
-					pointerType: "touch",
-				})
-			: new Event("pointerup", { bubbles: true, cancelable: true });
-
-	element.dispatchEvent(event);
-}
-
-export function resolveLoadedMessageElements(
-	documentRef: Document,
-): LoadedMessageElement[] {
-	const seenMessageIds = new Set<number>();
-	const messageElements: LoadedMessageElement[] = [];
-
-	for (const messageElement of Array.from(
-		documentRef.querySelectorAll("#chat .mes[mesid]"),
-	)) {
-		const messageId = Number(messageElement.getAttribute("mesid"));
-		if (!Number.isInteger(messageId) || seenMessageIds.has(messageId)) {
-			continue;
-		}
-
-		seenMessageIds.add(messageId);
-		messageElements.push({
-			messageElement,
-			messageId,
-		});
-	}
-
-	return messageElements;
 }
 
 export function isActionableFooterMessage({

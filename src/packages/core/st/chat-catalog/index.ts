@@ -17,9 +17,12 @@ import {
 	formatStAbsoluteTimestamp,
 	parseStTimestampToMs,
 } from "@/packages/core/st/timestamps";
+import { defaultUnstableChatCatalogInternals } from "@/packages/core/st/chat-catalog/unstable-st-internals";
 import {
-	defaultUnstableChatCatalogInternals,
-} from "@/packages/core/st/chat-catalog/unstable-st-internals";
+	findNativeCharacterSelectElement,
+	findNativeGroupSelectElement,
+	triggerNativeSelectElement,
+} from "@/packages/core/st/chat-catalog/contracts/dom";
 
 type Listener = () => void;
 type FetchLike = typeof fetch;
@@ -668,87 +671,6 @@ function resolveGroup(
 	return null;
 }
 
-function findNativeGroupSelectElement(groupId: string): HTMLElement | null {
-	if (typeof document === "undefined") {
-		return null;
-	}
-
-	const groupRows = document.querySelectorAll(".group_select");
-	for (const groupRow of Array.from(groupRows)) {
-		if (!(groupRow instanceof HTMLElement)) {
-			continue;
-		}
-
-		const rowGroupId =
-			groupRow.getAttribute("data-chid") ??
-			groupRow.getAttribute("data-grid");
-		if (rowGroupId === groupId) {
-			return groupRow;
-		}
-	}
-
-	return null;
-}
-
-function triggerNativeGroupSelectElement(groupElement: HTMLElement): void {
-	const globalJQuery = (globalThis as { jQuery?: unknown; $?: unknown })
-		.jQuery;
-	const globalDollar = (globalThis as { jQuery?: unknown; $?: unknown }).$;
-	const jquery = globalJQuery ?? globalDollar;
-
-	if (typeof jquery === "function") {
-		const wrapped = jquery(groupElement) as { trigger?: unknown };
-		if (typeof wrapped.trigger === "function") {
-			wrapped.trigger("click");
-			return;
-		}
-	}
-
-	groupElement.click();
-}
-
-function findNativeCharacterSelectElement(
-	characterId: number,
-): HTMLElement | null {
-	if (typeof document === "undefined") {
-		return null;
-	}
-
-	const characterRows = document.querySelectorAll(".character_select");
-	for (const characterRow of Array.from(characterRows)) {
-		if (!(characterRow instanceof HTMLElement)) {
-			continue;
-		}
-
-		const rowCharacterId = characterRow.getAttribute("data-chid");
-		if (rowCharacterId === String(characterId)) {
-			return characterRow;
-		}
-	}
-
-	const directRow = document.getElementById(`CharID${characterId}`);
-	return directRow instanceof HTMLElement ? directRow : null;
-}
-
-function triggerNativeCharacterSelectElement(
-	characterElement: HTMLElement,
-): void {
-	const globalJQuery = (globalThis as { jQuery?: unknown; $?: unknown })
-		.jQuery;
-	const globalDollar = (globalThis as { jQuery?: unknown; $?: unknown }).$;
-	const jquery = globalJQuery ?? globalDollar;
-
-	if (typeof jquery === "function") {
-		const wrapped = jquery(characterElement) as { trigger?: unknown };
-		if (typeof wrapped.trigger === "function") {
-			wrapped.trigger("click");
-			return;
-		}
-	}
-
-	characterElement.click();
-}
-
 function resolveCharacterByAvatarId(
 	context: StChatCatalogContextLike,
 	avatarFileName: string,
@@ -1187,8 +1109,7 @@ async function activateGroupThroughPublicApi(
 		};
 	}
 
-	const nextContext =
-		readContextSafe<StChatCatalogContextLike>(getContext);
+	const nextContext = readContextSafe<StChatCatalogContextLike>(getContext);
 	if (!nextContext || asTrimmedIdentifier(nextContext.groupId) !== groupId) {
 		return {
 			ok: false,
@@ -1224,7 +1145,10 @@ async function activateGroupThroughNativeRowTargetFirst(
 	}
 
 	const group = resolveGroup(context, groupId);
-	const groupElement = findNativeGroupSelectElement(groupId);
+	const groupElement =
+		typeof document === "undefined"
+			? null
+			: findNativeGroupSelectElement(document, groupId);
 	if (!group || !groupElement) {
 		return {
 			ok: false,
@@ -1237,7 +1161,7 @@ async function activateGroupThroughNativeRowTargetFirst(
 
 	try {
 		group.chat_id = chatId;
-		triggerNativeGroupSelectElement(groupElement);
+		triggerNativeSelectElement(groupElement);
 
 		const activeContext = await waitForContextMatch(
 			getContext,
@@ -1794,7 +1718,10 @@ async function openInactiveCharacterChatTargetFirst(
 	  }
 > {
 	const character = resolveCharacterById(context, characterId);
-	const characterElement = findNativeCharacterSelectElement(characterId);
+	const characterElement =
+		typeof document === "undefined"
+			? null
+			: findNativeCharacterSelectElement(document, characterId);
 	if (!character || !characterElement) {
 		return {
 			ok: false,
@@ -1807,12 +1734,11 @@ async function openInactiveCharacterChatTargetFirst(
 
 	try {
 		character.chat = chatId;
-		triggerNativeCharacterSelectElement(characterElement);
+		triggerNativeSelectElement(characterElement);
 
 		const activeContext = await waitForContextMatch(
 			getContext,
-			(nextContext) =>
-				isActiveCharacterContext(nextContext, characterId),
+			(nextContext) => isActiveCharacterContext(nextContext, characterId),
 		);
 		if (!activeContext) {
 			return {
@@ -1908,8 +1834,7 @@ async function activateCharacterThroughPublicApi(
 
 		const activeContext = await waitForContextMatch(
 			getContext,
-			(nextContext) =>
-				isActiveCharacterContext(nextContext, characterId),
+			(nextContext) => isActiveCharacterContext(nextContext, characterId),
 		);
 		if (!activeContext) {
 			return {
@@ -2113,10 +2038,7 @@ export async function openChatCatalogEntry(
 			| { context: StChatCatalogContextLike; ok: true }
 			| {
 					ok: false;
-					reason:
-						| "api-unavailable"
-						| "invalid-entry"
-						| "open-failed";
+					reason: "api-unavailable" | "invalid-entry" | "open-failed";
 			  } = await openInactiveCharacterChatTargetFirst(
 			context,
 			characterId,

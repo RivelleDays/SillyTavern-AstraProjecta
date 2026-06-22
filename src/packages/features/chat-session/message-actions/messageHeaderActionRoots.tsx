@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 
-import type { LoadedMessageElement } from "@/packages/features/chat-session/message-actions/messageActionTargetResolver";
+import type { LoadedMessageElement } from "@/packages/features/chat-session/message-actions/contracts/dom";
 
 const MESSAGE_HEADER_ACTIONS_CLASS = "astra-mesHeaderActions";
 const MESSAGE_HEADER_ACTIONS_COMPONENT = "mes-header-actions";

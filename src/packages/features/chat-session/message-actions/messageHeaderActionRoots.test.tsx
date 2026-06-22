@@ -2,7 +2,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
 import { createMessageHeaderActionRoots } from "@/packages/features/chat-session/message-actions/messageHeaderActionRoots";
-import { resolveLoadedMessageElements } from "@/packages/features/chat-session/message-actions/messageActionTargetResolver";
+import { resolveLoadedMessageElements } from "@/packages/features/chat-session/message-actions/contracts/dom";
 
 describe("createMessageHeaderActionRoots", () => {
 	test("renders actions into direct Astra message headers", async () => {

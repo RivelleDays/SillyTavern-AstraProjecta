@@ -2,11 +2,13 @@ import { describe, expect, test } from "vitest";
 
 import {
 	resolveLastActionableFooterMessage,
+	resolveMoreActionsTarget,
+} from "@/packages/features/chat-session/message-actions/messageActionTargetResolver";
+import {
 	resolveLoadedMessageElements,
 	resolveMessageElement,
-	resolveMoreActionsTarget,
 	resolveNativeMessageActionElement,
-} from "@/packages/features/chat-session/message-actions/messageActionTargetResolver";
+} from "@/packages/features/chat-session/message-actions/contracts/dom";
 
 describe("messageActionTargetResolver", () => {
 	test("resolves unique loaded chat messages by numeric mesid", () => {
@@ -109,9 +111,9 @@ describe("messageActionTargetResolver", () => {
 
 		expect(
 			resolveNativeMessageActionElement({
+				action: "copy",
 				documentRef: document,
 				messageId: 1,
-				selector: ".mes_copy",
 			})?.textContent,
 		).toBe("copy one");
 	});

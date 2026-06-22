@@ -1,3 +1,5 @@
+import { resolveRenderedMessageTextElement } from "@/packages/features/chat-session/message-actions/contracts/dom";
+
 export interface MessageContentSnapshot {
 	messagePreviewText: string;
 	renderedMessageHtml: string;
@@ -32,14 +34,6 @@ const SCRUBBED_ATTRIBUTE_NAMES = new Set([
 	"contenteditable",
 	"id",
 ]);
-
-function resolveRenderedMessageText(messageElement: Element | null): Element | null {
-	return (
-		messageElement?.querySelector(".mes_block .mes_text") ??
-		messageElement?.querySelector(".mes_text") ??
-		null
-	);
-}
 
 function normalizePreviewText(value: string | null | undefined): string {
 	return typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "";
@@ -96,7 +90,7 @@ function scrubElementForInertSnapshot(element: Element) {
 export function createMessageContentSnapshot(
 	messageElement: Element | null,
 ): MessageContentSnapshot {
-	const messageText = resolveRenderedMessageText(messageElement);
+	const messageText = resolveRenderedMessageTextElement(messageElement);
 	if (!messageText) {
 		return EMPTY_MESSAGE_CONTENT_SNAPSHOT;
 	}
@@ -114,9 +108,7 @@ export function createMessageContentSnapshot(
 	}
 
 	scrubElementForInertSnapshot(clonedMessageText);
-	for (const element of Array.from(
-		clonedMessageText.querySelectorAll("*"),
-	)) {
+	for (const element of Array.from(clonedMessageText.querySelectorAll("*"))) {
 		scrubElementForInertSnapshot(element);
 	}
 

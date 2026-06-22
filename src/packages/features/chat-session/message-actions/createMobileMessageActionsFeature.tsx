@@ -43,18 +43,23 @@ import {
 } from "@/packages/features/chat-session/message-actions/messageActionSlots";
 import {
 	asOptionalBoolean,
-	dispatchNativeClick,
-	dispatchNativePointerUp,
 	resolveChatMessage,
 	resolveContextSafe,
 	resolveInlineHistoryItem,
 	resolveLastActionableFooterMessage,
-	resolveLoadedMessageElements,
-	resolveMessageElement,
 	resolveMoreActionsTarget,
-	resolveNativeMessageActionElement,
 	type MessageActionsChatMessageLike,
 } from "@/packages/features/chat-session/message-actions/messageActionTargetResolver";
+import {
+	dispatchNativeClick,
+	dispatchNativePointerUp,
+	resolveLegacyMessageActionHosts,
+	resolveLoadedMessageElements,
+	resolveMessageElement,
+	resolveNativeMessageActionElement,
+	resolveNativePromptVisibilityState,
+	type NativeMessageAction,
+} from "@/packages/features/chat-session/message-actions/contracts/dom";
 import {
 	MoreActionsDrawer,
 	type MessageActionsTarget,
@@ -521,11 +526,12 @@ export function createMobileMessageActionsFeature({
 	function resolveNativePromptVisibilityIcon(
 		action: NativeExtraMessageAction,
 	): LucideIcon | undefined {
-		if (action.element.classList.contains("mes_hide")) {
+		const state = resolveNativePromptVisibilityState(action.element);
+		if (state === "excluded") {
 			return Eye;
 		}
 
-		if (action.element.classList.contains("mes_unhide")) {
+		if (state === "included") {
 			return EyeOff;
 		}
 
@@ -980,17 +986,17 @@ export function createMobileMessageActionsFeature({
 		target: MessageActionsTarget,
 	): MoreActionsDrawerActionsConfig {
 		const copyAction = resolveNativeMessageActionElement({
+			action: "copy",
 			documentRef,
 			messageId: target.messageId,
-			selector: ".mes_copy",
 		});
-		const promptVisibilitySelector = target.isSystem
-			? ".mes_unhide"
-			: ".mes_hide";
+		const promptVisibilityActionName: NativeMessageAction = target.isSystem
+			? "unhide"
+			: "hide";
 		const promptVisibilityAction = resolveNativeMessageActionElement({
+			action: promptVisibilityActionName,
 			documentRef,
 			messageId: target.messageId,
-			selector: promptVisibilitySelector,
 		});
 		const historyItem = resolveHistoryItemForMoreActionsTarget(target);
 
@@ -999,9 +1005,9 @@ export function createMobileMessageActionsFeature({
 				disabled: !copyAction,
 				onClick: () => {
 					const nextCopyAction = resolveNativeMessageActionElement({
+						action: "copy",
 						documentRef,
 						messageId: target.messageId,
-						selector: ".mes_copy",
 					});
 					if (!nextCopyAction) {
 						return;
@@ -1046,9 +1052,9 @@ export function createMobileMessageActionsFeature({
 				onClick: () => {
 					const nextPromptVisibilityAction =
 						resolveNativeMessageActionElement({
+							action: promptVisibilityActionName,
 							documentRef,
 							messageId: target.messageId,
-							selector: promptVisibilitySelector,
 						});
 					if (!nextPromptVisibilityAction) {
 						return;
@@ -1143,14 +1149,8 @@ export function createMobileMessageActionsFeature({
 	}
 
 	function removeLegacyMessageActionHosts() {
-		for (const host of Array.from(
-			documentRef.querySelectorAll(
-				"#chat .astra-mesActions__left, #chat .astra-mesActions__leftDefault, #chat .astra-mesActions__revisionHost, #chat .astra-mesActions__historyHost, #chat .astra-mesActions__moreHost, #chat .astra-mesActions__right, #chat .astra-mesActions__rightDefault, #chat .astra-mesActions__swipeHost, #chat .astra-messageActions__left, #chat .astra-messageActions__leftDefault, #chat .astra-messageActions__revisionHost, #chat .astra-messageActions__historyHost, #chat .astra-messageActions__moreHost, #chat .astra-messageActions__right, #chat .astra-messageActions__rightDefault, #chat .astra-messageActions__swipeHost, #message_template .astra-mesActions__left, #message_template .astra-mesActions__leftDefault, #message_template .astra-mesActions__revisionHost, #message_template .astra-mesActions__historyHost, #message_template .astra-mesActions__moreHost, #message_template .astra-mesActions__right, #message_template .astra-mesActions__rightDefault, #message_template .astra-mesActions__swipeHost, #message_template .astra-messageActions__left, #message_template .astra-messageActions__leftDefault, #message_template .astra-messageActions__revisionHost, #message_template .astra-messageActions__historyHost, #message_template .astra-messageActions__moreHost, #message_template .astra-messageActions__right, #message_template .astra-messageActions__rightDefault, #message_template .astra-messageActions__swipeHost",
-			),
-		)) {
-			if (host instanceof HTMLElement) {
-				cleanupMessageActionSlots(host);
-			}
+		for (const host of resolveLegacyMessageActionHosts(documentRef)) {
+			cleanupMessageActionSlots(host);
 		}
 	}
 

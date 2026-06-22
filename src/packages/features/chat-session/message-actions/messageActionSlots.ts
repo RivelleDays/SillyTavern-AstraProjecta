@@ -1,3 +1,9 @@
+import {
+	resolveDirectMessageBlockElement,
+	resolveMessageNameTextParentElement,
+	resolveMessageTemplateElement,
+} from "@/packages/features/chat-session/message-actions/contracts/dom";
+
 export interface MessageActionSlots {
 	bottomContainer: HTMLDivElement;
 	container: HTMLDivElement;
@@ -12,22 +18,6 @@ const LEGACY_MESSAGE_ACTIONS_ANCHOR_ATTRIBUTE = "data-astra-anchor";
 const MES_ACTIONS_FOOTER_SLOT = "footer";
 const LEGACY_MESSAGE_ACTIONS_BOTTOM_ANCHOR = "bottom";
 const LEGACY_MESSAGE_ACTIONS_TOP_ANCHOR = "top";
-
-function findDirectChildByClass(
-	parent: Element,
-	className: string,
-): HTMLDivElement | null {
-	for (const child of Array.from(parent.children)) {
-		if (
-			child instanceof HTMLDivElement &&
-			child.classList.contains(className)
-		) {
-			return child;
-		}
-	}
-
-	return null;
-}
 
 function findDirectMessageActionsContainer(
 	parent: Element | null,
@@ -100,8 +90,7 @@ function ensureFooterMessageActionsContainer(parent: Element): HTMLDivElement {
 }
 
 function removeEmptyLegacyTopContainer(messageElement: Element) {
-	const nameTextParent =
-		messageElement.querySelector(".name_text")?.parentElement;
+	const nameTextParent = resolveMessageNameTextParentElement(messageElement);
 	if (!nameTextParent) {
 		return;
 	}
@@ -125,7 +114,7 @@ function placeFooterContainer(
 	messageElement: Element,
 	container: HTMLDivElement,
 ) {
-	const messageBlock = findDirectChildByClass(messageElement, "mes_block");
+	const messageBlock = resolveDirectMessageBlockElement(messageElement);
 	const reference = messageBlock;
 
 	if (container.parentElement !== messageElement) {
@@ -158,7 +147,7 @@ function ensureMessageActionsContainer(
 			allowLegacy: true,
 		},
 	);
-	const messageBlock = findDirectChildByClass(messageElement, "mes_block");
+	const messageBlock = resolveDirectMessageBlockElement(messageElement);
 	const legacyNestedContainer = findDirectMessageActionsContainer(
 		messageBlock,
 		MES_ACTIONS_FOOTER_SLOT,
@@ -204,9 +193,7 @@ export function ensureMessageActionSlots(
 export function ensureMessageActionTemplateSlots(
 	documentRef: Document = document,
 ): MessageActionSlots | null {
-	const templateMessage = documentRef.querySelector(
-		"#message_template > .mes",
-	);
+	const templateMessage = resolveMessageTemplateElement(documentRef);
 	if (!templateMessage) {
 		return null;
 	}

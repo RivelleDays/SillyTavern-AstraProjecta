@@ -1,3 +1,10 @@
+import {
+	dispatchNativeClick,
+	dispatchNativePointerUp,
+	resolveMessageElement,
+	resolveNativeExtraMessageActionsRoot,
+} from "@/packages/features/chat-session/message-actions/contracts/dom";
+
 export interface NativeExtraMessageAction {
 	description?: string;
 	element: HTMLElement;
@@ -43,7 +50,10 @@ function isNativeActionHiddenOrDisabled(element: HTMLElement): boolean {
 		}
 	}
 
-	if (element.style.display === "none" || element.style.visibility === "hidden") {
+	if (
+		element.style.display === "none" ||
+		element.style.visibility === "hidden"
+	) {
 		return true;
 	}
 
@@ -66,7 +76,10 @@ function resolveLabel(element: HTMLElement): string {
 	);
 }
 
-function resolveDescription(element: HTMLElement, label: string): string | undefined {
+function resolveDescription(
+	element: HTMLElement,
+	label: string,
+): string | undefined {
 	const text = asNormalizedText(element.textContent);
 	if (text && text !== label) {
 		return text;
@@ -80,52 +93,6 @@ function resolveDescription(element: HTMLElement, label: string): string | undef
 	return undefined;
 }
 
-function resolveMessageElement(
-	documentRef: Document,
-	messageId: number,
-): Element | null {
-	return documentRef.querySelector(`#chat .mes[mesid="${messageId}"]`);
-}
-
-function dispatchNativePointerUp({
-	documentRef,
-	element,
-}: {
-	documentRef: Document;
-	element: HTMLElement;
-}) {
-	const view = documentRef.defaultView;
-	const event =
-		typeof view?.PointerEvent === "function"
-			? new view.PointerEvent("pointerup", {
-					bubbles: true,
-					cancelable: true,
-					pointerType: "touch",
-				})
-			: new Event("pointerup", { bubbles: true, cancelable: true });
-
-	element.dispatchEvent(event);
-}
-
-function dispatchNativeClick({
-	documentRef,
-	element,
-}: {
-	documentRef: Document;
-	element: HTMLElement;
-}) {
-	const view = documentRef.defaultView;
-	const event =
-		typeof view?.MouseEvent === "function"
-			? new view.MouseEvent("click", {
-					bubbles: true,
-					cancelable: true,
-				})
-			: new Event("click", { bubbles: true, cancelable: true });
-
-	element.dispatchEvent(event);
-}
-
 export function resolveNativeExtraMessageActions({
 	documentRef = document,
 	messageId,
@@ -134,13 +101,16 @@ export function resolveNativeExtraMessageActions({
 	messageId: number;
 }): NativeExtraMessageAction[] {
 	const messageElement = resolveMessageElement(documentRef, messageId);
-	const extraButtons = messageElement?.querySelector(".extraMesButtons");
-	if (!(extraButtons instanceof HTMLElement)) {
+	const extraButtons = resolveNativeExtraMessageActionsRoot(messageElement);
+	if (!extraButtons) {
 		return [];
 	}
 
 	return Array.from(extraButtons.children).flatMap((child, index) => {
-		if (!(child instanceof HTMLElement) || isNativeActionHiddenOrDisabled(child)) {
+		if (
+			!(child instanceof HTMLElement) ||
+			isNativeActionHiddenOrDisabled(child)
+		) {
 			return [];
 		}
 
@@ -169,7 +139,10 @@ export function triggerNativeExtraMessageAction({
 	action: NativeExtraMessageAction;
 	documentRef?: Document;
 }): boolean {
-	if (!(action.element instanceof HTMLElement) || !action.element.isConnected) {
+	if (
+		!(action.element instanceof HTMLElement) ||
+		!action.element.isConnected
+	) {
 		return false;
 	}
 
