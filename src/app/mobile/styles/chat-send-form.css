@@ -388,8 +388,7 @@
 		min-width: 0;
 		min-height: var(--mobile-send-form-menu-row-height);
 		margin-bottom: 0;
-		padding: var(--mobile-send-form-menu-row-padding-block)
-			var(--mobile-send-form-menu-row-padding-inline);
+		padding: 4px;
 		border-radius: var(--mobile-send-form-menu-row-radius);
 		font-size: var(--mobile-send-form-menu-row-font-size);
 		font-weight: var(--mobile-send-form-menu-row-font-weight);
@@ -2121,9 +2120,9 @@
 		> div:not(.extension_container) {
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		gap: 12px;
 		min-height: 40px;
-		padding: 8px 10px;
+		padding: 4px 8px;
 		font-size: var(--text-base);
 		font-weight: var(--font-weight-medium);
 		border-radius: calc(var(--radius) - 2px);

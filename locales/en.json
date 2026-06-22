@@ -349,7 +349,7 @@
 	"sendForm.options.action.impersonate": "Impersonate",
 	"sendForm.options.action.manageChatFiles": "Manage chat files",
 	"sendForm.options.action.regenerate": "Regenerate",
-	"sendForm.options.action.reloadPage": "Reload Page",
+	"sendForm.options.action.reloadPage": "Reload page",
 	"sendForm.options.action.saveCheckpoint": "Save checkpoint",
 	"sendForm.options.action.startNewChat": "Start new chat",
 	"sendForm.options.action.tokenProbabilities": "Token Probabilities",

@@ -71,7 +71,7 @@ body.astra-projecta-mobile-layout {
 		width: fit-content;
 		max-width: calc(100% - 32px);
 		margin: 8px auto;
-		padding: 4px;
+		padding: 3px;
 		border: 1px solid var(--border-color-base);
 		border-radius: var(--radius-full);
 		background: var(--surface-background-t20);
@@ -108,7 +108,7 @@ body.astra-projecta-mobile-layout {
 		max-width: min(70vw, 320px);
 		overflow: hidden;
 		text-overflow: ellipsis;
-		padding: 5px 12px;
+		padding-inline: 8px;
 		color: var(--color-base-t90);
 	}
 
