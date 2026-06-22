@@ -23,7 +23,7 @@ import {
 } from "@/packages/features/sillytavern-interface/contracts/dom";
 import { createMobileSendFormFeature } from "@/packages/features/chat-session/send-form/host/createMobileSendFormFeature";
 import { MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY } from "@/packages/features/chat-session/send-form/contracts/dom";
-import type { MobileSendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
+import type { SendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 
 type Listener = (...args: unknown[]) => void;
 
@@ -52,7 +52,7 @@ function renderTestSillyTavernInterfaceRouteIcon({
 	});
 }
 
-function createTestSillyTavernInterfaceAdapter(): MobileSendFormSillyTavernInterfaceAdapter {
+function createTestSillyTavernInterfaceAdapter(): SendFormSillyTavernInterfaceAdapter {
 	return {
 		openCurrentPage: vi.fn(),
 		openRoute: vi.fn(),
@@ -65,7 +65,7 @@ function createTestMobileSendFormFeature({
 	sillyTavernInterface = createTestSillyTavernInterfaceAdapter(),
 }: {
 	documentRef?: Document;
-	sillyTavernInterface?: MobileSendFormSillyTavernInterfaceAdapter;
+	sillyTavernInterface?: SendFormSillyTavernInterfaceAdapter;
 } = {}) {
 	return createMobileSendFormFeature({
 		documentRef,
@@ -641,7 +641,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const { composerHost, inputRowHost, quickReplyHost, shortcutsHost } =
@@ -820,7 +822,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		const impersonateButton = document.getElementById("mes_impersonate");
 		const menuButton = document.getElementById("options_button");
 		const authorNoteOption = document.getElementById("option_toggle_AN");
@@ -1280,7 +1284,9 @@ describe("createMobileSendFormFeature", () => {
 			sendClicks += 1;
 		});
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -1349,7 +1355,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -1421,7 +1429,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -1541,7 +1551,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -1643,7 +1655,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForShortcutsHost();
@@ -1845,7 +1859,9 @@ describe("createMobileSendFormFeature", () => {
 			return { drawer, host, triggerAvatar };
 		};
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		let { drawer, triggerAvatar } = await openDrawer();
@@ -2163,7 +2179,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -2402,7 +2420,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -2581,7 +2601,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -2764,7 +2786,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -2891,7 +2915,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const { composerHost, inputRowHost, shortcutsHost } =
@@ -3218,7 +3244,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -3312,7 +3340,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -3376,7 +3406,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -3444,7 +3476,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		await waitForInputRowHost();
@@ -3512,7 +3546,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForInputRowHost();
@@ -3632,7 +3668,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const { inputRowHost, shortcutsHost } = await waitForSendFormHosts();
@@ -4288,7 +4326,9 @@ describe("createMobileSendFormFeature", () => {
 
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 
-		const feature = createTestMobileSendFormFeature({ documentRef: document });
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
 		feature.mount();
 
 		const host = await waitForShortcutsHost();

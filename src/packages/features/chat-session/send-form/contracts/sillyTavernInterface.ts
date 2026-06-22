@@ -1,24 +1,24 @@
-import * as React from "react";
+import type { ReactNode } from "react";
 
 import type {
 	SillyTavernInterfaceRouteIconKey,
 	SillyTavernInterfaceRouteKey,
 } from "@/app/shared/sillytavern-interface";
 
-export interface MobileSendFormSillyTavernInterfaceRouteIconProps {
+export interface SendFormSillyTavernInterfaceRouteIconProps {
 	className?: string;
 	iconKey: SillyTavernInterfaceRouteIconKey;
 }
 
-export interface MobileSendFormSillyTavernInterfaceAdapter {
+export interface SendFormSillyTavernInterfaceAdapter {
 	openCurrentPage(): void;
 	openRoute(pageKey: SillyTavernInterfaceRouteKey): void;
 	renderRouteIcon(
-		props: MobileSendFormSillyTavernInterfaceRouteIconProps,
-	): React.ReactNode;
+		props: SendFormSillyTavernInterfaceRouteIconProps,
+	): ReactNode;
 }
 
-export const NOOP_MOBILE_SEND_FORM_SILLYTAVERN_INTERFACE: MobileSendFormSillyTavernInterfaceAdapter =
+export const NOOP_SEND_FORM_SILLYTAVERN_INTERFACE: SendFormSillyTavernInterfaceAdapter =
 	{
 		openCurrentPage() {},
 		openRoute() {},

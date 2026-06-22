@@ -10,7 +10,7 @@
 - Mobile-owned wrappers around controlled bridges that are needed to present SillyTavern surfaces inside the mobile experience.
 - `top-bar/` owns the mobile wrapper around native `#sheld`.
 - `astra-main-interface-panel/` owns the left-side mobile Astra main-interface shell; content belongs in `packages/features/astra-main-interface`.
-- `sillytavern-interface-panel/` owns the right-side mobile SillyTavern interface assembly wrapper, including the open/active-route controller and send-form adapter. Panel implementation remains in `packages/features/sillytavern-interface`.
+- `sillytavern-interface-panel/` owns the right-side mobile SillyTavern interface assembly wrapper, including the open/active-route controller and the mobile implementation of the neutral send-form adapter. Panel implementation remains in `packages/features/sillytavern-interface`.
 
 ## Structure Tree
 

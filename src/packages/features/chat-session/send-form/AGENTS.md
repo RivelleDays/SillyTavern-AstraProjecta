@@ -5,11 +5,11 @@
 
 ## Owned Paths / Responsibilities
 
-- The `contracts/` subfolder owns native send-form anchor ids, Astra host ids, drawer ids, storage keys, and shortcut descriptors.
+- The `contracts/` subfolder owns native send-form anchor ids, Astra host ids, drawer ids, storage keys, shortcut descriptors, and the platform-neutral `SendFormSillyTavernInterfaceAdapter`.
 - The `host/` subfolder owns mount/unmount bootstrap, `#mobile-chat-composer-shell` wrapping, native host ordering, and textarea reparent/restore lifecycle.
 - The `shell/` subfolder owns React view composition for the composer wrapper, chat input, and shortcuts row.
 - The `bridges/` subfolder owns quick shortcut click-through, native quick-reply bar reparent/restore, native options click-through, and shared send-form focus-release compatibility helpers.
-- This feature owns the SillyTavern interface trigger/menu calls only; the mobile runtime injects a `sillyTavernInterface` adapter from `src/app/mobile/sillytavern-interface-panel/`.
+- This feature owns the SillyTavern interface trigger/menu calls only; the mobile runtime injects a `SendFormSillyTavernInterfaceAdapter` implementation from `src/app/mobile/sillytavern-interface-panel/`.
 - The `context-usage/` subfolder owns the shortcut popover surface and presentation helpers for context-usage summaries.
 - The `main-menu/` subfolder owns the current-chat drawer presentation and static tile metadata. Tile metadata consumes route/icon-key contracts from `src/app/shared/sillytavern-interface/`; icon rendering is provided by the injected adapter.
 - The `options-menu/` subfolder owns the mobile send-form menu taxonomy, visibility rules, and action bridge for `mobile-send-form-menu-button`.

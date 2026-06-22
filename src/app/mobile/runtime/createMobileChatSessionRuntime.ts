@@ -36,7 +36,7 @@ import {
 	type MobileSendFormFeature,
 	createMobileSendFormFeature,
 } from "@/packages/features/chat-session/send-form/createMobileSendFormFeature";
-import type { MobileSendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
+import type { SendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 import {
 	createMobileSillyTavernInterfacePanelFeature,
 	type MobileSillyTavernInterfacePanelFeature,
@@ -87,7 +87,7 @@ export function createMobileChatSessionRuntime({
 	}) => MessageHeaderLayoutFeature;
 	createSendFormFeature?: (args?: {
 		documentRef?: Document;
-		sillyTavernInterface?: MobileSendFormSillyTavernInterfaceAdapter;
+		sillyTavernInterface?: SendFormSillyTavernInterfaceAdapter;
 	}) => MobileSendFormFeature;
 	createSillyTavernInterfacePanelFeature?: (args?: {
 		documentRef?: Document;

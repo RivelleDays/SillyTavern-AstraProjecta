@@ -14,9 +14,7 @@ import {
 	SILLYTAVERN_INTERFACE_ROUTES,
 	type SillyTavernInterfaceRouteKey,
 } from "@/app/shared/sillytavern-interface";
-import type {
-	MobileSendFormSillyTavernInterfaceAdapter,
-} from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
+import type { SendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 import { MobileSillyTavernInterfacePanel } from "@/packages/features/sillytavern-interface/panel-shell/MobileSillyTavernInterfacePanel";
 import { SillyTavernInterfaceRouteIcon } from "@/packages/features/sillytavern-interface/icons/SillyTavernInterfaceRouteIcon";
 import {
@@ -38,7 +36,7 @@ interface SillyTavernInterfacePanelState {
 
 export interface MobileSillyTavernInterfacePanelFeature {
 	dispose(): void;
-	getSendFormAdapter(): MobileSendFormSillyTavernInterfaceAdapter;
+	getSendFormAdapter(): SendFormSillyTavernInterfaceAdapter;
 	mount(): void;
 	unmount(): void;
 }
@@ -67,7 +65,9 @@ function createPanelStateController({
 	function setState(
 		nextState:
 			| SillyTavernInterfacePanelState
-			| ((current: SillyTavernInterfacePanelState) => SillyTavernInterfacePanelState),
+			| ((
+					current: SillyTavernInterfacePanelState,
+			  ) => SillyTavernInterfacePanelState),
 	) {
 		const resolvedState =
 			typeof nextState === "function" ? nextState(state) : nextState;
@@ -123,7 +123,9 @@ function createPanelStateController({
 	}
 
 	function setActivePageKey(nextPageKey: string) {
-		const resolvedPageKey = isDefaultSillyTavernInterfacePageKey(nextPageKey)
+		const resolvedPageKey = isDefaultSillyTavernInterfacePageKey(
+			nextPageKey,
+		)
 			? nextPageKey
 			: DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY;
 
@@ -148,7 +150,9 @@ function createPanelStateController({
 	function openRoute(pageKey: SillyTavernInterfaceRouteKey) {
 		const resolvedPageKey =
 			pageKey === SILLYTAVERN_INTERFACE_ROUTES.aiSettings
-				? readStoredAiSettingsPageKey(documentRef.defaultView?.localStorage)
+				? readStoredAiSettingsPageKey(
+						documentRef.defaultView?.localStorage,
+					)
 				: pageKey;
 
 		clearPendingOpen();
@@ -248,7 +252,7 @@ export function createMobileSillyTavernInterfacePanelFeature({
 	let currentChatIdentityStore: CurrentChatIdentityStore | null = null;
 	let currentUserAvatarStore: CurrentUserAvatarStore | null = null;
 
-	const adapter: MobileSendFormSillyTavernInterfaceAdapter = {
+	const adapter: SendFormSillyTavernInterfaceAdapter = {
 		openCurrentPage: controller.openCurrentPage,
 		openRoute: controller.openRoute,
 		renderRouteIcon({ className, iconKey }) {

@@ -37,6 +37,7 @@ src/packages/features/
 
 - Small feature modules with explicit ownership.
 - Feature-level state and composition that stays focused on one product capability.
+- Imports from `src/app/shared` when a feature needs a platform-neutral route, icon, adapter, or composition contract.
 - Feature child `AGENTS.md` files when a feature has enough stable rules to justify them.
 - Default to the vendored shadcn component library for UI composition.
 
@@ -44,6 +45,7 @@ src/packages/features/
 
 - Cross-feature dumping grounds.
 - Hiding core infrastructure inside feature folders.
+- Production imports from `src/app/mobile` or `src/app/desktop`; platform assemblies consume features, not the reverse.
 - Direct raw third-party UI primitive usage when a local wrapper should exist in `src/components/ui`.
 - Editing or forking upstream shadcn component files under `src/components/ui/shadcn` from feature work.
 - Omitting documentation for owned DOM ids/classes, events, or testing expectations once a feature becomes stable.
@@ -52,6 +54,7 @@ src/packages/features/
 
 - Name feature folders by capability, not by current screen position.
 - Prefer stable functional names such as `chat-session`, `navigation`, or `persona` over temporary UI labels.
+- Keep cross-platform contracts and models platform-neutral; reserve `Mobile` and `Desktop` names for genuinely platform-owned shells, bridges, and behavior.
 
 ## Update Triggers
 
@@ -62,4 +65,5 @@ src/packages/features/
 
 - Confirm features remain capability-based.
 - Confirm direct SillyTavern touchpoints must be justified and documented.
+- Confirm features may consume `app/shared` contracts but do not import `app/mobile` or `app/desktop`.
 - Confirm `astra-main-interface`, `chat-session`, and `sillytavern-interface` remain identified as Phase 1 priority features.

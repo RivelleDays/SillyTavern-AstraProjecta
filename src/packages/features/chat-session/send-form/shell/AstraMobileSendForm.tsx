@@ -26,8 +26,8 @@ import {
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import type { SillyTavernInterfaceRouteKey } from "@/app/shared/sillytavern-interface";
 import {
-	NOOP_MOBILE_SEND_FORM_SILLYTAVERN_INTERFACE,
-	type MobileSendFormSillyTavernInterfaceAdapter,
+	NOOP_SEND_FORM_SILLYTAVERN_INTERFACE,
+	type SendFormSillyTavernInterfaceAdapter,
 } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 import { SEND_FORM_SHORTCUTS } from "@/packages/features/chat-session/send-form/contracts/shortcuts";
 import {
@@ -231,7 +231,7 @@ export function AstraMobileSendForm({
 	primarySendActionStore,
 	quickReplyEnabledStore,
 	quickShortcutStore,
-	sillyTavernInterface = NOOP_MOBILE_SEND_FORM_SILLYTAVERN_INTERFACE,
+	sillyTavernInterface = NOOP_SEND_FORM_SILLYTAVERN_INTERFACE,
 }: {
 	chatContextUsageStore: ChatContextUsageStore;
 	currentConnectionInfoStore: CurrentConnectionInfoStore;
@@ -245,7 +245,7 @@ export function AstraMobileSendForm({
 	primarySendActionStore: PrimarySendActionStore;
 	quickReplyEnabledStore: NativeQuickReplyEnabledStore;
 	quickShortcutStore: QuickShortcutStore;
-	sillyTavernInterface?: MobileSendFormSillyTavernInterfaceAdapter;
+	sillyTavernInterface?: SendFormSillyTavernInterfaceAdapter;
 }) {
 	const contextUsageSnapshot = React.useSyncExternalStore(
 		chatContextUsageStore.subscribe,
@@ -874,16 +874,16 @@ export function AstraMobileSendForm({
 				onRequestChatSettingsOverride={
 					handleChatSettingsOverrideRequest
 				}
-					onRequestDelete={handleMainMenuDeleteRequest}
-					onOpenChange={handleMainMenuOpenChange}
-					onRequestRename={handleMainMenuRenameRequest}
-					open={isMainMenuOpen}
-					renderSillyTavernInterfaceRouteIcon={
-						sillyTavernInterface.renderRouteIcon
-					}
-					snapshot={currentChatIdentitySnapshot}
-				/>
-				<CurrentChatDeleteDialog
+				onRequestDelete={handleMainMenuDeleteRequest}
+				onOpenChange={handleMainMenuOpenChange}
+				onRequestRename={handleMainMenuRenameRequest}
+				open={isMainMenuOpen}
+				renderSillyTavernInterfaceRouteIcon={
+					sillyTavernInterface.renderRouteIcon
+				}
+				snapshot={currentChatIdentitySnapshot}
+			/>
+			<CurrentChatDeleteDialog
 				chatInfoSnapshot={currentChatActionDialogInfoSnapshot}
 				open={isDeleteDialogOpen}
 				snapshot={currentChatActionDialogSnapshot}

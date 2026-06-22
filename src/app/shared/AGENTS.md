@@ -49,3 +49,4 @@ src/app/shared/
 - Confirm shared code remains portable across assemblies.
 - Confirm no direct SillyTavern DOM ownership is granted here.
 - Confirm feature UI policy still stays out of this layer.
+- Confirm shared contracts do not import or encode mobile- or desktop-owned implementation details.

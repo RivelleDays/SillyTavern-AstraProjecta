@@ -38,7 +38,7 @@ import {
 	SILLYTAVERN_INTERFACE_ROUTES,
 	type SillyTavernInterfaceRouteKey,
 } from "@/app/shared/sillytavern-interface";
-import type { MobileSendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
+import type { SendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 import {
 	MOBILE_CHAT_MAIN_MENU_DRAWER_BODY_ID,
 	MOBILE_CHAT_MAIN_MENU_DRAWER_CONTENT_ID,
@@ -228,7 +228,7 @@ export function MobileChatMainMenuDrawer({
 	onRequestDelete?(): void;
 	onRequestRename?(): void;
 	open: boolean;
-	renderSillyTavernInterfaceRouteIcon?: MobileSendFormSillyTavernInterfaceAdapter["renderRouteIcon"];
+	renderSillyTavernInterfaceRouteIcon?: SendFormSillyTavernInterfaceAdapter["renderRouteIcon"];
 	snapshot: CurrentChatIdentitySnapshot;
 }) {
 	const [isDrawerHostMounted, setIsDrawerHostMounted] = React.useState(open);
@@ -568,11 +568,13 @@ export function MobileChatMainMenuDrawer({
 												aria-hidden={true}
 												className="mobile-chat-main-menu-drawer__tile-glow"
 											/>
-												{renderSillyTavernInterfaceRouteIcon({
+											{renderSillyTavernInterfaceRouteIcon(
+												{
 													className:
 														"mobile-chat-main-menu-drawer__tile-deco-icon",
 													iconKey,
-												})}
+												},
+											)}
 											<span
 												aria-hidden={true}
 												className="mobile-chat-main-menu-drawer__tile-fade"
