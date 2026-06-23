@@ -3175,7 +3175,7 @@
 [data-slot="input"]:focus-visible:not([aria-invalid="true"]) {
   --tw-ring-color: var(--ring);
   @supports (color: color-mix(in lab, red, red)) {
-    --tw-ring-color: color-mix(in oklab, var(--ring) 30%, transparent);
+    --tw-ring-color: color-mix(in oklab, var(--ring) 5%, transparent);
   }
   border-color: var(--ring);
   @supports (color: color-mix(in lab, red, red)) {
@@ -7409,6 +7409,7 @@ body.astra-projecta-mobile-layout {
   min-width: 0;
   align-items: stretch;
   gap: var(--space-2);
+  padding-bottom: 4px;
 }
 .astra-chat-library-category-createRow--single {
   width: 100%;

@@ -952,6 +952,7 @@
 	min-width: 0;
 	align-items: stretch;
 	gap: var(--space-2);
+	padding-bottom: 4px;
 }
 
 .astra-chat-library-category-createRow--single {
