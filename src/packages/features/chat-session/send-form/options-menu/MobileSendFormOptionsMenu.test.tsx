@@ -375,7 +375,7 @@ describe("MobileSendFormOptionsMenu", () => {
 		expect(onShowShortcutsToolbarChange).toHaveBeenCalledWith(false);
 	});
 
-	test("clicking Reload Page triggers the page reload handler", async () => {
+	test("clicking Reload page triggers the page reload handler", async () => {
 		document.body.innerHTML = `
       <div id="options">
       </div>
@@ -417,7 +417,7 @@ describe("MobileSendFormOptionsMenu", () => {
 		});
 
 		fireEvent.click(
-			within(drawer).getByRole("button", { name: "Reload Page" }),
+			within(drawer).getByRole("button", { name: "Reload page" }),
 		);
 
 		expect(reloadPageSpy).toHaveBeenCalledTimes(1);

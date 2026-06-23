@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 
 import {
 	createPrimarySendActionStore,
@@ -39,6 +39,13 @@ function setSillyTavernContext(context: unknown) {
 }
 
 describe("primary send action", () => {
+	beforeEach(() => {
+		delete (globalThis as { SillyTavern?: unknown }).SillyTavern;
+		document.body.innerHTML = "";
+		delete document.body.dataset.generating;
+		delete document.body.dataset.swiping;
+	});
+
 	test("prefers the continue action when continue-on-send is available", () => {
 		document.body.innerHTML = `
       <textarea id="send_textarea"></textarea>
@@ -299,5 +306,263 @@ describe("primary send action", () => {
 			label: "Abort request",
 			visible: true,
 		});
+	});
+
+	test("keeps a message-edit background lock on the disabled send action", () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GENERATION_ENDED: "generation_ended",
+				GENERATION_STARTED: "generation_started",
+				GENERATION_STOPPED: "generation_stopped",
+				MESSAGE_EDITED: "message_edited",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+		});
+
+		const sendButton = document.getElementById("send_but");
+		const stopButton = document.getElementById("mes_stop");
+		let sendClicks = 0;
+		let stopClicks = 0;
+		sendButton?.addEventListener("click", () => {
+			sendClicks += 1;
+		});
+		stopButton?.addEventListener("click", () => {
+			stopClicks += 1;
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		eventSource.emit("message_edited", 0);
+		document.body.dataset.generating = "true";
+		stopButton?.setAttribute("style", "display: flex;");
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: true,
+			kind: "send",
+			label: "Send message",
+			visible: true,
+		});
+		expect(store.trigger()).toBe(false);
+		expect(sendClicks).toBe(0);
+		expect(stopClicks).toBe(0);
+
+		store.dispose();
+	});
+
+	test("keeps the continue icon disabled during a non-generation input lock", () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea"></textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+      <div id="options">
+        <button id="option_continue" title="Continue reply"></button>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: false }],
+			eventSource,
+			eventTypes: {
+				MESSAGE_EDITED: "message_edited",
+			},
+			groupId: null,
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: true },
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		eventSource.emit("message_edited", 0);
+		document.body.dataset.generating = "true";
+		document
+			.getElementById("mes_stop")
+			?.setAttribute("style", "display: flex;");
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: true,
+			kind: "continue",
+			label: "Continue reply",
+			visible: true,
+		});
+
+		store.dispose();
+	});
+
+	test("shows and triggers stop after a real generation starts", () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GENERATION_ENDED: "generation_ended",
+				GENERATION_STARTED: "generation_started",
+				GENERATION_STOPPED: "generation_stopped",
+				MESSAGE_EDITED: "message_edited",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+		});
+
+		const stopButton = document.getElementById("mes_stop");
+		let stopClicks = 0;
+		stopButton?.addEventListener("click", () => {
+			stopClicks += 1;
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		eventSource.emit("generation_started", "normal", {}, false);
+		document.body.dataset.generating = "true";
+		stopButton?.setAttribute("style", "display: flex;");
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: false,
+			kind: "stop",
+			label: "Abort request",
+			visible: true,
+		});
+		expect(store.trigger()).toBe(true);
+		expect(stopClicks).toBe(1);
+
+		store.dispose();
+	});
+
+	test("keeps an active generation on stop when a message edit event arrives", () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GENERATION_ENDED: "generation_ended",
+				GENERATION_STARTED: "generation_started",
+				GENERATION_STOPPED: "generation_stopped",
+				MESSAGE_EDITED: "message_edited",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		eventSource.emit("generation_started", "normal", {}, false);
+		document.body.dataset.generating = "true";
+		document
+			.getElementById("mes_stop")
+			?.setAttribute("style", "display: flex;");
+		store.refresh();
+		eventSource.emit("message_edited", 0);
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			kind: "stop",
+			visible: true,
+		});
+
+		store.dispose();
+	});
+
+	test("restores send after a background input lock ends", () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GENERATION_ENDED: "generation_ended",
+				MESSAGE_EDITED: "message_edited",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+		});
+
+		const stopButton = document.getElementById("mes_stop");
+		const store = createPrimarySendActionStore({ documentRef: document });
+		eventSource.emit("message_edited", 0);
+		document.body.dataset.generating = "true";
+		stopButton?.setAttribute("style", "display: flex;");
+		store.refresh();
+		delete document.body.dataset.generating;
+		stopButton?.setAttribute("style", "display: none;");
+		eventSource.emit("generation_ended");
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: false,
+			kind: "send",
+			label: "Send message",
+			visible: true,
+		});
+
+		store.dispose();
+	});
+
+	test("keeps the stop fallback when mounted during an existing generation", () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" class="displayNone" title="Send message"></button>
+        <button id="mes_stop" style="display: flex;" title="Abort request"></button>
+      </div>
+    `;
+		document.body.dataset.generating = "true";
+
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+
+		expect(store.getSnapshot()).toMatchObject({
+			kind: "stop",
+			label: "Abort request",
+			visible: true,
+		});
+
+		store.dispose();
 	});
 });

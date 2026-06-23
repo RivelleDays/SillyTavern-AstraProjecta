@@ -21,6 +21,13 @@ type StContextLike = Record<string, unknown> & {
 	powerUserSettings?: unknown;
 };
 
+type GenerationLifecycle = "active" | "idle" | "pending" | "unknown";
+
+type PrimarySendActionState = {
+	generationLifecycle: GenerationLifecycle;
+	snapshot: PrimarySendActionSnapshot;
+};
+
 export type PrimarySendActionKind = "continue" | "send" | "stop";
 
 export interface PrimarySendActionSnapshot {
@@ -286,11 +293,13 @@ function resolvePrimarySendActionTarget(
 	}
 }
 
-export function readPrimarySendActionSnapshot({
-	documentRef = document,
+function readPrimarySendActionState({
+	documentRef,
+	generationLifecycle,
 }: {
-	documentRef?: Document;
-} = {}): PrimarySendActionSnapshot {
+	documentRef: Document;
+	generationLifecycle: GenerationLifecycle;
+}): PrimarySendActionState {
 	const context = resolveContextSafe();
 	const sendButton = readNativeElement(documentRef, SEND_BUTTON_ID);
 	const stopButton = readNativeElement(documentRef, STOP_BUTTON_ID);
@@ -298,43 +307,90 @@ export function readPrimarySendActionSnapshot({
 	const body = documentRef.body;
 	const isGenerating = body?.dataset.generating === "true";
 	const isSwiping = body?.dataset.swiping === "true";
+	const hasNativeBusyState =
+		isElementVisible(stopButton) || isGenerating || isSwiping;
+	let nextGenerationLifecycle = generationLifecycle;
 
-	if (
-		stopButton instanceof HTMLElement &&
-		(isElementVisible(stopButton) || isGenerating || isSwiping)
+	if (generationLifecycle === "unknown") {
+		nextGenerationLifecycle =
+			hasNativeBusyState && stopButton ? "active" : "idle";
+	} else if (generationLifecycle === "pending") {
+		if (hasNativeBusyState && stopButton) {
+			nextGenerationLifecycle = "active";
+		}
+	} else if (
+		generationLifecycle === "active" &&
+		(!hasNativeBusyState || !stopButton)
 	) {
-		return createSnapshot({
-			disabled: readIsDisabled(stopButton),
-			kind: "stop",
-			label: readNativeActionLabel(stopButton, STOP_ACTION_LABEL_KEY),
-			visible: true,
-		});
+		nextGenerationLifecycle = "idle";
+	}
+
+	const isAbortableGeneration =
+		nextGenerationLifecycle === "active" &&
+		hasNativeBusyState &&
+		stopButton instanceof HTMLElement;
+	const isInputLocked =
+		hasNativeBusyState || nextGenerationLifecycle === "pending";
+
+	if (isAbortableGeneration) {
+		return {
+			generationLifecycle: nextGenerationLifecycle,
+			snapshot: createSnapshot({
+				disabled: readIsDisabled(stopButton),
+				kind: "stop",
+				label: readNativeActionLabel(
+					stopButton,
+					STOP_ACTION_LABEL_KEY,
+				),
+				visible: true,
+			}),
+		};
 	}
 
 	if (!isSendActionAvailable(context, sendButton)) {
-		return createHiddenSendSnapshot(
-			sendButton instanceof HTMLElement ? sendButton : null,
-		);
+		return {
+			generationLifecycle: nextGenerationLifecycle,
+			snapshot: createHiddenSendSnapshot(
+				sendButton instanceof HTMLElement ? sendButton : null,
+			),
+		};
 	}
 
 	if (continueOption && shouldUseContinueAction(context, documentRef)) {
-		return createSnapshot({
-			disabled: readIsDisabled(sendButton),
-			kind: "continue",
-			label: readNativeActionLabel(
-				continueOption,
-				CONTINUE_ACTION_LABEL_KEY,
-			),
-			visible: true,
-		});
+		return {
+			generationLifecycle: nextGenerationLifecycle,
+			snapshot: createSnapshot({
+				disabled: isInputLocked || readIsDisabled(sendButton),
+				kind: "continue",
+				label: readNativeActionLabel(
+					continueOption,
+					CONTINUE_ACTION_LABEL_KEY,
+				),
+				visible: true,
+			}),
+		};
 	}
 
-	return createSnapshot({
-		disabled: readIsDisabled(sendButton),
-		kind: "send",
-		label: readNativeActionLabel(sendButton, SEND_ACTION_LABEL_KEY),
-		visible: true,
-	});
+	return {
+		generationLifecycle: nextGenerationLifecycle,
+		snapshot: createSnapshot({
+			disabled: isInputLocked || readIsDisabled(sendButton),
+			kind: "send",
+			label: readNativeActionLabel(sendButton, SEND_ACTION_LABEL_KEY),
+			visible: true,
+		}),
+	};
+}
+
+export function readPrimarySendActionSnapshot({
+	documentRef = document,
+}: {
+	documentRef?: Document;
+} = {}): PrimarySendActionSnapshot {
+	return readPrimarySendActionState({
+		documentRef,
+		generationLifecycle: "unknown",
+	}).snapshot;
 }
 
 export function createPrimarySendActionStore({
@@ -351,10 +407,36 @@ export function createPrimarySendActionStore({
 	const eventRefreshHandler = () => {
 		scheduleRefresh();
 	};
+	const generationStartedHandler = (
+		_type?: unknown,
+		_options?: unknown,
+		dryRun?: unknown,
+	) => {
+		if (dryRun !== true) {
+			generationLifecycle = "pending";
+		}
+		scheduleRefresh();
+	};
+	const generationSettledHandler = () => {
+		generationLifecycle = "idle";
+		scheduleRefresh();
+	};
+	const messageEditedHandler = () => {
+		if (generationLifecycle !== "active") {
+			generationLifecycle = "idle";
+		}
+		scheduleRefresh();
+	};
 
 	let disposed = false;
 	let isRefreshQueued = false;
-	let snapshot = readPrimarySendActionSnapshot({ documentRef });
+	let generationLifecycle: GenerationLifecycle = "unknown";
+	const initialState = readPrimarySendActionState({
+		documentRef,
+		generationLifecycle,
+	});
+	generationLifecycle = initialState.generationLifecycle;
+	let snapshot = initialState.snapshot;
 	let textareaElement: HTMLTextAreaElement | null = null;
 	let fileInputElement: HTMLInputElement | null = null;
 	let optionsRootElement: HTMLElement | null = null;
@@ -362,7 +444,10 @@ export function createPrimarySendActionStore({
 	let rightSendFormElement: HTMLElement | null = null;
 	let rightSendFormObserver: MutationObserver | null = null;
 	let bodyObserver: MutationObserver | null = null;
-	let activeEventNames: string[] = [];
+	let activeEventBindings: Array<{
+		eventName: string;
+		listener: (...args: unknown[]) => void;
+	}> = [];
 
 	function notifyListeners() {
 		for (const listener of listeners) {
@@ -476,7 +561,12 @@ export function createPrimarySendActionStore({
 		}
 
 		syncBindings();
-		const nextSnapshot = readPrimarySendActionSnapshot({ documentRef });
+		const nextState = readPrimarySendActionState({
+			documentRef,
+			generationLifecycle,
+		});
+		generationLifecycle = nextState.generationLifecycle;
+		const nextSnapshot = nextState.snapshot;
 		if (snapshotsEqual(snapshot, nextSnapshot)) {
 			return;
 		}
@@ -516,26 +606,54 @@ export function createPrimarySendActionStore({
 	}
 
 	if (eventSource) {
-		activeEventNames = Array.from(
-			new Set(
-				[
-					eventTypes.APP_READY,
-					eventTypes.CHAT_CHANGED,
-					eventTypes.CHAT_LOADED,
-					eventTypes.MESSAGE_SENT,
-					eventTypes.SETTINGS_UPDATED,
-					eventTypes.GENERATION_STARTED,
-					eventTypes.GENERATION_STOPPED,
-					eventTypes.GENERATION_ENDED,
-					eventTypes.ONLINE_STATUS_CHANGED,
-				].filter((eventName): eventName is string =>
-					Boolean(eventName),
-				),
-			),
+		const eventBindingMap = new Map<
+			string,
+			(...args: unknown[]) => void
+		>();
+		const addEventBinding = (
+			eventName: string | undefined,
+			listener: (...args: unknown[]) => void,
+		) => {
+			if (!eventName || eventBindingMap.has(eventName)) {
+				return;
+			}
+			eventBindingMap.set(eventName, listener);
+		};
+
+		for (const eventName of [
+			eventTypes.APP_READY,
+			eventTypes.CHAT_CHANGED,
+			eventTypes.CHAT_LOADED,
+			eventTypes.MESSAGE_SENT,
+			eventTypes.SETTINGS_UPDATED,
+			eventTypes.ONLINE_STATUS_CHANGED,
+		]) {
+			addEventBinding(eventName, eventRefreshHandler);
+		}
+		addEventBinding(
+			eventTypes.GENERATION_STARTED,
+			generationStartedHandler,
+		);
+		addEventBinding(
+			eventTypes.GENERATION_STOPPED,
+			generationSettledHandler,
+		);
+		addEventBinding(
+			eventTypes.GENERATION_ENDED,
+			generationSettledHandler,
+		);
+		addEventBinding(eventTypes.MESSAGE_EDITED, messageEditedHandler);
+
+		activeEventBindings = Array.from(
+			eventBindingMap,
+			([eventName, listener]) => ({
+				eventName,
+				listener,
+			}),
 		);
 
-		for (const eventName of activeEventNames) {
-			eventSource.on(eventName, eventRefreshHandler);
+		for (const { eventName, listener } of activeEventBindings) {
+			eventSource.on(eventName, listener);
 		}
 	}
 
@@ -559,8 +677,11 @@ export function createPrimarySendActionStore({
 			bodyObserver?.disconnect();
 
 			if (eventSource) {
-				for (const eventName of activeEventNames) {
-					eventSource.removeListener(eventName, eventRefreshHandler);
+				for (const {
+					eventName,
+					listener,
+				} of activeEventBindings) {
+					eventSource.removeListener(eventName, listener);
 				}
 			}
 
@@ -577,7 +698,16 @@ export function createPrimarySendActionStore({
 			};
 		},
 		trigger() {
-			const nextSnapshot = readPrimarySendActionSnapshot({ documentRef });
+			const nextState = readPrimarySendActionState({
+				documentRef,
+				generationLifecycle,
+			});
+			generationLifecycle = nextState.generationLifecycle;
+			const nextSnapshot = nextState.snapshot;
+			if (!snapshotsEqual(snapshot, nextSnapshot)) {
+				snapshot = nextSnapshot;
+				notifyListeners();
+			}
 			if (!nextSnapshot.visible || nextSnapshot.disabled) {
 				return false;
 			}

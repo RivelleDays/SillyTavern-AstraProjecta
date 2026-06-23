@@ -231,7 +231,7 @@ describe("buildMobileSendFormMenuGroups", () => {
 			groups
 				.find((group) => group.key === "chat-session")
 				?.actions.find((action) => action.key === "reload_page")?.label,
-		).toBe("sendForm.options.action.reloadPage::Reload Page");
+		).toBe("sendForm.options.action.reloadPage::Reload page");
 		expect(deleteChatAction?.label).toBe(
 			"sendForm.options.action.deleteChat::Delete chat",
 		);
