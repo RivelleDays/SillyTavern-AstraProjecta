@@ -7,7 +7,7 @@
 
 - `AstraMainInterface.tsx` owns the feature root rendered inside the mobile Astra main interface panel, first-level scope routing, and body switching.
 - `AstraMainInterfaceScopeStrip.tsx` owns the compact first-level avatar scope strip used by the mobile panel header.
-- `chat-list/` owns shared chat-list search, sort, pagination, display preferences, row action dialogs, export/actions drawer, open-with-loading feedback, and Global/Current row adapters.
+- `chat-list/` owns shared chat-list search, sort, pagination, display preferences, reusable row overlay state, row action dialogs, export/actions drawer, open-with-loading feedback, and Global/Current row adapters.
 - `chat-categories/` owns shared Astra category UI, category trees, create rows, category assignment drawer behavior, and category-page chat row rendering.
 - `global/` owns Global page tabs, Global tab defaults, Global route descriptors, Global chat-list adapter wiring, and the Global category page composition.
 - `current-context/` owns Current Character/Group page tabs, Current tab defaults, Current route descriptors, Current scoped chat-list adapter wiring, and Current category page composition.

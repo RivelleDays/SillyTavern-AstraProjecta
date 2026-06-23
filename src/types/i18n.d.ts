@@ -133,6 +133,9 @@ export interface I18nMessages {
 	"astraMainInterface.global.categories.action.expandAll": string;
 	"astraMainInterface.global.categories.action.renameCategory": string;
 	"astraMainInterface.global.categories.actions.label": string;
+	"astraMainInterface.global.categories.chatRow.actions": string;
+	"astraMainInterface.global.categories.chatRow.more": string;
+	"astraMainInterface.global.categories.chatRow.remove": string;
 	"astraMainInterface.global.categories.create.add": string;
 	"astraMainInterface.global.categories.create.inputLabel": string;
 	"astraMainInterface.global.categories.create.placeholder": string;

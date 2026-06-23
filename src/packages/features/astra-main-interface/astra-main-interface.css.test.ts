@@ -354,6 +354,10 @@ describe("astra-main-interface.css", () => {
 		);
 		expect(css).toContain(".astra-chat-library-global-chatList");
 		expect(css).toContain(".astra-chat-library-global-chatRow");
+		expect(css).toContain(".astra-chat-library-global-chatActions");
+		expect(css).toContain(".astra-chat-library-global-chatActionButton");
+		expect(css).toContain(".astra-chat-library-global-chatRemoveAction");
+		expect(css).toContain(".astra-chat-library-global-chatMoreAction");
 		expect(css).toContain(".astra-chat-library-global-chatAvatar");
 		expect(css).toContain(".astra-chat-library-global-chatAvatar--collage");
 		expect(css).toMatch(
@@ -669,10 +673,16 @@ describe("astra-main-interface.css", () => {
 			/\.astra-chat-library-global-categoryActionButton:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
 		);
 		expect(css).toMatch(
-			/\.astra-chat-library-global-chatRow:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
+			/\.astra-chat-library-global-chatRow\[aria-disabled=["']false["']\]\s*\{[^}]*cursor:\s*pointer;/,
 		);
 		expect(css).toMatch(
-			/\.astra-chat-library-global-chatRow:disabled\s*\{[^}]*cursor:\s*default;/,
+			/\.astra-chat-library-global-chatRow\[aria-disabled=["']true["']\]\s*\{[^}]*cursor:\s*default;/,
+		);
+		expect(css).toMatch(
+			/\.astra-chat-library-global-chatActionButton:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
+		);
+		expect(css).toMatch(
+			/\.astra-chat-library-global-chatActionButton:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
 		);
 		expect(css).toMatch(
 			/\.astra-chat-library-category-rowInner--interactive:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
@@ -785,16 +795,23 @@ describe("astra-main-interface.css", () => {
 
 	test("routes global category action buttons through the small shared button token", () => {
 		const css = readFeatureCss();
-		const buttonBlock = readBlock(
-			css,
+		for (const selector of [
 			".astra-chat-library-global-categoryActionButton",
-		);
+			".astra-chat-library-global-chatActionButton",
+		]) {
+			const buttonBlock = readBlock(css, selector);
 
-		expect(buttonBlock).not.toBe("");
-		expect(buttonBlock).toContain("var(--astra-button-size-sm)");
-		expect(buttonBlock).not.toContain("32px");
+			expect(buttonBlock, selector).not.toBe("");
+			expect(buttonBlock, selector).toContain(
+				"var(--astra-button-size-sm)",
+			);
+			expect(buttonBlock, selector).not.toContain("32px");
+		}
 		expect(css).toMatch(
 			/\.astra-chat-library-global-categoryActionButton:not\(:disabled\):hover,\s*\.astra-chat-library-global-categoryActionButton:focus-visible\s*\{/,
+		);
+		expect(css).toMatch(
+			/\.astra-chat-library-global-chatActionButton:not\(:disabled\):hover,\s*\.astra-chat-library-global-chatActionButton:focus-visible\s*\{/,
 		);
 	});
 });

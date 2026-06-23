@@ -35,6 +35,7 @@ import {
 	ChevronDown,
 	CirclePlus,
 	CircleUser,
+	EllipsisVertical,
 	FolderBookmark,
 	FolderOpen,
 	Globe,
@@ -45,6 +46,7 @@ import {
 	Tags,
 	Trash2,
 	TriangleAlert,
+	X,
 	type LucideIcon,
 } from "@/components/ui/shared/icons";
 import { cn } from "@/lib/utils";
@@ -112,10 +114,12 @@ interface ChatCategoryOwnerScope {
 }
 
 export interface ChatCategoryManagerPageProps {
+	activeChatActionsEntryKey?: string | null;
 	chatCategoryStore: ChatCategoryStore;
 	entries: ChatCatalogEntry[];
 	isLoading?: boolean;
 	openEntryDisabled?: boolean;
+	onOpenChatActions?: (entry: ChatCatalogEntry) => void;
 	onOpenEntry?: OpenChatCatalogEntry;
 	ownerScope?: ChatCategoryOwnerScope | null;
 	variant: ChatCategoryManagerVariant;
@@ -743,21 +747,66 @@ function EmptyCategoryRow({ text }: { text: string }) {
 }
 
 function GlobalCategoryChatRow({
+	activeChatActionsEntryKey,
+	category,
+	chatCategoryStore,
 	entry,
 	openEntryDisabled = false,
+	onOpenChatActions,
 	onOpenEntry,
 }: {
+	activeChatActionsEntryKey?: string | null;
+	category: ChatCategory;
+	chatCategoryStore: ChatCategoryStore;
 	entry: ChatCatalogEntry;
 	openEntryDisabled?: boolean;
+	onOpenChatActions?: (entry: ChatCatalogEntry) => void;
 	onOpenEntry?: OpenChatCatalogEntry;
 }) {
 	const label = resolveChatLabel(entry);
 	const entityName = normalizeOwnerLabel(entry);
 	const hasOpenAction = Boolean(onOpenEntry);
 	const canOpen = hasOpenAction && !openEntryDisabled;
+	const removeLabel = `${translateAstra(
+		"astraMainInterface.global.categories.chatRow.remove",
+	)}: ${category.name}`;
+	const moreLabel = `${translateAstra(
+		"astraMainInterface.global.categories.chatRow.more",
+	)}: ${label}`;
+	const actionsLabel = translateAstra(
+		"astraMainInterface.global.categories.chatRow.actions",
+	);
+
+	const handleOpen = React.useCallback(() => {
+		if (!canOpen || !onOpenEntry) {
+			return;
+		}
+
+		void onOpenEntry(entry);
+	}, [canOpen, entry, onOpenEntry]);
+
+	const handleKeyDown = React.useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			if (!canOpen) {
+				return;
+			}
+			if (event.key !== "Enter" && event.key !== " ") {
+				return;
+			}
+
+			event.preventDefault();
+			handleOpen();
+		},
+		[canOpen, handleOpen],
+	);
+
+	function stopRowActivation(event: React.SyntheticEvent<HTMLButtonElement>) {
+		event.stopPropagation();
+	}
 
 	return (
-		<button
+		<div
+			aria-disabled={!canOpen}
 			aria-label={
 				hasOpenAction
 					? `${translateAstra(
@@ -766,15 +815,10 @@ function GlobalCategoryChatRow({
 					: undefined
 			}
 			className="astra-chat-library-global-chatRow"
-			disabled={!canOpen}
-			type="button"
-			onClick={() => {
-				if (!canOpen || !onOpenEntry) {
-					return;
-				}
-
-				void onOpenEntry(entry);
-			}}
+			role="button"
+			tabIndex={canOpen ? 0 : -1}
+			onClick={handleOpen}
+			onKeyDown={handleKeyDown}
 		>
 			<AstraChatAvatar
 				aria-hidden={true}
@@ -801,7 +845,78 @@ function GlobalCategoryChatRow({
 					{entityName}
 				</span>
 			</span>
-		</button>
+			<TooltipProvider delayDuration={0}>
+				<div
+					aria-label={actionsLabel}
+					className="astra-chat-library-global-chatActions"
+					role="group"
+				>
+					<Tooltip>
+						<TooltipTrigger
+							aria-label={removeLabel}
+							className={buttonVariants({
+								className:
+									"astra-chat-library-global-chatActionButton astra-chat-library-global-chatRemoveAction rounded-full",
+								size: "icon-sm",
+								variant: "outline",
+							})}
+							data-size="icon-sm"
+							data-slot="button"
+							data-variant="outline"
+							type="button"
+							onClick={(event) => {
+								event.stopPropagation();
+								chatCategoryStore.toggleChatCategory(
+									entry.key,
+									category.id,
+									false,
+								);
+							}}
+							onKeyDown={stopRowActivation}
+						>
+							<UiIcon aria-hidden={true} icon={X} size="sm" />
+						</TooltipTrigger>
+						<TooltipContent className="px-2 py-1 text-xs">
+							{removeLabel}
+						</TooltipContent>
+					</Tooltip>
+					<Tooltip>
+						<TooltipTrigger
+							aria-controls="astra-main-interface-chat-actions-drawer"
+							aria-expanded={
+								activeChatActionsEntryKey === entry.key
+							}
+							aria-label={moreLabel}
+							className={buttonVariants({
+								className:
+									"astra-chat-library-global-chatActionButton astra-chat-library-global-chatMoreAction rounded-full",
+								size: "icon-sm",
+								variant: "outline",
+							})}
+							data-size="icon-sm"
+							data-slot="button"
+							data-variant="outline"
+							disabled={!onOpenChatActions}
+							type="button"
+							onClick={(event) => {
+								event.stopPropagation();
+								onOpenChatActions?.(entry);
+							}}
+							onKeyDown={stopRowActivation}
+						>
+							<UiIcon
+								aria-hidden={true}
+								icon={EllipsisVertical}
+								size="sm"
+							/>
+						</TooltipTrigger>
+						<TooltipContent className="px-2 py-1 text-xs">
+							{moreLabel}
+						</TooltipContent>
+					</Tooltip>
+				</div>
+			</TooltipProvider>
+		</div>
 	);
 }
 
@@ -827,15 +942,18 @@ function GlobalCategoryEmptyChatRow({ text }: { text: string }) {
 }
 
 function GlobalChatCategoryTree({
+	activeChatActionsEntryKey,
 	categories,
 	chatCategoryStore,
 	entries,
 	expandedCategoryIds,
 	onCategoryAction,
+	onOpenChatActions,
 	openEntryDisabled,
 	onCategoryToggle,
 	onOpenEntry,
 }: {
+	activeChatActionsEntryKey?: string | null;
 	categories: ChatCategory[];
 	chatCategoryStore: ChatCategoryStore;
 	entries: ChatCatalogEntry[];
@@ -844,6 +962,7 @@ function GlobalChatCategoryTree({
 		category: ChatCategory,
 		mode: GlobalCategoryActionMode,
 	): void;
+	onOpenChatActions?: (entry: ChatCatalogEntry) => void;
 	openEntryDisabled?: boolean;
 	onCategoryToggle(categoryId: string): void;
 	onOpenEntry?: OpenChatCatalogEntry;
@@ -1005,10 +1124,20 @@ function GlobalChatCategoryTree({
 								{visibleEntries.length > 0 ? (
 									visibleEntries.map((entry) => (
 										<GlobalCategoryChatRow
+											activeChatActionsEntryKey={
+												activeChatActionsEntryKey
+											}
+											category={category}
+											chatCategoryStore={
+												chatCategoryStore
+											}
 											entry={entry}
 											key={entry.key}
 											openEntryDisabled={
 												openEntryDisabled
+											}
+											onOpenChatActions={
+												onOpenChatActions
 											}
 											onOpenEntry={onOpenEntry}
 										/>
@@ -1883,10 +2012,12 @@ function GlobalCategoryRenameField({
 }
 
 export function ChatCategoryManagerPage({
+	activeChatActionsEntryKey,
 	chatCategoryStore,
 	entries,
 	isLoading = false,
 	openEntryDisabled = false,
+	onOpenChatActions,
 	onOpenEntry,
 	ownerScope,
 	variant,
@@ -2040,11 +2171,15 @@ export function ChatCategoryManagerPage({
 				{categories.length > 0 ? (
 					isGlobal ? (
 						<GlobalChatCategoryTree
+							activeChatActionsEntryKey={
+								activeChatActionsEntryKey
+							}
 							categories={categories}
 							chatCategoryStore={chatCategoryStore}
 							entries={entries}
 							expandedCategoryIds={globalExpandedCategoryIds}
 							onCategoryAction={handleGlobalCategoryAction}
+							onOpenChatActions={onOpenChatActions}
 							openEntryDisabled={openEntryDisabled}
 							onCategoryToggle={handleGlobalCategoryToggle}
 							onOpenEntry={onOpenEntry}

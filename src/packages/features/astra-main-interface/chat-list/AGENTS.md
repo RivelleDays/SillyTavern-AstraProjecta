@@ -5,7 +5,9 @@
 
 ## Owned Paths / Responsibilities
 
-- `ChatListExperience.tsx` owns shared search, sorting controls, preview-line controls, incremental loading, empty states, row action wiring, export/actions drawer, category assignment drawer entry point, and Global/Current row adapters.
+- `ChatListExperience.tsx` owns shared search, sorting controls, preview-line controls, incremental loading, empty states, row action triggers, and Global/Current row adapters.
+- `useChatCatalogRowOverlayController.ts` owns the reusable actions/category/rename/delete overlay state and FIFO drawer-to-dialog transitions shared by chat lists and category chat rows.
+- `ChatCatalogRowOverlays.tsx` owns the shared export/actions drawer composition, category assignment drawer entry point, and rename/delete dialog synchronization with `ChatCategoryStore`.
 - `ChatCatalogRowActionDialog.tsx` owns chat-row rename/delete confirmation UI plus the shared chat identity header used by chat-list and category assignment surfaces.
 - `chatMenuDisplayPreferences.ts` owns chat-list browser localStorage keys, defaults, guards, readers, and persistence helpers.
 - `useChatCatalogEntryOpenController.ts` owns chat-list opening state and inline errors, and starts the shared chat-switch loading coordinator before Astra-initiated chat opens.
