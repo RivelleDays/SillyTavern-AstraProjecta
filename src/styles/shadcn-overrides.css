@@ -716,11 +716,11 @@
 }
 
 .astra-sliding-tabs__trigger-label {
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	font-size: var(--text-sm);
-	font-weight: var(--font-weight-medium);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
 }
 
 .astra-sliding-tabs__indicator {

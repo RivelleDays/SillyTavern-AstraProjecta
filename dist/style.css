@@ -3670,7 +3670,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: var(--text-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
 }
 .astra-sliding-tabs__indicator {
   --astra-sliding-tabs-motion-ease: var(
@@ -8504,8 +8504,9 @@ body.astra-projecta-mobile-layout {
     max-height: var(--sillytavern-interface-panel-subheader-height);
     align-items: center;
     box-sizing: border-box;
-    padding: 0 12px;
+    padding: 0 16px;
     border-bottom: 1px solid var(--border-color-base);
+    justify-content: flex-start;
   }
   .sillytavern-interface-panel__body {
     position: relative;

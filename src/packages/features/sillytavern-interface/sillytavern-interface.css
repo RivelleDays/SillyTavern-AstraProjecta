@@ -66,8 +66,9 @@
 		max-height: var(--sillytavern-interface-panel-subheader-height);
 		align-items: center;
 		box-sizing: border-box;
-		padding: 0 12px;
+		padding: 0 16px;
 		border-bottom: 1px solid var(--border-color-base);
+		justify-content: flex-start;
 	}
 
 	.sillytavern-interface-panel__body {
