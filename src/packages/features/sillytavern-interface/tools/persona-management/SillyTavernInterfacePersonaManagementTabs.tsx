@@ -4,7 +4,6 @@ import {
 	AstraSlidingTabs,
 	type AstraSlidingTabItem,
 } from "@/components/ui/shared/sliding-tabs";
-import { UserRoundPen, VenetianMask } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import {
 	getDefaultPersonaManagementDocumentRef,
@@ -33,14 +32,12 @@ export function SillyTavernInterfacePersonaManagementTabs({
 	const items = React.useMemo<AstraSlidingTabItem[]>(
 		() => [
 			{
-				icon: VenetianMask,
 				label: translateAstra(
 					"sillyTavernInterface.personaManagementTabs.personas",
 				),
 				value: "personas",
 			},
 			{
-				icon: UserRoundPen,
 				label: translateAstra(
 					"sillyTavernInterface.personaManagementTabs.edit",
 				),

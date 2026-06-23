@@ -4,14 +4,11 @@ import {
 	AstraSlidingTabs,
 	type AstraSlidingTabItem,
 } from "@/components/ui/shared/sliding-tabs";
-import { Plug2, SlidersHorizontal, Type } from "@/components/ui/shared/icons";
-import type { LucideIcon } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import { DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY } from "@/app/shared/sillytavern-interface";
 import type { I18nKey } from "@/types/i18n";
 
 interface AiSettingsTabDefinition {
-	icon: LucideIcon;
 	key: string;
 	labelKey: I18nKey;
 	pageKey: string;
@@ -19,19 +16,16 @@ interface AiSettingsTabDefinition {
 
 const AI_SETTINGS_TAB_DEFINITIONS = [
 	{
-		icon: SlidersHorizontal,
 		key: "config",
 		labelKey: "sillyTavernInterface.aiSettingsTabs.config",
 		pageKey: DEFAULT_SILLYTAVERN_INTERFACE_PAGE_KEY,
 	},
 	{
-		icon: Plug2,
 		key: "api",
 		labelKey: "sillyTavernInterface.aiSettingsTabs.api",
 		pageKey: "connection-profile",
 	},
 	{
-		icon: Type,
 		key: "advanced",
 		labelKey: "sillyTavernInterface.aiSettingsTabs.advanced",
 		pageKey: "advanced-formatting",
@@ -63,7 +57,6 @@ export function SillyTavernInterfaceAiSettingsTabs({
 	const items = React.useMemo<AstraSlidingTabItem[]>(
 		() =>
 			AI_SETTINGS_TAB_DEFINITIONS.map((item) => ({
-				icon: item.icon,
 				label: translateAstra(item.labelKey),
 				value: item.pageKey,
 			})),

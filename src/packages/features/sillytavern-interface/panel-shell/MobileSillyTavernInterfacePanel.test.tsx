@@ -372,9 +372,9 @@ describe("MobileSillyTavernInterfacePanel", () => {
 		expect(advancedTab).toHaveAttribute("data-state", "inactive");
 		expect(
 			configTab.querySelector(".lucide-sliders-horizontal"),
-		).toBeInTheDocument();
-		expect(apiTab.querySelector(".lucide-plug-2")).toBeInTheDocument();
-		expect(advancedTab.querySelector(".lucide-type")).toBeInTheDocument();
+		).not.toBeInTheDocument();
+		expect(apiTab.querySelector(".lucide-plug-2")).not.toBeInTheDocument();
+		expect(advancedTab.querySelector(".lucide-type")).not.toBeInTheDocument();
 		expect(
 			mainNavigation.querySelector(
 				".sillytavern-interface__main-nav-item-label",
@@ -832,14 +832,14 @@ describe("MobileSillyTavernInterfacePanel", () => {
 		expect(editTab).toHaveAttribute("data-state", "inactive");
 		expect(galleryTab).toHaveAttribute("data-state", "inactive");
 		expect(advancedTab).toHaveAttribute("data-state", "inactive");
-		expect(cardsTab.querySelector(".lucide-sparkles")).toBeInTheDocument();
+		expect(cardsTab.querySelector(".lucide-sparkles")).not.toBeInTheDocument();
 		expect(
 			editTab.querySelector(".lucide-user-round-pen"),
-		).toBeInTheDocument();
-		expect(galleryTab.querySelector(".lucide-images")).toBeInTheDocument();
+		).not.toBeInTheDocument();
+		expect(galleryTab.querySelector(".lucide-images")).not.toBeInTheDocument();
 		expect(
 			advancedTab.querySelector(".lucide-file-cog"),
-		).toBeInTheDocument();
+		).not.toBeInTheDocument();
 
 		drawer.dataset.menuType = "character_edit";
 
@@ -2910,10 +2910,10 @@ describe("MobileSillyTavernInterfacePanel", () => {
 		expect(editTab).toHaveAttribute("data-state", "inactive");
 		expect(
 			personasTab.querySelector(".lucide-venetian-mask"),
-		).toBeInTheDocument();
+		).not.toBeInTheDocument();
 		expect(
 			editTab.querySelector(".lucide-user-round-pen"),
-		).toBeInTheDocument();
+		).not.toBeInTheDocument();
 
 		await waitFor(() => {
 			expect(nativeRoot?.parentElement).toBe(host);

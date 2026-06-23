@@ -4,12 +4,6 @@ import {
 	AstraSlidingTabs,
 	type AstraSlidingTabItem,
 } from "@/components/ui/shared/sliding-tabs";
-import {
-	FileCog,
-	Images,
-	Sparkles,
-	UserRoundPen,
-} from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identity";
 import {
@@ -51,7 +45,6 @@ export function SillyTavernInterfaceCharacterManagementTabs({
 	const items = React.useMemo<AstraSlidingTabItem[]>(
 		() => [
 			{
-				icon: Sparkles,
 				label: translateAstra(
 					"sillyTavernInterface.characterManagementTabs.cards",
 				),
@@ -59,14 +52,12 @@ export function SillyTavernInterfaceCharacterManagementTabs({
 			},
 			{
 				disabled: !canOpenEditTab,
-				icon: UserRoundPen,
 				label: translateAstra(
 					"sillyTavernInterface.characterManagementTabs.edit",
 				),
 				value: "edit",
 			},
 			{
-				icon: FileCog,
 				label: translateAstra(
 					"sillyTavernInterface.characterManagementTabs.advanced",
 				),
@@ -74,7 +65,6 @@ export function SillyTavernInterfaceCharacterManagementTabs({
 			},
 			{
 				disabled: !canOpenGalleryTab,
-				icon: Images,
 				label: translateAstra(
 					"sillyTavernInterface.characterManagementTabs.gallery",
 				),
