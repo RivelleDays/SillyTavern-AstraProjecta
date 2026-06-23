@@ -7915,12 +7915,6 @@ body.astra-projecta-mobile-layout {
   flex-direction: column;
   gap: var(--space-3);
 }
-.astra-main-interface-chat-category-drawer__list-label {
-  min-width: 0;
-  color: var(--color-base);
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-medium);
-}
 .astra-main-interface-chat-category-drawer__scope-section {
   display: flex;
   min-width: 0;
@@ -7932,7 +7926,31 @@ body.astra-projecta-mobile-layout {
 }
 .astra-main-interface-chat-category-drawer__scope-header {
   display: flex;
+  width: 100%;
   min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 0;
+  text-align: left;
+}
+.astra-main-interface-chat-category-drawer__scope-header:not(:disabled) {
+  cursor: pointer;
+}
+.astra-main-interface-chat-category-drawer__scope-header:focus-visible {
+  outline: none;
+}
+.astra-main-interface-chat-category-drawer__scope-header[data-state="open"]	.astra-chat-library-category-chevron {
+  transform: rotate(0deg);
+}
+.astra-main-interface-chat-category-drawer__scope-label-row {
+  display: inline-flex;
+  min-width: 0;
+  flex: 1 1 auto;
   align-items: center;
   gap: var(--space-2);
 }
@@ -7958,7 +7976,6 @@ body.astra-projecta-mobile-layout {
   flex: 0 0 auto;
   color: var(--color-muted);
   font-size: var(--text-xs);
-  margin-inline-start: auto;
 }
 .astra-main-interface-chat-category-drawer__category-list {
   display: flex;

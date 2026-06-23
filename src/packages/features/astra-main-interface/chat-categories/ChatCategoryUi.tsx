@@ -1361,96 +1361,148 @@ function CategoryAccordionItem({
 function ChatCategoryAssignmentList({
 	draftIds,
 	groups,
+	isOpen,
 	onDraftIdsChange,
 }: {
 	draftIds: string[];
 	groups: CategoryGroup[];
+	isOpen: boolean;
 	onDraftIdsChange(nextDraftIds: string[]): void;
 }) {
+	const contentIdPrefix = React.useId();
+	const groupIdsKey = groups.map((group) => group.id).join(":");
+	const [expandedGroupIds, setExpandedGroupIds] = React.useState<string[]>(
+		() => groups.map((group) => group.id),
+	);
+	const wasOpenRef = React.useRef(isOpen);
+	const previousGroupIdsKeyRef = React.useRef(groupIdsKey);
+
+	React.useEffect(() => {
+		const didOpen = isOpen && !wasOpenRef.current;
+		const didGroupsChange = groupIdsKey !== previousGroupIdsKeyRef.current;
+
+		if (isOpen && (didOpen || didGroupsChange)) {
+			setExpandedGroupIds(groups.map((group) => group.id));
+		}
+
+		wasOpenRef.current = isOpen;
+		previousGroupIdsKeyRef.current = groupIdsKey;
+	}, [groupIdsKey, groups, isOpen]);
+
 	return (
 		<div className="astra-main-interface-chat-category-drawer__assignment-list">
-			<div className="astra-main-interface-chat-category-drawer__list-label">
-				{translateAstra(
-					"astraMainInterface.chatMenu.categoryDrawer.categoryList",
-				)}
-			</div>
-			{groups.map((group) => (
-				<section
-					aria-label={group.label}
-					className="astra-main-interface-chat-category-drawer__scope-section"
-					data-scope={group.id}
-					key={group.id}
-				>
-					<div className="astra-main-interface-chat-category-drawer__scope-header">
-						<span
-							aria-hidden={true}
-							className={`astra-main-interface-chat-category-drawer__scope-icon astra-main-interface-chat-category-drawer__scope-icon--${group.iconName}`}
-						>
-							<UiIcon icon={group.icon} size="sm" />
-						</span>
-						<span className="astra-main-interface-chat-category-drawer__scope-label">
-							{group.label}
-						</span>
-						<span className="astra-main-interface-chat-category-drawer__scope-count">
-							{group.categories.length}
-						</span>
-					</div>
-					<div
-						className="astra-main-interface-chat-category-drawer__category-list"
-						role="list"
-					>
-						{group.categories.length > 0 ? (
-							group.categories.map((category) => (
-								<div
-									className="astra-main-interface-chat-category-drawer__category-row"
-									data-category-id={category.id}
-									key={category.id}
-									role="listitem"
-								>
-									<span className="astra-main-interface-chat-category-drawer__category-name">
-										{category.name}
-									</span>
-									<span className="astra-main-interface-chat-category-drawer__checkbox-wrap">
-										<Checkbox
-											aria-label={category.name}
-											checked={draftIds.includes(
-												category.id,
-											)}
-											className="astra-chat-library-category-checkbox"
-											onCheckedChange={(checked) => {
-												const isChecked =
-													checked === true;
-												const nextDraftIds = isChecked
-													? draftIds.includes(
-															category.id,
-														)
-														? draftIds
-														: [
-																...draftIds,
-																category.id,
-															]
-													: draftIds.filter(
-															(id) =>
-																id !==
-																category.id,
-														);
+			{groups.map((group) => {
+				const isExpanded = expandedGroupIds.includes(group.id);
+				const contentId = `${contentIdPrefix}-${group.id}`;
 
-												onDraftIdsChange(nextDraftIds);
-											}}
-										/>
-									</span>
+				return (
+					<section
+						aria-label={group.label}
+						className="astra-main-interface-chat-category-drawer__scope-section"
+						data-scope={group.id}
+						key={group.id}
+					>
+						<button
+							aria-controls={contentId}
+							aria-expanded={isExpanded}
+							aria-label={`${group.label} (${group.categories.length})`}
+							className="astra-main-interface-chat-category-drawer__scope-header"
+							data-state={isExpanded ? "open" : "closed"}
+							type="button"
+							onClick={() => {
+								setExpandedGroupIds((current) =>
+									current.includes(group.id)
+										? current.filter(
+												(groupId) =>
+													groupId !== group.id,
+											)
+										: [...current, group.id],
+								);
+							}}
+						>
+							<span className="astra-main-interface-chat-category-drawer__scope-label-row">
+								<span
+									aria-hidden={true}
+									className={`astra-main-interface-chat-category-drawer__scope-icon astra-main-interface-chat-category-drawer__scope-icon--${group.iconName}`}
+								>
+									<UiIcon icon={group.icon} size="sm" />
+								</span>
+								<span className="astra-main-interface-chat-category-drawer__scope-label">
+									{group.label}
+								</span>
+								<span className="astra-main-interface-chat-category-drawer__scope-count">
+									({group.categories.length})
+								</span>
+							</span>
+							<UiIcon
+								aria-hidden={true}
+								className="astra-chat-library-category-chevron"
+								icon={ChevronDown}
+								size="sm"
+							/>
+						</button>
+						<div
+							className="astra-main-interface-chat-category-drawer__category-list"
+							hidden={!isExpanded}
+							id={contentId}
+							role="list"
+						>
+							{group.categories.length > 0 ? (
+								group.categories.map((category) => (
+									<div
+										className="astra-main-interface-chat-category-drawer__category-row"
+										data-category-id={category.id}
+										key={category.id}
+										role="listitem"
+									>
+										<span className="astra-main-interface-chat-category-drawer__category-name">
+											{category.name}
+										</span>
+										<span className="astra-main-interface-chat-category-drawer__checkbox-wrap">
+											<Checkbox
+												aria-label={category.name}
+												checked={draftIds.includes(
+													category.id,
+												)}
+												className="astra-chat-library-category-checkbox"
+												onCheckedChange={(checked) => {
+													const isChecked =
+														checked === true;
+													const nextDraftIds =
+														isChecked
+															? draftIds.includes(
+																	category.id,
+																)
+																? draftIds
+																: [
+																		...draftIds,
+																		category.id,
+																	]
+															: draftIds.filter(
+																	(id) =>
+																		id !==
+																		category.id,
+																);
+
+													onDraftIdsChange(
+														nextDraftIds,
+													);
+												}}
+											/>
+										</span>
+									</div>
+								))
+							) : (
+								<div className="astra-main-interface-chat-category-drawer__empty-row">
+									{translateAstra(
+										"astraMainInterface.chatMenu.categoryDrawer.empty",
+									)}
 								</div>
-							))
-						) : (
-							<div className="astra-main-interface-chat-category-drawer__empty-row">
-								{translateAstra(
-									"astraMainInterface.chatMenu.categoryDrawer.empty",
-								)}
-							</div>
-						)}
-					</div>
-				</section>
-			))}
+							)}
+						</div>
+					</section>
+				);
+			})}
 		</div>
 	);
 }
@@ -2145,6 +2197,7 @@ export function ChatCategoryAssignmentDrawer({
 					<ChatCategoryAssignmentList
 						draftIds={draftIds}
 						groups={groups}
+						isOpen={isOpen}
 						onDraftIdsChange={setDraftIds}
 					/>
 					<div className="astra-main-interface-chat-category-drawer__create">

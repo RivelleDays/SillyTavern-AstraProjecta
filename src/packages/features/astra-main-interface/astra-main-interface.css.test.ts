@@ -377,8 +377,20 @@ describe("astra-main-interface.css", () => {
 		expect(css).toContain(
 			".astra-main-interface-chat-category-drawer__assignment-list",
 		);
+		expect(css).not.toContain(
+			".astra-main-interface-chat-category-drawer__list-label",
+		);
 		expect(css).toContain(
 			".astra-main-interface-chat-category-drawer__scope-section",
+		);
+		expect(css).toContain(
+			".astra-main-interface-chat-category-drawer__scope-header",
+		);
+		expect(css).toContain(
+			".astra-main-interface-chat-category-drawer__scope-label-row",
+		);
+		expect(css).toContain(
+			'.astra-main-interface-chat-category-drawer__scope-header[data-state="open"]',
 		);
 		expect(css).toContain(
 			".astra-main-interface-chat-category-drawer__category-row",
@@ -670,6 +682,9 @@ describe("astra-main-interface.css", () => {
 		);
 		expect(css).toMatch(
 			/\.astra-chat-library-category-checkbox:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-chat-category-drawer__scope-header:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
 		);
 		expect(css).toMatch(
 			/\.astra-chat-library-dialog-action:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,

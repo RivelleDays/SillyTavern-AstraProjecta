@@ -27,7 +27,6 @@ export interface I18nMessages {
 	"astraMainInterface.chatMenu.actions.description": string;
 	"astraMainInterface.chatMenu.actions.group.chatFile": string;
 	"astraMainInterface.chatMenu.actions.open": string;
-	"astraMainInterface.chatMenu.categoryDrawer.categoryList": string;
 	"astraMainInterface.chatMenu.categoryDrawer.close": string;
 	"astraMainInterface.chatMenu.categoryDrawer.create.add": string;
 	"astraMainInterface.chatMenu.categoryDrawer.create.inputLabel": string;

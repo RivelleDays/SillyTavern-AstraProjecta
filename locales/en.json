@@ -24,7 +24,6 @@
 	"astraMainInterface.chatMenu.actions.description": "Manage this chat file or export a copy of",
 	"astraMainInterface.chatMenu.actions.group.chatFile": "Chat file",
 	"astraMainInterface.chatMenu.actions.open": "Open this chat",
-	"astraMainInterface.chatMenu.categoryDrawer.categoryList": "Category list",
 	"astraMainInterface.chatMenu.categoryDrawer.close": "Cancel",
 	"astraMainInterface.chatMenu.categoryDrawer.create.add": "Add category",
 	"astraMainInterface.chatMenu.categoryDrawer.create.inputLabel": "New category name",

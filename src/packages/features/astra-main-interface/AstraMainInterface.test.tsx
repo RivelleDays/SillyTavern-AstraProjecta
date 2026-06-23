@@ -4903,6 +4903,135 @@ describe("AstraMainInterface", () => {
 		).not.toBeInTheDocument();
 	});
 
+	test("toggles category assignment scope lists while preserving the draft", async () => {
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [
+					createEntry({
+						chatId: "campfire",
+						entityId: "party",
+						entityName: "Party",
+						key: "group:party:campfire",
+						kind: "group",
+					}),
+				],
+			}),
+		);
+		const categoryStoreStub = createSeededChatCategoryStore({
+			ids: ["cat_party", "cat_global"],
+		});
+		categoryStoreStub.store.createCategory({
+			name: "Party Plans",
+			ownerId: "party",
+			ownerType: "group",
+			scope: "owner",
+		});
+		categoryStoreStub.store.createCategory({
+			name: "Shared Tags",
+			scope: "global",
+		});
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				chatCategoryStore={categoryStoreStub.store}
+			/>,
+		);
+
+		const partyRow = screen.getByRole("button", {
+			name: "Open Party campfire",
+		});
+		const categoryAction = within(partyRow).getByRole("button", {
+			name: "Edit categories",
+		});
+		fireEvent.click(categoryAction);
+
+		const drawer = await screen.findByRole("dialog", {
+			name: "Edit categories",
+		});
+		expect(within(drawer).queryByText("Category list")).not.toBeInTheDocument();
+		expect(
+			drawer.querySelector(
+				".astra-main-interface-chat-category-drawer__list-label",
+			),
+		).not.toBeInTheDocument();
+		const ownerScopeTrigger = within(drawer).getByRole("button", {
+			name: "Party (1)",
+		});
+		const globalScopeTrigger = within(drawer).getByRole("button", {
+			name: "Global (1)",
+		});
+		const ownerListId = ownerScopeTrigger.getAttribute("aria-controls");
+		const globalListId = globalScopeTrigger.getAttribute("aria-controls");
+
+		expect(ownerScopeTrigger).toHaveClass(
+			"astra-main-interface-chat-category-drawer__scope-header",
+		);
+		expect(ownerScopeTrigger).toHaveAttribute("aria-expanded", "true");
+		expect(ownerScopeTrigger).toHaveAttribute("data-state", "open");
+		expect(globalScopeTrigger).toHaveAttribute("aria-expanded", "true");
+		expect(globalScopeTrigger).toHaveAttribute("data-state", "open");
+		expect(ownerListId).toBeTruthy();
+		expect(globalListId).toBeTruthy();
+		expect(ownerListId).not.toBe(globalListId);
+
+		const ownerList = document.getElementById(ownerListId as string);
+		const globalList = document.getElementById(globalListId as string);
+		expect(ownerList).not.toHaveAttribute("hidden");
+		expect(globalList).not.toHaveAttribute("hidden");
+		expect(
+			ownerScopeTrigger.querySelector(
+				".astra-main-interface-chat-category-drawer__scope-label",
+			)?.nextElementSibling,
+		).toHaveClass("astra-main-interface-chat-category-drawer__scope-count");
+		expect(
+			globalScopeTrigger.querySelector(
+				".astra-chat-library-category-chevron",
+			),
+		).toBeInTheDocument();
+
+		const globalCheckbox = within(drawer).getByRole("checkbox", {
+			name: "Shared Tags",
+		});
+		fireEvent.click(globalCheckbox);
+		expect(globalCheckbox).toBeChecked();
+
+		fireEvent.click(globalScopeTrigger);
+
+		expect(globalScopeTrigger).toHaveAttribute("aria-expanded", "false");
+		expect(globalScopeTrigger).toHaveAttribute("data-state", "closed");
+		expect(globalList).toHaveAttribute("hidden");
+		expect(ownerScopeTrigger).toHaveAttribute("aria-expanded", "true");
+		expect(ownerList).not.toHaveAttribute("hidden");
+
+		fireEvent.click(globalScopeTrigger);
+
+		expect(globalScopeTrigger).toHaveAttribute("aria-expanded", "true");
+		expect(globalList).not.toHaveAttribute("hidden");
+		expect(globalCheckbox).toBeChecked();
+
+		fireEvent.click(globalScopeTrigger);
+		fireEvent.click(
+			within(drawer).getByRole("button", {
+				name: "Cancel",
+			}),
+		);
+		await waitFor(() => {
+			expect(categoryAction).toHaveAttribute("aria-expanded", "false");
+		});
+
+		fireEvent.click(categoryAction);
+
+		const reopenedDrawer = await screen.findByRole("dialog", {
+			name: "Edit categories",
+		});
+		expect(
+			within(reopenedDrawer).getByRole("button", {
+				name: "Global (1)",
+			}),
+		).toHaveAttribute("aria-expanded", "true");
+	});
+
 	test("opens queued row overlays from the actions drawer in FIFO order", async () => {
 		const storeStub = createStoreStub(
 			createSnapshot({
