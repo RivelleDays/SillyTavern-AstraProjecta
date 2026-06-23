@@ -6,6 +6,7 @@ import { UiIcon } from "@/components/ui/shared/icon";
 import { Globe2, UserRound } from "@/components/ui/shared/icons";
 import { cn } from "@/lib/utils";
 import { translateAstra } from "@/packages/core/i18n";
+import type { ActivateChatEntity } from "@/packages/core/st/chat-catalog";
 import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identity";
 import {
 	FAVORITE_CHAT_ENTITY_CURRENT_CONTEXT_SCOPE_VALUE,
@@ -15,14 +16,17 @@ import {
 	type FavoriteChatEntity,
 	type FavoriteChatEntityNavigationScopeValue,
 } from "@/packages/core/st/favorite-chat-entities";
+import { useFavoriteChatEntityActivationController } from "@/packages/features/astra-main-interface/useFavoriteChatEntityActivationController";
 
 export type AstraMainInterfaceScopeValue =
 	FavoriteChatEntityNavigationScopeValue;
 
 export interface AstraMainInterfaceScopeStripProps {
+	activateChatEntity?: ActivateChatEntity;
 	className?: string;
 	currentIdentitySnapshot: CurrentChatIdentitySnapshot;
 	favoriteChatEntitiesStore?: FavoriteChatEntitiesStore | null;
+	onRequestClose?(): void;
 	onValueChange(value: AstraMainInterfaceScopeValue): void;
 	value: AstraMainInterfaceScopeValue;
 }
@@ -97,6 +101,8 @@ function resolveFallbackText(label: string) {
 function ScopeButton({
 	children,
 	className,
+	disabled = false,
+	isBusy = false,
 	label,
 	onSelect,
 	selected,
@@ -104,6 +110,8 @@ function ScopeButton({
 }: {
 	children: React.ReactNode;
 	className?: string;
+	disabled?: boolean;
+	isBusy?: boolean;
 	label: string;
 	onSelect(value: AstraMainInterfaceScopeValue): void;
 	selected: boolean;
@@ -111,6 +119,7 @@ function ScopeButton({
 }) {
 	return (
 		<button
+			aria-busy={isBusy || undefined}
 			aria-label={label}
 			aria-selected={selected}
 			className={cn(
@@ -120,6 +129,7 @@ function ScopeButton({
 			)}
 			data-scope-value={value}
 			data-state={selected ? "active" : "inactive"}
+			disabled={disabled}
 			role="tab"
 			title={label}
 			type="button"
@@ -140,11 +150,15 @@ function ScopeButton({
 
 function FavoriteScopeButton({
 	entity,
+	disabled,
+	isBusy,
 	onSelect,
 	selected,
 }: {
 	entity: FavoriteChatEntity;
-	onSelect(value: AstraMainInterfaceScopeValue): void;
+	disabled?: boolean;
+	isBusy?: boolean;
+	onSelect(entity: FavoriteChatEntity): void;
 	selected: boolean;
 }) {
 	return (
@@ -154,9 +168,13 @@ function FavoriteScopeButton({
 				`astra-main-interface__scope-button--${entity.kind}`,
 			)}
 			label={entity.entityName}
+			disabled={disabled}
+			isBusy={isBusy}
 			selected={selected}
 			value={entity.scopeValue}
-			onSelect={onSelect}
+			onSelect={() => {
+				onSelect(entity);
+			}}
 		>
 			<AstraChatAvatar
 				alt={entity.entityName}
@@ -172,9 +190,11 @@ function FavoriteScopeButton({
 }
 
 export function AstraMainInterfaceScopeStrip({
+	activateChatEntity,
 	className,
 	currentIdentitySnapshot,
 	favoriteChatEntitiesStore,
+	onRequestClose,
 	onValueChange,
 	value,
 }: AstraMainInterfaceScopeStripProps) {
@@ -185,6 +205,15 @@ export function AstraMainInterfaceScopeStrip({
 	const hasCurrentAvatar =
 		currentIdentitySnapshot.thumbnailUrl ||
 		currentIdentitySnapshot.groupAvatarUrls.length > 0;
+	const handleActivationSuccess = React.useCallback(() => {
+		onValueChange(FAVORITE_CHAT_ENTITY_CURRENT_CONTEXT_SCOPE_VALUE);
+		onRequestClose?.();
+	}, [onRequestClose, onValueChange]);
+	const { activateFavoriteEntity, activatingScopeValue, isActivating } =
+		useFavoriteChatEntityActivationController({
+			activateChatEntity,
+			onActivationSuccess: handleActivationSuccess,
+		});
 
 	return (
 		<div
@@ -200,6 +229,7 @@ export function AstraMainInterfaceScopeStrip({
 				<ScopeButton
 					className="astra-main-interface__scope-button--global"
 					label={translateAstra("astraMainInterface.sections.global")}
+					disabled={isActivating}
 					selected={value === FAVORITE_CHAT_ENTITY_GLOBAL_SCOPE_VALUE}
 					value={FAVORITE_CHAT_ENTITY_GLOBAL_SCOPE_VALUE}
 					onSelect={onValueChange}
@@ -214,6 +244,7 @@ export function AstraMainInterfaceScopeStrip({
 				<ScopeButton
 					className="astra-main-interface__scope-button--current"
 					label={currentLabel}
+					disabled={isActivating}
 					selected={
 						value ===
 						FAVORITE_CHAT_ENTITY_CURRENT_CONTEXT_SCOPE_VALUE
@@ -264,10 +295,14 @@ export function AstraMainInterfaceScopeStrip({
 					>
 						{favoritesSnapshot.entities.map((entity) => (
 							<FavoriteScopeButton
+								disabled={isActivating}
 								entity={entity}
+								isBusy={
+									activatingScopeValue === entity.scopeValue
+								}
 								key={entity.scopeValue}
 								selected={value === entity.scopeValue}
-								onSelect={onValueChange}
+								onSelect={activateFavoriteEntity}
 							/>
 						))}
 					</ScrollArea.Content>

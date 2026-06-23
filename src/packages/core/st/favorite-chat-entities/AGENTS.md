@@ -34,7 +34,7 @@
 - Do not import `/script.js`, `/scripts/RossAscends-mods.js`, `favsToHotswap()`, or other SillyTavern browser modules from this adapter.
 - Do not scrape or reuse `#HotSwapWrapper`, `.hotswap`, `.character_select`, `.group_select`, or Character Management DOM nodes.
 - Do not call `/api/chats/recent`, `/api/chats/search`, or character/group write endpoints from this folder.
-- Do not perform SillyTavern active chat switching here. Header avatar clicks will later switch only Astra main-interface body scope unless a separate feature explicitly owns native chat activation.
+- Do not perform SillyTavern active chat switching here. The Astra main-interface feature owns Favorite header click behavior and delegates native activation to `src/packages/core/st/chat-catalog`; this adapter remains metadata-only.
 - Do not add React components, CSS selectors, `ScrollArea`, or visual affordance code in this folder.
 
 ## Failure Behavior

@@ -19,6 +19,7 @@ vi.mock("@/packages/core/st/chat-catalog/unstable-st-internals", async () => {
 });
 
 import {
+	activateChatEntity,
 	CHAT_CATALOG_CACHE_KEY,
 	CHAT_CATALOG_CACHE_STALE_MS,
 	createChatCatalogStore,
@@ -1019,6 +1020,216 @@ describe("chat catalog adapter", () => {
 		await Promise.resolve();
 
 		expect(fetchImpl).toHaveBeenCalledTimes(1);
+	});
+
+	test("activates a favorite character through the public character selector without changing its remembered chat", async () => {
+		const characters = [
+			{
+				avatar: "hero.png",
+				chat: "chapter-remembered",
+				name: "Hero",
+			},
+			{
+				avatar: "mage.png",
+				chat: "mage-remembered",
+				name: "Mage",
+			},
+		];
+		const contextRef: { current: Record<string, unknown> } = {
+			current: {
+				characterId: 0,
+				characters,
+				chatId: "chapter-remembered",
+				groupId: null,
+			},
+		};
+		const selectCharacterById = vi.fn(
+			async (characterId: number, options?: { switchMenu?: boolean }) => {
+				contextRef.current = {
+					...contextRef.current,
+					characterId,
+					chatId: characters[characterId].chat,
+					groupId: null,
+				};
+				return options;
+			},
+		);
+		contextRef.current.selectCharacterById = selectCharacterById;
+		setMutableSillyTavernContext(contextRef);
+
+		const result = await activateChatEntity({
+			characterId: 1,
+			entityId: "1",
+			entityName: "Mage",
+			kind: "character",
+		});
+
+		expect(result).toEqual({ ok: true });
+		expect(selectCharacterById).toHaveBeenCalledWith(1, {
+			switchMenu: false,
+		});
+		expect(characters[1].chat).toBe("mage-remembered");
+		expect(contextRef.current.chatId).toBe("mage-remembered");
+	});
+
+	test("activates a favorite group through the native group selector", async () => {
+		document.body.innerHTML =
+			'<button class="group_select" data-grid="party"></button>';
+		const contextRef: { current: Record<string, unknown> } = {
+			current: {
+				characterId: 0,
+				chatId: "chapter-remembered",
+				groupId: null,
+				groups: [
+					{
+						chat_id: "campfire",
+						id: "party",
+						name: "Party",
+					},
+				],
+			},
+		};
+		document.querySelector(".group_select")?.addEventListener("click", () => {
+			contextRef.current = {
+				...contextRef.current,
+				characterId: null,
+				chatId: "campfire",
+				groupId: "party",
+			};
+		});
+		setMutableSillyTavernContext(contextRef);
+
+		const result = await activateChatEntity({
+			entityId: "party",
+			entityName: "Party",
+			kind: "group",
+		});
+
+		expect(result).toEqual({ ok: true });
+		expect(contextRef.current.chatId).toBe("campfire");
+	});
+
+	test("falls back to the native character selector when the public selector is unavailable", async () => {
+		document.body.innerHTML =
+			'<button class="character_select" data-chid="1"></button>';
+		const contextRef: { current: Record<string, unknown> } = {
+			current: {
+				characterId: 0,
+				chatId: "chapter-remembered",
+				groupId: null,
+			},
+		};
+		document
+			.querySelector(".character_select")
+			?.addEventListener("click", () => {
+				contextRef.current = {
+					...contextRef.current,
+					characterId: 1,
+					chatId: "mage-remembered",
+					groupId: null,
+				};
+			});
+		setMutableSillyTavernContext(contextRef);
+
+		const result = await activateChatEntity({
+			characterId: 1,
+			entityId: "1",
+			entityName: "Mage",
+			kind: "character",
+		});
+
+		expect(result).toEqual({ ok: true });
+		expect(contextRef.current.chatId).toBe("mage-remembered");
+	});
+
+	test("falls back to the public go command when the native group selector is unavailable", async () => {
+		const contextRef: { current: Record<string, unknown> } = {
+			current: {
+				characterId: 0,
+				chatId: "chapter-remembered",
+				groupId: null,
+				groups: [
+					{
+						chat_id: "campfire",
+						id: "party",
+						name: "Party",
+					},
+				],
+			},
+		};
+		const executeSlashCommandsWithOptions = vi.fn(async () => {
+			contextRef.current = {
+				...contextRef.current,
+				characterId: null,
+				chatId: "campfire",
+				groupId: "party",
+			};
+			return {
+				pipe: "Party",
+			};
+		});
+		contextRef.current.executeSlashCommandsWithOptions =
+			executeSlashCommandsWithOptions;
+		setMutableSillyTavernContext(contextRef);
+
+		const result = await activateChatEntity({
+			entityId: "party",
+			entityName: "Party",
+			kind: "group",
+		});
+
+		expect(result).toEqual({ ok: true });
+		expect(executeSlashCommandsWithOptions).toHaveBeenCalledWith(
+			'/go "Party"',
+			expect.objectContaining({
+				source: "astra-projecta",
+			}),
+		);
+		expect(contextRef.current.chatId).toBe("campfire");
+	});
+
+	test("reports an already-current favorite entity without invoking native activation", async () => {
+		const selectCharacterById = vi.fn();
+		setSillyTavernContext({
+			characterId: 1,
+			chatId: "mage-remembered",
+			groupId: null,
+			selectCharacterById,
+		});
+
+		const result = await activateChatEntity({
+			characterId: 1,
+			entityId: "1",
+			entityName: "Mage",
+			kind: "character",
+		});
+
+		expect(result).toEqual({
+			alreadyCurrent: true,
+			ok: true,
+		});
+		expect(selectCharacterById).not.toHaveBeenCalled();
+	});
+
+	test("returns a typed failure when favorite character activation cannot be verified", async () => {
+		setSillyTavernContext({
+			characterId: 0,
+			chatId: "chapter-remembered",
+			groupId: null,
+			selectCharacterById: vi.fn().mockResolvedValue(undefined),
+		});
+
+		const result = await activateChatEntity({
+			characterId: 1,
+			entityId: "1",
+			entityName: "Mage",
+			kind: "character",
+		});
+
+		expect(result).toEqual({
+			ok: false,
+			reason: "open-failed",
+		});
 	});
 
 	test("targets an inactive character chat before clicking the native character row", async () => {

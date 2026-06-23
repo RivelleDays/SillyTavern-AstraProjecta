@@ -187,6 +187,19 @@ export type OpenChatCatalogResult =
 				| "open-failed";
 	  };
 
+export interface ChatEntityActivationTarget {
+	characterId?: number | null;
+	entityId: string;
+	entityName: string;
+	kind: ChatCatalogEntryKind;
+}
+
+export type ChatEntityActivationResult = OpenChatCatalogResult;
+
+export type ActivateChatEntity = (
+	target: ChatEntityActivationTarget,
+) => Promise<ChatEntityActivationResult>;
+
 export type OpenChatCatalogEntry = (
 	entry: ChatCatalogEntry,
 ) => Promise<OpenChatCatalogResult>;
@@ -1910,6 +1923,148 @@ async function openCharacterChatInActiveContext(
 	return {
 		ok: true,
 	};
+}
+
+export async function activateChatEntity(
+	target: ChatEntityActivationTarget,
+): Promise<ChatEntityActivationResult> {
+	const context = readContextSafe<StChatCatalogContextLike>();
+	if (!context) {
+		return {
+			ok: false,
+			reason: "context-unavailable",
+		};
+	}
+
+	if (target.kind === "group") {
+		const groupId = asTrimmedIdentifier(target.entityId);
+		if (!groupId) {
+			return {
+				ok: false,
+				reason: "invalid-entry",
+			};
+		}
+
+		if (asTrimmedIdentifier(context.groupId) === groupId) {
+			return {
+				alreadyCurrent: true,
+				ok: true,
+			};
+		}
+
+		const groupElement =
+			typeof document === "undefined"
+				? null
+				: findNativeGroupSelectElement(document, groupId);
+		if (!groupElement) {
+			const publicResult = await activateGroupThroughPublicApi(
+				context,
+				groupId,
+				target.entityName,
+				getStContext,
+			);
+			return publicResult.ok
+				? { ok: true }
+				: {
+						ok: false,
+						reason: publicResult.reason,
+					};
+		}
+
+		try {
+			triggerNativeSelectElement(groupElement);
+		} catch {
+			return {
+				ok: false,
+				reason: "open-failed",
+			};
+		}
+
+		const activeContext = await waitForContextMatch(
+			getStContext,
+			(nextContext) =>
+				asTrimmedIdentifier(nextContext.groupId) === groupId,
+		);
+		return activeContext
+			? { ok: true }
+			: {
+					ok: false,
+					reason: "open-failed",
+				};
+	}
+
+	const characterId =
+		typeof target.characterId === "number"
+			? target.characterId
+			: asNullableInteger(target.entityId);
+	if (characterId === null) {
+		return {
+			ok: false,
+			reason: "invalid-entry",
+		};
+	}
+
+	if (isActiveCharacterContext(context, characterId)) {
+		return {
+			alreadyCurrent: true,
+			ok: true,
+		};
+	}
+
+	if (typeof context.selectCharacterById !== "function") {
+		const characterElement =
+			typeof document === "undefined"
+				? null
+				: findNativeCharacterSelectElement(document, characterId);
+		if (!characterElement) {
+			return {
+				ok: false,
+				reason: "api-unavailable",
+			};
+		}
+
+		try {
+			triggerNativeSelectElement(characterElement);
+		} catch {
+			return {
+				ok: false,
+				reason: "open-failed",
+			};
+		}
+
+		const activeContext = await waitForContextMatch(
+			getStContext,
+			(nextContext) => isActiveCharacterContext(nextContext, characterId),
+		);
+		return activeContext
+			? { ok: true }
+			: {
+					ok: false,
+					reason: "open-failed",
+				};
+	}
+
+	try {
+		await context.selectCharacterById(characterId, {
+			switchMenu: false,
+		});
+	} catch {
+		return {
+			ok: false,
+			reason: "open-failed",
+		};
+	}
+
+	const activeContext = await waitForContextMatch(
+		getStContext,
+		(nextContext) => isActiveCharacterContext(nextContext, characterId),
+	);
+	return activeContext
+		? { ok: true }
+		: {
+				ok: false,
+				reason: "open-failed",
+			};
 }
 
 export async function openChatCatalogEntry(

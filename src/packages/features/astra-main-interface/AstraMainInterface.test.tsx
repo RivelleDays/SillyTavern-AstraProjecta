@@ -26,6 +26,8 @@ import type {
 	ChatCatalogEntry,
 	ChatCatalogSnapshot,
 	ChatCatalogStore,
+	ActivateChatEntity,
+	ChatEntityActivationResult,
 	DeleteChatCatalogEntry,
 	ExportChatCatalogEntry,
 	OpenChatCatalogEntry,
@@ -710,7 +712,7 @@ describe("AstraMainInterface", () => {
 		).toHaveAttribute("aria-selected", "false");
 	});
 
-	test("selects favorite scopes without opening a SillyTavern chat", () => {
+	test("activates a favorite character, switches to Current, and requests panel close", async () => {
 		const storeStub = createStoreStub(createSnapshot());
 		const favoriteStoreStub = createFavoriteStoreStub(
 			createFavoriteSnapshot({
@@ -719,25 +721,122 @@ describe("AstraMainInterface", () => {
 			}),
 		);
 		const handleActiveSectionChange = vi.fn();
-		const openChat = vi.fn<OpenChatCatalogEntry>().mockResolvedValue({
+		const handleRequestClose = vi.fn();
+		const activateEntity = vi.fn<ActivateChatEntity>().mockResolvedValue({
 			ok: true,
 		});
 
 		render(
 			<AstraMainInterface
+				activateChatEntity={activateEntity}
 				chatCatalogStore={storeStub.store}
 				favoriteChatEntitiesStore={favoriteStoreStub.store}
-				openChat={openChat}
 				onActiveSectionChange={handleActiveSectionChange}
+				onRequestClose={handleRequestClose}
 			/>,
 		);
 
 		fireEvent.click(screen.getByRole("tab", { name: "Mage" }));
 
-		expect(handleActiveSectionChange).toHaveBeenCalledWith(
-			"favorite:character:1",
+		await waitFor(() => {
+			expect(activateEntity).toHaveBeenCalledWith({
+				characterId: 1,
+				entityId: "1",
+				entityName: "Mage",
+				kind: "character",
+			});
+		});
+		expect(handleActiveSectionChange).toHaveBeenCalledWith("current-context");
+		expect(handleRequestClose).toHaveBeenCalledTimes(1);
+	});
+
+	test("keeps the current scope open and reports an error when favorite activation fails", async () => {
+		const storeStub = createStoreStub(createSnapshot());
+		const favoriteStoreStub = createFavoriteStoreStub(
+			createFavoriteSnapshot({
+				entities: [createFavoriteEntity()],
+				totalFavoriteCount: 1,
+			}),
 		);
-		expect(openChat).not.toHaveBeenCalled();
+		const handleActiveSectionChange = vi.fn();
+		const handleRequestClose = vi.fn();
+		const error = vi.fn();
+		(globalThis as { toastr?: { error?: (message: string) => void } }).toastr =
+			{ error };
+		const activateEntity = vi
+			.fn<ActivateChatEntity>()
+			.mockResolvedValue({
+				ok: false,
+				reason: "open-failed",
+			});
+
+		render(
+			<AstraMainInterface
+				activateChatEntity={activateEntity}
+				chatCatalogStore={storeStub.store}
+				favoriteChatEntitiesStore={favoriteStoreStub.store}
+				onActiveSectionChange={handleActiveSectionChange}
+				onRequestClose={handleRequestClose}
+			/>,
+		);
+
+		fireEvent.click(screen.getByRole("tab", { name: "Mage" }));
+
+		await waitFor(() => {
+			expect(error).toHaveBeenCalledWith(
+				"Failed to switch character or group.",
+			);
+		});
+		expect(handleActiveSectionChange).not.toHaveBeenCalled();
+		expect(handleRequestClose).not.toHaveBeenCalled();
+		expect(
+			screen.getByRole("tab", { name: "Global" }),
+		).toHaveAttribute("aria-selected", "true");
+	});
+
+	test("disables scope navigation while a favorite activation is pending", async () => {
+		const storeStub = createStoreStub(createSnapshot());
+		const favoriteStoreStub = createFavoriteStoreStub(
+			createFavoriteSnapshot({
+				entities: [createFavoriteEntity()],
+				totalFavoriteCount: 1,
+			}),
+		);
+		const activation = createDeferred<ChatEntityActivationResult>();
+		const activateEntity = vi
+			.fn<ActivateChatEntity>()
+			.mockReturnValue(activation.promise);
+
+		render(
+			<AstraMainInterface
+				activateChatEntity={activateEntity}
+				chatCatalogStore={storeStub.store}
+				favoriteChatEntitiesStore={favoriteStoreStub.store}
+			/>,
+		);
+
+		const mageTab = screen.getByRole("tab", { name: "Mage" });
+		fireEvent.click(mageTab);
+
+		await waitFor(() => {
+			expect(mageTab).toHaveAttribute("aria-busy", "true");
+		});
+		const scopeTabs = within(
+			screen.getByRole("tablist", {
+				name: "Main UI sections",
+			}),
+		).getAllByRole("tab");
+		for (const tab of scopeTabs) {
+			expect(tab).toBeDisabled();
+		}
+
+		fireEvent.click(mageTab);
+		expect(activateEntity).toHaveBeenCalledTimes(1);
+
+		activation.resolve({ ok: true });
+		await waitFor(() => {
+			expect(mageTab).not.toHaveAttribute("aria-busy");
+		});
 	});
 
 	test("wraps global tab pages in child-owned scroll surfaces without blocking tab swipes", () => {

@@ -165,6 +165,8 @@ export interface I18nMessages {
 	"astraMainInterface.sections.currentContext": string;
 	"astraMainInterface.sections.global": string;
 	"astraMainInterface.sections.label": string;
+	"astraMainInterface.sections.switchFailure": string;
+	"astraMainInterface.sections.switching": string;
 	"astraMainInterface.title": string;
 	"astraMainInterface.title.global": string;
 	"messageActions.deleteConfirm.cancel": string;

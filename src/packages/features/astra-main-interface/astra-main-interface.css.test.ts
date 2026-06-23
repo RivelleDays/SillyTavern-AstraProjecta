@@ -576,6 +576,9 @@ describe("astra-main-interface.css", () => {
 			/\.astra-main-interface__scope-button:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
 		);
 		expect(css).toMatch(
+			/\.astra-main-interface__scope-button:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
+		);
+		expect(css).toMatch(
 			/\.astra-main-interface\s+\.astra-smooth-tabs__trigger:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
 		);
 		expect(css).toMatch(

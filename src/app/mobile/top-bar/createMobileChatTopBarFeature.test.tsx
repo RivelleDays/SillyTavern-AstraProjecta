@@ -179,30 +179,51 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 	});
 
-	test("shares first-open catalog data and lazy-loads favorite body chats only after selection", async () => {
+	test("shares first-open catalog data and activates a favorite before rebinding the panel to Current", async () => {
 		document.body.innerHTML = '<div id="sheld"></div>';
-		setSillyTavernContext({
+		const store = createIdentityStoreStub();
+		const characters = [
+			{
+				avatar: "hero.png",
+				chat: "chapter-1",
+				fav: true,
+				name: "Hero",
+			},
+			{
+				avatar: "mage.png",
+				chat: "mage-home",
+				fav: true,
+				name: "Mage",
+			},
+		];
+		const context: Record<string, unknown> = {
 			characterId: 0,
-			characters: [
-				{
-					avatar: "hero.png",
-					chat: "chapter-1",
-					fav: true,
-					name: "Hero",
-				},
-				{
-					avatar: "mage.png",
-					chat: "mage-home",
-					fav: true,
-					name: "Mage",
-				},
-			],
+			characters,
 			chatId: "chapter-1",
 			getRequestHeaders: () => ({ "X-ST": "token" }),
 			getThumbnailUrl: (type: string, fileName: string) =>
 				`/thumbs/${type}/${fileName}`,
+			groupId: null,
 			groups: [],
-		});
+		};
+		const selectCharacterById = vi.fn(
+			async (characterId: number, options?: { switchMenu?: boolean }) => {
+				context.characterId = characterId;
+				context.chatId = characters[characterId].chat;
+				context.groupId = null;
+				store.dispatch(
+					createIdentitySnapshot({
+						characterId,
+						chatFileName: characters[characterId].chat,
+						entityName: characters[characterId].name,
+						thumbnailUrl: `/thumbs/avatar/${characters[characterId].avatar}`,
+					}),
+				);
+				return options;
+			},
+		);
+		context.selectCharacterById = selectCharacterById;
+		setSillyTavernContext(context);
 		const fetchSpy = vi.fn((url: string | URL | Request) => {
 			const urlText = String(url);
 
@@ -223,7 +244,6 @@ describe("createMobileChatTopBarFeature", () => {
 			return Promise.resolve(createJsonResponse([]));
 		});
 		vi.stubGlobal("fetch", fetchSpy as unknown as typeof fetch);
-		const store = createIdentityStoreStub();
 		const feature = createMobileChatTopBarFeature({
 			createCurrentChatIdentityStore: store.factory,
 			documentRef: document,
@@ -257,28 +277,22 @@ describe("createMobileChatTopBarFeature", () => {
 
 		fireEvent.click(await screen.findByRole("tab", { name: "Mage" }));
 
-		expect(
-			document.getElementById("mobile-astra-main-interface-title"),
-		).toHaveTextContent("Mage");
-
 		await waitFor(() => {
-			expect(
-				fetchSpy.mock.calls.filter(
-					([url]) => url === "/api/chats/search",
-				),
-			).toHaveLength(1);
+			expect(mainInterfaceTrigger).toHaveAttribute(
+				"aria-expanded",
+				"false",
+			);
 		});
-		expect(fetchSpy).toHaveBeenLastCalledWith(
-			"/api/chats/search",
-			expect.objectContaining({
-				body: JSON.stringify({
-					avatar_url: "mage.png",
-					group_id: null,
-					query: "",
-				}),
-				method: "POST",
-			}),
-		);
+		expect(selectCharacterById).toHaveBeenCalledWith(1, {
+			switchMenu: false,
+		});
+		expect(
+			document.querySelector(".mobile-chat-top-bar__name"),
+		).toHaveTextContent("Mage");
+		expect(
+			document.querySelector(".astra-main-interface"),
+		).toHaveAttribute("data-route", "current-context-chats");
+		expect(context.chatId).toBe("mage-home");
 
 		act(() => {
 			feature.dispose();

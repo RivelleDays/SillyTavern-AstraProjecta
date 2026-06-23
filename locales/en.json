@@ -162,6 +162,8 @@
 	"astraMainInterface.sections.currentContext": "Current Character/Group",
 	"astraMainInterface.sections.global": "Global",
 	"astraMainInterface.sections.label": "Main UI sections",
+	"astraMainInterface.sections.switchFailure": "Failed to switch character or group.",
+	"astraMainInterface.sections.switching": "Switching chat...",
 	"astraMainInterface.title": "Main UI",
 	"astraMainInterface.title.global": "SillyTavern",
 	"messageActions.deleteConfirm.cancel": "Cancel",

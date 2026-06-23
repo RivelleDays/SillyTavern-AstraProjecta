@@ -82,6 +82,10 @@
 	cursor: pointer;
 }
 
+.astra-main-interface__scope-button:disabled {
+	cursor: not-allowed;
+}
+
 .astra-main-interface__scope-button-frame {
 	box-sizing: border-box;
 	display: grid;

@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { translateAstra } from "@/packages/core/i18n";
+import type { ActivateChatEntity } from "@/packages/core/st/chat-catalog";
 import {
 	createCurrentChatIdentityStore,
 	type CurrentChatIdentitySnapshot,
@@ -53,6 +54,7 @@ export type AstraMainInterfaceSectionValue = AstraMainInterfaceScopeValue;
 
 export interface AstraMainInterfaceProps
 	extends GlobalChatListPageProps, CurrentChatListPageProps {
+	activateChatEntity?: ActivateChatEntity;
 	activeSection?: AstraMainInterfaceSectionValue;
 	chatCategoryStore?: ChatCategoryStore;
 	currentChatIdentityStore?: CurrentChatIdentityStore;
@@ -220,6 +222,7 @@ export function AstraMainInterfaceSectionTabs({
 }
 
 export function AstraMainInterface({
+	activateChatEntity,
 	activeSection: controlledActiveSection,
 	chatCategoryStore: injectedChatCategoryStore,
 	currentChatIdentityStore,
@@ -293,8 +296,10 @@ export function AstraMainInterface({
 		>
 			{showSectionTabs ? (
 				<AstraMainInterfaceScopeStrip
+					activateChatEntity={activateChatEntity}
 					currentIdentitySnapshot={currentIdentitySnapshot}
 					favoriteChatEntitiesStore={favoriteChatEntitiesStore}
+					onRequestClose={onRequestClose}
 					value={activeSection}
 					onValueChange={handleSectionChange}
 				/>
