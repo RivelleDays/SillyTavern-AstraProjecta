@@ -3173,13 +3173,13 @@
   initial-value: 0;
 }
 [data-slot="input"]:focus-visible:not([aria-invalid="true"]) {
-  --tw-ring-color: var(--ring);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tw-ring-color: color-mix(in oklab, var(--ring) 5%, transparent);
-  }
   border-color: var(--ring);
   @supports (color: color-mix(in lab, red, red)) {
-    border-color: color-mix(in oklab, var(--ring) 20%, var(--border));
+    border-color: color-mix(in oklab, var(--ring) 5%, var(--border));
+  }
+  --tw-ring-color: var(--ring);
+  @supports (color: color-mix(in lab, red, red)) {
+    --tw-ring-color: color-mix(in oklab, var(--ring) 20%, transparent);
   }
 }
 [data-slot="button"][data-size="default"], [data-slot="dialog-close"][data-size="default"], [data-slot="drawer-close"][data-size="default"] {
