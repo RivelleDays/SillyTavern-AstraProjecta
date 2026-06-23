@@ -1654,7 +1654,6 @@
 	display: flex;
 	min-width: 0;
 	flex-direction: column;
-	gap: var(--space-1);
 }
 
 .astra-main-interface-chat-category-drawer__category-row {
