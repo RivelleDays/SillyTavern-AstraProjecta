@@ -1,7 +1,7 @@
 /* AstraProjecta-owned shadcn overrides. Keep upstream component files unchanged. */
 
 [data-slot="input"]:focus-visible:not([aria-invalid="true"]) {
-	--tw-ring-color: color-mix(in oklab, var(--ring) 30%, transparent);
+	--tw-ring-color: color-mix(in oklab, var(--ring) 5%, transparent);
 	border-color: color-mix(in oklab, var(--ring) 20%, var(--border));
 }
 
