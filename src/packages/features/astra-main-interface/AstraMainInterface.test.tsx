@@ -1182,6 +1182,11 @@ describe("AstraMainInterface", () => {
 				name: "Open Hero side-story",
 			}),
 		).toHaveClass("astra-chat-library-global-chatRow");
+		expect(
+			within(chatList as HTMLElement).getByRole("button", {
+				name: "Open Hero side-story",
+			}).tagName,
+		).toBe("DIV");
 
 		fireEvent.click(categoryHeader);
 		expect(categoryHeader).toHaveAttribute("aria-expanded", "false");
@@ -1316,6 +1321,392 @@ describe("AstraMainInterface", () => {
 			"id",
 			"astra-main-interface-global-category-rename-drawer",
 		);
+	});
+
+	test("removes a global category chat row from only its current category", () => {
+		const entry = createEntry({
+			chatId: "side-story",
+			entityName: "Hero",
+			key: "character:0:side-story",
+		});
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [entry],
+			}),
+		);
+		const categoryStoreStub = createSeededChatCategoryStore({
+			ids: ["cat_global_plot", "cat_global_archive"],
+		});
+		categoryStoreStub.store.createCategory({
+			name: "Global Plot",
+			scope: "global",
+		});
+		categoryStoreStub.store.createCategory({
+			name: "Global Archive",
+			scope: "global",
+		});
+		categoryStoreStub.store.setChatCategoryIds(entry.key, [
+			"cat_global_plot",
+			"cat_global_archive",
+		]);
+		const openChat = vi.fn<OpenChatCatalogEntry>().mockResolvedValue({
+			ok: true,
+		});
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				chatCategoryStore={categoryStoreStub.store}
+				openChat={openChat}
+			/>,
+		);
+
+		fireEvent.click(
+			within(
+				screen.getByRole("tablist", {
+					name: "Global sections",
+				}),
+			).getByRole("tab", { name: "Categories" }),
+		);
+
+		const plotCategory = document.querySelector(
+			'[data-category-id="cat_global_plot"]',
+		);
+		const archiveCategory = document.querySelector(
+			'[data-category-id="cat_global_archive"]',
+		);
+		if (
+			!(plotCategory instanceof HTMLElement) ||
+			!(archiveCategory instanceof HTMLElement)
+		) {
+			throw new Error("Expected both global category rows");
+		}
+
+		const plotChatRow = within(plotCategory).getByRole("button", {
+			name: "Open Hero side-story",
+		});
+		const actionGroup = plotChatRow.querySelector(
+			".astra-chat-library-global-chatActions",
+		);
+		expect(actionGroup).toHaveAttribute(
+			"aria-label",
+			"Category chat actions",
+		);
+		const removeAction = within(plotChatRow).getByRole("button", {
+			name: "Remove from category: Global Plot",
+		});
+		const moreAction = within(plotChatRow).getByRole("button", {
+			name: "More chat actions: side-story",
+		});
+		expect(removeAction).toHaveClass(
+			"astra-chat-library-global-chatActionButton",
+			"astra-chat-library-global-chatRemoveAction",
+			"rounded-full",
+		);
+		expect(removeAction.querySelector(".lucide-x")).toBeInTheDocument();
+		expect(moreAction).toHaveClass(
+			"astra-chat-library-global-chatActionButton",
+			"astra-chat-library-global-chatMoreAction",
+			"rounded-full",
+		);
+		expect(
+			moreAction.querySelector(".lucide-ellipsis-vertical"),
+		).toBeInTheDocument();
+		expect(moreAction).toHaveAttribute(
+			"aria-controls",
+			"astra-main-interface-chat-actions-drawer",
+		);
+		expect(moreAction).toHaveAttribute("aria-expanded", "false");
+
+		fireEvent.keyDown(removeAction, { key: "Enter" });
+		fireEvent.click(removeAction);
+
+		expect(openChat).not.toHaveBeenCalled();
+		expect(categoryStoreStub.store.getChatCategoryIds(entry.key)).toEqual([
+			"cat_global_archive",
+		]);
+		expect(
+			within(plotCategory).queryByRole("button", {
+				name: "Open Hero side-story",
+			}),
+		).not.toBeInTheDocument();
+		expect(
+			within(archiveCategory).getByRole("button", {
+				name: "Open Hero side-story",
+			}),
+		).toBeInTheDocument();
+	});
+
+	test("opens chat actions from a global category row without opening the chat", async () => {
+		const entry = createEntry({
+			chatId: "side-story",
+			entityName: "Hero",
+			key: "character:0:side-story",
+		});
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [entry],
+			}),
+		);
+		const categoryStoreStub = createSeededChatCategoryStore({
+			ids: ["cat_global_plot"],
+		});
+		categoryStoreStub.store.createCategory({
+			name: "Global Plot",
+			scope: "global",
+		});
+		categoryStoreStub.store.setChatCategoryIds(entry.key, [
+			"cat_global_plot",
+		]);
+		const openChat = vi.fn<OpenChatCatalogEntry>().mockResolvedValue({
+			ok: true,
+		});
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				chatCategoryStore={categoryStoreStub.store}
+				openChat={openChat}
+			/>,
+		);
+
+		fireEvent.click(
+			within(
+				screen.getByRole("tablist", {
+					name: "Global sections",
+				}),
+			).getByRole("tab", { name: "Categories" }),
+		);
+
+		const chatRow = screen.getByRole("button", {
+			name: "Open Hero side-story",
+		});
+		const moreAction = within(chatRow).getByRole("button", {
+			name: "More chat actions: side-story",
+		});
+
+		fireEvent.keyDown(moreAction, { key: " " });
+		fireEvent.click(moreAction);
+
+		expect(openChat).not.toHaveBeenCalled();
+		expect(moreAction).toHaveAttribute("aria-expanded", "true");
+		const drawer = await screen.findByRole("dialog", {
+			name: "Chat actions",
+		});
+		expect(drawer).toHaveAttribute(
+			"id",
+			"astra-main-interface-chat-actions-drawer",
+		);
+		expect(
+			drawer.querySelector(".astra-dialog-identityName"),
+		).toHaveTextContent("Hero");
+		expect(within(drawer).getByText("side-story")).toBeInTheDocument();
+	});
+
+	test("opens global category chat rows with Enter and Space", async () => {
+		const entry = createEntry({
+			chatId: "side-story",
+			entityName: "Hero",
+			key: "character:0:side-story",
+		});
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [entry],
+			}),
+		);
+		const categoryStoreStub = createSeededChatCategoryStore({
+			ids: ["cat_global_plot"],
+		});
+		categoryStoreStub.store.createCategory({
+			name: "Global Plot",
+			scope: "global",
+		});
+		categoryStoreStub.store.setChatCategoryIds(entry.key, [
+			"cat_global_plot",
+		]);
+		const openChat = vi.fn<OpenChatCatalogEntry>().mockResolvedValue({
+			ok: true,
+		});
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				chatCategoryStore={categoryStoreStub.store}
+				openChat={openChat}
+			/>,
+		);
+
+		fireEvent.click(
+			within(
+				screen.getByRole("tablist", {
+					name: "Global sections",
+				}),
+			).getByRole("tab", { name: "Categories" }),
+		);
+		const chatRow = screen.getByRole("button", {
+			name: "Open Hero side-story",
+		});
+
+		fireEvent.keyDown(chatRow, { key: "Enter" });
+		await waitFor(() => {
+			expect(openChat).toHaveBeenCalledTimes(1);
+		});
+
+		fireEvent.keyDown(chatRow, { key: " " });
+		await waitFor(() => {
+			expect(openChat).toHaveBeenCalledTimes(2);
+		});
+	});
+
+	test("keeps empty global category rows free of chat actions", () => {
+		const storeStub = createStoreStub(createSnapshot());
+		const categoryStoreStub = createSeededChatCategoryStore({
+			ids: ["cat_global_empty"],
+		});
+		categoryStoreStub.store.createCategory({
+			name: "Global Empty",
+			scope: "global",
+		});
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				chatCategoryStore={categoryStoreStub.store}
+			/>,
+		);
+
+		fireEvent.click(
+			within(
+				screen.getByRole("tablist", {
+					name: "Global sections",
+				}),
+			).getByRole("tab", { name: "Categories" }),
+		);
+
+		const emptyRow = document.querySelector(
+			".astra-chat-library-global-chatRow--empty",
+		);
+		expect(emptyRow).toHaveTextContent("No chats assigned yet.");
+		expect(
+			emptyRow?.querySelector(".astra-chat-library-global-chatActions"),
+		).not.toBeInTheDocument();
+	});
+
+	test("routes global category drawer exports through the injected action", async () => {
+		const entry = createEntry({
+			chatId: "side-story",
+			entityName: "Hero",
+			key: "character:0:side-story",
+		});
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [entry],
+			}),
+		);
+		const categoryStoreStub = createSeededChatCategoryStore({
+			ids: ["cat_global_plot"],
+		});
+		categoryStoreStub.store.createCategory({
+			name: "Global Plot",
+			scope: "global",
+		});
+		categoryStoreStub.store.setChatCategoryIds(entry.key, [
+			"cat_global_plot",
+		]);
+		const exportChat = vi.fn<ExportChatCatalogEntry>().mockResolvedValue({
+			fileName: "side-story.jsonl",
+			ok: true,
+		});
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				chatCategoryStore={categoryStoreStub.store}
+				exportChat={exportChat}
+			/>,
+		);
+
+		fireEvent.click(
+			within(
+				screen.getByRole("tablist", {
+					name: "Global sections",
+				}),
+			).getByRole("tab", { name: "Categories" }),
+		);
+		fireEvent.click(
+			screen.getByRole("button", {
+				name: "More chat actions: side-story",
+			}),
+		);
+		const drawer = await screen.findByRole("dialog", {
+			name: "Chat actions",
+		});
+		fireEvent.click(
+			within(drawer).getByRole("button", {
+				name: "Export JSONL chat file",
+			}),
+		);
+
+		await waitFor(() => {
+			expect(exportChat).toHaveBeenCalledWith(entry, "jsonl");
+		});
+	});
+
+	test("opens category assignment from a global category row actions drawer", async () => {
+		const entry = createEntry({
+			chatId: "side-story",
+			entityName: "Hero",
+			key: "character:0:side-story",
+		});
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [entry],
+			}),
+		);
+		const categoryStoreStub = createSeededChatCategoryStore({
+			ids: ["cat_global_plot"],
+		});
+		categoryStoreStub.store.createCategory({
+			name: "Global Plot",
+			scope: "global",
+		});
+		categoryStoreStub.store.setChatCategoryIds(entry.key, [
+			"cat_global_plot",
+		]);
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				chatCategoryStore={categoryStoreStub.store}
+			/>,
+		);
+
+		fireEvent.click(
+			within(
+				screen.getByRole("tablist", {
+					name: "Global sections",
+				}),
+			).getByRole("tab", { name: "Categories" }),
+		);
+		fireEvent.click(
+			screen.getByRole("button", {
+				name: "More chat actions: side-story",
+			}),
+		);
+		const actionsDrawer = await screen.findByRole("dialog", {
+			name: "Chat actions",
+		});
+		fireEvent.click(
+			within(actionsDrawer).getByRole("button", {
+				name: "Edit categories",
+			}),
+		);
+
+		expect(
+			await screen.findByRole("dialog", {
+				name: "Edit categories",
+			}),
+		).toHaveAttribute("id", "astra-main-interface-chat-category-drawer");
 	});
 
 	test("renames a global category from its action drawer", async () => {
@@ -1682,7 +2073,7 @@ describe("AstraMainInterface", () => {
 				name: "Opening chat...",
 			}),
 		).toBeInTheDocument();
-		expect(chatRow).toBeDisabled();
+		expect(chatRow).toHaveAttribute("aria-disabled", "true");
 
 		await act(async () => {
 			resolveOpenChat({

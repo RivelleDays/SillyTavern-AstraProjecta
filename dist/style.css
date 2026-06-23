@@ -7743,10 +7743,10 @@ body.astra-projecta-mobile-layout {
   font-size: var(--text-sm);
   text-align: left;
 }
-.astra-chat-library-global-chatRow:not(:disabled) {
+.astra-chat-library-global-chatRow[aria-disabled="false"] {
   cursor: pointer;
 }
-.astra-chat-library-global-chatRow:disabled {
+.astra-chat-library-global-chatRow[aria-disabled="true"] {
   cursor: default;
 }
 .astra-chat-library-global-chatRow:focus-visible {
@@ -7812,6 +7812,43 @@ body.astra-projecta-mobile-layout {
 .astra-chat-library-global-chatEntity {
   color: var(--color-muted);
   font-size: var(--text-xs);
+}
+.astra-chat-library-global-chatActions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.astra-chat-library-global-chatActionButton {
+  display: inline-flex;
+  width: var(--astra-button-size-sm);
+  min-width: var(--astra-button-size-sm);
+  height: var(--astra-button-size-sm);
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-base-t5);
+  color: var(--color-muted);
+  padding: 0;
+  transition: background-color 150ms ease,	color 150ms ease,	opacity 150ms ease;
+}
+.astra-chat-library-global-chatActionButton:not(:disabled) {
+  cursor: pointer;
+  color: var(--color-muted);
+}
+.astra-chat-library-global-chatActionButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.astra-chat-library-global-chatActionButton:not(:disabled):hover, .astra-chat-library-global-chatActionButton:focus-visible {
+  background: var(--color-base-t20);
+  color: var(--color-base);
+  outline: none;
+}
+.astra-chat-library-global-chatRemoveAction, .astra-chat-library-global-chatMoreAction {
+  color: var(--color-muted);
 }
 .astra-chat-library-global-empty {
   border: 1px dashed var(--border);
@@ -7982,7 +8019,6 @@ body.astra-projecta-mobile-layout {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: var(--space-1);
 }
 .astra-main-interface-chat-category-drawer__category-row {
   display: flex;

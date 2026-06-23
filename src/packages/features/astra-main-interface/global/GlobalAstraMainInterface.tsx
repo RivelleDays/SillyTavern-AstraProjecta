@@ -178,8 +178,11 @@ export function GlobalAstraMainInterface({
 						<GlobalChatCategoriesPage
 							chatCatalogStore={chatCatalogStore}
 							chatCategoryStore={chatCategoryStore}
+							deleteChat={chatListProps.deleteChat}
+							exportChat={chatListProps.exportChat}
 							onRequestClose={chatListProps.onRequestClose}
 							openChat={chatListProps.openChat}
+							renameChat={chatListProps.renameChat}
 						/>
 					</div>
 				</GlobalTabPanelScroll>
