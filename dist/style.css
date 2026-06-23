@@ -6345,7 +6345,7 @@
   }
   .mobile-chat-input[data-textarea-layout="multi-line"]	.mobile-chat-input__textarea-slot	> #send_textarea {
     height: auto;
-    max-height: 18dvh;
+    max-height: 25dvh;
     overflow-y: auto;
   }
   .mobile-chat-input__textarea-slot > #send_textarea::-webkit-scrollbar {
