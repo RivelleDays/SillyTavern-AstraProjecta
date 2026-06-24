@@ -516,6 +516,39 @@ describe("globals.css", () => {
 		expect(compactMessageLayoutCss).toContain(
 			".astra-mesContextBoundary__title",
 		);
+		expect(messageLayoutCss).toContain(
+			"native reasoning action strip causes issues in Astra mobile layout",
+		);
+		expect(compactMessageLayoutCss).toContain(".mes_reasoning_details");
+		expect(compactMessageLayoutCss).toContain(".mes_reasoning_summary");
+		expect(compactMessageLayoutCss).toContain(
+			".mes_reasoning_header_block",
+		);
+		expect(compactMessageLayoutCss).toContain(".mes_reasoning_header");
+		expect(compactMessageLayoutCss).toContain(
+			".mes_reasoning_header_title",
+		);
+		expect(compactMessageLayoutCss).toContain(".mes_reasoning");
+		expect(compactMessageLayoutCss).toContain(
+			".mes_reasoning_actions.flex-container",
+		);
+		expect(compactMessageLayoutCss).toContain(
+			".mes_reasoning_arrow.fa-solid.fa-chevron-up",
+		);
+		expect(compactMessageLayoutCss).toContain(
+			".astra-mesReasoningChevron",
+		);
+		expect(compactMessageLayoutCss).toContain(
+			".mes_reasoning_details[open] .astra-mesReasoningChevron",
+		);
+		expect(compactMessageLayoutCss).toContain(
+			".mes:has(.mes_reasoning:empty) .astra-mesReasoningChevron",
+		);
+		expect(messageLayoutCss).toContain("var(--surface-muted-t20)");
+		expect(messageLayoutCss).toContain("var(--surface-accent-t30)");
+		expect(messageLayoutCss).toContain("var(--border-color-base)");
+		expect(messageLayoutCss).toContain("var(--color-base)");
+		expect(messageLayoutCss).toContain("var(--color-base-t80)");
 	});
 
 	test("imports the chat-scroll stylesheet for the mobile native #chat scrollbar bridge", () => {

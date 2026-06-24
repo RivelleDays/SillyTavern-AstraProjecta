@@ -9066,6 +9066,68 @@ body.astra-projecta-mobile-layout {
     -webkit-user-select: none;
     user-select: none;
   }
+  & #chat .mes .mes_reasoning_details {
+    width: 100%;
+    margin-top: 16px;
+    border: 1px solid var(--border-color-base);
+    border-radius: var(--radius-md);
+    background: var(--surface-background-t60);
+    overflow: hidden;
+  }
+  & #chat .mes .mes_reasoning_summary {
+    width: 100%;
+    margin: 0;
+    list-style: none;
+  }
+  & #chat .mes .mes_reasoning_summary::-webkit-details-marker {
+    display: none;
+  }
+  & #chat .mes .mes_reasoning_header_block,	& #chat .mes .mes_reasoning_header {
+    width: 100%;
+    min-width: 0;
+  }
+  & #chat .mes .mes_reasoning_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 12px;
+    background: var(--color-base-t5);
+    color: var(--color-base);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    user-select: none;
+  }
+  & #chat .mes .mes_reasoning_header_title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  & #chat .mes .astra-mesReasoningChevron {
+    flex: none;
+    width: var(--astra-icon-size-sm);
+    height: var(--astra-icon-size-sm);
+    color: var(--color-base);
+    transition: transform 140ms ease;
+  }
+  & #chat .mes .mes_reasoning_details[open] .astra-mesReasoningChevron {
+    transform: rotate(90deg);
+  }
+  & #chat .mes .mes_reasoning {
+    padding: 8px 12px;
+    border: unset;
+    border-top: 1px solid var(--border-color-base);
+    color: var(--color-base-t80);
+    font-size: var(--text-sm);
+  }
+  & #chat .mes .mes_reasoning_actions.flex-container,	& #chat .mes .mes_reasoning_arrow.fa-solid.fa-chevron-up {
+    display: none !important;
+  }
+  & #chat .mes:has(.mes_reasoning:empty) .astra-mesReasoningChevron,	& #chat .mes:has(.mes_reasoning:empty) .mes_reasoning {
+    display: none;
+  }
   & #chat .mes[data-astra-message-prompt-excluded="true"] {
     opacity: 0.6;
   }

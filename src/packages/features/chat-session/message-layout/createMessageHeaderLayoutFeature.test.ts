@@ -121,6 +121,57 @@ function renderMessages(
     `;
 }
 
+function renderMessageWithReasoning({
+	includeReasoningHeader = true,
+	messageId = 0,
+}: {
+	includeReasoningHeader?: boolean;
+	messageId?: number;
+} = {}) {
+	document.body.innerHTML = `
+        <div id="chat">
+            <div class="mes reasoning" mesid="${messageId}">
+                <div class="mesAvatarWrapper">
+                    <div class="avatar">
+                        <img src="">
+                    </div>
+                    <div class="mesIDDisplay">#${messageId}</div>
+                    <div class="tokenCounterDisplay">321 tokens</div>
+                </div>
+                <div class="mes_block">
+                    <div class="ch_name">
+                        <span class="name_text">Assistant</span>
+                        <small class="timestamp">June 1, 2026 10:00 AM</small>
+                        <div class="mes_buttons"></div>
+                    </div>
+                    <details class="mes_reasoning_details" open>
+                        ${
+							includeReasoningHeader
+								? `
+                            <summary class="mes_reasoning_summary flex-container">
+                                <div class="mes_reasoning_header_block flex-container">
+                                    <div class="mes_reasoning_header flex-container">
+                                        <span class="mes_reasoning_header_title">Thought for 8 seconds</span>
+                                        <div class="mes_reasoning_arrow fa-solid fa-chevron-up"></div>
+                                    </div>
+                                </div>
+                                <div class="mes_reasoning_actions flex-container">
+                                    <div class="mes_reasoning_copy mes_button fa-solid fa-copy"></div>
+                                    <div class="mes_reasoning_edit mes_button fa-solid fa-pencil"></div>
+                                </div>
+                            </summary>
+                        `
+								: ""
+						}
+                        <div class="mes_reasoning">Visible reasoning text</div>
+                    </details>
+                    <div class="mes_text">Hello</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
 function setSillyTavernContext(context: unknown) {
 	(globalThis as { SillyTavern?: unknown }).SillyTavern = {
 		getContext: () => context,
@@ -323,6 +374,89 @@ describe("createMessageHeaderLayoutFeature", () => {
 		expect(messageBlock?.firstElementChild).toBe(name);
 		expect(name?.parentElement).toBe(messageBlock);
 		expect(name?.querySelector(".name_text")).toBe(nameText);
+	});
+
+	test("adds one reversible Astra-owned reasoning chevron to native reasoning headers", () => {
+		renderMessageWithReasoning();
+		const reasoningDetails = document.querySelector(
+			".mes_reasoning_details",
+		);
+		const reasoningHeader = document.querySelector(
+			".mes_reasoning_header",
+		);
+		const nativeReasoningArrow = document.querySelector(
+			".mes_reasoning_arrow",
+		);
+		const reasoningBody = document.querySelector(".mes_reasoning");
+
+		const feature = createMessageHeaderLayoutFeature({
+			documentRef: document,
+		});
+
+		try {
+			feature.mount();
+			feature.mount();
+
+			const astraChevrons = document.querySelectorAll(
+				".astra-mesReasoningChevron",
+			);
+			const astraChevron = astraChevrons[0];
+
+			expect(astraChevrons).toHaveLength(1);
+			expect(astraChevron).toBeInstanceOf(SVGSVGElement);
+			expect(astraChevron).toHaveClass("lucide-chevron-right");
+			expect(astraChevron).toHaveAttribute("aria-hidden", "true");
+			expect(astraChevron?.parentElement).toBe(reasoningHeader);
+			expect(astraChevron?.previousElementSibling).toHaveClass(
+				"mes_reasoning_header_title",
+			);
+			expect(astraChevron?.nextElementSibling).toBe(
+				nativeReasoningArrow,
+			);
+			expect(reasoningDetails).toBeInTheDocument();
+			expect(reasoningBody).toHaveTextContent("Visible reasoning text");
+		} finally {
+			feature.unmount();
+		}
+
+		expect(document.querySelector(".astra-mesReasoningChevron")).toBeNull();
+		expect(document.querySelector(".mes_reasoning_details")).toBe(
+			reasoningDetails,
+		);
+		expect(document.querySelector(".mes_reasoning_header")).toBe(
+			reasoningHeader,
+		);
+		expect(document.querySelector(".mes_reasoning_arrow")).toBe(
+			nativeReasoningArrow,
+		);
+		expect(document.querySelector(".mes_reasoning")).toBe(reasoningBody);
+	});
+
+	test("skips Astra reasoning chevrons when native reasoning headers are missing", () => {
+		renderMessageWithReasoning({ includeReasoningHeader: false });
+		const reasoningDetails = document.querySelector(
+			".mes_reasoning_details",
+		);
+		const reasoningBody = document.querySelector(".mes_reasoning");
+
+		const feature = createMessageHeaderLayoutFeature({
+			documentRef: document,
+		});
+
+		feature.mount();
+
+		expect(document.querySelector(".astra-mesReasoningChevron")).toBeNull();
+		expect(document.querySelector(".mes_reasoning_details")).toBe(
+			reasoningDetails,
+		);
+		expect(document.querySelector(".mes_reasoning")).toBe(reasoningBody);
+
+		feature.unmount();
+
+		expect(document.querySelector(".astra-mesReasoningChevron")).toBeNull();
+		expect(document.querySelector(".mes_reasoning_details")).toBe(
+			reasoningDetails,
+		);
 	});
 
 	test("builds the direct mobile mes frame with body metadata and native control compatibility slots", () => {

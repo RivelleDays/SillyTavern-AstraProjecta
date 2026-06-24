@@ -5,8 +5,8 @@
 
 ## Owned Paths / Responsibilities
 
-- `createMessageHeaderLayoutFeature.ts`: runtime DOM bridge that creates Astra-owned `.astra-mesHeader`, `.astra-mesHeader__identityLine`, `.astra-mesNameText`, `.astra-mesMeta`, `.astra-mesMeta__items`, `.astra-mesMeta__separator`, and `.astra-mesNativeControls` slots for each message `.mes`, marks `.mes_block` as `.astra-mesBody`, and creates Astra-owned date dividers inside `#chat`.
-- `message-layout.css`: mobile-layout-scoped visual layout for `.astra-mesHeader`, `.astra-mesHeader__name`, `.astra-mesHeader__identityLine`, `.astra-mesNameText`, `.astra-mesBody`, `.astra-mesMeta`, `.astra-mesMeta__items`, `.astra-mesMeta__separator`, `.astra-mesMeta__time`, `.astra-mesNativeControls`, and `.astra-mesDate`.
+- `createMessageHeaderLayoutFeature.ts`: runtime DOM bridge that creates Astra-owned `.astra-mesHeader`, `.astra-mesHeader__identityLine`, `.astra-mesNameText`, `.astra-mesMeta`, `.astra-mesMeta__items`, `.astra-mesMeta__separator`, `.astra-mesNativeControls`, and `.astra-mesReasoningChevron` slots for each message `.mes`, marks `.mes_block` as `.astra-mesBody`, and creates Astra-owned date dividers inside `#chat`.
+- `message-layout.css`: mobile-layout-scoped visual layout for `.astra-mesHeader`, `.astra-mesHeader__name`, `.astra-mesHeader__identityLine`, `.astra-mesNameText`, `.astra-mesBody`, `.astra-mesMeta`, `.astra-mesMeta__items`, `.astra-mesMeta__separator`, `.astra-mesMeta__time`, `.astra-mesNativeControls`, `.astra-mesDate`, `.mes_reasoning_details`, `.mes_reasoning_summary`, `.mes_reasoning_header_block`, `.mes_reasoning_header`, `.mes_reasoning_header_title`, `.mes_reasoning`, and `.astra-mesReasoningChevron`.
 
 ## SillyTavern Touchpoints
 
@@ -16,6 +16,7 @@
 - Target frame: Astra marks the message as `.astra-mes`, inserts `.astra-mesHeader` as a direct `.mes` child immediately before `.mes_block`, marks `.mes_block` as `.astra-mesBody`, nests `.astra-mesMeta` under `.astra-mesHeader__name`, and leaves SillyTavern-owned checkbox and swipe nodes unwrapped.
 - Header target: `.astra-mesHeader` contains the native `.mesAvatarWrapper`, plus `.astra-mesHeader__name` with `.astra-mesHeader__identityLine`, Astra-visible `.astra-mesNameText > .name_text`, nested `.astra-mesMeta`, and hidden native `.ch_name`.
 - Body target: native `.mes_block` remains the message body and begins with `.mes_reasoning_details` and following content after `.ch_name` moves into the header.
+- Reasoning target: native `.mes_reasoning_header` remains the SillyTavern toggle target. Astra inserts only `.astra-mesReasoningChevron` inside that header, after `.mes_reasoning_header_title` when present, and leaves native `.mes_reasoning_details`, `.mes_reasoning_summary`, and `.mes_reasoning` in place.
 - Native controls target: native `.mes_buttons` and `.mes_edit_buttons` move into `.mes_block > .astra-mesNativeControls` while mounted, so SillyTavern selectors that search under `.mes_block` can still find them.
 - Metadata target: `.astra-mesHeader__name > .astra-mesMeta > .astra-mesMeta__items`, a single compact inline row where `.astra-mesMeta__item` wrappers hold only native SillyTavern metadata nodes and `.astra-mesMeta__time` holds native `.timestamp` after the visible metadata items. Astra-owned `.astra-mesMeta__separator` nodes render Lucide Dot separators only between visible neighboring metadata/time values, and the row must resync when SillyTavern body display classes hide message id, timer, token count, or timestamps.
 - Name text target: native `.name_text` moves into `.astra-mesHeader__name > .astra-mesNameText` while mounted, with a comment placeholder left in its original native location for restoration.
@@ -40,3 +41,4 @@
 - Mutation observers must be scoped to chat/body, idempotent, and disconnected on unmount/dispose.
 - Body class observation is allowed only for display contracts that SillyTavern exposes through body classes such as `no-mesIDDisplay`, `no-timer`, `no-tokenCount`, and `no-timestamps`.
 - CSS selectors for this bridge must stay under `body.astra-projecta-mobile-layout`.
+- Hide native `.mes_reasoning_actions.flex-container` from mobile CSS with an explanatory comment instead of moving, reparenting, or replacing SillyTavern-owned reasoning edit/copy/collapse controls.

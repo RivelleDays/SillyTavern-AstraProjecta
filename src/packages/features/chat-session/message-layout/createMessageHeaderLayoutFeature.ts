@@ -112,6 +112,9 @@ const CONTEXT_BOUNDARY_CLASS = "astra-mesContextBoundary";
 const CONTEXT_BOUNDARY_TAG_CLASS = "astra-mesContextBoundary__tag";
 const CONTEXT_BOUNDARY_TAG_ICON_CLASS = "astra-mesContextBoundary__tagIcon";
 const CONTEXT_BOUNDARY_TITLE_CLASS = "astra-mesContextBoundary__title";
+const REASONING_HEADER_CLASS = "mes_reasoning_header";
+const REASONING_HEADER_TITLE_CLASS = "mes_reasoning_header_title";
+const REASONING_CHEVRON_CLASS = "astra-mesReasoningChevron";
 const PROMPT_EXCLUDED_ATTRIBUTE = "data-astra-message-prompt-excluded";
 const NATIVE_CONTROL_CLASSES = ["mes_buttons", "mes_edit_buttons"] as const;
 const METADATA_CLASSES = [
@@ -160,6 +163,23 @@ function findDirectChildByClass(
 			child instanceof HTMLDivElement &&
 			child.classList.contains(className)
 		) {
+			return child;
+		}
+	}
+
+	return null;
+}
+
+function findDirectElementByClass(
+	parent: Element | null,
+	className: string,
+): Element | null {
+	if (!parent) {
+		return null;
+	}
+
+	for (const child of Array.from(parent.children)) {
+		if (child.classList.contains(className)) {
 			return child;
 		}
 	}
@@ -548,6 +568,31 @@ function createContextBoundaryTagIcon(documentRef: Document): SVGSVGElement {
 	);
 
 	icon.append(firstPath, secondPath);
+	return icon;
+}
+
+function createReasoningChevronIcon(documentRef: Document): SVGSVGElement {
+	const icon = documentRef.createElementNS(SVG_NAMESPACE, "svg");
+	icon.classList.add(
+		"lucide",
+		"lucide-chevron-right",
+		REASONING_CHEVRON_CLASS,
+	);
+	icon.setAttribute("aria-hidden", "true");
+	icon.setAttribute("focusable", "false");
+	icon.setAttribute("fill", "none");
+	icon.setAttribute("height", "16");
+	icon.setAttribute("stroke", "currentColor");
+	icon.setAttribute("stroke-linecap", "round");
+	icon.setAttribute("stroke-linejoin", "round");
+	icon.setAttribute("stroke-width", "var(--astra-icon-stroke-width)");
+	icon.setAttribute("viewBox", "0 0 24 24");
+	icon.setAttribute("width", "16");
+	icon.setAttribute("xmlns", SVG_NAMESPACE);
+
+	const path = documentRef.createElementNS(SVG_NAMESPACE, "path");
+	path.setAttribute("d", "m9 18 6-6-6-6");
+	icon.appendChild(path);
 	return icon;
 }
 
@@ -1097,8 +1142,44 @@ export function createMessageHeaderLayoutFeature({
 		syncMetadataRow(state);
 	}
 
+	function ensureReasoningChevron(reasoningHeader: Element) {
+		const existingChevrons = Array.from(reasoningHeader.children).filter(
+			(child) => child.classList.contains(REASONING_CHEVRON_CLASS),
+		);
+		const chevron =
+			existingChevrons[0] ?? createReasoningChevronIcon(documentRef);
+
+		for (const duplicateChevron of existingChevrons.slice(1)) {
+			duplicateChevron.remove();
+		}
+
+		const title = findDirectElementByClass(
+			reasoningHeader,
+			REASONING_HEADER_TITLE_CLASS,
+		);
+		if (title) {
+			if (title.nextSibling !== chevron) {
+				title.after(chevron);
+			}
+			return;
+		}
+
+		if (chevron.parentElement !== reasoningHeader) {
+			reasoningHeader.appendChild(chevron);
+		}
+	}
+
+	function syncReasoningChevrons(message: Element) {
+		for (const reasoningHeader of Array.from(
+			message.querySelectorAll(`.${REASONING_HEADER_CLASS}`),
+		)) {
+			ensureReasoningChevron(reasoningHeader);
+		}
+	}
+
 	function syncMessageLayout(message: Element) {
 		syncMessagePromptExclusion(message);
+		syncReasoningChevrons(message);
 
 		const existingState = states.get(message);
 		if (existingState) {
@@ -1123,6 +1204,12 @@ export function createMessageHeaderLayoutFeature({
 			.forEach((message) => {
 				message.removeAttribute(PROMPT_EXCLUDED_ATTRIBUTE);
 			});
+	}
+
+	function removeReasoningChevrons() {
+		documentRef
+			.querySelectorAll(`.${REASONING_CHEVRON_CLASS}`)
+			.forEach((chevron) => chevron.remove());
 	}
 
 	function createDateDividerState(
@@ -1470,6 +1557,7 @@ export function createMessageHeaderLayoutFeature({
 		removeContextBoundary();
 		removeDateDividers();
 		removePromptExclusionAttributes();
+		removeReasoningChevrons();
 		for (const message of Array.from(trackedMessages)) {
 			restoreMessageLayout(message);
 		}
