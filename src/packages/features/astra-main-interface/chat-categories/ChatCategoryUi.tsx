@@ -100,11 +100,11 @@ type CategoryGroup = {
 };
 
 type ChatCategoryManagerVariant = "current" | "favorite" | "global";
-type GlobalCategoryActionMode = "delete" | "rename";
+type CategoryActionMode = "delete" | "rename";
 
-interface GlobalCategoryActionDrawerState {
+interface CategoryActionDrawerState {
 	category: ChatCategory;
-	mode: GlobalCategoryActionMode;
+	mode: CategoryActionMode;
 }
 
 interface ChatCategoryOwnerScope {
@@ -324,18 +324,18 @@ function getCategoryGroups({
 }
 
 export function CategoryTreeActionsGroup({
+	collapseAllLabelKey = "astraMainInterface.global.categories.action.collapseAll",
 	onCollapseAll,
 	onExpandAll,
+	expandAllLabelKey = "astraMainInterface.global.categories.action.expandAll",
 }: {
+	collapseAllLabelKey?: I18nKey;
 	onCollapseAll?: () => void;
 	onExpandAll?: () => void;
+	expandAllLabelKey?: I18nKey;
 } = {}) {
-	const expandAllLabel = translateAstra(
-		"astraMainInterface.global.categories.action.expandAll",
-	);
-	const collapseAllLabel = translateAstra(
-		"astraMainInterface.global.categories.action.collapseAll",
-	);
+	const expandAllLabel = translateAstra(expandAllLabelKey);
+	const collapseAllLabel = translateAstra(collapseAllLabelKey);
 
 	return (
 		<TooltipProvider delayDuration={0}>
@@ -941,7 +941,48 @@ function GlobalCategoryEmptyChatRow({ text }: { text: string }) {
 	);
 }
 
-function GlobalChatCategoryTree({
+function getCategoryScopeLabelKey(category: ChatCategory): I18nKey {
+	if (category.scope === "global") {
+		return "astraMainInterface.categories.scope.global";
+	}
+
+	return category.ownerType === "group"
+		? "astraMainInterface.categories.scope.group"
+		: "astraMainInterface.categories.scope.character";
+}
+
+function getCategoryScopeIcon(category: ChatCategory) {
+	return category.scope === "global" ? Globe : CircleUser;
+}
+
+function getCategoryActionLabelKey(
+	category: ChatCategory,
+	mode: CategoryActionMode,
+): I18nKey {
+	if (category.scope === "global") {
+		return mode === "delete"
+			? "astraMainInterface.global.categories.action.deleteCategory"
+			: "astraMainInterface.global.categories.action.renameCategory";
+	}
+
+	if (category.ownerType === "group") {
+		return mode === "delete"
+			? "astraMainInterface.categories.action.deleteGroupCategory"
+			: "astraMainInterface.categories.action.renameGroupCategory";
+	}
+
+	return mode === "delete"
+		? "astraMainInterface.categories.action.deleteCharacterCategory"
+		: "astraMainInterface.categories.action.renameCharacterCategory";
+}
+
+function getCategoryActionsGroupLabelKey(category: ChatCategory): I18nKey {
+	return category.scope === "global"
+		? "astraMainInterface.global.categories.actions.label"
+		: "astraMainInterface.categories.actions.label";
+}
+
+function ChatCategoryTree({
 	activeChatActionsEntryKey,
 	categories,
 	chatCategoryStore,
@@ -958,10 +999,7 @@ function GlobalChatCategoryTree({
 	chatCategoryStore: ChatCategoryStore;
 	entries: ChatCatalogEntry[];
 	expandedCategoryIds: string[];
-	onCategoryAction(
-		category: ChatCategory,
-		mode: GlobalCategoryActionMode,
-	): void;
+	onCategoryAction(category: ChatCategory, mode: CategoryActionMode): void;
 	onOpenChatActions?: (entry: ChatCatalogEntry) => void;
 	openEntryDisabled?: boolean;
 	onCategoryToggle(categoryId: string): void;
@@ -1006,10 +1044,10 @@ function GlobalChatCategoryTree({
 					);
 					const hasMore = visibleCount < categoryEntries.length;
 					const renameCategoryLabel = `${translateAstra(
-						"astraMainInterface.global.categories.action.renameCategory",
+						getCategoryActionLabelKey(category, "rename"),
 					)}: ${category.name}`;
 					const deleteCategoryLabel = `${translateAstra(
-						"astraMainInterface.global.categories.action.deleteCategory",
+						getCategoryActionLabelKey(category, "delete"),
 					)}: ${category.name}`;
 
 					return (
@@ -1036,6 +1074,14 @@ function GlobalChatCategoryTree({
 										<span className="astra-chat-library-global-categoryCount">
 											({categoryEntries.length})
 										</span>
+										{category.scope === "global" ? (
+											<UiIcon
+												aria-hidden={true}
+												className="astra-chat-library-global-categoryScopeIcon"
+												icon={Globe}
+												size="xs"
+											/>
+										) : null}
 										<UiIcon
 											aria-hidden={true}
 											className="astra-chat-library-category-chevron"
@@ -1047,7 +1093,9 @@ function GlobalChatCategoryTree({
 								<TooltipProvider delayDuration={0}>
 									<div
 										aria-label={translateAstra(
-											"astraMainInterface.global.categories.actions.label",
+											getCategoryActionsGroupLabelKey(
+												category,
+											),
 										)}
 										className="astra-chat-library-global-categoryActions"
 										role="group"
@@ -1636,17 +1684,95 @@ function ChatCategoryAssignmentList({
 	);
 }
 
-function GlobalCategoryActionDrawer({
+function getCategoryActionTitleKey(
+	category: ChatCategory,
+	mode: CategoryActionMode,
+): I18nKey {
+	if (category.scope === "global") {
+		return mode === "delete"
+			? "astraMainInterface.global.categories.delete.title"
+			: "astraMainInterface.global.categories.rename.title";
+	}
+
+	if (category.ownerType === "group") {
+		return mode === "delete"
+			? "astraMainInterface.categories.delete.group.title"
+			: "astraMainInterface.categories.rename.group.title";
+	}
+
+	return mode === "delete"
+		? "astraMainInterface.categories.delete.character.title"
+		: "astraMainInterface.categories.rename.character.title";
+}
+
+function getCategoryActionDescriptionKey(
+	category: ChatCategory,
+	mode: CategoryActionMode,
+): I18nKey {
+	if (category.scope === "global") {
+		return mode === "delete"
+			? "astraMainInterface.global.categories.delete.description"
+			: "astraMainInterface.global.categories.rename.description";
+	}
+
+	if (category.ownerType === "group") {
+		return mode === "delete"
+			? "astraMainInterface.categories.delete.group.description"
+			: "astraMainInterface.categories.rename.group.description";
+	}
+
+	return mode === "delete"
+		? "astraMainInterface.categories.delete.character.description"
+		: "astraMainInterface.categories.rename.character.description";
+}
+
+function getCategoryActionWarningTitleKey(
+	category: ChatCategory,
+	mode: CategoryActionMode,
+): I18nKey {
+	if (category.scope === "global") {
+		return mode === "delete"
+			? "astraMainInterface.global.categories.delete.warningTitle"
+			: "astraMainInterface.global.categories.rename.warningTitle";
+	}
+
+	return mode === "delete"
+		? "astraMainInterface.categories.delete.owner.warningTitle"
+		: "astraMainInterface.categories.rename.owner.warningTitle";
+}
+
+function getCategoryActionWarningTextKey(
+	category: ChatCategory,
+	mode: CategoryActionMode,
+): I18nKey {
+	if (category.scope === "global") {
+		return mode === "delete"
+			? "astraMainInterface.global.categories.delete.warningText"
+			: "astraMainInterface.global.categories.rename.warningText";
+	}
+
+	return mode === "delete"
+		? "astraMainInterface.categories.delete.owner.warningText"
+		: "astraMainInterface.categories.rename.owner.warningText";
+}
+
+function getCategoryRenameHintKey(category: ChatCategory): I18nKey {
+	return category.scope === "global"
+		? "astraMainInterface.global.categories.rename.hint"
+		: "astraMainInterface.categories.rename.owner.hint";
+}
+
+function CategoryActionDrawer({
 	action,
 	chatCategoryStore,
 	onOpenChange,
 }: {
-	action: GlobalCategoryActionDrawerState | null;
+	action: CategoryActionDrawerState | null;
 	chatCategoryStore: ChatCategoryStore;
 	onOpenChange(open: boolean): void;
 }) {
 	const [retainedAction, setRetainedAction] =
-		React.useState<GlobalCategoryActionDrawerState | null>(action);
+		React.useState<CategoryActionDrawerState | null>(action);
 	const isOpen = action !== null;
 	const shouldRenderDrawer = useDelayedDrawerContentMount(isOpen);
 	const drawerAction = action ?? retainedAction;
@@ -1668,7 +1794,7 @@ function GlobalCategoryActionDrawer({
 	}
 
 	return (
-		<GlobalCategoryActionDrawerSurface
+		<CategoryActionDrawerSurface
 			action={drawerAction}
 			chatCategoryStore={chatCategoryStore}
 			open={isOpen}
@@ -1677,13 +1803,13 @@ function GlobalCategoryActionDrawer({
 	);
 }
 
-function GlobalCategoryActionDrawerSurface({
+function CategoryActionDrawerSurface({
 	action,
 	chatCategoryStore,
 	open,
 	onOpenChange,
 }: {
-	action: GlobalCategoryActionDrawerState;
+	action: CategoryActionDrawerState;
 	chatCategoryStore: ChatCategoryStore;
 	open: boolean;
 	onOpenChange(open: boolean): void;
@@ -1693,21 +1819,21 @@ function GlobalCategoryActionDrawerSurface({
 	const [nextName, setNextName] = React.useState(category.name);
 	const [error, setError] = React.useState("");
 	const [isBusy, setIsBusy] = React.useState(false);
-	const drawerId = isDelete
-		? GLOBAL_CATEGORY_DELETE_DRAWER_ID
-		: GLOBAL_CATEGORY_RENAME_DRAWER_ID;
-	const title = translateAstra(
-		isDelete
-			? "astraMainInterface.global.categories.delete.title"
-			: "astraMainInterface.global.categories.rename.title",
-	);
+	const isGlobalCategory = category.scope === "global";
+	const drawerId = isGlobalCategory
+		? isDelete
+			? GLOBAL_CATEGORY_DELETE_DRAWER_ID
+			: GLOBAL_CATEGORY_RENAME_DRAWER_ID
+		: isDelete
+			? "astra-main-interface-category-delete-drawer"
+			: "astra-main-interface-category-rename-drawer";
+	const title = translateAstra(getCategoryActionTitleKey(category, mode));
 	const descriptionText = translateAstra(
-		isDelete
-			? "astraMainInterface.global.categories.delete.description"
-			: "astraMainInterface.global.categories.rename.description",
+		getCategoryActionDescriptionKey(category, mode),
 	);
 	const errorId = `${drawerId}-error`;
 	const hintId = `${drawerId}-hint`;
+	const CategoryScopeIcon = getCategoryScopeIcon(category);
 
 	React.useEffect(() => {
 		if (!open) {
@@ -1769,7 +1895,7 @@ function GlobalCategoryActionDrawerSurface({
 				</div>
 			}
 			footer={
-				<GlobalCategoryActionDrawerFooter
+				<CategoryActionDrawerFooter
 					isBusy={isBusy}
 					mode={mode}
 					onConfirm={handleConfirm}
@@ -1796,12 +1922,10 @@ function GlobalCategoryActionDrawerSurface({
 						<UiIcon
 							aria-hidden={true}
 							data-icon="inline-start"
-							icon={Globe}
+							icon={CategoryScopeIcon}
 							size="xs"
 						/>
-						{translateAstra(
-							"astraMainInterface.categories.scope.global",
-						)}
+						{translateAstra(getCategoryScopeLabelKey(category))}
 					</Badge>
 				</div>
 			}
@@ -1828,22 +1952,22 @@ function GlobalCategoryActionDrawerSurface({
 					<div className="astra-chat-library-dialog-alert-content">
 						<p className="astra-chat-library-dialog-alert-title">
 							{translateAstra(
-								isDelete
-									? "astraMainInterface.global.categories.delete.warningTitle"
-									: "astraMainInterface.global.categories.rename.warningTitle",
+								getCategoryActionWarningTitleKey(
+									category,
+									mode,
+								),
 							)}
 						</p>
 						<p className="astra-chat-library-dialog-alert-text">
 							{translateAstra(
-								isDelete
-									? "astraMainInterface.global.categories.delete.warningText"
-									: "astraMainInterface.global.categories.rename.warningText",
+								getCategoryActionWarningTextKey(category, mode),
 							)}
 						</p>
 					</div>
 				</div>
 				{mode === "rename" ? (
-					<GlobalCategoryRenameField
+					<CategoryRenameField
+						category={category}
 						error={error}
 						errorId={errorId}
 						hintId={hintId}
@@ -1870,13 +1994,13 @@ function GlobalCategoryActionDrawerSurface({
 	);
 }
 
-function GlobalCategoryActionDrawerFooter({
+function CategoryActionDrawerFooter({
 	isBusy,
 	mode,
 	onConfirm,
 }: {
 	isBusy: boolean;
-	mode: GlobalCategoryActionMode;
+	mode: CategoryActionMode;
 	onConfirm(close: () => void): void;
 }) {
 	const close = useResponsiveDialogClose();
@@ -1954,7 +2078,8 @@ function GlobalCategoryActionDrawerFooter({
 	);
 }
 
-function GlobalCategoryRenameField({
+function CategoryRenameField({
+	category,
 	error,
 	errorId,
 	hintId,
@@ -1964,6 +2089,7 @@ function GlobalCategoryRenameField({
 	onErrorClear,
 	onNameChange,
 }: {
+	category: ChatCategory;
 	error: string;
 	errorId: string;
 	hintId: string;
@@ -2003,9 +2129,7 @@ function GlobalCategoryRenameField({
 				className="astra-chat-library-global-categoryActionDrawer__hint astra-chat-library-dialog-description"
 				id={hintId}
 			>
-				{translateAstra(
-					"astraMainInterface.global.categories.rename.hint",
-				)}
+				{translateAstra(getCategoryRenameHintKey(category))}
 			</p>
 		</div>
 	);
@@ -2037,15 +2161,16 @@ export function ChatCategoryManagerPage({
 		[groups],
 	);
 	const isGlobal = variant === "global";
-	const globalCategoryIds = React.useMemo(
-		() => (isGlobal ? categories.map((category) => category.id) : []),
-		[categories, isGlobal],
+	const categoryIds = React.useMemo(
+		() => categories.map((category) => category.id),
+		[categories],
 	);
-	const [globalExpandedCategoryIds, setGlobalExpandedCategoryIds] =
-		React.useState<string[]>([]);
-	const [globalCategoryAction, setGlobalCategoryAction] =
-		React.useState<GlobalCategoryActionDrawerState | null>(null);
-	const previousGlobalCategoryIdsRef = React.useRef<string[]>([]);
+	const [expandedCategoryIds, setExpandedCategoryIds] = React.useState<
+		string[]
+	>([]);
+	const [categoryAction, setCategoryAction] =
+		React.useState<CategoryActionDrawerState | null>(null);
+	const previousCategoryIdsRef = React.useRef<string[]>([]);
 	const emptyTitleKey: I18nKey =
 		variant === "favorite"
 			? "astraMainInterface.favorite.categories.empty.title"
@@ -2062,50 +2187,42 @@ export function ChatCategoryManagerPage({
 		() => buildScopeOptions(isGlobal ? null : ownerScope),
 		[isGlobal, ownerScope],
 	);
-	const handleGlobalCategoryToggle = React.useCallback(
-		(categoryId: string) => {
-			setGlobalExpandedCategoryIds((current) =>
-				current.includes(categoryId)
-					? current.filter((value) => value !== categoryId)
-					: [...current, categoryId],
-			);
-		},
-		[],
-	);
-	const handleExpandAllGlobalCategories = React.useCallback(() => {
-		setGlobalExpandedCategoryIds(globalCategoryIds);
-	}, [globalCategoryIds]);
-	const handleCollapseAllGlobalCategories = React.useCallback(() => {
-		setGlobalExpandedCategoryIds([]);
+	const handleCategoryToggle = React.useCallback((categoryId: string) => {
+		setExpandedCategoryIds((current) =>
+			current.includes(categoryId)
+				? current.filter((value) => value !== categoryId)
+				: [...current, categoryId],
+		);
 	}, []);
-	const handleGlobalCategoryAction = React.useCallback(
-		(category: ChatCategory, mode: GlobalCategoryActionMode) => {
-			setGlobalCategoryAction({ category, mode });
+	const handleExpandAllCategories = React.useCallback(() => {
+		setExpandedCategoryIds(categoryIds);
+	}, [categoryIds]);
+	const handleCollapseAllCategories = React.useCallback(() => {
+		setExpandedCategoryIds([]);
+	}, []);
+	const handleCategoryAction = React.useCallback(
+		(category: ChatCategory, mode: CategoryActionMode) => {
+			setCategoryAction({ category, mode });
 		},
 		[],
 	);
-	const handleGlobalCategoryActionOpenChange = React.useCallback(
+	const handleCategoryActionOpenChange = React.useCallback(
 		(open: boolean) => {
 			if (!open) {
-				setGlobalCategoryAction(null);
+				setCategoryAction(null);
 			}
 		},
 		[],
 	);
 
 	React.useEffect(() => {
-		if (!isGlobal) {
-			previousGlobalCategoryIdsRef.current = [];
-			return;
-		}
-
-		const previousCategoryIds = previousGlobalCategoryIdsRef.current;
-		previousGlobalCategoryIdsRef.current = globalCategoryIds;
-		setGlobalExpandedCategoryIds((current) => {
+		const previousCategoryIds = previousCategoryIdsRef.current;
+		previousCategoryIdsRef.current = categoryIds;
+		setExpandedCategoryIds((current) => {
 			const next = current.filter((categoryId) =>
-				globalCategoryIds.includes(categoryId),
+				categoryIds.includes(categoryId),
 			);
-			for (const categoryId of globalCategoryIds) {
+			for (const categoryId of categoryIds) {
 				if (
 					!previousCategoryIds.includes(categoryId) &&
 					!next.includes(categoryId)
@@ -2116,7 +2233,7 @@ export function ChatCategoryManagerPage({
 
 			return areIdSetsEqual(next, current) ? current : next;
 		});
-	}, [globalCategoryIds, isGlobal]);
+	}, [categoryIds]);
 
 	return (
 		<div
@@ -2129,14 +2246,20 @@ export function ChatCategoryManagerPage({
 			<div className="astra-main-interface__toolbar astra-main-interface__toolbar--categories">
 				<ChatCategoryCreateRow
 					actions={
-						isGlobal ? (
-							<CategoryTreeActionsGroup
-								onCollapseAll={
-									handleCollapseAllGlobalCategories
-								}
-								onExpandAll={handleExpandAllGlobalCategories}
-							/>
-						) : undefined
+						<CategoryTreeActionsGroup
+							collapseAllLabelKey={
+								isGlobal
+									? "astraMainInterface.global.categories.action.collapseAll"
+									: "astraMainInterface.categories.action.collapseAll"
+							}
+							expandAllLabelKey={
+								isGlobal
+									? "astraMainInterface.global.categories.action.expandAll"
+									: "astraMainInterface.categories.action.expandAll"
+							}
+							onCollapseAll={handleCollapseAllCategories}
+							onExpandAll={handleExpandAllCategories}
+						/>
 					}
 					addLabelKey={
 						isGlobal
@@ -2163,36 +2286,23 @@ export function ChatCategoryManagerPage({
 				aria-busy={isLoading}
 				className={cn(
 					"astra-chat-library-category-panel",
-					isGlobal
-						? "astra-chat-library-global-panel"
-						: "astra-chat-library-scoped-panel",
+					"astra-chat-library-global-panel",
+					!isGlobal && "astra-chat-library-scoped-panel",
 				)}
 			>
 				{categories.length > 0 ? (
-					isGlobal ? (
-						<GlobalChatCategoryTree
-							activeChatActionsEntryKey={
-								activeChatActionsEntryKey
-							}
-							categories={categories}
-							chatCategoryStore={chatCategoryStore}
-							entries={entries}
-							expandedCategoryIds={globalExpandedCategoryIds}
-							onCategoryAction={handleGlobalCategoryAction}
-							onOpenChatActions={onOpenChatActions}
-							openEntryDisabled={openEntryDisabled}
-							onCategoryToggle={handleGlobalCategoryToggle}
-							onOpenEntry={onOpenEntry}
-						/>
-					) : (
-						<ChatCategoryAccordion
-							chatCategoryStore={chatCategoryStore}
-							entries={entries}
-							groups={groups}
-							openEntryDisabled={openEntryDisabled}
-							onOpenEntry={onOpenEntry}
-						/>
-					)
+					<ChatCategoryTree
+						activeChatActionsEntryKey={activeChatActionsEntryKey}
+						categories={categories}
+						chatCategoryStore={chatCategoryStore}
+						entries={entries}
+						expandedCategoryIds={expandedCategoryIds}
+						onCategoryAction={handleCategoryAction}
+						onOpenChatActions={onOpenChatActions}
+						openEntryDisabled={openEntryDisabled}
+						onCategoryToggle={handleCategoryToggle}
+						onOpenEntry={onOpenEntry}
+					/>
 				) : (
 					<>
 						<div className="astra-chat-library-category-treeLayout">
@@ -2212,13 +2322,11 @@ export function ChatCategoryManagerPage({
 					</>
 				)}
 			</div>
-			{isGlobal ? (
-				<GlobalCategoryActionDrawer
-					action={globalCategoryAction}
-					chatCategoryStore={chatCategoryStore}
-					onOpenChange={handleGlobalCategoryActionOpenChange}
-				/>
-			) : null}
+			<CategoryActionDrawer
+				action={categoryAction}
+				chatCategoryStore={chatCategoryStore}
+				onOpenChange={handleCategoryActionOpenChange}
+			/>
 		</div>
 	);
 }
@@ -2291,10 +2399,7 @@ export function ChatCategoryAssignmentDrawer({
 		<ChatCategoryAssignmentDrawerFooter
 			canSave={hasChanges}
 			onSave={() => {
-				chatCategoryStore.setChatCategoryIds(
-					drawerEntry.key,
-					draftIds,
-				);
+				chatCategoryStore.setChatCategoryIds(drawerEntry.key, draftIds);
 			}}
 		/>
 	);

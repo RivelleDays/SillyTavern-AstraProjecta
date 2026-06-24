@@ -8,17 +8,24 @@ import { ScrollArea } from "@/components/ui/astra/scroll-area";
 import { translateAstra } from "@/packages/core/i18n";
 import type { ChatCategoryStore } from "@/packages/core/st/chat-categories";
 import {
+	deleteChatCatalogEntry,
+	exportChatCatalogEntry,
+	openChatCatalogEntry,
+	renameChatCatalogEntry,
+} from "@/packages/core/st/chat-catalog";
+import {
 	createCurrentChatCatalogStore,
 	type CurrentChatCatalogStore,
 } from "@/packages/core/st/current-chat-catalog";
-import { openChatCatalogEntry } from "@/packages/core/st/chat-catalog";
 import { ChatCategoryManagerPage } from "@/packages/features/astra-main-interface/chat-categories/ChatCategoryUi";
+import { ChatCatalogRowOverlays } from "@/packages/features/astra-main-interface/chat-list/ChatCatalogRowOverlays";
 import {
 	CurrentChatListPage,
 	type CurrentChatListPageProps,
 } from "@/packages/features/astra-main-interface/current-context/CurrentChatListPage";
 import type { AstraMainInterfaceRouteDescriptor } from "@/packages/features/astra-main-interface/routes";
 import { useChatCatalogEntryOpenController } from "@/packages/features/astra-main-interface/chat-list/useChatCatalogEntryOpenController";
+import { useChatCatalogRowOverlayController } from "@/packages/features/astra-main-interface/chat-list/useChatCatalogRowOverlayController";
 import type { I18nKey } from "@/types/i18n";
 
 export type CurrentContextTabValue = "current-categories" | "current-chats";
@@ -140,13 +147,21 @@ function useCurrentPageChatCatalogStore(
 function CurrentContextCategoriesPage({
 	chatCategoryStore,
 	currentChatCatalogStore,
+	deleteCurrentChat = (entry) => deleteChatCatalogEntry(entry),
+	exportCurrentChat = (entry, format) =>
+		exportChatCatalogEntry(entry, format),
 	onRequestClose,
 	openCurrentChat = (entry) => openChatCatalogEntry(entry),
+	renameCurrentChat = (entry, newFileName) =>
+		renameChatCatalogEntry(entry, newFileName),
 }: {
 	chatCategoryStore: ChatCategoryStore;
 	currentChatCatalogStore: CurrentChatCatalogStore;
+	deleteCurrentChat?: CurrentContextPageProps["deleteCurrentChat"];
+	exportCurrentChat?: CurrentContextPageProps["exportCurrentChat"];
 	onRequestClose?: () => void;
 	openCurrentChat?: CurrentContextPageProps["openCurrentChat"];
+	renameCurrentChat?: CurrentContextPageProps["renameCurrentChat"];
 }) {
 	const snapshot = React.useSyncExternalStore(
 		currentChatCatalogStore.subscribe,
@@ -171,6 +186,7 @@ function CurrentContextCategoriesPage({
 		onRequestClose,
 		openEntry: openCurrentChat,
 	});
+	const rowOverlayController = useChatCatalogRowOverlayController();
 
 	return (
 		<>
@@ -183,13 +199,29 @@ function CurrentContextCategoriesPage({
 				</div>
 			) : null}
 			<ChatCategoryManagerPage
+				activeChatActionsEntryKey={
+					rowOverlayController.activeActionsEntryKey
+				}
 				chatCategoryStore={chatCategoryStore}
 				entries={snapshot.entries}
 				isLoading={snapshot.status === "loading"}
 				openEntryDisabled={openingKey !== null}
 				ownerScope={ownerScope}
 				variant="current"
+				onOpenChatActions={rowOverlayController.openActions}
 				onOpenEntry={openCurrentChatWithFeedback}
+			/>
+			<ChatCatalogRowOverlays
+				chatCategoryStore={chatCategoryStore}
+				controller={rowOverlayController}
+				deleteChat={deleteCurrentChat}
+				exportChat={exportCurrentChat}
+				openEntry={openCurrentChatWithFeedback}
+				openEntryDisabled={openingKey !== null}
+				renameChat={renameCurrentChat}
+				onSuccess={() => {
+					currentChatCatalogStore.refresh();
+				}}
 			/>
 		</>
 	);
@@ -244,8 +276,11 @@ export function CurrentContextPage({
 							currentChatCatalogStore={
 								resolvedCurrentChatCatalogStore
 							}
+							deleteCurrentChat={chatListProps.deleteCurrentChat}
+							exportCurrentChat={chatListProps.exportCurrentChat}
 							onRequestClose={chatListProps.onRequestClose}
 							openCurrentChat={chatListProps.openCurrentChat}
+							renameCurrentChat={chatListProps.renameCurrentChat}
 						/>
 					</div>
 				</CurrentTabPanelScroll>

@@ -23,8 +23,7 @@
 - Keep all user-facing strings in `locales/en.json` and access them through typed i18n keys.
 - Keep CSS assertions limited to stable structure and cursor/interaction affordances, not exact visual values.
 - Category row actions such as create, rename, delete, assign, and future reorder must stay accessible through button, checkbox, dialog, drawer, or menu primitives from the local UI wrapper layer.
-- Global category rename/delete actions are the first category management action slice. Keep them implemented through scope-aware shared category UI so Current/Favorite owner-scoped category actions can reuse the same drawer and store pathways after the Global layout and behavior settle.
-- Do not enable Current/Favorite owner-scoped category rename/delete buttons until that later slice explicitly defines their layout, copy, and scope-specific behavior.
+- Category rename/delete actions are scope-aware shared category UI. Global, Current, and Favorite category pages must use the same drawer and store pathways for global and owner-scoped categories.
 - Category assignment drawers must keep create-category support scoped to the current drawer context and must not persist draft checkbox changes until Save.
 - Category pages must render category chat rows from the supplied `ChatCatalogEntry[]` only. Do not fetch chats or hydrate chat metadata from this folder.
 - Astra-owned chat rename/delete synchronization belongs to the shared chat-list flow calling `moveChatKey()` and `removeChatKey()`. Native SillyTavern or other-extension reconciliation is a future cleanup slice, not a hidden UI responsibility here.

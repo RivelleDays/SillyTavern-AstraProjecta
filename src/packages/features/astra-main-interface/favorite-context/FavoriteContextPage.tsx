@@ -7,15 +7,22 @@ import {
 import { ScrollArea } from "@/components/ui/astra/scroll-area";
 import { translateAstra } from "@/packages/core/i18n";
 import type { ChatCategoryStore } from "@/packages/core/st/chat-categories";
-import { openChatCatalogEntry } from "@/packages/core/st/chat-catalog";
+import {
+	deleteChatCatalogEntry,
+	exportChatCatalogEntry,
+	openChatCatalogEntry,
+	renameChatCatalogEntry,
+} from "@/packages/core/st/chat-catalog";
 import type { CurrentChatCatalogStore } from "@/packages/core/st/current-chat-catalog";
 import { ChatCategoryManagerPage } from "@/packages/features/astra-main-interface/chat-categories/ChatCategoryUi";
+import { ChatCatalogRowOverlays } from "@/packages/features/astra-main-interface/chat-list/ChatCatalogRowOverlays";
+import { useChatCatalogEntryOpenController } from "@/packages/features/astra-main-interface/chat-list/useChatCatalogEntryOpenController";
+import { useChatCatalogRowOverlayController } from "@/packages/features/astra-main-interface/chat-list/useChatCatalogRowOverlayController";
 import {
 	CurrentChatListPage,
 	type CurrentChatListPageProps,
 } from "@/packages/features/astra-main-interface/current-context/CurrentChatListPage";
 import type { AstraMainInterfaceRouteDescriptor } from "@/packages/features/astra-main-interface/routes";
-import { useChatCatalogEntryOpenController } from "@/packages/features/astra-main-interface/chat-list/useChatCatalogEntryOpenController";
 import type { I18nKey } from "@/types/i18n";
 
 export type FavoriteContextTabValue = "favorite-categories" | "favorite-chats";
@@ -134,13 +141,21 @@ function FavoriteTabPanelScroll({ children }: { children: React.ReactNode }) {
 function FavoriteContextCategoriesPage({
 	chatCategoryStore,
 	currentChatCatalogStore,
+	deleteCurrentChat = (entry) => deleteChatCatalogEntry(entry),
+	exportCurrentChat = (entry, format) =>
+		exportChatCatalogEntry(entry, format),
 	onRequestClose,
 	openCurrentChat = (entry) => openChatCatalogEntry(entry),
+	renameCurrentChat = (entry, newFileName) =>
+		renameChatCatalogEntry(entry, newFileName),
 }: {
 	chatCategoryStore: ChatCategoryStore;
 	currentChatCatalogStore: CurrentChatCatalogStore;
+	deleteCurrentChat?: FavoriteContextPageProps["deleteCurrentChat"];
+	exportCurrentChat?: FavoriteContextPageProps["exportCurrentChat"];
 	onRequestClose?: () => void;
 	openCurrentChat?: FavoriteContextPageProps["openCurrentChat"];
+	renameCurrentChat?: FavoriteContextPageProps["renameCurrentChat"];
 }) {
 	const snapshot = React.useSyncExternalStore(
 		currentChatCatalogStore.subscribe,
@@ -165,6 +180,7 @@ function FavoriteContextCategoriesPage({
 		onRequestClose,
 		openEntry: openCurrentChat,
 	});
+	const rowOverlayController = useChatCatalogRowOverlayController();
 
 	return (
 		<>
@@ -177,13 +193,29 @@ function FavoriteContextCategoriesPage({
 				</div>
 			) : null}
 			<ChatCategoryManagerPage
+				activeChatActionsEntryKey={
+					rowOverlayController.activeActionsEntryKey
+				}
 				chatCategoryStore={chatCategoryStore}
 				entries={snapshot.entries}
 				isLoading={snapshot.status === "loading"}
 				openEntryDisabled={openingKey !== null}
 				ownerScope={ownerScope}
 				variant="favorite"
+				onOpenChatActions={rowOverlayController.openActions}
 				onOpenEntry={openCurrentChatWithFeedback}
+			/>
+			<ChatCatalogRowOverlays
+				chatCategoryStore={chatCategoryStore}
+				controller={rowOverlayController}
+				deleteChat={deleteCurrentChat}
+				exportChat={exportCurrentChat}
+				openEntry={openCurrentChatWithFeedback}
+				openEntryDisabled={openingKey !== null}
+				renameChat={renameCurrentChat}
+				onSuccess={() => {
+					currentChatCatalogStore.refresh();
+				}}
 			/>
 		</>
 	);
@@ -230,8 +262,11 @@ export function FavoriteContextPage({
 						<FavoriteContextCategoriesPage
 							chatCategoryStore={chatCategoryStore}
 							currentChatCatalogStore={currentChatCatalogStore}
+							deleteCurrentChat={chatListProps.deleteCurrentChat}
+							exportCurrentChat={chatListProps.exportCurrentChat}
 							onRequestClose={chatListProps.onRequestClose}
 							openCurrentChat={chatListProps.openCurrentChat}
+							renameCurrentChat={chatListProps.renameCurrentChat}
 						/>
 					</div>
 				</FavoriteTabPanelScroll>
