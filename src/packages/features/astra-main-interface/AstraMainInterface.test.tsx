@@ -1180,7 +1180,7 @@ describe("AstraMainInterface", () => {
 			categoryHeader.querySelector(
 				".astra-chat-library-global-categoryLabel .lucide-globe",
 			),
-		).toBeInTheDocument();
+		).not.toBeInTheDocument();
 
 		const chatList = categoryRow?.querySelector(
 			".astra-chat-library-global-chatList",
@@ -2324,7 +2324,7 @@ describe("AstraMainInterface", () => {
 		).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				"Create a current-scope category or use a global category to organize this character or group.",
+				"Create categories for the current character or group.",
 			),
 		).toBeInTheDocument();
 
@@ -2968,7 +2968,7 @@ describe("AstraMainInterface", () => {
 		).toHaveLength(1);
 	});
 
-	test("renders current categories as owner-first global-style category rows", () => {
+	test("renders current categories as owner-only global-style category rows", () => {
 		const globalStoreStub = createStoreStub(createSnapshot());
 		const currentStoreStub = createCurrentStoreStub(
 			createCurrentSnapshot({
@@ -3034,38 +3034,37 @@ describe("AstraMainInterface", () => {
 				".astra-chat-library-category-panel.astra-chat-library-global-panel",
 			),
 		).toBeInTheDocument();
+		const createRow = manager.querySelector(
+			".astra-chat-library-category-createRow",
+		);
+		expect(createRow).toHaveClass(
+			"astra-chat-library-category-createRow--single",
+		);
+		expect(
+			manager.querySelector(".astra-chat-library-category-selectTrigger"),
+		).not.toBeInTheDocument();
 
 		const categoryRows = Array.from(
 			manager.querySelectorAll(".astra-chat-library-global-categoryRow"),
 		);
-		expect(categoryRows).toHaveLength(2);
+		expect(categoryRows).toHaveLength(1);
 		expect(categoryRows[0]).toHaveTextContent("Hero Notes");
-		expect(categoryRows[1]).toHaveTextContent("Global Plot");
+		expect(
+			within(manager).queryByText("Global Plot"),
+		).not.toBeInTheDocument();
 
 		const ownerHeader = within(manager).getByRole("button", {
 			name: /Hero Notes\s*\(1\)/,
 		});
-		const globalHeader = within(manager).getByRole("button", {
-			name: /Global Plot\s*\(1\)/,
-		});
 		expect(ownerHeader).toHaveClass(
 			"astra-chat-library-global-categoryHeader",
 		);
-		expect(globalHeader).toHaveClass(
-			"astra-chat-library-global-categoryHeader",
-		);
 		expect(ownerHeader).toHaveAttribute("aria-expanded", "true");
-		expect(globalHeader).toHaveAttribute("aria-expanded", "true");
 		expect(
 			ownerHeader.querySelector(
 				".astra-chat-library-global-categoryLabel .lucide-globe",
 			),
 		).not.toBeInTheDocument();
-		expect(
-			globalHeader.querySelector(
-				".astra-chat-library-global-categoryLabel .lucide-globe",
-			),
-		).toBeInTheDocument();
 		expect(
 			within(categoryRows[0] as HTMLElement).getByRole("button", {
 				name: "Delete character category: Hero Notes",
@@ -3077,10 +3076,10 @@ describe("AstraMainInterface", () => {
 			}),
 		).toHaveClass("astra-chat-library-global-categoryRenameAction");
 		expect(
-			within(categoryRows[1] as HTMLElement).getByRole("button", {
+			within(manager).queryByRole("button", {
 				name: "Delete global category: Global Plot",
 			}),
-		).toBeInTheDocument();
+		).not.toBeInTheDocument();
 
 		const ownerChatList = categoryRows[0].querySelector(
 			".astra-chat-library-global-chatList",
@@ -3095,7 +3094,9 @@ describe("AstraMainInterface", () => {
 		expect(ownerHeader).toHaveAttribute("aria-expanded", "false");
 		expect(ownerChatList).toHaveAttribute("hidden");
 		expect(screen.queryByText("hidden-chat")).not.toBeInTheDocument();
-		expect(screen.getByLabelText("New category name")).not.toBeDisabled();
+		expect(
+			screen.getByLabelText("New character category name"),
+		).not.toBeDisabled();
 	});
 
 	test("removes current category chat rows and opens current chat actions", async () => {
@@ -3279,13 +3280,13 @@ describe("AstraMainInterface", () => {
 		expect(currentStoreStub.store.refresh).toHaveBeenCalledTimes(1);
 	});
 
-	test("creates a global category from the scoped category select", async () => {
+	test("creates an owner category from the scoped category page create row", () => {
 		const globalStoreStub = createStoreStub(createSnapshot());
 		const currentStoreStub = createCurrentStoreStub(
 			createCurrentSnapshot(),
 		);
 		const categoryStoreStub = createSeededChatCategoryStore({
-			ids: ["cat_scoped_global"],
+			ids: ["cat_scoped_owner"],
 		});
 
 		render(
@@ -3304,41 +3305,35 @@ describe("AstraMainInterface", () => {
 				}),
 			).getByRole("tab", { name: "Categories" }),
 		);
-		const scopeTrigger = screen.getByRole("button", {
-			name: "Category scope: Character",
-		});
-		const categoryInput = screen.getByLabelText("New category name");
+		const manager = document.querySelector(
+			".astra-chat-library-global-manager.astra-chat-library-scoped-manager",
+		);
+		expect(manager).toBeInTheDocument();
+		if (!(manager instanceof HTMLElement)) {
+			throw new Error("Expected scoped category manager element");
+		}
+		const createRow = manager.querySelector(
+			".astra-chat-library-category-createRow",
+		);
+		expect(createRow).toHaveClass(
+			"astra-chat-library-category-createRow--single",
+		);
+		expect(
+			manager.querySelector(".astra-chat-library-category-selectTrigger"),
+		).not.toBeInTheDocument();
+		const categoryInput = screen.getByLabelText(
+			"New character category name",
+		);
 
-		expect(scopeTrigger).toHaveAttribute("title", "Character");
-		expect(
-			scopeTrigger.querySelector('[data-slot="select-value"]'),
-		).not.toBeInTheDocument();
-		expect(
-			scopeTrigger.querySelector(".lucide-chevron-down"),
-		).not.toBeInTheDocument();
-		fireEvent.pointerDown(scopeTrigger, {
-			button: 0,
-			ctrlKey: false,
-		});
-		const globalScopeItem = await screen.findByRole("menuitem", {
-			name: /Global/,
-		});
-		fireEvent.click(globalScopeItem);
 		fireEvent.input(categoryInput, {
 			target: {
-				value: "Shared Plot",
+				value: "Character Plot",
 			},
 		});
-		expect(scopeTrigger).toHaveAttribute(
-			"aria-label",
-			"Category scope: Global",
-		);
-		expect(scopeTrigger).toHaveAttribute("title", "Global");
-		expect(scopeTrigger.querySelector(".lucide-globe")).toBeInTheDocument();
-		expect(categoryInput).toHaveValue("Shared Plot");
+		expect(categoryInput).toHaveValue("Character Plot");
 		fireEvent.click(
 			screen.getByRole("button", {
-				name: "Add category",
+				name: "Add character category",
 			}),
 		);
 
@@ -3346,7 +3341,7 @@ describe("AstraMainInterface", () => {
 			screen.queryByText("Choose a valid category scope."),
 		).not.toBeInTheDocument();
 		const categoryHeader = screen.getByRole("button", {
-			name: /Shared Plot\s*\(0\)/,
+			name: /Character Plot\s*\(0\)/,
 		});
 		expect(categoryHeader).toHaveClass(
 			"astra-chat-library-global-categoryHeader",
@@ -3355,17 +3350,26 @@ describe("AstraMainInterface", () => {
 			categoryHeader.querySelector(
 				".astra-chat-library-global-categoryLabel .lucide-globe",
 			),
-		).toBeInTheDocument();
+		).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole("button", { name: /^Global\s*\(1\)$/ }),
 		).not.toBeInTheDocument();
-		expect(categoryStoreStub.store.getVisibleCategories().global).toEqual([
+		expect(
+			categoryStoreStub.store.getVisibleCategories({
+				ownerId: "0",
+				ownerType: "character",
+				scope: "owner",
+			}).owner,
+		).toEqual([
 			expect.objectContaining({
-				id: "cat_scoped_global",
-				name: "Shared Plot",
-				scope: "global",
+				id: "cat_scoped_owner",
+				name: "Character Plot",
+				scope: "owner",
 			}),
 		]);
+		expect(categoryStoreStub.store.getVisibleCategories().global).toEqual(
+			[],
+		);
 	});
 
 	test("renders favorite categories for the selected favorite scope", () => {
@@ -3434,7 +3438,7 @@ describe("AstraMainInterface", () => {
 			kind: "character",
 		});
 		expect(screen.getByText("Mage Notes")).toBeInTheDocument();
-		expect(screen.getByText("Global Plot")).toBeInTheDocument();
+		expect(screen.queryByText("Global Plot")).not.toBeInTheDocument();
 		const favoriteCategoriesPanel = screen
 			.getByText("Mage Notes")
 			.closest(".astra-smooth-tabs__panel");
@@ -3453,25 +3457,16 @@ describe("AstraMainInterface", () => {
 		const categoryRows = Array.from(
 			document.querySelectorAll(".astra-chat-library-global-categoryRow"),
 		);
-		expect(categoryRows).toHaveLength(2);
+		expect(categoryRows).toHaveLength(1);
 		expect(categoryRows[0]).toHaveTextContent("Mage Notes");
-		expect(categoryRows[1]).toHaveTextContent("Global Plot");
 		const ownerHeader = screen.getByRole("button", {
 			name: /Mage Notes\s*\(1\)/,
-		});
-		const globalHeader = screen.getByRole("button", {
-			name: /Global Plot\s*\(1\)/,
 		});
 		expect(
 			ownerHeader.querySelector(
 				".astra-chat-library-global-categoryLabel .lucide-globe",
 			),
 		).not.toBeInTheDocument();
-		expect(
-			globalHeader.querySelector(
-				".astra-chat-library-global-categoryLabel .lucide-globe",
-			),
-		).toBeInTheDocument();
 		expect(
 			within(categoryRows[0] as HTMLElement).getByRole("button", {
 				name: "Delete character category: Mage Notes",
@@ -3482,7 +3477,7 @@ describe("AstraMainInterface", () => {
 				name: "Rename character category: Mage Notes",
 			}),
 		).toBeInTheDocument();
-		expect(screen.getAllByText("mage-notes")).toHaveLength(3);
+		expect(screen.getAllByText("mage-notes")).toHaveLength(2);
 	});
 
 	test("shows an inline error when a favorite category chat row fails to open", async () => {

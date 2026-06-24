@@ -15,7 +15,8 @@
 
 - Persist category changes only through `ChatCategoryStore`; do not read or write `extensionSettings` directly here.
 - Use staged draft state in assignment drawers. Checkbox changes must not persist until the user activates Save; Close must cancel the draft.
-- Global categories are available everywhere. Owner categories must be scoped by `ownerType` plus `ownerId` and must only render with chats from the currently supplied catalog entries.
+- Global category pages show global categories only. Current and Favorite category pages show owner categories only for the active or selected character/group, and must not render global categories there. Chat row category assignment drawers may still show and create both owner and global categories.
+- Owner categories must be scoped by `ownerType` plus `ownerId` and must only render with chats from the currently supplied catalog entries.
 - Category UI must treat owner/global sections as flat groups. Do not add nested category controls, parent pickers, recursive folder rendering, breadcrumb paths, or folder-style inheritance.
 - Same category display names may appear in different scopes. UI duplicate messages should reflect the store result instead of doing independent scope inference.
 - Category create and rename flows must follow the store name contract: trim, non-empty, 64 Unicode code points maximum, no control characters, Unicode/CJK/emoji allowed, and same-scope case-insensitive uniqueness.

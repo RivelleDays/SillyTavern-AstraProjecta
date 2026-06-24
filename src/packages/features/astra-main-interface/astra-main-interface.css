@@ -1292,11 +1292,6 @@
 	font-size: var(--text-xs);
 }
 
-.astra-chat-library-global-categoryScopeIcon {
-	flex: 0 0 auto;
-	color: var(--color-muted);
-}
-
 .astra-chat-library-global-categoryActions {
 	display: inline-flex;
 	flex: 0 0 auto;

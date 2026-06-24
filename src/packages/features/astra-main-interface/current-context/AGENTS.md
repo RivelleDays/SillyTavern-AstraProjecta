@@ -13,7 +13,7 @@
 - Use `packages/core/st/current-chat-catalog` for scoped Current chat data. Do not fetch the Global recent-chat catalog and filter it in this feature.
 - Use `src/packages/features/astra-main-interface/chat-categories` for category UI and `src/packages/core/st/chat-categories` for category persistence.
 - Use `src/packages/features/astra-main-interface/chat-list` for shared chat-list flow, controls, row action dialogs, export/actions drawer, and open-with-loading feedback.
-- Current category pages must show owner-scoped categories for the active character/group plus global categories, but chat rows inside each category must come only from the scoped Current chat catalog snapshot.
+- Current category pages must show only owner-scoped categories for the active character/group, and chat rows inside each category must come only from the scoped Current chat catalog snapshot. Global categories remain available through chat row category assignment drawers, not the Current category page.
 - Do not bridge or scrape SillyTavern's native `select_chat_popup` DOM from this folder.
 - Current and Favorite chat rows use the shared `astra-main-interface-chat-row*` child selector family from `chat-list`. They may keep `astra-main-interface-current-chat-row` as a root-only identity hook, but must not add `astra-main-interface-current-chat-row__*` child selectors.
 - Keep Current Character/Group secondary tab state controlled by the parent Astra main-interface root.

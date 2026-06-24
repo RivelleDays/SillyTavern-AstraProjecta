@@ -149,6 +149,30 @@ function createOwnerScope(
 	};
 }
 
+function createOwnerScopeOption(
+	ownerScope: ChatCategoryOwnerScope,
+): CategoryScopeOption {
+	return {
+		icon: CircleUser,
+		iconName: "circle-user",
+		label: translateAstra(
+			ownerScope.ownerType === "group"
+				? "astraMainInterface.categories.scope.group"
+				: "astraMainInterface.categories.scope.character",
+		),
+		value: createOwnerScope(ownerScope),
+	};
+}
+
+function createGlobalScopeOption(): CategoryScopeOption {
+	return {
+		icon: Globe,
+		iconName: "globe",
+		label: translateAstra("astraMainInterface.categories.scope.global"),
+		value: createGlobalScope(),
+	};
+}
+
 export function useChatCategoryStore(injectedStore?: ChatCategoryStore) {
 	const store = React.useMemo(
 		() => injectedStore ?? createChatCategoryStore(),
@@ -256,26 +280,51 @@ function buildScopeOptions(
 	const options: CategoryScopeOption[] = [];
 
 	if (ownerScope) {
-		options.push({
-			icon: CircleUser,
-			iconName: "circle-user",
-			label: translateAstra(
-				ownerScope.ownerType === "group"
-					? "astraMainInterface.categories.scope.group"
-					: "astraMainInterface.categories.scope.character",
-			),
-			value: createOwnerScope(ownerScope),
-		});
+		options.push(createOwnerScopeOption(ownerScope));
 	}
 
-	options.push({
-		icon: Globe,
-		iconName: "globe",
-		label: translateAstra("astraMainInterface.categories.scope.global"),
-		value: createGlobalScope(),
-	});
+	options.push(createGlobalScopeOption());
 
 	return options;
+}
+
+function buildCategoryPageCreateScopeOptions({
+	ownerScope,
+	variant,
+}: {
+	ownerScope?: ChatCategoryOwnerScope | null;
+	variant: ChatCategoryManagerVariant;
+}): CategoryScopeOption[] {
+	if (variant === "global") {
+		return [createGlobalScopeOption()];
+	}
+
+	return ownerScope ? [createOwnerScopeOption(ownerScope)] : [];
+}
+
+function getCategoryPageCreateKey(
+	ownerScope: ChatCategoryOwnerScope | null | undefined,
+	field: "add" | "inputLabel" | "placeholder",
+): I18nKey {
+	if (ownerScope?.ownerType === "group") {
+		switch (field) {
+			case "add":
+				return "astraMainInterface.categories.create.group.add";
+			case "inputLabel":
+				return "astraMainInterface.categories.create.group.inputLabel";
+			case "placeholder":
+				return "astraMainInterface.categories.create.group.placeholder";
+		}
+	}
+
+	switch (field) {
+		case "add":
+			return "astraMainInterface.categories.create.character.add";
+		case "inputLabel":
+			return "astraMainInterface.categories.create.character.inputLabel";
+		case "placeholder":
+			return "astraMainInterface.categories.create.character.placeholder";
+	}
 }
 
 function getScopeOptionKey(scope: ChatCategoryScope) {
@@ -432,6 +481,7 @@ function ChatCategoryCreateRow({
 	const canCreate = name.trim().length > 0 && Boolean(selectedScope);
 	const isMultiScope = showScopeSelect && scopeOptions.length > 1;
 	const displayedScope = selectedScope ?? scopeOptions[0];
+	const inputDisabled = !displayedScope;
 	const scopeInputLabel = translateAstra(
 		"astraMainInterface.categories.scope.inputLabel",
 	);
@@ -583,6 +633,7 @@ function ChatCategoryCreateRow({
 					<Input
 						aria-label={translateAstra(inputLabelKey)}
 						className="astra-main-interface__search-input astra-chat-library-category-input"
+						disabled={inputDisabled}
 						id={inputId}
 						placeholder={translateAstra(placeholderKey)}
 						type="text"
@@ -1074,14 +1125,6 @@ function ChatCategoryTree({
 										<span className="astra-chat-library-global-categoryCount">
 											({categoryEntries.length})
 										</span>
-										{category.scope === "global" ? (
-											<UiIcon
-												aria-hidden={true}
-												className="astra-chat-library-global-categoryScopeIcon"
-												icon={Globe}
-												size="xs"
-											/>
-										) : null}
 										<UiIcon
 											aria-hidden={true}
 											className="astra-chat-library-category-chevron"
@@ -2148,19 +2191,17 @@ export function ChatCategoryManagerPage({
 }: ChatCategoryManagerPageProps) {
 	const categorySnapshot = useCategorySnapshot(chatCategoryStore);
 	const inputId = React.useId();
-	const groups = React.useMemo(
-		() =>
-			getCategoryGroups({
-				chatCategoryStore,
-				ownerScope,
-			}),
-		[categorySnapshot, chatCategoryStore, ownerScope],
-	);
-	const categories = React.useMemo(
-		() => groups.flatMap((group) => group.categories),
-		[groups],
-	);
 	const isGlobal = variant === "global";
+	const categories = React.useMemo(
+		() => {
+			const visible = chatCategoryStore.getVisibleCategories(
+				ownerScope ? createOwnerScope(ownerScope) : undefined,
+			);
+
+			return isGlobal ? visible.global : visible.owner;
+		},
+		[categorySnapshot, chatCategoryStore, isGlobal, ownerScope],
+	);
 	const categoryIds = React.useMemo(
 		() => categories.map((category) => category.id),
 		[categories],
@@ -2184,8 +2225,12 @@ export function ChatCategoryManagerPage({
 				? "astraMainInterface.currentContext.categories.empty.description"
 				: "astraMainInterface.global.categories.empty.description";
 	const createScopeOptions = React.useMemo(
-		() => buildScopeOptions(isGlobal ? null : ownerScope),
-		[isGlobal, ownerScope],
+		() =>
+			buildCategoryPageCreateScopeOptions({
+				ownerScope,
+				variant,
+			}),
+		[ownerScope, variant],
 	);
 	const handleCategoryToggle = React.useCallback((categoryId: string) => {
 		setExpandedCategoryIds((current) =>
@@ -2264,22 +2309,28 @@ export function ChatCategoryManagerPage({
 					addLabelKey={
 						isGlobal
 							? "astraMainInterface.global.categories.create.add"
-							: "astraMainInterface.chatMenu.categoryDrawer.create.add"
+							: getCategoryPageCreateKey(ownerScope, "add")
 					}
 					chatCategoryStore={chatCategoryStore}
 					inputId={inputId}
 					inputLabelKey={
 						isGlobal
 							? "astraMainInterface.global.categories.create.inputLabel"
-							: "astraMainInterface.chatMenu.categoryDrawer.create.inputLabel"
+							: getCategoryPageCreateKey(
+									ownerScope,
+									"inputLabel",
+								)
 					}
 					placeholderKey={
 						isGlobal
 							? "astraMainInterface.global.categories.create.placeholder"
-							: "astraMainInterface.chatMenu.categoryDrawer.create.placeholder"
+							: getCategoryPageCreateKey(
+									ownerScope,
+									"placeholder",
+								)
 					}
 					scopeOptions={createScopeOptions}
-					showScopeSelect={!isGlobal}
+					showScopeSelect={false}
 				/>
 			</div>
 			<div

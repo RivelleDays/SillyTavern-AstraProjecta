@@ -315,7 +315,6 @@ describe("astra-main-interface.css", () => {
 		expect(css).toContain(".astra-chat-library-global-categoryLabel");
 		expect(css).toContain(".astra-chat-library-global-categoryName");
 		expect(css).toContain(".astra-chat-library-global-categoryCount");
-		expect(css).toContain(".astra-chat-library-global-categoryScopeIcon");
 		expect(css).toContain(".astra-chat-library-global-categoryActions");
 		expect(css).toContain(
 			".astra-chat-library-global-categoryActionButton",

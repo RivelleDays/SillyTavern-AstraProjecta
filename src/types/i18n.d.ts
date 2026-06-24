@@ -10,6 +10,12 @@ export interface I18nMessages {
 	"astraMainInterface.categories.action.renameGroupCategory": string;
 	"astraMainInterface.categories.actions.label": string;
 	"astraMainInterface.categories.chatRow.open": string;
+	"astraMainInterface.categories.create.character.add": string;
+	"astraMainInterface.categories.create.character.inputLabel": string;
+	"astraMainInterface.categories.create.character.placeholder": string;
+	"astraMainInterface.categories.create.group.add": string;
+	"astraMainInterface.categories.create.group.inputLabel": string;
+	"astraMainInterface.categories.create.group.placeholder": string;
 	"astraMainInterface.categories.delete.character.description": string;
 	"astraMainInterface.categories.delete.character.title": string;
 	"astraMainInterface.categories.delete.group.description": string;
