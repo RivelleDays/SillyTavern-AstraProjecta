@@ -27,6 +27,7 @@
 
 - `chat-avatar/` owns reusable character/group avatar URL resolution and group member collage thumbnail data.
 - `chat-identity/` is the only home for current chat role/group identity resolution and chat filename fallback order.
+- Current-chat adapters that resolve an active chat id should prefer SillyTavern `getCurrentChatId()`, then `context.chatId`, then entity-backed `character.chat` or `group.chat_id`.
 - `favorite-chat-entities/` owns favorite character/group list derivation and may consume `chat-avatar`, `SillyTavern.getContext()`, and existing global `ChatCatalogEntry[]` data only.
 - Feature/UI code must not re-read `group.avatar_url`, manually compose group member thumbnails, or invent its own current-chat filename fallback chain.
 - Consumers should depend on the exported current-chat snapshot/store contract instead of rebuilding identity state locally.

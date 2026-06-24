@@ -6,6 +6,7 @@
 ## Responsibilities
 
 - Resolve the active chat file name from public SillyTavern context fields.
+- Prefer `getCurrentChatId()` for the active chat file name, then fall back to `context.chatId`, then entity-backed `character.chat` or `group.chat_id`.
 - Resolve the active character/group name and avatar snapshot for feature consumption.
 - Prefer a custom group avatar when present, otherwise expose member-thumbnail collage URLs from the shared chat-avatar resolver.
 - Expose serializable snapshots and event-driven stores that feature code can consume without local `getContext()` reads.

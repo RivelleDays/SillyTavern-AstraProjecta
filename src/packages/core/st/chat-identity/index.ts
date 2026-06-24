@@ -152,11 +152,6 @@ function resolveChatFileName(
 	character: CharacterLike | null,
 	group: GroupLike | null,
 ): string {
-	const contextChatId = asTrimmedString(context?.chatId);
-	if (contextChatId) {
-		return contextChatId;
-	}
-
 	if (context && typeof context.getCurrentChatId === "function") {
 		try {
 			const currentChatId = asTrimmedString(context.getCurrentChatId());
@@ -166,6 +161,11 @@ function resolveChatFileName(
 		} catch {
 			// Fall through to entity-backed chat file names.
 		}
+	}
+
+	const contextChatId = asTrimmedString(context?.chatId);
+	if (contextChatId) {
+		return contextChatId;
 	}
 
 	const characterChat = asTrimmedString(character?.chat);

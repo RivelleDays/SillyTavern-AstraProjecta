@@ -327,11 +327,6 @@ function resolveCurrentChatId(
 	character: CharacterLike | null,
 	group: GroupLike | null,
 ): string {
-	const contextChatId = normalizeChatId(context.chatId);
-	if (contextChatId) {
-		return contextChatId;
-	}
-
 	if (typeof context.getCurrentChatId === "function") {
 		try {
 			const currentChatId = normalizeChatId(context.getCurrentChatId());
@@ -341,6 +336,11 @@ function resolveCurrentChatId(
 		} catch {
 			// Fall through to entity metadata.
 		}
+	}
+
+	const contextChatId = normalizeChatId(context.chatId);
+	if (contextChatId) {
+		return contextChatId;
 	}
 
 	return normalizeChatId(character?.chat) || normalizeChatId(group?.chat_id);

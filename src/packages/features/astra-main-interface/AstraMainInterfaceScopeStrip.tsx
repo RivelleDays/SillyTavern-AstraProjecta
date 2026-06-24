@@ -26,7 +26,6 @@ export interface AstraMainInterfaceScopeStripProps {
 	className?: string;
 	currentIdentitySnapshot: CurrentChatIdentitySnapshot;
 	favoriteChatEntitiesStore?: FavoriteChatEntitiesStore | null;
-	onRequestClose?(): void;
 	onValueChange(value: AstraMainInterfaceScopeValue): void;
 	value: AstraMainInterfaceScopeValue;
 }
@@ -194,7 +193,6 @@ export function AstraMainInterfaceScopeStrip({
 	className,
 	currentIdentitySnapshot,
 	favoriteChatEntitiesStore,
-	onRequestClose,
 	onValueChange,
 	value,
 }: AstraMainInterfaceScopeStripProps) {
@@ -207,8 +205,7 @@ export function AstraMainInterfaceScopeStrip({
 		currentIdentitySnapshot.groupAvatarUrls.length > 0;
 	const handleActivationSuccess = React.useCallback(() => {
 		onValueChange(FAVORITE_CHAT_ENTITY_CURRENT_CONTEXT_SCOPE_VALUE);
-		onRequestClose?.();
-	}, [onRequestClose, onValueChange]);
+	}, [onValueChange]);
 	const { activateFavoriteEntity, activatingScopeValue, isActivating } =
 		useFavoriteChatEntityActivationController({
 			activateChatEntity,

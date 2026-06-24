@@ -155,6 +155,52 @@ describe("current chat catalog adapter", () => {
 		]);
 	});
 
+	test("marks current chats from getCurrentChatId when context chatId is stale", () => {
+		setSillyTavernContext({
+			characterId: 0,
+			characters: [
+				{
+					avatar: "hero.png",
+					chat: "chapter-stale",
+					name: "Hero",
+				},
+			],
+			chatId: "chapter-stale",
+			getCurrentChatId: () => "chapter-active",
+			getThumbnailUrl: (type: string, fileName: string) =>
+				`/thumbs/${type}/${fileName}`,
+			groups: [],
+		});
+
+		const entries = normalizeCurrentChatCatalogEntries([
+			{
+				file_name: "chapter-stale",
+				file_size: "12 KB",
+				last_mes: "2026-05-01T10:00:00.000Z",
+				message_count: 4,
+				preview_message: "Stale preview",
+			},
+			{
+				file_name: "chapter-active",
+				file_size: "16 KB",
+				last_mes: "2026-05-02T10:00:00.000Z",
+				message_count: 6,
+				preview_message: "Active preview",
+			},
+		]);
+
+		expect(entries).toEqual([
+			expect.objectContaining({
+				chatId: "chapter-stale",
+				isCurrent: false,
+			}),
+			expect.objectContaining({
+				chatId: "chapter-active",
+				isCurrent: true,
+			}),
+		]);
+	});
+
 	test("lazy-loads explicit character and group entities on demand", async () => {
 		const fetchSpy = vi
 			.fn<typeof fetch>()

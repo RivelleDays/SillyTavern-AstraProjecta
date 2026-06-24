@@ -289,11 +289,6 @@ function resolveChatId(
 	character: CharacterLike | null,
 	group: GroupLike | null,
 ): string {
-	const contextChatId = normalizeChatId(context?.chatId);
-	if (contextChatId) {
-		return contextChatId;
-	}
-
 	if (context && typeof context.getCurrentChatId === "function") {
 		try {
 			const currentChatId = normalizeChatId(context.getCurrentChatId());
@@ -303,6 +298,11 @@ function resolveChatId(
 		} catch {
 			// Ignore getCurrentChatId failures and continue falling back.
 		}
+	}
+
+	const contextChatId = normalizeChatId(context?.chatId);
+	if (contextChatId) {
+		return contextChatId;
 	}
 
 	const characterChatId = normalizeChatId(character?.chat);

@@ -6,6 +6,7 @@
 ## SillyTavern Touchpoints
 
 - Resolves the active character or group through `SillyTavern.getContext()` for Current views.
+- Resolves the active chat id with `getCurrentChatId()` first, then `context.chatId`, then entity-backed chat fields, so stale context values do not pin Current/Favorite rows after reload.
 - Resolves explicit `character:<id>` and `group:<id>` targets through `SillyTavern.getContext()` for Favorite body views.
 - Calls `/api/chats/search` with an empty query and either the resolved character `avatar_url` or resolved `group_id`.
 - Uses public request headers, thumbnail helpers, and event bus names exposed by the SillyTavern extension context.

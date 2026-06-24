@@ -179,7 +179,7 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 	});
 
-	test("shares first-open catalog data and activates a favorite before rebinding the panel to Current", async () => {
+	test("shares first-open catalog data and activates a favorite before rebinding the open panel to Current", async () => {
 		document.body.innerHTML = '<div id="sheld"></div>';
 		const store = createIdentityStoreStub();
 		const characters = [
@@ -206,22 +206,27 @@ describe("createMobileChatTopBarFeature", () => {
 			groupId: null,
 			groups: [],
 		};
-		const selectCharacterById = vi.fn(
-			async (characterId: number, options?: { switchMenu?: boolean }) => {
-				context.characterId = characterId;
-				context.chatId = characters[characterId].chat;
-				context.groupId = null;
-				store.dispatch(
-					createIdentitySnapshot({
-						characterId,
-						chatFileName: characters[characterId].chat,
-						entityName: characters[characterId].name,
-						thumbnailUrl: `/thumbs/avatar/${characters[characterId].avatar}`,
-					}),
-				);
-				return options;
-			},
-		);
+		const executeSlashCommandsWithOptions = vi.fn(async () => {
+			const characterId = 1;
+			context.characterId = characterId;
+			context.chatId = characters[characterId].chat;
+			context.groupId = null;
+			store.dispatch(
+				createIdentitySnapshot({
+					characterId,
+					chatFileName: characters[characterId].chat,
+					entityName: characters[characterId].name,
+					thumbnailUrl: `/thumbs/avatar/${characters[characterId].avatar}`,
+				}),
+			);
+			return {
+				pipe: characters[characterId].name,
+			};
+		});
+		const saveSettingsDebounced = vi.fn();
+		const selectCharacterById = vi.fn();
+		context.executeSlashCommandsWithOptions = executeSlashCommandsWithOptions;
+		context.saveSettingsDebounced = saveSettingsDebounced;
 		context.selectCharacterById = selectCharacterById;
 		setSillyTavernContext(context);
 		const fetchSpy = vi.fn((url: string | URL | Request) => {
@@ -278,16 +283,21 @@ describe("createMobileChatTopBarFeature", () => {
 		fireEvent.click(await screen.findByRole("tab", { name: "Mage" }));
 
 		await waitFor(() => {
-			expect(mainInterfaceTrigger).toHaveAttribute(
-				"aria-expanded",
-				"false",
-			);
+			expect(
+				document.querySelector(".mobile-chat-top-bar__name"),
+			).toHaveTextContent("Mage");
 		});
-		expect(selectCharacterById).toHaveBeenCalledWith(1, {
-			switchMenu: false,
-		});
+		expect(mainInterfaceTrigger).toHaveAttribute("aria-expanded", "true");
+		expect(executeSlashCommandsWithOptions).toHaveBeenCalledWith(
+			'/go "mage.png"',
+			expect.objectContaining({
+				source: "astra-projecta",
+			}),
+		);
+		expect(selectCharacterById).not.toHaveBeenCalled();
+		expect(saveSettingsDebounced).toHaveBeenCalledTimes(1);
 		expect(
-			document.querySelector(".mobile-chat-top-bar__name"),
+			document.getElementById("mobile-astra-main-interface-title"),
 		).toHaveTextContent("Mage");
 		expect(
 			document.querySelector(".astra-main-interface"),

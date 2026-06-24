@@ -89,6 +89,38 @@ describe("current chat identity", () => {
 		});
 	});
 
+	test("prefers SillyTavern getCurrentChatId over a stale context chatId", async () => {
+		const contextRef: { current: unknown } = {
+			current: {
+				characterId: 0,
+				characters: [
+					{
+						avatar: "hero.png",
+						chat: "chapter-stale",
+						name: "Hero",
+					},
+				],
+				chatId: "chapter-stale",
+				getCurrentChatId: () => "chapter-active",
+				getThumbnailUrl: vi.fn(() => "/thumbs/hero.png"),
+			},
+		};
+
+		setSillyTavernContext(contextRef);
+
+		const { readCurrentChatIdentitySnapshot } =
+			await import("@/packages/core/st/chat-identity");
+
+		expect(
+			readCurrentChatIdentitySnapshot({ documentRef: document }),
+		).toMatchObject({
+			chatFileName: "chapter-active",
+			entityName: "Hero",
+			hasActiveChat: true,
+			kind: "character",
+		});
+	});
+
 	test("prefers a custom group avatar over member thumbnail composition", async () => {
 		const contextRef = {
 			current: {

@@ -299,7 +299,6 @@ export function AstraMainInterface({
 					activateChatEntity={activateChatEntity}
 					currentIdentitySnapshot={currentIdentitySnapshot}
 					favoriteChatEntitiesStore={favoriteChatEntitiesStore}
-					onRequestClose={onRequestClose}
 					value={activeSection}
 					onValueChange={handleSectionChange}
 				/>

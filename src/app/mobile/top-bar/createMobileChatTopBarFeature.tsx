@@ -221,9 +221,6 @@ function MobileChatTopBar({
 						favoriteChatEntitiesStore={
 							mainInterfaceStores?.favoriteChatEntitiesStore
 						}
-						onRequestClose={() => {
-							handleMainInterfaceOpenChange(false);
-						}}
 						value={activeMainInterfaceSection}
 						onValueChange={setActiveMainInterfaceSection}
 					/>

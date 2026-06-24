@@ -199,6 +199,71 @@ describe("current chat info", () => {
 		store.dispose();
 	});
 
+	test("prefers getCurrentChatId over stale context chatId when matching remote character metadata", async () => {
+		const eventSource = createEventSourceStub();
+		const fetchImpl = vi.fn().mockResolvedValue({
+			json: async () => [
+				{
+					chat_items: 3,
+					file_id: "chapter-stale",
+					file_name: "chapter-stale.jsonl",
+					file_size: "8 KB",
+					last_mes: "2026-04-22T10:30:00.000Z",
+				},
+				{
+					chat_items: 7,
+					file_id: "chapter-active",
+					file_name: "chapter-active.jsonl",
+					file_size: "16 KB",
+					last_mes: "2026-04-23T10:30:00.000Z",
+				},
+			],
+			ok: true,
+		});
+		const contextRef = {
+			current: {
+				characterId: 0,
+				characters: [
+					{
+						avatar: "hero.png",
+						chat: "chapter-stale",
+						name: "Hero",
+					},
+				],
+				chat: [
+					{
+						is_user: true,
+						mes: "Hello",
+					},
+				],
+				chatId: "chapter-stale",
+				eventSource,
+				eventTypes: {
+					CHAT_CHANGED: "chat_changed",
+				},
+				getCurrentChatId: () => "chapter-active",
+				groupId: null,
+			},
+		};
+
+		setSillyTavernContext(contextRef);
+
+		const { createCurrentChatInfoStore } =
+			await import("@/packages/core/st/currentChatInfo");
+		const store = createCurrentChatInfoStore({ fetchImpl });
+
+		await waitFor(() => {
+			expect(store.getSnapshot()).toMatchObject({
+				fileSize: "16 KB",
+				hasActiveChat: true,
+				lastUpdatedAt: Date.parse("2026-04-23T10:30:00.000Z"),
+				metadataStatus: "ready",
+			});
+		});
+
+		store.dispose();
+	});
+
 	test("returns an empty snapshot when there is no active chat", async () => {
 		const fetchImpl = vi.fn();
 

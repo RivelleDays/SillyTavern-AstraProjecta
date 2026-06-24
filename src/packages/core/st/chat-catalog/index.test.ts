@@ -1022,7 +1022,7 @@ describe("chat catalog adapter", () => {
 		expect(fetchImpl).toHaveBeenCalledTimes(1);
 	});
 
-	test("activates a favorite character through the public character selector without changing its remembered chat", async () => {
+	test("activates a favorite character through the public go command and persists the reload target", async () => {
 		const characters = [
 			{
 				avatar: "hero.png",
@@ -1043,18 +1043,23 @@ describe("chat catalog adapter", () => {
 				groupId: null,
 			},
 		};
-		const selectCharacterById = vi.fn(
-			async (characterId: number, options?: { switchMenu?: boolean }) => {
-				contextRef.current = {
-					...contextRef.current,
-					characterId,
-					chatId: characters[characterId].chat,
-					groupId: null,
-				};
-				return options;
-			},
-		);
+		const executeSlashCommandsWithOptions = vi.fn(async () => {
+			contextRef.current = {
+				...contextRef.current,
+				characterId: 1,
+				chatId: characters[1].chat,
+				groupId: null,
+			};
+			return {
+				pipe: "Mage",
+			};
+		});
+		const selectCharacterById = vi.fn();
+		const saveSettingsDebounced = vi.fn();
+		contextRef.current.executeSlashCommandsWithOptions =
+			executeSlashCommandsWithOptions;
 		contextRef.current.selectCharacterById = selectCharacterById;
+		contextRef.current.saveSettingsDebounced = saveSettingsDebounced;
 		setMutableSillyTavernContext(contextRef);
 
 		const result = await activateChatEntity({
@@ -1065,14 +1070,19 @@ describe("chat catalog adapter", () => {
 		});
 
 		expect(result).toEqual({ ok: true });
-		expect(selectCharacterById).toHaveBeenCalledWith(1, {
-			switchMenu: false,
-		});
+		expect(executeSlashCommandsWithOptions).toHaveBeenCalledWith(
+			'/go "mage.png"',
+			expect.objectContaining({
+				source: "astra-projecta",
+			}),
+		);
+		expect(selectCharacterById).not.toHaveBeenCalled();
 		expect(characters[1].chat).toBe("mage-remembered");
 		expect(contextRef.current.chatId).toBe("mage-remembered");
+		expect(saveSettingsDebounced).toHaveBeenCalledTimes(1);
 	});
 
-	test("activates a favorite group through the native group selector", async () => {
+	test("activates a favorite group through the native group selector and persists the remembered chat", async () => {
 		document.body.innerHTML =
 			'<button class="group_select" data-grid="party"></button>';
 		const contextRef: { current: Record<string, unknown> } = {
@@ -1087,6 +1097,7 @@ describe("chat catalog adapter", () => {
 						name: "Party",
 					},
 				],
+				saveSettingsDebounced: vi.fn(),
 			},
 		};
 		document.querySelector(".group_select")?.addEventListener("click", () => {
@@ -1107,9 +1118,12 @@ describe("chat catalog adapter", () => {
 
 		expect(result).toEqual({ ok: true });
 		expect(contextRef.current.chatId).toBe("campfire");
+		expect(contextRef.current.saveSettingsDebounced).toHaveBeenCalledTimes(
+			1,
+		);
 	});
 
-	test("falls back to the native character selector when the public selector is unavailable", async () => {
+	test("falls back to the native character selector when the public go command is unavailable and persists the remembered chat", async () => {
 		document.body.innerHTML =
 			'<button class="character_select" data-chid="1"></button>';
 		const contextRef: { current: Record<string, unknown> } = {
@@ -1117,6 +1131,7 @@ describe("chat catalog adapter", () => {
 				characterId: 0,
 				chatId: "chapter-remembered",
 				groupId: null,
+				saveSettingsDebounced: vi.fn(),
 			},
 		};
 		document
@@ -1140,6 +1155,9 @@ describe("chat catalog adapter", () => {
 
 		expect(result).toEqual({ ok: true });
 		expect(contextRef.current.chatId).toBe("mage-remembered");
+		expect(contextRef.current.saveSettingsDebounced).toHaveBeenCalledTimes(
+			1,
+		);
 	});
 
 	test("falls back to the public go command when the native group selector is unavailable", async () => {
@@ -1211,12 +1229,13 @@ describe("chat catalog adapter", () => {
 		expect(selectCharacterById).not.toHaveBeenCalled();
 	});
 
-	test("returns a typed failure when favorite character activation cannot be verified", async () => {
+	test("does not use the public character selector when no reload-aware activation path is available", async () => {
+		const selectCharacterById = vi.fn().mockResolvedValue(undefined);
 		setSillyTavernContext({
 			characterId: 0,
 			chatId: "chapter-remembered",
 			groupId: null,
-			selectCharacterById: vi.fn().mockResolvedValue(undefined),
+			selectCharacterById,
 		});
 
 		const result = await activateChatEntity({
@@ -1228,8 +1247,9 @@ describe("chat catalog adapter", () => {
 
 		expect(result).toEqual({
 			ok: false,
-			reason: "open-failed",
+			reason: "api-unavailable",
 		});
+		expect(selectCharacterById).not.toHaveBeenCalled();
 	});
 
 	test("targets an inactive character chat before clicking the native character row", async () => {
@@ -1500,15 +1520,28 @@ describe("chat catalog adapter", () => {
 		expect(openCharacterChat).not.toHaveBeenCalled();
 	});
 
-	test("opens an already-active different character chat without reselecting the character", async () => {
+	test("opens an already-active different character chat without reselecting the character and persists it", async () => {
+		const contextRef: { current: Record<string, unknown> } = {
+			current: {
+				characterId: 0,
+				chatId: "chapter-old",
+				groupId: null,
+				selectCharacterById: vi.fn(),
+				saveSettingsDebounced: vi.fn(),
+			},
+		};
 		const selectCharacterById = vi.fn();
-		const openCharacterChat = vi.fn().mockResolvedValue(undefined);
-		setSillyTavernContext({
-			characterId: 0,
-			getCurrentChatId: () => "chapter-old",
-			openCharacterChat,
-			selectCharacterById,
+		contextRef.current.selectCharacterById = selectCharacterById;
+		const openCharacterChat = vi.fn(async (chatId: string) => {
+			contextRef.current = {
+				...contextRef.current,
+				chatId,
+				getCurrentChatId: () => chatId,
+			};
 		});
+		contextRef.current.openCharacterChat = openCharacterChat;
+		contextRef.current.getCurrentChatId = () => "chapter-old";
+		setMutableSillyTavernContext(contextRef);
 
 		const result = await openChatCatalogEntry(createEntry());
 
@@ -1516,6 +1549,9 @@ describe("chat catalog adapter", () => {
 		expect(selectCharacterById).not.toHaveBeenCalled();
 		expect(openCharacterChat).toHaveBeenCalledTimes(1);
 		expect(openCharacterChat).toHaveBeenCalledWith("chapter-1");
+		expect(contextRef.current.saveSettingsDebounced).toHaveBeenCalledTimes(
+			1,
+		);
 	});
 
 	test("targets an inactive group chat before clicking the native group row", async () => {
@@ -1651,13 +1687,23 @@ describe("chat catalog adapter", () => {
 		expect(contextRef.current.openGroupChat).not.toHaveBeenCalled();
 	});
 
-	test("opens already-active group chats directly with openGroupChat", async () => {
-		const openGroupChat = vi.fn().mockResolvedValue(undefined);
-		setSillyTavernContext({
-			chatId: "other-chat",
-			groupId: "party",
-			openGroupChat,
+	test("opens already-active group chats directly with openGroupChat and persists them", async () => {
+		const contextRef: { current: Record<string, unknown> } = {
+			current: {
+				chatId: "other-chat",
+				groupId: "party",
+				saveSettingsDebounced: vi.fn(),
+			},
+		};
+		const openGroupChat = vi.fn(async (_groupId: string, chatId: string) => {
+			contextRef.current = {
+				...contextRef.current,
+				chatId,
+				getCurrentChatId: () => chatId,
+			};
 		});
+		contextRef.current.openGroupChat = openGroupChat;
+		setMutableSillyTavernContext(contextRef);
 
 		const result = await openChatCatalogEntry(
 			createEntry({
@@ -1669,6 +1715,9 @@ describe("chat catalog adapter", () => {
 
 		expect(result).toEqual({ ok: true });
 		expect(openGroupChat).toHaveBeenCalledWith("party", "chapter-1");
+		expect(contextRef.current.saveSettingsDebounced).toHaveBeenCalledTimes(
+			1,
+		);
 	});
 
 	test("fails inactive group activation when public slash execution is unavailable", async () => {

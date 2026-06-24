@@ -712,7 +712,7 @@ describe("AstraMainInterface", () => {
 		).toHaveAttribute("aria-selected", "false");
 	});
 
-	test("activates a favorite character, switches to Current, and requests panel close", async () => {
+	test("activates a favorite character, switches to Current, and keeps the panel open", async () => {
 		const storeStub = createStoreStub(createSnapshot());
 		const favoriteStoreStub = createFavoriteStoreStub(
 			createFavoriteSnapshot({
@@ -747,7 +747,7 @@ describe("AstraMainInterface", () => {
 			});
 		});
 		expect(handleActiveSectionChange).toHaveBeenCalledWith("current-context");
-		expect(handleRequestClose).toHaveBeenCalledTimes(1);
+		expect(handleRequestClose).not.toHaveBeenCalled();
 	});
 
 	test("keeps the current scope open and reports an error when favorite activation fails", async () => {

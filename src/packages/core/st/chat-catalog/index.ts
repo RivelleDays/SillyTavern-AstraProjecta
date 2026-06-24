@@ -72,10 +72,6 @@ type StChatCatalogContextLike = Record<string, unknown> & {
 	openCharacterChat?: (chatId: string) => unknown;
 	openGroupChat?: (groupId: string, chatId: string) => unknown;
 	saveSettingsDebounced?: () => unknown;
-	selectCharacterById?: (
-		characterId: number,
-		options?: { switchMenu?: boolean },
-	) => unknown;
 };
 
 type ResolvedCharacter = {
@@ -1190,6 +1186,7 @@ async function activateGroupThroughNativeRowTargetFirst(
 		}
 
 		activatedGroup = true;
+		persistActiveChatSelection(activeContext);
 		return {
 			context: activeContext,
 			ok: true,
@@ -1875,6 +1872,92 @@ async function activateCharacterThroughPublicApi(
 	}
 }
 
+async function activateCharacterThroughPublicGoCommand(
+	context: StChatCatalogContextLike,
+	characterId: number,
+	fallbackName: string,
+	getContext: () => unknown,
+): Promise<
+	| { context: StChatCatalogContextLike; ok: true }
+	| {
+			ok: false;
+			reason: "api-unavailable" | "invalid-entry" | "open-failed";
+	  }
+> {
+	if (isActiveCharacterContext(context, characterId)) {
+		return {
+			context,
+			ok: true,
+		};
+	}
+
+	if (typeof context.executeSlashCommandsWithOptions !== "function") {
+		return {
+			ok: false,
+			reason: "api-unavailable",
+		};
+	}
+
+	const character = resolveCharacterById(context, characterId);
+	if (!character) {
+		return {
+			ok: false,
+			reason: "invalid-entry",
+		};
+	}
+
+	const activationKey =
+		asTrimmedString(character.avatar) ||
+		asTrimmedString(character.avatar_url) ||
+		asTrimmedString(character.name) ||
+		fallbackName.trim();
+	if (!activationKey) {
+		return {
+			ok: false,
+			reason: "invalid-entry",
+		};
+	}
+
+	try {
+		const result = await context.executeSlashCommandsWithOptions(
+			`/go ${quoteSlashCommandArgument(activationKey)}`,
+			{
+				handleExecutionErrors: false,
+				handleParserErrors: false,
+				source: "astra-projecta",
+			},
+		);
+
+		if (slashResultFailed(result)) {
+			return {
+				ok: false,
+				reason: "open-failed",
+			};
+		}
+	} catch {
+		return {
+			ok: false,
+			reason: "open-failed",
+		};
+	}
+
+	const activeContext = await waitForContextMatch(
+		getContext,
+		(nextContext) => isActiveCharacterContext(nextContext, characterId),
+	);
+	if (!activeContext) {
+		return {
+			ok: false,
+			reason: "open-failed",
+		};
+	}
+
+	return {
+		context: activeContext,
+		ok: true,
+	};
+}
+
 async function openCharacterChatInActiveContext(
 	activeContext: StChatCatalogContextLike,
 	characterId: number,
@@ -1912,6 +1995,56 @@ async function openCharacterChatInActiveContext(
 	if (
 		!verifiedContext ||
 		!isActiveCharacterChatContext(verifiedContext, characterId, chatId)
+	) {
+		return {
+			ok: false,
+			reason: "open-failed",
+		};
+	}
+
+	persistActiveChatSelection(verifiedContext);
+	return {
+		ok: true,
+	};
+}
+
+async function openGroupChatInActiveContext(
+	activeContext: StChatCatalogContextLike,
+	groupId: string,
+	chatId: string,
+	getContext: () => unknown,
+): Promise<OpenChatCatalogResult> {
+	if (resolveCurrentChatId(activeContext) === chatId) {
+		persistActiveChatSelection(activeContext);
+		return {
+			ok: true,
+		};
+	}
+
+	if (typeof activeContext.openGroupChat !== "function") {
+		return {
+			ok: false,
+			reason: "api-unavailable",
+		};
+	}
+
+	try {
+		await activeContext.openGroupChat(groupId, chatId);
+	} catch {
+		return {
+			ok: false,
+			reason: "open-failed",
+		};
+	}
+
+	const verifiedContext =
+		(await waitForContextMatch(getContext, (nextContext) =>
+			isCurrentGroupChatEntry(nextContext, groupId, chatId),
+		)) ?? readContextSafe<StChatCatalogContextLike>(getContext);
+
+	if (
+		!verifiedContext ||
+		!isCurrentGroupChatEntry(verifiedContext, groupId, chatId)
 	) {
 		return {
 			ok: false,
@@ -1985,12 +2118,15 @@ export async function activateChatEntity(
 			(nextContext) =>
 				asTrimmedIdentifier(nextContext.groupId) === groupId,
 		);
-		return activeContext
-			? { ok: true }
-			: {
-					ok: false,
-					reason: "open-failed",
-				};
+		if (!activeContext) {
+			return {
+				ok: false,
+				reason: "open-failed",
+			};
+		}
+
+		persistActiveChatSelection(activeContext);
+		return { ok: true };
 	}
 
 	const characterId =
@@ -2011,43 +2147,36 @@ export async function activateChatEntity(
 		};
 	}
 
-	if (typeof context.selectCharacterById !== "function") {
-		const characterElement =
-			typeof document === "undefined"
-				? null
-				: findNativeCharacterSelectElement(document, characterId);
-		if (!characterElement) {
-			return {
-				ok: false,
-				reason: "api-unavailable",
-			};
-		}
+	const publicResult = await activateCharacterThroughPublicGoCommand(
+		context,
+		characterId,
+		target.entityName,
+		getStContext,
+	);
+	if (publicResult.ok) {
+		persistActiveChatSelection(publicResult.context);
+		return { ok: true };
+	}
+	if (publicResult.reason !== "api-unavailable") {
+		return {
+			ok: false,
+			reason: publicResult.reason,
+		};
+	}
 
-		try {
-			triggerNativeSelectElement(characterElement);
-		} catch {
-			return {
-				ok: false,
-				reason: "open-failed",
-			};
-		}
-
-		const activeContext = await waitForContextMatch(
-			getStContext,
-			(nextContext) => isActiveCharacterContext(nextContext, characterId),
-		);
-		return activeContext
-			? { ok: true }
-			: {
-					ok: false,
-					reason: "open-failed",
-				};
+	const characterElement =
+		typeof document === "undefined"
+			? null
+			: findNativeCharacterSelectElement(document, characterId);
+	if (!characterElement) {
+		return {
+			ok: false,
+			reason: "api-unavailable",
+		};
 	}
 
 	try {
-		await context.selectCharacterById(characterId, {
-			switchMenu: false,
-		});
+		triggerNativeSelectElement(characterElement);
 	} catch {
 		return {
 			ok: false,
@@ -2059,12 +2188,15 @@ export async function activateChatEntity(
 		getStContext,
 		(nextContext) => isActiveCharacterContext(nextContext, characterId),
 	);
-	return activeContext
-		? { ok: true }
-		: {
-				ok: false,
-				reason: "open-failed",
-			};
+	if (!activeContext) {
+		return {
+			ok: false,
+			reason: "open-failed",
+		};
+	}
+
+	persistActiveChatSelection(activeContext);
+	return { ok: true };
 }
 
 export async function openChatCatalogEntry(
@@ -2145,24 +2277,12 @@ export async function openChatCatalogEntry(
 			};
 		}
 
-		if (typeof activeContext.openGroupChat !== "function") {
-			return {
-				ok: false,
-				reason: "api-unavailable",
-			};
-		}
-
-		try {
-			await activeContext.openGroupChat(groupId, entry.chatId);
-			return {
-				ok: true,
-			};
-		} catch {
-			return {
-				ok: false,
-				reason: "open-failed",
-			};
-		}
+		return openGroupChatInActiveContext(
+			activeContext,
+			groupId,
+			entry.chatId,
+			getStContext,
+		);
 	}
 
 	const characterId =
@@ -2232,22 +2352,10 @@ export async function openChatCatalogEntry(
 		);
 	}
 
-	try {
-		if (typeof context.openCharacterChat !== "function") {
-			return {
-				ok: false,
-				reason: "api-unavailable",
-			};
-		}
-
-		await context.openCharacterChat(entry.chatId);
-		return {
-			ok: true,
-		};
-	} catch {
-		return {
-			ok: false,
-			reason: "open-failed",
-		};
-	}
+	return openCharacterChatInActiveContext(
+		context,
+		characterId,
+		entry.chatId,
+		getStContext,
+	);
 }
