@@ -376,7 +376,7 @@ describe("createMessageHeaderLayoutFeature", () => {
 		expect(name?.querySelector(".name_text")).toBe(nameText);
 	});
 
-	test("adds one reversible Astra-owned reasoning chevron to native reasoning headers", () => {
+	test("adds reversible Astra-owned reasoning icons to native reasoning headers", () => {
 		renderMessageWithReasoning();
 		const reasoningDetails = document.querySelector(
 			".mes_reasoning_details",
@@ -401,6 +401,10 @@ describe("createMessageHeaderLayoutFeature", () => {
 				".astra-mesReasoningChevron",
 			);
 			const astraChevron = astraChevrons[0];
+			const astraSparkleIcons = document.querySelectorAll(
+				".astra-mesReasoningSparkle",
+			);
+			const astraSparkleIcon = astraSparkleIcons[0];
 
 			expect(astraChevrons).toHaveLength(1);
 			expect(astraChevron).toBeInstanceOf(SVGSVGElement);
@@ -413,6 +417,14 @@ describe("createMessageHeaderLayoutFeature", () => {
 			expect(astraChevron?.nextElementSibling).toBe(
 				nativeReasoningArrow,
 			);
+			expect(astraSparkleIcons).toHaveLength(1);
+			expect(astraSparkleIcon).toBeInstanceOf(SVGSVGElement);
+			expect(astraSparkleIcon).toHaveClass("lucide-sparkle");
+			expect(astraSparkleIcon).toHaveAttribute("aria-hidden", "true");
+			expect(astraSparkleIcon?.parentElement).toBe(reasoningHeader);
+			expect(astraSparkleIcon?.nextElementSibling).toHaveClass(
+				"mes_reasoning_header_title",
+			);
 			expect(reasoningDetails).toBeInTheDocument();
 			expect(reasoningBody).toHaveTextContent("Visible reasoning text");
 		} finally {
@@ -420,6 +432,9 @@ describe("createMessageHeaderLayoutFeature", () => {
 		}
 
 		expect(document.querySelector(".astra-mesReasoningChevron")).toBeNull();
+		expect(
+			document.querySelector(".astra-mesReasoningSparkle"),
+		).toBeNull();
 		expect(document.querySelector(".mes_reasoning_details")).toBe(
 			reasoningDetails,
 		);

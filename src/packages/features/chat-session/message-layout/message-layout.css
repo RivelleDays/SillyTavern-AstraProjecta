@@ -36,6 +36,10 @@ body.astra-projecta-mobile-layout {
 		border: 1px solid var(--border-color-base);
 		border-radius: var(--radius-md);
 		background: var(--surface-background-t60);
+		-webkit-backdrop-filter: blur(var(--astra-mobile-glass-blur))
+			saturate(var(--astra-mobile-glass-saturate));
+		backdrop-filter: blur(var(--astra-mobile-glass-blur))
+			saturate(var(--astra-mobile-glass-saturate));
 		overflow: hidden;
 	}
 
@@ -58,29 +62,42 @@ body.astra-projecta-mobile-layout {
 	& #chat .mes .mes_reasoning_header {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
+		justify-content: flex-start;
 		gap: 8px;
 		margin: 0;
+		min-height: 36px;
 		padding: 8px 12px;
+		border-radius: var(--radius-md);
 		background: var(--color-base-t5);
-		color: var(--color-base);
+		color: var(--color-muted);
 		font-size: var(--text-xs);
 		font-weight: var(--font-weight-semibold);
 		user-select: none;
 	}
 
+	& #chat .mes .mes_reasoning_details[open] .mes_reasoning_header {
+		border-bottom-right-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+
 	& #chat .mes .mes_reasoning_header_title {
+		flex: 1 1 auto;
 		min-width: 0;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
 
+	& #chat .mes .astra-mesReasoningSparkle {
+		flex: none;
+		width: var(--astra-icon-size-sm);
+		height: var(--astra-icon-size-sm);
+	}
+
 	& #chat .mes .astra-mesReasoningChevron {
 		flex: none;
 		width: var(--astra-icon-size-sm);
 		height: var(--astra-icon-size-sm);
-		color: var(--color-base);
 		transition: transform 140ms ease;
 	}
 

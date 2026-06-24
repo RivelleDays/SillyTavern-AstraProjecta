@@ -539,13 +539,23 @@ describe("globals.css", () => {
 			".astra-mesReasoningChevron",
 		);
 		expect(compactMessageLayoutCss).toContain(
+			".astra-mesReasoningSparkle",
+		);
+		expect(compactMessageLayoutCss).toContain(
 			".mes_reasoning_details[open] .astra-mesReasoningChevron",
+		);
+		expect(compactMessageLayoutCss).toContain(
+			".mes_reasoning_details[open] .mes_reasoning_header",
 		);
 		expect(compactMessageLayoutCss).toContain(
 			".mes:has(.mes_reasoning:empty) .astra-mesReasoningChevron",
 		);
-		expect(messageLayoutCss).toContain("var(--surface-muted-t20)");
-		expect(messageLayoutCss).toContain("var(--surface-accent-t30)");
+		expect(messageLayoutCss).toContain("-webkit-backdrop-filter");
+		expect(messageLayoutCss).toContain("backdrop-filter");
+		expect(messageLayoutCss).toContain("var(--astra-mobile-glass-blur)");
+		expect(messageLayoutCss).toContain(
+			"var(--astra-mobile-glass-saturate)",
+		);
 		expect(messageLayoutCss).toContain("var(--border-color-base)");
 		expect(messageLayoutCss).toContain("var(--color-base)");
 		expect(messageLayoutCss).toContain("var(--color-base-t80)");

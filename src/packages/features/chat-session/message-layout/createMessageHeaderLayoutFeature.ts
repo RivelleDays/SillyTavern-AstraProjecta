@@ -114,6 +114,7 @@ const CONTEXT_BOUNDARY_TAG_ICON_CLASS = "astra-mesContextBoundary__tagIcon";
 const CONTEXT_BOUNDARY_TITLE_CLASS = "astra-mesContextBoundary__title";
 const REASONING_HEADER_CLASS = "mes_reasoning_header";
 const REASONING_HEADER_TITLE_CLASS = "mes_reasoning_header_title";
+const REASONING_SPARKLE_CLASS = "astra-mesReasoningSparkle";
 const REASONING_CHEVRON_CLASS = "astra-mesReasoningChevron";
 const PROMPT_EXCLUDED_ATTRIBUTE = "data-astra-message-prompt-excluded";
 const NATIVE_CONTROL_CLASSES = ["mes_buttons", "mes_edit_buttons"] as const;
@@ -593,6 +594,31 @@ function createReasoningChevronIcon(documentRef: Document): SVGSVGElement {
 	const path = documentRef.createElementNS(SVG_NAMESPACE, "path");
 	path.setAttribute("d", "m9 18 6-6-6-6");
 	icon.appendChild(path);
+	return icon;
+}
+
+function createReasoningSparkleIcon(documentRef: Document): SVGSVGElement {
+	const icon = documentRef.createElementNS(SVG_NAMESPACE, "svg");
+	icon.classList.add("lucide", "lucide-sparkle", REASONING_SPARKLE_CLASS);
+	icon.setAttribute("aria-hidden", "true");
+	icon.setAttribute("focusable", "false");
+	icon.setAttribute("fill", "none");
+	icon.setAttribute("height", "16");
+	icon.setAttribute("stroke", "currentColor");
+	icon.setAttribute("stroke-linecap", "round");
+	icon.setAttribute("stroke-linejoin", "round");
+	icon.setAttribute("stroke-width", "var(--astra-icon-stroke-width)");
+	icon.setAttribute("viewBox", "0 0 24 24");
+	icon.setAttribute("width", "16");
+	icon.setAttribute("xmlns", SVG_NAMESPACE);
+
+	const path = documentRef.createElementNS(SVG_NAMESPACE, "path");
+	path.setAttribute(
+		"d",
+		"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z",
+	);
+	icon.appendChild(path);
+
 	return icon;
 }
 
@@ -1169,17 +1195,45 @@ export function createMessageHeaderLayoutFeature({
 		}
 	}
 
-	function syncReasoningChevrons(message: Element) {
+	function ensureReasoningSparkle(reasoningHeader: Element) {
+		const existingSparkles = Array.from(reasoningHeader.children).filter(
+			(child) => child.classList.contains(REASONING_SPARKLE_CLASS),
+		);
+		const sparkle =
+			existingSparkles[0] ?? createReasoningSparkleIcon(documentRef);
+
+		for (const duplicateSparkle of existingSparkles.slice(1)) {
+			duplicateSparkle.remove();
+		}
+
+		const title = findDirectElementByClass(
+			reasoningHeader,
+			REASONING_HEADER_TITLE_CLASS,
+		);
+		if (title) {
+			if (title.previousSibling !== sparkle) {
+				reasoningHeader.insertBefore(sparkle, title);
+			}
+			return;
+		}
+
+		if (reasoningHeader.firstChild !== sparkle) {
+			reasoningHeader.insertBefore(sparkle, reasoningHeader.firstChild);
+		}
+	}
+
+	function syncReasoningIcons(message: Element) {
 		for (const reasoningHeader of Array.from(
 			message.querySelectorAll(`.${REASONING_HEADER_CLASS}`),
 		)) {
+			ensureReasoningSparkle(reasoningHeader);
 			ensureReasoningChevron(reasoningHeader);
 		}
 	}
 
 	function syncMessageLayout(message: Element) {
 		syncMessagePromptExclusion(message);
-		syncReasoningChevrons(message);
+		syncReasoningIcons(message);
 
 		const existingState = states.get(message);
 		if (existingState) {
@@ -1206,10 +1260,12 @@ export function createMessageHeaderLayoutFeature({
 			});
 	}
 
-	function removeReasoningChevrons() {
+	function removeReasoningIcons() {
 		documentRef
-			.querySelectorAll(`.${REASONING_CHEVRON_CLASS}`)
-			.forEach((chevron) => chevron.remove());
+			.querySelectorAll(
+				`.${REASONING_SPARKLE_CLASS}, .${REASONING_CHEVRON_CLASS}`,
+			)
+			.forEach((icon) => icon.remove());
 	}
 
 	function createDateDividerState(
@@ -1557,7 +1613,7 @@ export function createMessageHeaderLayoutFeature({
 		removeContextBoundary();
 		removeDateDividers();
 		removePromptExclusionAttributes();
-		removeReasoningChevrons();
+		removeReasoningIcons();
 		for (const message of Array.from(trackedMessages)) {
 			restoreMessageLayout(message);
 		}
