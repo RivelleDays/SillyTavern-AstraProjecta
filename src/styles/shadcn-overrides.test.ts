@@ -245,6 +245,7 @@ describe("shadcn-overrides.css", () => {
 	test("keeps native popup background scroll interlock hooks addressable", () => {
 		const css = readCss();
 
+		expect(css).not.toContain("@media screen and (max-width: 1000px)");
 		expectSelectors(css, [
 			"html[data-astra-projecta-native-popup-active='true']",
 			"body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active='true']",

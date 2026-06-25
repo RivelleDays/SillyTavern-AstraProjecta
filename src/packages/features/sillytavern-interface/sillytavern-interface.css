@@ -1,4 +1,4 @@
-@media screen and (max-width: 1000px) {
+body.astra-projecta-mobile-layout {
 	#sillytavern-interface-panel-trigger {
 		font-size: var(--text-xs);
 		font-weight: var(--font-weight-semibold);

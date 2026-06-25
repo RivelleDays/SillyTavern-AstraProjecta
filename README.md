@@ -86,9 +86,9 @@ You are welcome to join if you would like to follow development progress, share 
 
 | Target  | Status                                             |
 | ------- | -------------------------------------------------- |
-| Mobile  | Phase 1 priority; designed for widths below 600px. |
+| Mobile  | Phase 1 priority; mobile shell activates below 1000px. |
 | Desktop | Planned; reference range: 1280×720 to 1920×1080.   |
-| Tablet  | Not currently prioritized.                         |
+| Tablet  | Supported through the mobile shell range, but not absolute test priority. |
 
 **Tested environment:** Primary browser is Chrome, with testing on macOS and iPhone via Safari/PWA. Because AstraProjecta is still in alpha, tested coverage is limited; broader browser and device support will matter more once the core UI structure stabilizes.
 

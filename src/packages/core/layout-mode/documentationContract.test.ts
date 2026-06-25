@@ -9,6 +9,7 @@ function readSource(relativePath: string): string {
 
 describe("layout-mode and wrapper documentation contracts", () => {
 	test("documents the centralized 1000px auto-mode contract and its routing path", () => {
+		const readme = readSource("README.md");
 		const rootSourceAgents = readSource("src/AGENTS.md");
 		const coreAgents = readSource("src/packages/core/AGENTS.md");
 		const layoutModeAgents = readSource(
@@ -18,6 +19,9 @@ describe("layout-mode and wrapper documentation contracts", () => {
 			"src/app/mobile/runtime/AGENTS.md",
 		);
 
+		expect(readme).toContain("mobile shell activates below 1000px");
+		expect(readme).toContain("Supported through the mobile shell range");
+		expect(readme).not.toContain("designed for widths below 600px");
 		expect(rootSourceAgents).toContain("layout-mode");
 		expect(coreAgents).toContain("layout-mode/");
 		expect(layoutModeAgents).toContain("screen and (max-width: 1000px)");

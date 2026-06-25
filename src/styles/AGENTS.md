@@ -28,10 +28,9 @@
 - Do not promote every one-off `color-mix()` into globals. Promote repeated cross-feature values or values that already behave like shared design tokens, and leave feature-local mixes in the owning stylesheet.
 - `data-astra-projecta-ui-root` remains scoped-preflight-only. Do not move global theme tokens back onto UI-root selectors or feature selectors.
 - Mobile feature CSS may assume the body-class contract exists when the mobile runtime is active, but it must keep its own selectors compatibility-focused and local.
-- Mobile layout CSS should scope through `body.astra-projecta-mobile-layout`; when multiple selectors share that scope, prefer native CSS nesting with explicit `&` selectors over repeating the body prefix.
-- The `1000px` mobile layout media query belongs to `src/packages/core/layout-mode`. Do not add new feature-local layout activation queries for Astra mobile layout.
+- Mobile layout CSS must scope through `body.astra-projecta-mobile-layout`; when multiple selectors share that scope, prefer native CSS nesting with explicit `&` selectors over repeating the body prefix.
+- The `1000px` mobile layout media query belongs to `src/packages/core/layout-mode`. Do not add feature-local or global stylesheet layout activation queries for Astra mobile layout.
 - Keep capability and preference media queries such as `prefers-reduced-motion`, `hover`, and `pointer` when needed; if the effect is mobile-only, nest those media queries inside the `body.astra-projecta-mobile-layout` rule.
-- Follow-up candidates for migrating viewport-gated mobile layout CSS to the body-class contract are `src/app/mobile/styles/chat-send-form.css`, `src/packages/features/sillytavern-interface/sillytavern-interface.css`, and the native popup interlock block in `src/styles/shadcn-overrides.css`.
 - New Astra-owned animated surfaces must consider `prefers-reduced-motion` as part of their default contract.
 - Prefer `transform` and `opacity` when motion is necessary; avoid introducing filter, blur, box-shadow, or layout-driven animation unless the owning module documents why the cost is justified.
 - Use `will-change` only for short-lived interactive surfaces that materially benefit from it, and neutralize or remove it in reduced-motion paths when reasonable.

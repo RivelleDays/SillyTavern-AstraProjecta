@@ -31,9 +31,9 @@
 	}
 }
 
-@media screen and (max-width: 1000px) {
-	body.no-blur #top-bar,
-	body.no-blur #send_form {
+body.astra-projecta-mobile-layout {
+	&.no-blur #top-bar,
+	&.no-blur #send_form {
 		background-color: transparent !important;
 	}
 
@@ -52,7 +52,7 @@
 		);
 		overflow: hidden;
 	}
-	body.PWA #sheld {
+	&.PWA #sheld {
 		padding: 0 !important;
 	}
 
@@ -311,7 +311,7 @@
 		border-left-width: 0;
 	}
 
-	body.astra-projecta-mobile-layout {
+	& {
 		--mobile-send-form-menu-surface-padding-inline: 8px;
 		--mobile-send-form-menu-surface-padding-block: 8px;
 		--mobile-send-form-menu-surface: var(--background);
@@ -332,12 +332,12 @@
 		--mobile-send-form-menu-row-hover-surface: var(--surface-accent-t40);
 	}
 
-	body.astra-projecta-mobile-layout #qr--popout > .qr--body > .qr--buttons {
+	& #qr--popout > .qr--body > .qr--buttons {
 		gap: var(--mobile-send-form-quick-reply-gap);
 		background: transparent;
 	}
 
-	body.astra-projecta-mobile-layout
+	&
 		#qr--popout
 		> .qr--body
 		> .qr--buttons.qr--color {
@@ -345,8 +345,8 @@
 		background: transparent;
 	}
 
-	body.astra-projecta-mobile-layout .ctx-menu,
-	body.astra-projecta-mobile-layout .ctx-sub-menu {
+	& .ctx-menu,
+	& .ctx-sub-menu {
 		display: flex;
 		flex-direction: column;
 		padding: var(--mobile-send-form-menu-surface-padding-block)
@@ -361,14 +361,14 @@
 		box-shadow: none;
 	}
 
-	body.astra-projecta-mobile-layout .ctx-item + .ctx-header {
+	& .ctx-item + .ctx-header {
 		margin-top: var(--mobile-send-form-menu-section-gap);
 		padding-top: var(--mobile-send-form-menu-section-gap);
 		border-top: 1px solid
 			var(--mobile-send-form-menu-section-separator-color);
 	}
 
-	body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-header {
+	& .list-group .list-group-item.ctx-header {
 		display: block;
 		padding-inline: var(--mobile-send-form-menu-label-padding-inline);
 		margin-top: calc(var(--mobile-send-form-menu-section-gap) / 2);
@@ -380,7 +380,7 @@
 		opacity: 1;
 	}
 
-	body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-item {
+	& .list-group .list-group-item.ctx-item {
 		display: flex;
 		align-items: center;
 		gap: var(--mobile-send-form-menu-row-gap);
@@ -395,13 +395,13 @@
 		opacity: 1;
 	}
 
-	body.astra-projecta-mobile-layout .ctx-item:hover,
-	body.astra-projecta-mobile-layout .ctx-item:focus-within {
+	& .ctx-item:hover,
+	& .ctx-item:focus-within {
 		background: var(--mobile-send-form-menu-row-hover-surface);
 		color: var(--foreground);
 	}
 
-	body.astra-projecta-mobile-layout .ctx-item .qr--button-icon {
+	& .ctx-item .qr--button-icon {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -411,11 +411,11 @@
 		margin: 0;
 	}
 
-	body.astra-projecta-mobile-layout .ctx-item .qr--button-icon.qr--hidden {
+	& .ctx-item .qr--button-icon.qr--hidden {
 		display: none;
 	}
 
-	body.astra-projecta-mobile-layout .ctx-item .qr--button-label {
+	& .ctx-item .qr--button-label {
 		display: block;
 		flex: 1 1 auto;
 		min-width: 0;
@@ -425,7 +425,7 @@
 		white-space: nowrap;
 	}
 
-	body.astra-projecta-mobile-layout .ctx-item .ctx-expander {
+	& .ctx-item .ctx-expander {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;

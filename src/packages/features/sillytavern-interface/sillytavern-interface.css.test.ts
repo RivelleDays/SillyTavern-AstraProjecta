@@ -29,6 +29,17 @@ function expectSelectors(css: string, selectors: string[]) {
 }
 
 describe("sillytavern-interface.css", () => {
+	test("uses the resolved mobile body class instead of a local 1000px media query", () => {
+		const css = readCss();
+
+		expect(css).not.toContain("@media screen and (max-width: 1000px)");
+		expectSelectors(css, [
+			"body.astra-projecta-mobile-layout {",
+			"#sillytavern-interface-panel-trigger",
+			".sillytavern-interface-panel",
+		]);
+	});
+
 	test("keeps SillyTavern interface selector contracts addressable", () => {
 		const css = readCss();
 

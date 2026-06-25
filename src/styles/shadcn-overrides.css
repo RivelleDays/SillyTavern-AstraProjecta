@@ -1659,7 +1659,6 @@
 	border-radius: 14px;
 }
 
-@media screen and (max-width: 1000px) {
 	html[data-astra-projecta-native-popup-active="true"],
 	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"] {
 		pointer-events: auto !important;
@@ -1703,4 +1702,3 @@
 		.astra-mobile-page-panel {
 		pointer-events: none !important;
 	}
-}

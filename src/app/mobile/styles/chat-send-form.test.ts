@@ -50,6 +50,15 @@ function expectSingleLineEllipsis(block: string) {
 }
 
 describe("chat-send-form.css", () => {
+	test("uses the resolved mobile body class instead of a local 1000px media query", () => {
+		const css = readCss();
+
+		expect(css).not.toContain("@media screen and (max-width: 1000px)");
+		expect(css).toContain("body.astra-projecta-mobile-layout");
+		expect(css).toContain("&.no-blur #top-bar");
+		expect(css).toContain("&.PWA #sheld");
+	});
+
 	test("keeps semantic mobile chat composer host selectors addressable", () => {
 		const css = readCss();
 
@@ -61,7 +70,7 @@ describe("chat-send-form.css", () => {
 			"#send_form #leftSendForm",
 			"#send_form #rightSendForm",
 			"#send_form #nonQRFormItems",
-			"body.PWA #sheld",
+			"&.PWA #sheld",
 			"#mobile-chat-composer-shell",
 			"#mobile-chat-composer-shell::before",
 			"#mobile-chat-composer-shell > #form_sheld",
@@ -173,26 +182,26 @@ describe("chat-send-form.css", () => {
 		const css = readCss();
 		const quickReplyMenuSlice = readSlice(
 			css,
-			"body.astra-projecta-mobile-layout {",
+			"\t& {\n\t\t--mobile-send-form-menu-surface-padding-inline:",
 			".mobile-chat-composer {",
 		);
 
 		expectSelectors(css, [
-			"body.astra-projecta-mobile-layout .ctx-menu",
-			"body.astra-projecta-mobile-layout .ctx-sub-menu",
-			"body.astra-projecta-mobile-layout .ctx-item + .ctx-header",
-			"body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-header",
-			"body.astra-projecta-mobile-layout .list-group .list-group-item.ctx-item",
-			"body.astra-projecta-mobile-layout .ctx-item:hover",
-			"body.astra-projecta-mobile-layout .ctx-item .qr--button-icon",
-			"body.astra-projecta-mobile-layout .ctx-item .qr--button-label",
-			"body.astra-projecta-mobile-layout .ctx-item .ctx-expander",
+			"& .ctx-menu",
+			"& .ctx-sub-menu",
+			"& .ctx-item + .ctx-header",
+			"& .list-group .list-group-item.ctx-header",
+			"& .list-group .list-group-item.ctx-item",
+			"& .ctx-item:hover",
+			"& .ctx-item .qr--button-icon",
+			"& .ctx-item .qr--button-label",
+			"& .ctx-item .ctx-expander",
 		]);
 		expect(css).toMatch(
-			/body\.astra-projecta-mobile-layout\s+#qr--popout\s*>\s*\.qr--body\s*>\s*\.qr--buttons\s*\{/u,
+			/&\s+#qr--popout\s*>\s*\.qr--body\s*>\s*\.qr--buttons\s*\{/u,
 		);
 		expect(css).toMatch(
-			/body\.astra-projecta-mobile-layout\s+#qr--popout\s*>\s*\.qr--body\s*>\s*\.qr--buttons\.qr--color\s*\{/u,
+			/&\s+#qr--popout\s*>\s*\.qr--body\s*>\s*\.qr--buttons\.qr--color\s*\{/u,
 		);
 		expect(quickReplyMenuSlice).toContain(
 			"--mobile-send-form-menu-surface-padding-inline:",
