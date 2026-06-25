@@ -24,8 +24,8 @@ import {
 import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identity";
 import type { CurrentChatInfoSnapshot } from "@/packages/core/st/currentChatInfo";
 import {
-	MOBILE_CHAT_MAIN_MENU_RENAME_DIALOG_ID,
-	MOBILE_CHAT_MAIN_MENU_RENAME_DIALOG_INPUT_ID,
+	ASTRA_CHAT_MAIN_MENU_RENAME_DIALOG_ID,
+	ASTRA_CHAT_MAIN_MENU_RENAME_DIALOG_INPUT_ID,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { CurrentChatActionDialogDescription } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatActionDialogDescription";
 
@@ -144,7 +144,7 @@ function CurrentChatRenameDialogBody({
 				<Input
 					aria-label={inputLabel}
 					disabled={isBusy}
-					id={MOBILE_CHAT_MAIN_MENU_RENAME_DIALOG_INPUT_ID}
+					id={ASTRA_CHAT_MAIN_MENU_RENAME_DIALOG_INPUT_ID}
 					placeholder={translateAstra(
 						"sendForm.mainMenu.rename.placeholder",
 					)}
@@ -304,7 +304,7 @@ export function CurrentChatRenameDialog({
 			description={description}
 			footer={footer}
 			headerContent={headerContent}
-			id={MOBILE_CHAT_MAIN_MENU_RENAME_DIALOG_ID}
+			id={ASTRA_CHAT_MAIN_MENU_RENAME_DIALOG_ID}
 			icon={<UiIcon aria-hidden={true} icon={PencilLine} size="sm" />}
 			open={open}
 			title={title}

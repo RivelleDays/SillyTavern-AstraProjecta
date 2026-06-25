@@ -106,40 +106,40 @@
 	overflow: hidden;
 }
 
-#mobile-astra-main-interface-panel
+#astra-main-interface-panel
 	.astra-main-interface-panel__scrollbar[data-has-overflow-y],
-#mobile-astra-main-interface-panel
+#astra-main-interface-panel
 	[data-astra-scroll-affordance="surface"][data-overflow-y-start]
 	.astra-main-interface-panel__scrollbar,
-#mobile-astra-main-interface-panel
+#astra-main-interface-panel
 	[data-astra-scroll-affordance="surface"][data-overflow-y-end]
 	.astra-main-interface-panel__scrollbar,
-#mobile-astra-main-interface-panel
+#astra-main-interface-panel
 	[data-astra-scroll-affordance="surface"][data-astra-scroll-fade-y-start]
 	.astra-main-interface-panel__scrollbar,
-#mobile-astra-main-interface-panel
+#astra-main-interface-panel
 	[data-astra-scroll-affordance="surface"][data-astra-scroll-fade-y-end]
 	.astra-main-interface-panel__scrollbar {
 	opacity: 1;
 	pointer-events: auto;
 }
 
-#mobile-astra-main-interface-panel
+#astra-main-interface-panel
 	.astra-main-interface-panel__scrollbar[data-has-overflow-y]
 	.astra-scroll-area__thumb,
-#mobile-astra-main-interface-panel
+#astra-main-interface-panel
 	[data-astra-scroll-affordance="surface"][data-overflow-y-start]
 	.astra-main-interface-panel__scrollbar
 	.astra-scroll-area__thumb,
-#mobile-astra-main-interface-panel
+#astra-main-interface-panel
 	[data-astra-scroll-affordance="surface"][data-overflow-y-end]
 	.astra-main-interface-panel__scrollbar
 	.astra-scroll-area__thumb,
-#mobile-astra-main-interface-panel
+#astra-main-interface-panel
 	[data-astra-scroll-affordance="surface"][data-astra-scroll-fade-y-start]
 	.astra-main-interface-panel__scrollbar
 	.astra-scroll-area__thumb,
-#mobile-astra-main-interface-panel
+#astra-main-interface-panel
 	[data-astra-scroll-affordance="surface"][data-astra-scroll-fade-y-end]
 	.astra-main-interface-panel__scrollbar
 	.astra-scroll-area__thumb {

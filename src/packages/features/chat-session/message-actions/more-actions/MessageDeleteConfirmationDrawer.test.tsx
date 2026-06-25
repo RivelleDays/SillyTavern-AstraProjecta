@@ -112,18 +112,18 @@ describe("MessageDeleteConfirmationDrawer", () => {
 		});
 		expect(dialog).toHaveAttribute(
 			"id",
-			"mobile-message-delete-confirmation-drawer",
+			"astra-message-delete-confirmation-drawer",
 		);
 		expect(dialog).toHaveClass(
 			"astra-main-interface-chat-row-action-dialog",
 		);
 		expect(dialog).toHaveAttribute(
 			"aria-labelledby",
-			"mobile-message-delete-confirmation-drawer-title",
+			"astra-message-delete-confirmation-drawer-title",
 		);
 		expect(dialog).toHaveAttribute(
 			"aria-describedby",
-			"mobile-message-delete-confirmation-drawer-description",
+			"astra-message-delete-confirmation-drawer-description",
 		);
 		expect(within(dialog).getByText("Assistant")).toBeInTheDocument();
 		expect(
@@ -238,16 +238,16 @@ describe("MessageDeleteConfirmationDrawer", () => {
 		});
 		const meta = dialog.querySelector(".astra-chat-library-dialog-meta");
 		const messageBody = document.getElementById(
-			"mobile-message-delete-confirmation-drawer-body",
+			"astra-message-delete-confirmation-drawer-body",
 		);
 		const messageViewport = document.getElementById(
-			"mobile-message-delete-confirmation-drawer-scrollable-content",
+			"astra-message-delete-confirmation-drawer-scrollable-content",
 		);
 		const messageContent = document.getElementById(
-			"mobile-message-delete-confirmation-drawer-content",
+			"astra-message-delete-confirmation-drawer-content",
 		);
 		const footer = document.getElementById(
-			"mobile-message-delete-confirmation-drawer-footer",
+			"astra-message-delete-confirmation-drawer-footer",
 		);
 		const renderedMessage = dialog.querySelector(
 			'.astra-messageDeleteConfirmationDrawer__messagePreview.mes[data-astra-message-preview="true"]',

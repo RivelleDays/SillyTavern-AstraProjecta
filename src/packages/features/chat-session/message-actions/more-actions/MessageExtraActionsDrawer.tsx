@@ -32,7 +32,7 @@ export interface MessageExtraActionsDrawerDangerActions {
 	deleteSwipe?: MoreActionsDrawerActionConfig;
 }
 
-const EXTRA_ACTIONS_DRAWER_ID = "mobile-message-extra-actions-drawer";
+const EXTRA_ACTIONS_DRAWER_ID = "astra-message-extra-actions-drawer";
 const EXTRA_ACTIONS_DRAWER_TITLE_ID = `${EXTRA_ACTIONS_DRAWER_ID}-title`;
 const EXTRA_ACTIONS_DRAWER_DESCRIPTION_ID = `${EXTRA_ACTIONS_DRAWER_ID}-description`;
 const EXTRA_ACTIONS_DRAWER_HEADER_ID = `${EXTRA_ACTIONS_DRAWER_ID}-header`;

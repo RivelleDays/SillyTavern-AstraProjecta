@@ -172,7 +172,7 @@
 	-webkit-overflow-scrolling: touch;
 }
 
-#mobile-message-more-actions-drawer-content,
+#astra-message-more-actions-drawer-content,
 .astra-messageMoreActionsDrawer__content {
 	display: flex;
 	flex-direction: column;
@@ -674,7 +674,7 @@
 	-webkit-overflow-scrolling: touch;
 }
 
-#mobile-message-edit-drawer-content,
+#astra-message-edit-drawer-content,
 .astra-messageEditDrawer__content {
 	display: flex;
 	flex-direction: column;
@@ -845,7 +845,7 @@
 	-webkit-overflow-scrolling: touch;
 }
 
-#mobile-message-delete-confirmation-drawer-content,
+#astra-message-delete-confirmation-drawer-content,
 .astra-messageDeleteConfirmationDrawer__messageContent {
 	display: flex;
 	flex-direction: column;
@@ -934,7 +934,7 @@
 	-webkit-overflow-scrolling: touch;
 }
 
-#mobile-message-extra-actions-drawer-content,
+#astra-message-extra-actions-drawer-content,
 .astra-messageExtraActionsDrawer__content {
 	display: flex;
 	flex-direction: column;

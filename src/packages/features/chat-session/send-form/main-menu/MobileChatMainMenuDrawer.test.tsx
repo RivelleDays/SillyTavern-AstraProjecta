@@ -224,78 +224,78 @@ describe("MobileChatMainMenuDrawer", () => {
 		);
 
 		const drawer = await screen.findByText("Hero");
-		const root = drawer.closest(".mobile-chat-main-menu-drawer");
+		const root = drawer.closest(".astra-chat-main-menu-drawer");
 		expect(root).toBeInTheDocument();
 		const title = document.getElementById(
-			"mobile-chat-main-menu-drawer-title",
+			"astra-chat-main-menu-drawer-title",
 		);
 		const description = document.getElementById(
-			"mobile-chat-main-menu-drawer-description",
+			"astra-chat-main-menu-drawer-description",
 		);
 		const header = document.getElementById(
-			"mobile-chat-main-menu-drawer-header",
+			"astra-chat-main-menu-drawer-header",
 		);
 		const body = document.getElementById(
-			"mobile-chat-main-menu-drawer-body",
+			"astra-chat-main-menu-drawer-body",
 		);
 		const scrollableContent = document.getElementById(
-			"mobile-chat-main-menu-drawer-scrollable-content",
+			"astra-chat-main-menu-drawer-scrollable-content",
 		);
 		const content = document.getElementById(
-			"mobile-chat-main-menu-drawer-content",
+			"astra-chat-main-menu-drawer-content",
 		);
 		const headerRow = root?.querySelector(
-			".mobile-chat-main-menu-drawer__header-row",
+			".astra-chat-main-menu-drawer__header-row",
 		) as HTMLElement | null;
 		const headerMain = headerRow?.querySelector(
-			".mobile-chat-main-menu-drawer__header-main",
+			".astra-chat-main-menu-drawer__header-main",
 		) as HTMLElement | null;
 
 		expect(scrollableContent).toBeInTheDocument();
-		expect(root).toHaveAttribute("id", "mobile-chat-main-menu-drawer");
+		expect(root).toHaveAttribute("id", "astra-chat-main-menu-drawer");
 		expect(root).toHaveAttribute(
 			"aria-labelledby",
-			"mobile-chat-main-menu-drawer-title",
+			"astra-chat-main-menu-drawer-title",
 		);
 		expect(root).toHaveAttribute(
 			"aria-describedby",
-			"mobile-chat-main-menu-drawer-description",
+			"astra-chat-main-menu-drawer-description",
 		);
 		expect(title).toHaveAttribute("data-slot", "drawer-title");
 		expect(description).toHaveAttribute("data-slot", "drawer-description");
 		expect(header).toBeInTheDocument();
-		expect(header).toHaveClass("mobile-chat-main-menu-drawer__header");
-		expect(body).toHaveClass("mobile-chat-main-menu-drawer__body");
+		expect(header).toHaveClass("astra-chat-main-menu-drawer__header");
+		expect(body).toHaveClass("astra-chat-main-menu-drawer__body");
 		expect(scrollableContent).toHaveClass(
-			"mobile-chat-main-menu-drawer__scrollable-content",
+			"astra-chat-main-menu-drawer__scrollable-content",
 		);
-		expect(content).toHaveClass("mobile-chat-main-menu-drawer__content");
+		expect(content).toHaveClass("astra-chat-main-menu-drawer__content");
 		expect(headerRow).toBeInTheDocument();
 		expect(
-			header?.querySelector(".mobile-chat-main-menu-drawer__header-row"),
+			header?.querySelector(".astra-chat-main-menu-drawer__header-row"),
 		).toBe(headerRow);
 		expect(
 			headerRow?.closest(
-				".mobile-chat-main-menu-drawer__scrollable-content",
+				".astra-chat-main-menu-drawer__scrollable-content",
 			),
 		).toBeNull();
 		expect(headerMain).toBeInTheDocument();
 		expect(
 			headerMain?.querySelector(
-				".mobile-chat-main-menu-drawer__avatar-frame",
+				".astra-chat-main-menu-drawer__avatar-frame",
 			),
 		).toBeInTheDocument();
 		expect(
 			headerMain?.querySelector(
-				".mobile-chat-main-menu-drawer__name-stack",
+				".astra-chat-main-menu-drawer__name-stack",
 			),
 		).toBeInTheDocument();
 		expect(
-			headerRow?.querySelector(".mobile-chat-main-menu-drawer__actions"),
+			headerRow?.querySelector(".astra-chat-main-menu-drawer__actions"),
 		).toBeInTheDocument();
 
 		expect(
-			root?.querySelector(".mobile-chat-main-menu-drawer__meta-row"),
+			root?.querySelector(".astra-chat-main-menu-drawer__meta-row"),
 		).not.toBeInTheDocument();
 		expect(
 			screen.getByRole("button", { name: "Delete chat" }),
@@ -308,27 +308,27 @@ describe("MobileChatMainMenuDrawer", () => {
 		).toBeInTheDocument();
 
 		const detailSection = root?.querySelector(
-			".mobile-chat-main-menu-drawer__detail-section",
+			".astra-chat-main-menu-drawer__detail-section",
 		);
 		const tileGrid = root?.querySelector(
-			".mobile-chat-main-menu-drawer__grid",
+			".astra-chat-main-menu-drawer__grid",
 		) as HTMLElement | null;
 		expect(detailSection).toBeInTheDocument();
 		expect(tileGrid).toBeInTheDocument();
 		expect(
 			detailSection?.closest(
-				".mobile-chat-main-menu-drawer__scrollable-content",
+				".astra-chat-main-menu-drawer__scrollable-content",
 			),
 		).toBe(scrollableContent);
 		expect(
 			tileGrid?.closest(
-				".mobile-chat-main-menu-drawer__scrollable-content",
+				".astra-chat-main-menu-drawer__scrollable-content",
 			),
 		).toBe(scrollableContent);
 
 		const detailRows = Array.from(
 			detailSection?.querySelectorAll(
-				".mobile-chat-main-menu-drawer__detail-row",
+				".astra-chat-main-menu-drawer__detail-row",
 			) ?? [],
 		);
 		expect(detailRows).toHaveLength(3);
@@ -355,12 +355,12 @@ describe("MobileChatMainMenuDrawer", () => {
 		).toBeInTheDocument();
 		expect(
 			detailRows[0]?.querySelector(
-				".mobile-chat-main-menu-drawer__detail-connection-provider img.mobile-chat-main-menu-drawer__detail-connection-provider-icon",
+				".astra-chat-main-menu-drawer__detail-connection-provider img.astra-chat-main-menu-drawer__detail-connection-provider-icon",
 			),
 		).not.toBeInTheDocument();
 		expect(
 			detailRows[0]?.querySelector(
-				".mobile-chat-main-menu-drawer__detail-connection-model .mobile-chat-main-menu-drawer__detail-connection-provider-icon",
+				".astra-chat-main-menu-drawer__detail-connection-model .astra-chat-main-menu-drawer__detail-connection-provider-icon",
 			),
 		).not.toBeInTheDocument();
 		expect(
@@ -370,7 +370,7 @@ describe("MobileChatMainMenuDrawer", () => {
 			"claude-3.7-sonnet",
 		);
 		expect(modelValue).toHaveClass(
-			"mobile-chat-main-menu-drawer__detail-definition",
+			"astra-chat-main-menu-drawer__detail-definition",
 		);
 		expect(modelValue).toHaveAttribute("title", "claude-3.7-sonnet");
 		expect(
@@ -379,13 +379,13 @@ describe("MobileChatMainMenuDrawer", () => {
 
 		expect(
 			detailSection?.querySelectorAll(
-				'.mobile-chat-main-menu-drawer__detail-separator[data-slot="separator"], .mobile-chat-main-menu-drawer__detail-separator',
+				'.astra-chat-main-menu-drawer__detail-separator[data-slot="separator"], .astra-chat-main-menu-drawer__detail-separator',
 			),
 		).toHaveLength(2);
 
 		const contextUsageRow = within(detailSection as HTMLElement)
 			.getByText("Context Usage")
-			.closest(".mobile-chat-main-menu-drawer__detail-context-row");
+			.closest(".astra-chat-main-menu-drawer__detail-context-row");
 		expect(contextUsageRow).toBeInTheDocument();
 		expect(contextUsageRow?.tagName).toBe("DL");
 		expect(
@@ -402,7 +402,7 @@ describe("MobileChatMainMenuDrawer", () => {
 		).toBeInTheDocument();
 		expect(
 			root?.querySelectorAll(
-				".mobile-chat-context-usage-shortcut__data-pill",
+				".astra-chat-context-usage-shortcut__data-pill",
 			),
 		).toHaveLength(0);
 		expect(
@@ -416,7 +416,7 @@ describe("MobileChatMainMenuDrawer", () => {
 		).not.toBeInTheDocument();
 		expect(
 			detailSection?.querySelector(
-				".mobile-chat-main-menu-drawer__detail-helper",
+				".astra-chat-main-menu-drawer__detail-helper",
 			),
 		).not.toBeInTheDocument();
 	});
@@ -454,10 +454,10 @@ describe("MobileChatMainMenuDrawer", () => {
 		);
 
 		const drawer = (await screen.findByText("Party")).closest(
-			".mobile-chat-main-menu-drawer",
+			".astra-chat-main-menu-drawer",
 		);
 		const collage = drawer?.querySelector(
-			".mobile-chat-main-menu-drawer__avatar.astra-chat-avatar--collage",
+			".astra-chat-main-menu-drawer__avatar.astra-chat-avatar--collage",
 		);
 		const images = Array.from(
 			collage?.querySelectorAll(".astra-chat-avatar__collage-image") ??
@@ -497,24 +497,24 @@ describe("MobileChatMainMenuDrawer", () => {
 		});
 		const userSettingsTitleLines = Array.from(
 			userSettingsButton.querySelectorAll(
-				".mobile-chat-main-menu-drawer__tile-title-line",
+				".astra-chat-main-menu-drawer__tile-title-line",
 			),
 		).map((line) => line.textContent);
 
 		expect(userSettingsTitleLines).toEqual(["User", "Settings"]);
 		expect(
 			userSettingsButton.querySelector(
-				".mobile-chat-main-menu-drawer__tile-glow",
+				".astra-chat-main-menu-drawer__tile-glow",
 			),
 		).toBeInTheDocument();
 		expect(
 			userSettingsButton.querySelector(
-				".mobile-chat-main-menu-drawer__tile-fade",
+				".astra-chat-main-menu-drawer__tile-fade",
 			),
 		).toBeInTheDocument();
 		expect(
 			userSettingsButton.querySelectorAll(
-				".mobile-chat-main-menu-drawer__tile-deco-icon",
+				".astra-chat-main-menu-drawer__tile-deco-icon",
 			),
 		).toHaveLength(1);
 
@@ -522,13 +522,13 @@ describe("MobileChatMainMenuDrawer", () => {
 		expect(
 			Array.from(
 				lorebookButton.querySelectorAll(
-					".mobile-chat-main-menu-drawer__tile-title-line",
+					".astra-chat-main-menu-drawer__tile-title-line",
 				),
 			).map((line) => line.textContent),
 		).toEqual(["Lorebook"]);
 		expect(
 			lorebookButton.querySelectorAll(
-				".mobile-chat-main-menu-drawer__tile-deco-icon",
+				".astra-chat-main-menu-drawer__tile-deco-icon",
 			),
 		).toHaveLength(1);
 	});
@@ -609,41 +609,41 @@ describe("MobileChatMainMenuDrawer", () => {
 		);
 
 		const tileGrid = await screen.findByLabelText("Main menu shortcuts");
-		const root = tileGrid.closest(".mobile-chat-main-menu-drawer");
+		const root = tileGrid.closest(".astra-chat-main-menu-drawer");
 		const scrollableContent = root?.querySelector(
-			".mobile-chat-main-menu-drawer__scrollable-content",
+			".astra-chat-main-menu-drawer__scrollable-content",
 		) as HTMLElement | null;
 		const footer = document.getElementById(
-			"mobile-chat-main-menu-drawer-footer",
+			"astra-chat-main-menu-drawer-footer",
 		);
 		const currentUserSection = root?.querySelector(
-			".mobile-chat-main-menu-drawer__current-user-section",
+			".astra-chat-main-menu-drawer__current-user-section",
 		) as HTMLElement | null;
 		const currentUserCard = root?.querySelector(
-			".mobile-chat-main-menu-drawer__current-user-card",
+			".astra-chat-main-menu-drawer__current-user-card",
 		) as HTMLElement | null;
 		const currentUserRow = currentUserCard?.querySelector(
-			".mobile-chat-main-menu-drawer__current-user-row",
+			".astra-chat-main-menu-drawer__current-user-row",
 		) as HTMLElement | null;
 
 		expect(scrollableContent).toBeInTheDocument();
 		expect(footer).toBeInTheDocument();
-		expect(footer).toHaveClass("mobile-chat-main-menu-drawer__footer");
+		expect(footer).toHaveClass("astra-chat-main-menu-drawer__footer");
 		expect(currentUserSection).toBeInTheDocument();
 		expect(currentUserCard).toBeInTheDocument();
 		expect(
 			footer?.querySelector(
-				".mobile-chat-main-menu-drawer__current-user-card",
+				".astra-chat-main-menu-drawer__current-user-card",
 			),
 		).toBe(currentUserCard);
 		expect(
 			currentUserCard?.closest(
-				".mobile-chat-main-menu-drawer__scrollable-content",
+				".astra-chat-main-menu-drawer__scrollable-content",
 			),
 		).toBeNull();
 		expect(currentUserRow).toBeInTheDocument();
 		expect(currentUserRow).not.toHaveClass(
-			"mobile-chat-main-menu-drawer__header-row",
+			"astra-chat-main-menu-drawer__header-row",
 		);
 		expect(
 			tileGrid.compareDocumentPosition(footer as HTMLElement) &
@@ -657,26 +657,26 @@ describe("MobileChatMainMenuDrawer", () => {
 		).toBeInTheDocument();
 		expect(
 			currentUserCard?.querySelector(
-				".mobile-chat-main-menu-drawer__current-user-frame",
+				".astra-chat-main-menu-drawer__current-user-frame",
 			),
 		).toBeInTheDocument();
 		const currentUserMainGroup = currentUserCard?.querySelector(
-			".mobile-chat-main-menu-drawer__current-user-main",
+			".astra-chat-main-menu-drawer__current-user-main",
 		) as HTMLElement | null;
 		expect(currentUserMainGroup).toBeInTheDocument();
 		expect(
 			currentUserMainGroup?.querySelector(
-				".mobile-chat-main-menu-drawer__current-user-image",
+				".astra-chat-main-menu-drawer__current-user-image",
 			),
 		).toBeInTheDocument();
 		expect(
 			currentUserMainGroup?.querySelector(
-				".mobile-chat-main-menu-drawer__current-user-name-stack",
+				".astra-chat-main-menu-drawer__current-user-name-stack",
 			),
 		).toBeInTheDocument();
 		expect(
 			currentUserCard?.querySelector(
-				".mobile-chat-main-menu-drawer__current-user-actions",
+				".astra-chat-main-menu-drawer__current-user-actions",
 			),
 		).toBeInTheDocument();
 		expect(
@@ -707,10 +707,10 @@ describe("MobileChatMainMenuDrawer", () => {
 		]);
 		for (const button of actionButtons) {
 			expect(button).toHaveClass(
-				"mobile-chat-main-menu-drawer__action-button",
+				"astra-chat-main-menu-drawer__action-button",
 			);
 			expect(button).toHaveClass(
-				"mobile-chat-main-menu-drawer__current-user-action",
+				"astra-chat-main-menu-drawer__current-user-action",
 			);
 			expect(button).toHaveAttribute("data-size", "icon");
 		}
@@ -751,7 +751,7 @@ describe("MobileChatMainMenuDrawer", () => {
 		expect(
 			within(
 				currentUserCard.closest(
-					".mobile-chat-main-menu-drawer__current-user-card",
+					".astra-chat-main-menu-drawer__current-user-card",
 				) as HTMLElement,
 			).getByText("Star Traveler"),
 		).toBeInTheDocument();
@@ -801,15 +801,15 @@ describe("MobileChatMainMenuDrawer", () => {
 		);
 
 		const activeRow = await screen.findByText("Hero");
-		const activeRoot = activeRow.closest(".mobile-chat-main-menu-drawer");
+		const activeRoot = activeRow.closest(".astra-chat-main-menu-drawer");
 		expect(
 			activeRoot?.querySelector(
-				".mobile-chat-main-menu-drawer__meta-row",
+				".astra-chat-main-menu-drawer__meta-row",
 			),
 		).not.toBeInTheDocument();
 		expect(
 			activeRoot?.querySelector(
-				".mobile-chat-main-menu-drawer__detail-section",
+				".astra-chat-main-menu-drawer__detail-section",
 			),
 		).not.toBeInTheDocument();
 		expect(
@@ -844,15 +844,15 @@ describe("MobileChatMainMenuDrawer", () => {
 		expect(screen.getByText("No active chat")).toBeInTheDocument();
 		const inactiveRoot = screen
 			.getByText("No active chat")
-			.closest(".mobile-chat-main-menu-drawer");
+			.closest(".astra-chat-main-menu-drawer");
 		expect(
 			inactiveRoot?.querySelector(
-				".mobile-chat-main-menu-drawer__meta-row",
+				".astra-chat-main-menu-drawer__meta-row",
 			),
 		).not.toBeInTheDocument();
 		expect(
 			inactiveRoot?.querySelector(
-				".mobile-chat-main-menu-drawer__detail-section",
+				".astra-chat-main-menu-drawer__detail-section",
 			),
 		).not.toBeInTheDocument();
 	});
@@ -947,18 +947,18 @@ describe("MobileChatMainMenuDrawer", () => {
 		);
 
 		const drawer = await screen.findByText("Hero");
-		const root = drawer.closest(".mobile-chat-main-menu-drawer");
+		const root = drawer.closest(".astra-chat-main-menu-drawer");
 		const scrollableContent = root?.querySelector(
-			".mobile-chat-main-menu-drawer__scrollable-content",
+			".astra-chat-main-menu-drawer__scrollable-content",
 		) as HTMLElement | null;
 		const detailSection = root?.querySelector(
-			".mobile-chat-main-menu-drawer__detail-section",
+			".astra-chat-main-menu-drawer__detail-section",
 		) as HTMLElement | null;
 		const controlsSection = root?.querySelector(
-			".mobile-chat-main-menu-drawer__controls-section",
+			".astra-chat-main-menu-drawer__controls-section",
 		) as HTMLElement | null;
 		const tileGrid = root?.querySelector(
-			".mobile-chat-main-menu-drawer__grid",
+			".astra-chat-main-menu-drawer__grid",
 		) as HTMLElement | null;
 
 		if (
@@ -977,17 +977,17 @@ describe("MobileChatMainMenuDrawer", () => {
 		expect(tileGrid).toBeInTheDocument();
 		expect(
 			detailSection.closest(
-				".mobile-chat-main-menu-drawer__scrollable-content",
+				".astra-chat-main-menu-drawer__scrollable-content",
 			),
 		).toBe(scrollableContent);
 		expect(
 			tileGrid.closest(
-				".mobile-chat-main-menu-drawer__scrollable-content",
+				".astra-chat-main-menu-drawer__scrollable-content",
 			),
 		).toBe(scrollableContent);
 		expect(
 			controlsSection.closest(
-				".mobile-chat-main-menu-drawer__scrollable-content",
+				".astra-chat-main-menu-drawer__scrollable-content",
 			),
 		).toBe(scrollableContent);
 		expect(
@@ -1009,7 +1009,7 @@ describe("MobileChatMainMenuDrawer", () => {
 		expect(profileTriggers).toHaveLength(1);
 		expect(profileTriggers[0]).toHaveAttribute(
 			"id",
-			"mobile-chat-main-menu-connection-profile-select",
+			"astra-chat-main-menu-connection-profile-select",
 		);
 	});
 
@@ -1039,7 +1039,7 @@ describe("MobileChatMainMenuDrawer", () => {
 		);
 
 		const drawer = await screen.findByText("Hero");
-		const root = drawer.closest(".mobile-chat-main-menu-drawer");
+		const root = drawer.closest(".astra-chat-main-menu-drawer");
 		expect(
 			within(root as HTMLElement).getByText("Connection Profile"),
 		).toBeInTheDocument();
@@ -1143,7 +1143,7 @@ describe("MobileChatMainMenuDrawer", () => {
 			name: "Connection Profile",
 		});
 		const triggerValue = profileTrigger.querySelector(
-			".mobile-chat-main-menu-drawer__control-value",
+			".astra-chat-main-menu-drawer__control-value",
 		);
 
 		expect(profileTrigger).toHaveTextContent(longProfileLabel);
@@ -1168,10 +1168,10 @@ describe("MobileChatMainMenuDrawer", () => {
 		);
 
 		expect(longProfileItem).toHaveClass(
-			"mobile-chat-main-menu-drawer__control-option",
+			"astra-chat-main-menu-drawer__control-option",
 		);
 		expect(longProfileItemLabel).toHaveClass(
-			"mobile-chat-main-menu-drawer__control-option-label",
+			"astra-chat-main-menu-drawer__control-option-label",
 		);
 		expect(longProfileItemLabel).toHaveAttribute("title", longProfileLabel);
 		await waitFor(() => {
@@ -1295,9 +1295,9 @@ describe("MobileChatMainMenuDrawer", () => {
 		);
 
 		const groupTitle = await screen.findByText("Raid Party");
-		const root = groupTitle.closest(".mobile-chat-main-menu-drawer");
+		const root = groupTitle.closest(".astra-chat-main-menu-drawer");
 		const detailSection = root?.querySelector(
-			".mobile-chat-main-menu-drawer__detail-section",
+			".astra-chat-main-menu-drawer__detail-section",
 		) as HTMLElement | null;
 		expect(detailSection).toBeInTheDocument();
 		expect(
@@ -1560,14 +1560,14 @@ describe("MobileChatMainMenuDrawer", () => {
 
 		const modelLabel = await screen.findByText("Most used model");
 		const modelRow = modelLabel.closest(
-			".mobile-chat-main-menu-drawer__detail-row",
+			".astra-chat-main-menu-drawer__detail-row",
 		);
 		expect(modelRow).toBeInTheDocument();
 		const modelValue = within(modelRow as HTMLElement).getByText(
 			longModelName,
 		);
 		expect(modelValue).toHaveClass(
-			"mobile-chat-main-menu-drawer__detail-definition",
+			"astra-chat-main-menu-drawer__detail-definition",
 		);
 		expect(modelValue).toHaveAttribute("title", longModelName);
 	});
@@ -1616,7 +1616,7 @@ describe("MobileChatMainMenuDrawer", () => {
 
 		const apiLabel = await screen.findByText("Current API");
 		const apiRow = apiLabel.closest(
-			".mobile-chat-main-menu-drawer__detail-row",
+			".astra-chat-main-menu-drawer__detail-row",
 		);
 		expect(apiRow).toBeInTheDocument();
 		expect(
@@ -1625,12 +1625,12 @@ describe("MobileChatMainMenuDrawer", () => {
 		await waitFor(() => {
 			expect(
 				apiRow?.querySelector(
-					".mobile-chat-main-menu-drawer__detail-connection-provider svg",
+					".astra-chat-main-menu-drawer__detail-connection-provider svg",
 				),
 			).toBeInTheDocument();
 		});
 		const providerIcon = apiRow?.querySelector(
-			".mobile-chat-main-menu-drawer__detail-connection-provider .mobile-chat-main-menu-drawer__detail-connection-provider-icon",
+			".astra-chat-main-menu-drawer__detail-connection-provider .astra-chat-main-menu-drawer__detail-connection-provider-icon",
 		);
 		expect(fetchMock).toHaveBeenCalledWith("/img/wrapped-provider.svg");
 		expect(providerIcon?.tagName).toBe("SPAN");
@@ -1644,25 +1644,25 @@ describe("MobileChatMainMenuDrawer", () => {
 		).toMatch(/^url\(#astra-provider-icon-/);
 		expect(
 			apiRow?.querySelector(
-				".mobile-chat-main-menu-drawer__detail-connection-provider img.mobile-chat-main-menu-drawer__detail-connection-provider-icon",
+				".astra-chat-main-menu-drawer__detail-connection-provider img.astra-chat-main-menu-drawer__detail-connection-provider-icon",
 			),
 		).not.toBeInTheDocument();
 		expect(
 			apiRow?.querySelector(
-				".mobile-chat-main-menu-drawer__detail-connection-model .mobile-chat-main-menu-drawer__detail-connection-provider-icon",
+				".astra-chat-main-menu-drawer__detail-connection-model .astra-chat-main-menu-drawer__detail-connection-provider-icon",
 			),
 		).not.toBeInTheDocument();
 		const liveModelValue = within(apiRow as HTMLElement).getByText(
 			longModelName,
 		);
 		expect(liveModelValue).toHaveClass(
-			"mobile-chat-main-menu-drawer__detail-connection-model",
+			"astra-chat-main-menu-drawer__detail-connection-model",
 		);
 
 		const detailSection = apiRow?.parentElement;
 		const detailRows = Array.from(
 			detailSection?.querySelectorAll(
-				".mobile-chat-main-menu-drawer__detail-row",
+				".astra-chat-main-menu-drawer__detail-row",
 			) ?? [],
 		);
 		const apiIndex = detailRows.findIndex((row) =>
@@ -1709,7 +1709,7 @@ describe("MobileChatMainMenuDrawer", () => {
 
 		expect(
 			document.querySelector(
-				".mobile-chat-main-menu-drawer__detail-section",
+				".astra-chat-main-menu-drawer__detail-section",
 			),
 		).not.toBeInTheDocument();
 	});
@@ -1744,7 +1744,7 @@ describe("MobileChatMainMenuDrawer", () => {
 
 		const apiLabel = await screen.findByText("Current API");
 		const detailSection = apiLabel.closest(
-			".mobile-chat-main-menu-drawer__detail-section",
+			".astra-chat-main-menu-drawer__detail-section",
 		) as HTMLElement | null;
 
 		expect(detailSection).toBeInTheDocument();
@@ -1809,7 +1809,7 @@ describe("MobileChatMainMenuDrawer", () => {
 		);
 
 		expect(source).toMatch(
-			/<div\s+id=\{wrapperId\}\s+className="mobile-chat-main-menu-drawer__tile-shell"/,
+			/<div\s+id=\{wrapperId\}\s+className="astra-chat-main-menu-drawer__tile-shell"/,
 		);
 	});
 
@@ -2048,18 +2048,18 @@ describe("MobileChatMainMenuDrawer", () => {
 
 		const chatFileName = await screen.findByText(longChatFileName);
 		expect(chatFileName).toHaveClass(
-			"mobile-chat-main-menu-drawer__chat-file-name",
+			"astra-chat-main-menu-drawer__chat-file-name",
 		);
 		expect(chatFileName).toHaveAttribute("title", longChatFileName);
 		expect(
-			chatFileName.closest(".mobile-chat-main-menu-drawer__name-stack"),
+			chatFileName.closest(".astra-chat-main-menu-drawer__name-stack"),
 		).toBeInTheDocument();
 		expect(
-			chatFileName.closest(".mobile-chat-main-menu-drawer__header"),
+			chatFileName.closest(".astra-chat-main-menu-drawer__header"),
 		).toBeInTheDocument();
 		expect(
 			chatFileName.closest(
-				".mobile-chat-main-menu-drawer__scrollable-content",
+				".astra-chat-main-menu-drawer__scrollable-content",
 			),
 		).toBeNull();
 	});
@@ -2139,7 +2139,7 @@ describe("MobileChatMainMenuDrawer", () => {
 
 		const apiLabel = await screen.findByText("Current API");
 		const apiRow = apiLabel.closest(
-			".mobile-chat-main-menu-drawer__detail-row",
+			".astra-chat-main-menu-drawer__detail-row",
 		);
 
 		expect(apiRow).toBeInTheDocument();
@@ -2152,14 +2152,14 @@ describe("MobileChatMainMenuDrawer", () => {
 		await waitFor(() => {
 			expect(
 				apiRow?.querySelector(
-					".mobile-chat-main-menu-drawer__detail-connection-provider .mobile-chat-main-menu-drawer__detail-connection-provider-icon svg",
+					".astra-chat-main-menu-drawer__detail-connection-provider .astra-chat-main-menu-drawer__detail-connection-provider-icon svg",
 				),
 			).toBeInTheDocument();
 		});
 		expect(fetchMock).toHaveBeenCalledWith("/img/makersuite.svg");
 		expect(
 			apiRow?.querySelector(
-				".mobile-chat-main-menu-drawer__detail-connection-provider img.mobile-chat-main-menu-drawer__detail-connection-provider-icon",
+				".astra-chat-main-menu-drawer__detail-connection-provider img.astra-chat-main-menu-drawer__detail-connection-provider-icon",
 			),
 		).not.toBeInTheDocument();
 	});
@@ -2202,33 +2202,33 @@ describe("MobileChatMainMenuDrawer", () => {
 			);
 		});
 		expect(
-			document.getElementById("mobile-chat-main-menu-drawer"),
+			document.getElementById("astra-chat-main-menu-drawer"),
 		).toBeNull();
 
 		rerender(<MobileChatMainMenuDrawer {...props} open={true} />);
 
 		const apiLabel = await screen.findByText("Current API");
 		const apiRow = apiLabel.closest(
-			".mobile-chat-main-menu-drawer__detail-row",
+			".astra-chat-main-menu-drawer__detail-row",
 		) as HTMLElement | null;
 
 		await waitFor(() => {
 			expect(
 				apiRow?.querySelector(
-					".mobile-chat-main-menu-drawer__detail-connection-provider .mobile-chat-main-menu-drawer__detail-connection-provider-icon svg",
+					".astra-chat-main-menu-drawer__detail-connection-provider .astra-chat-main-menu-drawer__detail-connection-provider-icon svg",
 				),
 			).toBeInTheDocument();
 		});
 		expect(
 			apiRow?.querySelector(
-				".mobile-chat-main-menu-drawer__detail-connection-provider img.mobile-chat-main-menu-drawer__detail-connection-provider-icon",
+				".astra-chat-main-menu-drawer__detail-connection-provider img.astra-chat-main-menu-drawer__detail-connection-provider-icon",
 			),
 		).not.toBeInTheDocument();
 
 		rerender(<MobileChatMainMenuDrawer {...props} open={false} />);
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-chat-main-menu-drawer"),
+				document.getElementById("astra-chat-main-menu-drawer"),
 			).not.toBeInTheDocument();
 		});
 
@@ -2236,18 +2236,18 @@ describe("MobileChatMainMenuDrawer", () => {
 
 		const reopenedApiLabel = await screen.findByText("Current API");
 		const reopenedApiRow = reopenedApiLabel.closest(
-			".mobile-chat-main-menu-drawer__detail-row",
+			".astra-chat-main-menu-drawer__detail-row",
 		) as HTMLElement | null;
 
 		expect(fetchMock).toHaveBeenCalledTimes(1);
 		expect(
 			reopenedApiRow?.querySelector(
-				".mobile-chat-main-menu-drawer__detail-connection-provider .mobile-chat-main-menu-drawer__detail-connection-provider-icon svg",
+				".astra-chat-main-menu-drawer__detail-connection-provider .astra-chat-main-menu-drawer__detail-connection-provider-icon svg",
 			),
 		).toBeInTheDocument();
 		expect(
 			reopenedApiRow?.querySelector(
-				".mobile-chat-main-menu-drawer__detail-connection-provider img.mobile-chat-main-menu-drawer__detail-connection-provider-icon",
+				".astra-chat-main-menu-drawer__detail-connection-provider img.astra-chat-main-menu-drawer__detail-connection-provider-icon",
 			),
 		).not.toBeInTheDocument();
 		expect(
@@ -2295,7 +2295,7 @@ describe("MobileChatMainMenuDrawer", () => {
 
 		const apiLabel = await screen.findByText("Current API");
 		const apiRow = apiLabel.closest(
-			".mobile-chat-main-menu-drawer__detail-row",
+			".astra-chat-main-menu-drawer__detail-row",
 		) as HTMLElement | null;
 
 		await waitFor(() => {
@@ -2304,7 +2304,7 @@ describe("MobileChatMainMenuDrawer", () => {
 		await waitFor(() => {
 			expect(
 				apiRow?.querySelector(
-					".mobile-chat-main-menu-drawer__detail-connection-provider-icon",
+					".astra-chat-main-menu-drawer__detail-connection-provider-icon",
 				),
 			).not.toBeInTheDocument();
 		});

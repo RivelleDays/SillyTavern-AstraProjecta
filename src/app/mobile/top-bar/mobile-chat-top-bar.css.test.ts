@@ -21,28 +21,28 @@ describe("mobile chat top-bar CSS contracts", () => {
 	test("keeps the shell and top-bar selector contracts addressable", () => {
 		const css = readCss();
 
-		expect(css).toContain("#mobile-chat-session-shell");
-		expect(css).toContain("#mobile-chat-top-bar-host");
-		expect(css).toContain("--mobile-chat-top-bar-block-size");
-		expect(css).toContain(".mobile-chat-top-bar");
-		expect(css).toContain(".mobile-chat-top-bar__astra-main-trigger");
-		expect(css).toContain(".mobile-chat-top-bar__astra-main-trigger-icon");
-		expect(css).toContain(".mobile-chat-top-bar__identity");
-		expect(css).toContain(".mobile-chat-top-bar__avatar-frame");
-		expect(css).toContain(".mobile-chat-top-bar__avatar");
-		expect(css).toContain(".mobile-chat-top-bar__avatar-image");
-		expect(css).toContain("--mobile-chat-top-bar-avatar-size:");
+		expect(css).toContain("#astra-chat-session-shell");
+		expect(css).toContain("#astra-chat-top-bar-host");
+		expect(css).toContain("--astra-chat-top-bar-block-size");
+		expect(css).toContain(".astra-chat-top-bar");
+		expect(css).toContain(".astra-chat-top-bar__astra-main-trigger");
+		expect(css).toContain(".astra-chat-top-bar__astra-main-trigger-icon");
+		expect(css).toContain(".astra-chat-top-bar__identity");
+		expect(css).toContain(".astra-chat-top-bar__avatar-frame");
+		expect(css).toContain(".astra-chat-top-bar__avatar");
+		expect(css).toContain(".astra-chat-top-bar__avatar-image");
+		expect(css).toContain("--astra-chat-top-bar-avatar-size:");
 		expect(css).toContain("var(--astra-avatar-size-min)");
 		expect(css).toContain("var(--astra-avatar-size-mobile-top-bar)");
 		expect(css).toContain(
-			".mobile-chat-top-bar__avatar.astra-chat-avatar--collage",
+			".astra-chat-top-bar__avatar.astra-chat-avatar--collage",
 		);
-		expect(css).toContain(".mobile-chat-top-bar__name");
+		expect(css).toContain(".astra-chat-top-bar__name");
 	});
 
 	test("keeps wrapped #sheld owned by the top-bar shell layout contract", () => {
 		const css = readCss();
-		const block = readBlock(css, "#mobile-chat-session-shell > #sheld");
+		const block = readBlock(css, "#astra-chat-session-shell > #sheld");
 
 		expect(block).not.toBe("");
 		expect(block).toContain("position:");
@@ -69,7 +69,7 @@ describe("mobile chat top-bar CSS contracts", () => {
 		const css = readCss();
 		const overlayBlock = readBlock(
 			css,
-			"#mobile-chat-top-bar-host::before",
+			"#astra-chat-top-bar-host::before",
 		);
 
 		expect(overlayBlock).not.toBe("");
@@ -81,14 +81,14 @@ describe("mobile chat top-bar CSS contracts", () => {
 		const css = readCss();
 
 		expect(css).toMatch(
-			/\.mobile-chat-top-bar__astra-main-trigger(?::enabled)?\s*\{[^}]*cursor:\s*pointer;/u,
+			/\.astra-chat-top-bar__astra-main-trigger(?::enabled)?\s*\{[^}]*cursor:\s*pointer;/u,
 		);
 	});
 
 	test("keeps identity name constrained to a single ellipsized line", () => {
 		const css = readCss();
-		const identityBlock = readBlock(css, ".mobile-chat-top-bar__identity");
-		const nameBlock = readBlock(css, ".mobile-chat-top-bar__name");
+		const identityBlock = readBlock(css, ".astra-chat-top-bar__identity");
+		const nameBlock = readBlock(css, ".astra-chat-top-bar__name");
 
 		expect(identityBlock).toContain("width:");
 		expect(identityBlock).toContain("max-width:");

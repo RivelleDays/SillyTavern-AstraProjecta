@@ -112,23 +112,23 @@ describe("MoreActionsDrawer", () => {
 			name: "Message Actions",
 		});
 		const title = document.getElementById(
-			"mobile-message-more-actions-drawer-title",
+			"astra-message-more-actions-drawer-title",
 		);
 		const description = document.getElementById(
-			"mobile-message-more-actions-drawer-description",
+			"astra-message-more-actions-drawer-description",
 		);
 
 		expect(dialog).toHaveAttribute(
 			"id",
-			"mobile-message-more-actions-drawer",
+			"astra-message-more-actions-drawer",
 		);
 		expect(dialog).toHaveAttribute(
 			"aria-labelledby",
-			"mobile-message-more-actions-drawer-title",
+			"astra-message-more-actions-drawer-title",
 		);
 		expect(dialog).toHaveAttribute(
 			"aria-describedby",
-			"mobile-message-more-actions-drawer-description",
+			"astra-message-more-actions-drawer-description",
 		);
 		expect(title).toHaveTextContent("Message Actions");
 		expect(description).toHaveTextContent(
@@ -152,7 +152,7 @@ describe("MoreActionsDrawer", () => {
 		).toBeNull();
 
 		const header = document.getElementById(
-			"mobile-message-more-actions-drawer-header",
+			"astra-message-more-actions-drawer-header",
 		);
 		const summary = header?.querySelector(
 			":scope > .astra-messageMoreActionsDrawer__summary",
@@ -238,7 +238,7 @@ describe("MoreActionsDrawer", () => {
 		).toBeNull();
 
 		const detailSection = document.getElementById(
-			"mobile-message-more-actions-drawer-heading",
+			"astra-message-more-actions-drawer-heading",
 		);
 		const detailRows = Array.from(
 			detailSection?.querySelectorAll(
@@ -347,13 +347,13 @@ describe("MoreActionsDrawer", () => {
 		expect(dialog.querySelector("[aria-expanded]")).toBeNull();
 
 		const body = document.getElementById(
-			"mobile-message-more-actions-drawer-body",
+			"astra-message-more-actions-drawer-body",
 		);
 		const scrollableContent = document.getElementById(
-			"mobile-message-more-actions-drawer-scrollable-content",
+			"astra-message-more-actions-drawer-scrollable-content",
 		);
 		const content = document.getElementById(
-			"mobile-message-more-actions-drawer-content",
+			"astra-message-more-actions-drawer-content",
 		);
 		const preview = content?.querySelector(
 			'.astra-messageMoreActionsDrawer__messagePreview.mes[data-astra-message-preview="true"]',
@@ -374,7 +374,7 @@ describe("MoreActionsDrawer", () => {
 		);
 		expect(content).toHaveClass("astra-messageMoreActionsDrawer__content");
 		const footer = document.getElementById(
-			"mobile-message-more-actions-drawer-footer",
+			"astra-message-more-actions-drawer-footer",
 		);
 		expect(footer).toHaveClass("astra-messageMoreActionsDrawer__footer");
 		const footerButtons = within(footer as HTMLElement).getAllByRole(
@@ -578,22 +578,22 @@ describe("MoreActionsDrawer", () => {
 			name: "Message Actions",
 		});
 		const body = document.getElementById(
-			"mobile-message-more-actions-drawer-body",
+			"astra-message-more-actions-drawer-body",
 		);
 		const strip = document.getElementById(
-			"mobile-message-more-actions-drawer-extra-actions",
+			"astra-message-more-actions-drawer-extra-actions",
 		);
 		const viewport = document.getElementById(
-			"mobile-message-more-actions-drawer-extra-actions-viewport",
+			"astra-message-more-actions-drawer-extra-actions-viewport",
 		);
 		const content = document.getElementById(
-			"mobile-message-more-actions-drawer-extra-actions-content",
+			"astra-message-more-actions-drawer-extra-actions-content",
 		);
 		const scrollbar = document.getElementById(
-			"mobile-message-more-actions-drawer-extra-actions-scrollbar",
+			"astra-message-more-actions-drawer-extra-actions-scrollbar",
 		);
 		const footer = document.getElementById(
-			"mobile-message-more-actions-drawer-footer",
+			"astra-message-more-actions-drawer-footer",
 		);
 
 		expect(strip).toHaveClass(
@@ -674,7 +674,7 @@ describe("MoreActionsDrawer", () => {
 		);
 
 		const disabledFooter = document.getElementById(
-			"mobile-message-more-actions-drawer-footer",
+			"astra-message-more-actions-drawer-footer",
 		);
 		const disabledMoreButton = within(
 			disabledFooter as HTMLElement,
@@ -699,7 +699,7 @@ describe("MoreActionsDrawer", () => {
 		);
 
 		const enabledFooter = document.getElementById(
-			"mobile-message-more-actions-drawer-footer",
+			"astra-message-more-actions-drawer-footer",
 		);
 		const enabledMoreButton = within(
 			enabledFooter as HTMLElement,
@@ -729,7 +729,7 @@ describe("MoreActionsDrawer", () => {
 			name: "Message Actions",
 		});
 		const footer = document.getElementById(
-			"mobile-message-more-actions-drawer-footer",
+			"astra-message-more-actions-drawer-footer",
 		);
 		const includeButton = within(footer as HTMLElement).getByRole(
 			"button",
@@ -738,7 +738,7 @@ describe("MoreActionsDrawer", () => {
 			},
 		);
 		const heading = document.getElementById(
-			"mobile-message-more-actions-drawer-heading",
+			"astra-message-more-actions-drawer-heading",
 		);
 
 		expect(within(dialog).getByText("Include")).toBeInTheDocument();
@@ -787,13 +787,13 @@ describe("MoreActionsDrawer", () => {
 			name: "Message Actions",
 		});
 		const header = document.getElementById(
-			"mobile-message-more-actions-drawer-header",
+			"astra-message-more-actions-drawer-header",
 		);
 		const identityText = header?.querySelector(
 			".astra-messageMoreActionsDrawer__identityText",
 		);
 		const heading = document.getElementById(
-			"mobile-message-more-actions-drawer-heading",
+			"astra-message-more-actions-drawer-heading",
 		);
 
 		expect(
@@ -873,7 +873,7 @@ describe("MoreActionsDrawer", () => {
 			name: "Message Actions",
 		});
 		let modelRow = generationOnlyDialog.querySelector(
-			"#mobile-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__modelDataRow",
+			"#astra-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__modelDataRow",
 		);
 		expect(modelRow).toBeInTheDocument();
 		expect(modelRow).toHaveClass(
@@ -906,7 +906,7 @@ describe("MoreActionsDrawer", () => {
 			name: "Message Actions",
 		});
 		modelRow = modelOnlyDialog.querySelector(
-			"#mobile-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__modelDataRow",
+			"#astra-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__modelDataRow",
 		);
 		expect(modelRow).toBeInTheDocument();
 		expect(modelRow).toHaveClass(
@@ -937,11 +937,11 @@ describe("MoreActionsDrawer", () => {
 			name: "Message Actions",
 		});
 		const userHeading = document.getElementById(
-			"mobile-message-more-actions-drawer-heading",
+			"astra-message-more-actions-drawer-heading",
 		);
 		expect(
 			userDialog.querySelector(
-				"#mobile-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__modelDataRow",
+				"#astra-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__modelDataRow",
 			),
 		).toBeInTheDocument();
 		expect(userHeading).not.toHaveClass("sr-only");
@@ -964,11 +964,11 @@ describe("MoreActionsDrawer", () => {
 			name: "Message Actions",
 		});
 		const systemHeading = document.getElementById(
-			"mobile-message-more-actions-drawer-heading",
+			"astra-message-more-actions-drawer-heading",
 		);
 		expect(
 			systemDialog.querySelector(
-				"#mobile-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__modelDataRow",
+				"#astra-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__modelDataRow",
 			),
 		).toBeInTheDocument();
 		expect(systemHeading).not.toHaveClass("sr-only");

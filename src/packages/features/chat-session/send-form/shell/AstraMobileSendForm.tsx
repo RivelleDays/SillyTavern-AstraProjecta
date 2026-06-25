@@ -19,9 +19,9 @@ import type {
 import type { QuickShortcutStore } from "@/packages/core/st/quickShortcuts";
 import type { NativeQuickReplyEnabledStore } from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyEnabledStore";
 import {
-	MOBILE_CHAT_INPUT_HOST_ID,
+	ASTRA_CHAT_INPUT_HOST_ID,
 	MOBILE_SEND_FORM_QUICK_REPLY_VISIBILITY_STORAGE_KEY,
-	MOBILE_CHAT_SHORTCUTS_HOST_ID,
+	ASTRA_CHAT_SHORTCUTS_HOST_ID,
 	MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import type { SillyTavernInterfaceRouteKey } from "@/app/shared/sillytavern-interface";
@@ -55,7 +55,7 @@ import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identi
 import type { CurrentChatInfoSnapshot } from "@/packages/core/st/currentChatInfo";
 
 function readInputControlSize(textarea: HTMLTextAreaElement): number {
-	const inputRow = textarea.closest(".mobile-chat-input");
+	const inputRow = textarea.closest(".astra-chat-input");
 	if (!(inputRow instanceof HTMLElement)) {
 		return 36;
 	}
@@ -837,22 +837,22 @@ export function AstraMobileSendForm({
 	return (
 		<>
 			<div
-				className="mobile-chat-composer"
+				className="astra-chat-composer"
 				data-shortcuts-visible={showShortcutsToolbar ? "true" : "false"}
-				data-slot="mobile-chat-composer"
+				data-slot="astra-chat-composer"
 			>
-				<div className="mobile-chat-composer__input-region">
+				<div className="astra-chat-composer__input-region">
 					<div
-						id={MOBILE_CHAT_INPUT_HOST_ID}
-						className="mobile-chat-input-host"
+						id={ASTRA_CHAT_INPUT_HOST_ID}
+						className="astra-chat-input-host"
 					>
 						{inputRow}
 					</div>
 				</div>
-				<div className="mobile-chat-composer__shortcuts-region">
+				<div className="astra-chat-composer__shortcuts-region">
 					<div
-						id={MOBILE_CHAT_SHORTCUTS_HOST_ID}
-						className="mobile-chat-shortcuts-host"
+						id={ASTRA_CHAT_SHORTCUTS_HOST_ID}
+						className="astra-chat-shortcuts-host"
 					>
 						{shortcutsToolbar}
 					</div>

@@ -108,26 +108,26 @@ describe("CurrentChatDeleteDialog", () => {
 			name: "Delete chat",
 		});
 		const title = document.getElementById(
-			"mobile-chat-main-menu-delete-dialog-title",
+			"astra-chat-main-menu-delete-dialog-title",
 		);
 		const semanticDescription = document.getElementById(
-			"mobile-chat-main-menu-delete-dialog-description",
+			"astra-chat-main-menu-delete-dialog-description",
 		);
 
 		expect(dialog).toHaveAttribute(
 			"id",
-			"mobile-chat-main-menu-delete-dialog",
+			"astra-chat-main-menu-delete-dialog",
 		);
 		const labelledBy = dialog.getAttribute("aria-labelledby");
 		const describedBy = dialog.getAttribute("aria-describedby");
 		expect(labelledBy).toBeTruthy();
-		expect(labelledBy).not.toBe("mobile-chat-main-menu-delete-dialog-title");
+		expect(labelledBy).not.toBe("astra-chat-main-menu-delete-dialog-title");
 		expect(document.getElementById(labelledBy ?? "")).toHaveClass(
 			"astra-dialog-title",
 		);
 		expect(describedBy).toBeTruthy();
 		expect(describedBy).not.toBe(
-			"mobile-chat-main-menu-delete-dialog-description",
+			"astra-chat-main-menu-delete-dialog-description",
 		);
 		expect(document.getElementById(describedBy ?? "")).toHaveClass(
 			"astra-dialog-description",

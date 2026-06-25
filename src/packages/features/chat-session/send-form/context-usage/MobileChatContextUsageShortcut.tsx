@@ -24,11 +24,11 @@ function ContextUsageLoadingDots(): React.ReactElement {
 	return (
 		<span
 			aria-hidden={true}
-			className="mobile-chat-context-usage-shortcut__loading-dots"
+			className="astra-chat-context-usage-shortcut__loading-dots"
 		>
-			<span className="mobile-chat-context-usage-shortcut__loading-dot" />
-			<span className="mobile-chat-context-usage-shortcut__loading-dot" />
-			<span className="mobile-chat-context-usage-shortcut__loading-dot" />
+			<span className="astra-chat-context-usage-shortcut__loading-dot" />
+			<span className="astra-chat-context-usage-shortcut__loading-dot" />
+			<span className="astra-chat-context-usage-shortcut__loading-dot" />
 		</span>
 	);
 }
@@ -91,7 +91,7 @@ export function MobileChatContextUsageShortcut({
 	);
 
 	const triggerClassName = cn(
-		"mobile-chat-context-usage-shortcut__trigger",
+		"astra-chat-context-usage-shortcut__trigger",
 		`is-${visualState}`,
 	);
 
@@ -102,7 +102,7 @@ export function MobileChatContextUsageShortcut({
 			{isUsageReady ? (
 				<span
 					aria-hidden={true}
-					className="mobile-chat-context-usage-shortcut__ring"
+					className="astra-chat-context-usage-shortcut__ring"
 					style={
 						{
 							"--context-usage-value": clampedUsagePercent,
@@ -110,11 +110,11 @@ export function MobileChatContextUsageShortcut({
 					}
 				/>
 			) : null}
-			<span className="mobile-chat-context-usage-shortcut__label">
+			<span className="astra-chat-context-usage-shortcut__label">
 				{isIdle ? (
 					<UiIcon
 						aria-hidden={true}
-						className="mobile-chat-context-usage-shortcut__idle-icon"
+						className="astra-chat-context-usage-shortcut__idle-icon"
 						icon={Info}
 						size="sm"
 						strokeWidth={2.25}
@@ -133,7 +133,7 @@ export function MobileChatContextUsageShortcut({
 			<button
 				aria-label={label}
 				className={triggerClassName}
-				data-slot="mobile-chat-context-usage-shortcut"
+				data-slot="astra-chat-context-usage-shortcut"
 				disabled={true}
 				title={label}
 				type="button"
@@ -148,7 +148,7 @@ export function MobileChatContextUsageShortcut({
 			<PopoverTrigger
 				aria-label={openLabel}
 				className={triggerClassName}
-				data-slot="mobile-chat-context-usage-shortcut"
+				data-slot="astra-chat-context-usage-shortcut"
 				title={openLabel}
 				type="button"
 			>
@@ -156,19 +156,19 @@ export function MobileChatContextUsageShortcut({
 			</PopoverTrigger>
 			<PopoverContent
 				align="end"
-				className="mobile-chat-context-usage-shortcut__popover"
+				className="astra-chat-context-usage-shortcut__popover"
 				side="top"
 				sideOffset={10}
 			>
 				{isIdle ? (
-					<div className="mobile-chat-context-usage-shortcut__popover-body">
-						<p className="mobile-chat-context-usage-shortcut__helper is-alert">
+					<div className="astra-chat-context-usage-shortcut__popover-body">
+						<p className="astra-chat-context-usage-shortcut__helper is-alert">
 							{idleHelper}
 						</p>
 					</div>
 				) : (
-					<div className="mobile-chat-context-usage-shortcut__popover-body">
-						<div className="mobile-chat-context-usage-shortcut__text-grid">
+					<div className="astra-chat-context-usage-shortcut__popover-body">
+						<div className="astra-chat-context-usage-shortcut__text-grid">
 							<ContextUsageTextRow
 								label={fieldChatHistory}
 								value={formatContextUsageTokenCount(
@@ -202,13 +202,13 @@ export function MobileChatContextUsageShortcut({
 						</div>
 						<div
 							aria-hidden={true}
-							className="mobile-chat-context-usage-shortcut__divider"
+							className="astra-chat-context-usage-shortcut__divider"
 						/>
 						<ContextUsageDataPill
 							maxContextTokens={snapshot.maxContextTokens}
 							usedContextTokens={snapshot.usedContextTokens}
 						/>
-						<div className="mobile-chat-context-usage-shortcut__text-grid mobile-chat-context-usage-shortcut__text-grid--primary">
+						<div className="astra-chat-context-usage-shortcut__text-grid astra-chat-context-usage-shortcut__text-grid--primary">
 							<ContextUsageTextRow
 								label={fieldContextUsed}
 								value={formatContextUsagePercent(
@@ -227,7 +227,7 @@ export function MobileChatContextUsageShortcut({
 							/>
 						</div>
 						{!snapshot.hasDetailedBreakdown ? (
-							<p className="mobile-chat-context-usage-shortcut__helper">
+							<p className="astra-chat-context-usage-shortcut__helper">
 								{breakdownUnavailable}
 							</p>
 						) : null}

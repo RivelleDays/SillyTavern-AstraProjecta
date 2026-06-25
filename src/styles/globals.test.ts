@@ -100,7 +100,7 @@ describe("globals.css", () => {
 			".astra-messageMoreActionsDrawer__scrollableContent",
 		);
 		expect(messageActionsCss).toContain(
-			"#mobile-message-more-actions-drawer-content",
+			"#astra-message-more-actions-drawer-content",
 		);
 		expect(messageActionsCss).toContain(
 			".astra-messageMoreActionsDrawer__content",
@@ -181,7 +181,7 @@ describe("globals.css", () => {
 			".astra-messageEditDrawer__scrollableContent",
 		);
 		expect(messageActionsCss).toContain(
-			"#mobile-message-edit-drawer-content",
+			"#astra-message-edit-drawer-content",
 		);
 		expect(messageActionsCss).toContain(
 			".astra-messageEditDrawer__content",
@@ -215,7 +215,7 @@ describe("globals.css", () => {
 			".astra-messageExtraActionsDrawer__scrollableContent",
 		);
 		expect(messageActionsCss).toContain(
-			"#mobile-message-extra-actions-drawer-content",
+			"#astra-message-extra-actions-drawer-content",
 		);
 		expect(messageActionsCss).toContain(
 			".astra-messageExtraActionsDrawer__group",
@@ -284,7 +284,7 @@ describe("globals.css", () => {
 			".astra-messageDeleteConfirmationDrawer__messageScrollRoot",
 		);
 		expect(messageActionsCss).not.toContain(
-			"#mobile-message-more-actions-drawer .astra-dialog-content",
+			"#astra-message-more-actions-drawer .astra-dialog-content",
 		);
 		expect(messageActionsCss).toContain(
 			".astra-messageMoreActionsDrawer__summary",
@@ -791,7 +791,7 @@ describe("globals.css", () => {
 		expect(css).toContain("--astra-avatar-size-main-interface-chat-row:");
 		expect(css).toContain("--astra-avatar-size-chat-library-row:");
 		expect(css).not.toContain(
-			"#form_sheld,\n  #send_form,\n  #mobile-chat-shortcuts-host",
+			"#form_sheld,\n  #send_form,\n  #astra-chat-shortcuts-host",
 		);
 	});
 });

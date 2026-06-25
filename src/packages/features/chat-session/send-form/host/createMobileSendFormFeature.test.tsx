@@ -139,18 +139,18 @@ function setSillyTavernContext(context: unknown | { current: unknown }) {
 async function waitForSendFormHosts() {
 	return waitFor(() => {
 		const composerShell = document.getElementById(
-			"mobile-chat-composer-shell",
+			"astra-chat-composer-shell",
 		);
 		const composerHost = document.getElementById(
-			"mobile-chat-composer-host",
+			"astra-chat-composer-host",
 		);
 		const quickReplyHost = document.getElementById(
-			"mobile-chat-quick-replies-host",
+			"astra-chat-quick-replies-host",
 		);
 		const shortcutsHost = document.getElementById(
-			"mobile-chat-shortcuts-host",
+			"astra-chat-shortcuts-host",
 		);
-		const inputRowHost = document.getElementById("mobile-chat-input-host");
+		const inputRowHost = document.getElementById("astra-chat-input-host");
 
 		expect(composerShell).toBeInTheDocument();
 		expect(composerHost).toBeInTheDocument();
@@ -180,10 +180,10 @@ function expectQuickReplyHostInTextareaSlot({
 	quickReplyHost: HTMLElement;
 }) {
 	const textareaHost = inputRowHost.querySelector<HTMLElement>(
-		".mobile-chat-input__field",
+		".astra-chat-input__field",
 	);
 	const textareaMain = inputRowHost.querySelector<HTMLElement>(
-		".mobile-chat-input__textarea-slot",
+		".astra-chat-input__textarea-slot",
 	);
 
 	expect(textareaHost).toContainElement(textareaMain);
@@ -448,7 +448,7 @@ async function openMainMenuFromCurrentUserAvatar() {
 	);
 
 	return waitFor(() => {
-		const drawer = document.getElementById("mobile-chat-main-menu-drawer");
+		const drawer = document.getElementById("astra-chat-main-menu-drawer");
 		expect(drawer).toBeInTheDocument();
 		return drawer as HTMLElement;
 	});
@@ -649,7 +649,7 @@ describe("createMobileSendFormFeature", () => {
 		const { composerHost, inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
 		const composerShell = document.getElementById(
-			"mobile-chat-composer-shell",
+			"astra-chat-composer-shell",
 		);
 		const formSheld = document.getElementById("form_sheld");
 
@@ -657,33 +657,33 @@ describe("createMobileSendFormFeature", () => {
 			shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
 		).not.toBeInTheDocument();
 		expect(
-			shortcutsHost.querySelector(".mobile-chat-input"),
+			shortcutsHost.querySelector(".astra-chat-input"),
 		).not.toBeInTheDocument();
 		expect(
 			inputRowHost.querySelector(".mobile-send-form-shortcuts"),
 		).not.toBeInTheDocument();
 		expect(
-			inputRowHost.querySelector(".mobile-chat-input"),
+			inputRowHost.querySelector(".astra-chat-input"),
 		).toBeInTheDocument();
-		expect(composerShell).toHaveClass("mobile-chat-composer-shell");
+		expect(composerShell).toHaveClass("astra-chat-composer-shell");
 		expect(composerShell).toContainElement(formSheld);
 		expect(composerShell?.children[0]).toBe(formSheld);
-		expect(composerHost).toHaveClass("mobile-chat-composer-host");
+		expect(composerHost).toHaveClass("astra-chat-composer-host");
 		expect(composerHost.parentElement?.id).toBe("send_form");
 		expect(composerHost.nextElementSibling?.id).toBe("nonQRFormItems");
-		const composer = composerHost.querySelector(".mobile-chat-composer");
+		const composer = composerHost.querySelector(".astra-chat-composer");
 		expect(composer).toBeInTheDocument();
 		expect(composer).toHaveAttribute("data-shortcuts-visible", "false");
 		expect(
-			composerHost.querySelector(".mobile-chat-composer__input-region"),
+			composerHost.querySelector(".astra-chat-composer__input-region"),
 		).toContainElement(inputRowHost);
 		expect(
 			composerHost.querySelector(
-				".mobile-chat-composer__shortcuts-region",
+				".astra-chat-composer__shortcuts-region",
 			),
 		).toContainElement(shortcutsHost);
 		expect(shortcutsHost.parentElement).toHaveClass(
-			"mobile-chat-composer__shortcuts-region",
+			"astra-chat-composer__shortcuts-region",
 		);
 		expect(shortcutsHost.nextElementSibling).toBeNull();
 		expectQuickReplyHostInTextareaSlot({
@@ -693,7 +693,7 @@ describe("createMobileSendFormFeature", () => {
 		expect(quickReplyHost).toHaveAttribute("hidden");
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
 		expect(inputRowHost.parentElement).toHaveClass(
-			"mobile-chat-composer__input-region",
+			"astra-chat-composer__input-region",
 		);
 		expect(inputRowHost.nextElementSibling).toBeNull();
 
@@ -877,48 +877,48 @@ describe("createMobileSendFormFeature", () => {
 		} = await waitForSendFormHosts();
 		const formSheld = document.getElementById("form_sheld");
 
-		expect(composerShell).toHaveClass("mobile-chat-composer-shell");
+		expect(composerShell).toHaveClass("astra-chat-composer-shell");
 		expect(composerShell).toContainElement(formSheld);
 		expect(composerShell.children[0]).toBe(formSheld);
-		expect(composerHost).toHaveClass("mobile-chat-composer-host");
+		expect(composerHost).toHaveClass("astra-chat-composer-host");
 		expect(composerHost.parentElement?.id).toBe("send_form");
 		expect(composerHost.nextElementSibling?.id).toBe("nonQRFormItems");
-		const composer = composerHost.querySelector(".mobile-chat-composer");
+		const composer = composerHost.querySelector(".astra-chat-composer");
 		expect(composer).toBeInTheDocument();
 		expect(composer).toHaveAttribute("data-shortcuts-visible", "true");
 		expect(
-			composerHost.querySelector(".mobile-chat-composer__input-region"),
+			composerHost.querySelector(".astra-chat-composer__input-region"),
 		).toContainElement(inputRowHost);
 		expect(
 			composerHost.querySelector(
-				".mobile-chat-composer__shortcuts-region",
+				".astra-chat-composer__shortcuts-region",
 			),
 		).toContainElement(shortcutsHost);
-		expect(shortcutsHost).toHaveClass("mobile-chat-shortcuts-host");
+		expect(shortcutsHost).toHaveClass("astra-chat-shortcuts-host");
 		expect(shortcutsHost.parentElement).toHaveClass(
-			"mobile-chat-composer__shortcuts-region",
+			"astra-chat-composer__shortcuts-region",
 		);
 		expect(shortcutsHost.nextElementSibling).toBeNull();
-		expect(quickReplyHost).toHaveClass("mobile-chat-quick-replies-host");
+		expect(quickReplyHost).toHaveClass("astra-chat-quick-replies-host");
 		expectQuickReplyHostInTextareaSlot({
 			inputRowHost,
 			quickReplyHost,
 		});
 		expect(quickReplyHost).toHaveAttribute("hidden");
 		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
-		expect(inputRowHost).toHaveClass("mobile-chat-input-host");
+		expect(inputRowHost).toHaveClass("astra-chat-input-host");
 		expect(inputRowHost.parentElement).toHaveClass(
-			"mobile-chat-composer__input-region",
+			"astra-chat-composer__input-region",
 		);
 		expect(inputRowHost.nextElementSibling).toBeNull();
 		expect(
-			document.querySelectorAll("#mobile-chat-composer-host"),
+			document.querySelectorAll("#astra-chat-composer-host"),
 		).toHaveLength(1);
 		expect(
-			document.querySelectorAll("#mobile-chat-shortcuts-host"),
+			document.querySelectorAll("#astra-chat-shortcuts-host"),
 		).toHaveLength(1);
 		expect(
-			document.querySelectorAll("#mobile-chat-quick-replies-host"),
+			document.querySelectorAll("#astra-chat-quick-replies-host"),
 		).toHaveLength(1);
 		expect(
 			shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
@@ -927,7 +927,7 @@ describe("createMobileSendFormFeature", () => {
 			".mobile-send-form-shortcuts__context-slot",
 		) as HTMLElement | null;
 		const contextUsageTrigger = contextSlot?.querySelector(
-			'[data-slot="mobile-chat-context-usage-shortcut"]',
+			'[data-slot="astra-chat-context-usage-shortcut"]',
 		) as HTMLButtonElement | null;
 
 		expect(contextSlot).toBeInTheDocument();
@@ -935,19 +935,19 @@ describe("createMobileSendFormFeature", () => {
 		expect(contextUsageTrigger).toHaveClass("is-idle");
 		expect(contextUsageTrigger).not.toBeDisabled();
 		expect(
-			shortcutsHost.querySelector(".mobile-chat-input"),
+			shortcutsHost.querySelector(".astra-chat-input"),
 		).not.toBeInTheDocument();
 		expect(
-			inputRowHost.querySelector(".mobile-chat-input"),
+			inputRowHost.querySelector(".astra-chat-input"),
 		).toBeInTheDocument();
 		expect(
-			inputRowHost.querySelector(".mobile-chat-input__tools"),
+			inputRowHost.querySelector(".astra-chat-input__tools"),
 		).toBeInTheDocument();
 		expect(
-			inputRowHost.querySelector(".mobile-chat-input__tool-list"),
+			inputRowHost.querySelector(".astra-chat-input__tool-list"),
 		).toBeInTheDocument();
 		expect(
-			inputRowHost.querySelector(".mobile-chat-input__tools-composing"),
+			inputRowHost.querySelector(".astra-chat-input__tools-composing"),
 		).not.toBeInTheDocument();
 
 		const textarea = await waitFor(() => {
@@ -978,21 +978,21 @@ describe("createMobileSendFormFeature", () => {
 		expect(sendClicks).toBe(1);
 
 		const host = inputRowHost;
-		const inputRow = host.querySelector<HTMLElement>(".mobile-chat-input");
+		const inputRow = host.querySelector<HTMLElement>(".astra-chat-input");
 		const leftControls = host.querySelector<HTMLElement>(
-			".mobile-chat-input__tools",
+			".astra-chat-input__tools",
 		);
 		const controlsRow = host.querySelector<HTMLElement>(
-			".mobile-chat-input__toolbar",
+			".astra-chat-input__toolbar",
 		);
 		const textareaHost = host.querySelector<HTMLElement>(
-			".mobile-chat-input__field",
+			".astra-chat-input__field",
 		);
 		const textareaMain = host.querySelector<HTMLElement>(
-			".mobile-chat-input__textarea-slot",
+			".astra-chat-input__textarea-slot",
 		);
 		const textareaActions = host.querySelector<HTMLElement>(
-			".mobile-chat-input__actions",
+			".astra-chat-input__actions",
 		);
 		expect(inputRow).toHaveAttribute("data-input-state", "default");
 		expect(textareaHost).toContainElement(textareaMain);
@@ -1016,15 +1016,15 @@ describe("createMobileSendFormFeature", () => {
 
 		expect(leftControlsMenuButton).toHaveAttribute(
 			"id",
-			"mobile-send-form-menu-button",
+			"astra-send-form-menu-button",
 		);
 		expect(mainMenuTrigger).toHaveAttribute(
 			"id",
-			"mobile-chat-main-menu-trigger",
+			"astra-chat-main-menu-trigger",
 		);
 		expect(leftControlsExtensionsButton).toHaveAttribute(
 			"id",
-			"mobile-send-form-extension-shortcuts-button",
+			"astra-send-form-extension-shortcuts-button",
 		);
 		expect(leftControls).toContainElement(mainMenuTrigger);
 		expect(leftControls).toContainElement(leftControlsMenuButton);
@@ -1033,10 +1033,10 @@ describe("createMobileSendFormFeature", () => {
 			within(host).getByRole("button", { name: "Send message" }),
 		);
 		expect(leftControlsMenuButton).toHaveClass(
-			"mobile-chat-input__tool-button",
+			"astra-chat-input__tool-button",
 		);
 		expect(leftControlsExtensionsButton).toHaveClass(
-			"mobile-chat-input__tool-button",
+			"astra-chat-input__tool-button",
 		);
 		expect(leftControlsExtensionsButton).not.toBeDisabled();
 		expect(leftControlsExtensionsButton).toHaveAttribute(
@@ -1052,7 +1052,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const extensionsDrawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-extensions-drawer",
+				"astra-send-form-extensions-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -1060,7 +1060,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const extensionsMenuHost = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-extensions-menu-host",
+				"astra-send-form-extensions-menu-host",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -1079,7 +1079,7 @@ describe("createMobileSendFormFeature", () => {
 		expect(extensionsMenuHost.contains(extensionsMenu)).toBe(true);
 		expect(
 			extensionsDrawer.querySelector(
-				".mobile-send-form-extensions-drawer__label",
+				".astra-send-form-extensions-drawer__label",
 			),
 		).toHaveTextContent("Extensions");
 		expect(
@@ -1106,7 +1106,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const optionsDrawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-options-drawer",
+				"astra-send-form-options-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -1149,7 +1149,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const reopenedOptionsDrawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-options-drawer",
+				"astra-send-form-options-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -1189,23 +1189,23 @@ describe("createMobileSendFormFeature", () => {
 			}),
 		).not.toBeInTheDocument();
 		expect(
-			document.getElementById("mobile-send-form-menu-button"),
+			document.getElementById("astra-send-form-menu-button"),
 		).toBeInTheDocument();
 		expect(
 			document.getElementById(
-				"mobile-send-form-extension-shortcuts-button",
+				"astra-send-form-extension-shortcuts-button",
 			),
 		).toHaveAttribute("aria-hidden", "false");
 
 		const avatarImage = within(host).getByAltText("Current user avatar");
 		expect(avatarImage).toHaveAttribute("src", "/thumbs/hero-persona.png");
-		expect(avatarImage).toHaveClass("mobile-chat-input__avatar-image");
+		expect(avatarImage).toHaveClass("astra-chat-input__avatar-image");
 		expect(within(host).getByLabelText("Current user avatar")).toHaveClass(
-			"mobile-chat-input__avatar-button",
-			"mobile-chat-main-menu__trigger",
+			"astra-chat-input__avatar-button",
+			"astra-chat-main-menu__trigger",
 		);
 		expect(within(host).getByLabelText("Send message")).toHaveClass(
-			"mobile-chat-input__send-button",
+			"astra-chat-input__send-button",
 		);
 
 		feature.unmount();
@@ -1217,16 +1217,16 @@ describe("createMobileSendFormFeature", () => {
 		const sendForm = document.getElementById("send_form");
 
 		expect(
-			document.getElementById("mobile-chat-shortcuts-host"),
+			document.getElementById("astra-chat-shortcuts-host"),
 		).not.toBeInTheDocument();
 		expect(
-			document.getElementById("mobile-chat-composer-host"),
+			document.getElementById("astra-chat-composer-host"),
 		).not.toBeInTheDocument();
 		expect(
-			document.getElementById("mobile-chat-quick-replies-host"),
+			document.getElementById("astra-chat-quick-replies-host"),
 		).not.toBeInTheDocument();
 		expect(
-			document.getElementById("mobile-chat-input-host"),
+			document.getElementById("astra-chat-input-host"),
 		).not.toBeInTheDocument();
 		expect(restoredQuickReplyBar?.parentElement).toBe(sendForm);
 		expect(restoredQuickReplyBar?.nextElementSibling).toBe(nonQrFormItems);
@@ -1294,7 +1294,7 @@ describe("createMobileSendFormFeature", () => {
 		const primarySendButton = await within(host).findByRole("button", {
 			name: "Send message",
 		});
-		expect(primarySendButton).toHaveClass("mobile-chat-input__send-button");
+		expect(primarySendButton).toHaveClass("astra-chat-input__send-button");
 
 		fireEvent.click(primarySendButton);
 
@@ -1688,7 +1688,7 @@ describe("createMobileSendFormFeature", () => {
 
 			await waitFor(() => {
 				expect(
-					document.getElementById("mobile-chat-main-menu-drawer"),
+					document.getElementById("astra-chat-main-menu-drawer"),
 				).toBeInTheDocument();
 				expect(document.activeElement).not.toBe(trigger);
 				expect(formSheld.contains(document.activeElement)).toBe(false);
@@ -1718,7 +1718,7 @@ describe("createMobileSendFormFeature", () => {
 
 				await waitFor(() => {
 					expect(
-						document.getElementById("mobile-chat-main-menu-drawer"),
+						document.getElementById("astra-chat-main-menu-drawer"),
 					).toBeInTheDocument();
 					expect(formSheld.contains(document.activeElement)).toBe(
 						false,
@@ -1850,7 +1850,7 @@ describe("createMobileSendFormFeature", () => {
 
 			const drawer = await waitFor(() => {
 				const element = document.getElementById(
-					"mobile-chat-main-menu-drawer",
+					"astra-chat-main-menu-drawer",
 				);
 				expect(element).toBeInTheDocument();
 				return element as HTMLElement;
@@ -1878,18 +1878,18 @@ describe("createMobileSendFormFeature", () => {
 		expect(within(drawer).getByText("chapter-1")).toBeInTheDocument();
 
 		expect(
-			drawer.querySelector(".mobile-chat-main-menu-drawer__meta-row"),
+			drawer.querySelector(".astra-chat-main-menu-drawer__meta-row"),
 		).not.toBeInTheDocument();
 
 		let detailSection: HTMLElement | null = null;
 		await waitFor(() => {
 			const detailSection = drawer.querySelector(
-				".mobile-chat-main-menu-drawer__detail-section",
+				".astra-chat-main-menu-drawer__detail-section",
 			);
 			expect(detailSection).toBeInTheDocument();
 		});
 		detailSection = drawer.querySelector(
-			".mobile-chat-main-menu-drawer__detail-section",
+			".astra-chat-main-menu-drawer__detail-section",
 		);
 		expect(detailSection).toBeInTheDocument();
 		expect(
@@ -1915,7 +1915,7 @@ describe("createMobileSendFormFeature", () => {
 		).toBeInTheDocument();
 
 		const tileGrid = drawer.querySelector(
-			".mobile-chat-main-menu-drawer__grid",
+			".astra-chat-main-menu-drawer__grid",
 		);
 		expect(tileGrid).toBeInTheDocument();
 
@@ -1942,28 +1942,28 @@ describe("createMobileSendFormFeature", () => {
 		);
 		const userSettingsTitleLines = Array.from(
 			userSettingsButton.querySelectorAll(
-				".mobile-chat-main-menu-drawer__tile-title-line",
+				".astra-chat-main-menu-drawer__tile-title-line",
 			),
 		).map((line) => line.textContent);
 		expect(userSettingsTitleLines).toEqual(["User", "Settings"]);
 		expect(
 			userSettingsButton.querySelector(
-				".mobile-chat-main-menu-drawer__tile-glow",
+				".astra-chat-main-menu-drawer__tile-glow",
 			),
 		).toBeInTheDocument();
 		expect(
 			userSettingsButton.querySelector(
-				".mobile-chat-main-menu-drawer__tile-fade",
+				".astra-chat-main-menu-drawer__tile-fade",
 			),
 		).toBeInTheDocument();
 		expect(
 			userSettingsButton.querySelector(
-				".mobile-chat-main-menu-drawer__tile-deco-icon",
+				".astra-chat-main-menu-drawer__tile-deco-icon",
 			),
 		).toBeInTheDocument();
 		expect(
 			userSettingsButton.querySelectorAll(
-				".mobile-chat-main-menu-drawer__tile-deco-icon",
+				".astra-chat-main-menu-drawer__tile-deco-icon",
 			),
 		).toHaveLength(1);
 
@@ -1975,13 +1975,13 @@ describe("createMobileSendFormFeature", () => {
 		);
 		const lorebookTitleLines = Array.from(
 			lorebookButton.querySelectorAll(
-				".mobile-chat-main-menu-drawer__tile-title-line",
+				".astra-chat-main-menu-drawer__tile-title-line",
 			),
 		).map((line) => line.textContent);
 		expect(lorebookTitleLines).toEqual(["Lorebook"]);
 		expect(
 			lorebookButton.querySelectorAll(
-				".mobile-chat-main-menu-drawer__tile-deco-icon",
+				".astra-chat-main-menu-drawer__tile-deco-icon",
 			),
 		).toHaveLength(1);
 
@@ -2000,7 +2000,7 @@ describe("createMobileSendFormFeature", () => {
 		);
 		detailSection = await waitFor(() => {
 			const element = drawer.querySelector(
-				".mobile-chat-main-menu-drawer__detail-section",
+				".astra-chat-main-menu-drawer__detail-section",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -2031,13 +2031,13 @@ describe("createMobileSendFormFeature", () => {
 
 		detailSection = await waitFor(() => {
 			const element = drawer.querySelector(
-				".mobile-chat-main-menu-drawer__detail-section",
+				".astra-chat-main-menu-drawer__detail-section",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
 		});
 		expect(
-			drawer.querySelector(".mobile-chat-main-menu-drawer__meta-row"),
+			drawer.querySelector(".astra-chat-main-menu-drawer__meta-row"),
 		).not.toBeInTheDocument();
 		expect(
 			within(detailSection).queryByRole("button", {
@@ -2046,7 +2046,7 @@ describe("createMobileSendFormFeature", () => {
 		).not.toBeInTheDocument();
 		expect(
 			detailSection.querySelector(
-				".mobile-chat-main-menu-drawer__detail-context-row",
+				".astra-chat-main-menu-drawer__detail-context-row",
 			),
 		).not.toBeInTheDocument();
 		expect(
@@ -2194,7 +2194,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const drawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-chat-main-menu-drawer",
+				"astra-chat-main-menu-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -2202,7 +2202,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const getCurrentUserCard = () =>
 			drawer.querySelector(
-				".mobile-chat-main-menu-drawer__current-user-card",
+				".astra-chat-main-menu-drawer__current-user-card",
 			) as HTMLElement | null;
 
 		await waitFor(() => {
@@ -2280,7 +2280,7 @@ describe("createMobileSendFormFeature", () => {
 			selectedOptionId = nativeSelect.selectedOptions[0]?.id ?? "";
 			drawerStateWhenNativeTriggered =
 				document
-					.getElementById("mobile-chat-main-menu-drawer")
+					.getElementById("astra-chat-main-menu-drawer")
 					?.getAttribute("data-state") ?? null;
 		});
 
@@ -2310,7 +2310,7 @@ describe("createMobileSendFormFeature", () => {
 			clickCount += 1;
 			drawerStateWhenNativeTriggered =
 				document
-					.getElementById("mobile-chat-main-menu-drawer")
+					.getElementById("astra-chat-main-menu-drawer")
 					?.getAttribute("data-state") ?? null;
 		});
 
@@ -2435,7 +2435,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const drawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-chat-main-menu-drawer",
+				"astra-chat-main-menu-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -2447,7 +2447,7 @@ describe("createMobileSendFormFeature", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-chat-main-menu-drawer"),
+				document.getElementById("astra-chat-main-menu-drawer"),
 			).not.toBeInTheDocument();
 		});
 
@@ -2616,7 +2616,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const drawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-chat-main-menu-drawer",
+				"astra-chat-main-menu-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -2628,7 +2628,7 @@ describe("createMobileSendFormFeature", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-chat-main-menu-drawer"),
+				document.getElementById("astra-chat-main-menu-drawer"),
 			).not.toBeInTheDocument();
 		});
 
@@ -2801,7 +2801,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const drawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-chat-main-menu-drawer",
+				"astra-chat-main-menu-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -2813,16 +2813,16 @@ describe("createMobileSendFormFeature", () => {
 			within(drawer).getByRole("img", { name: "Current chat avatar" }),
 		).toHaveAttribute("src", "/groups/party-night.png");
 		expect(
-			drawer.querySelector(".mobile-chat-main-menu-drawer__meta-row"),
+			drawer.querySelector(".astra-chat-main-menu-drawer__meta-row"),
 		).not.toBeInTheDocument();
 		expect(
 			drawer.querySelector(
-				".mobile-chat-main-menu-drawer__detail-section",
+				".astra-chat-main-menu-drawer__detail-section",
 			),
 		).not.toBeInTheDocument();
 		expect(
 			drawer.querySelectorAll(
-				".mobile-chat-main-menu-drawer__detail-separator",
+				".astra-chat-main-menu-drawer__detail-separator",
 			),
 		).toHaveLength(0);
 
@@ -2843,11 +2843,11 @@ describe("createMobileSendFormFeature", () => {
 			within(drawer).queryByText("party-night"),
 		).not.toBeInTheDocument();
 		expect(
-			drawer.querySelector(".mobile-chat-main-menu-drawer__meta-row"),
+			drawer.querySelector(".astra-chat-main-menu-drawer__meta-row"),
 		).not.toBeInTheDocument();
 		expect(
 			drawer.querySelector(
-				".mobile-chat-main-menu-drawer__detail-section",
+				".astra-chat-main-menu-drawer__detail-section",
 			),
 		).not.toBeInTheDocument();
 		expect(
@@ -2922,7 +2922,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const { composerHost, inputRowHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const composer = composerHost.querySelector(".mobile-chat-composer");
+		const composer = composerHost.querySelector(".astra-chat-composer");
 
 		expect(
 			shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
@@ -2937,7 +2937,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const drawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-options-drawer",
+				"astra-send-form-options-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -2973,7 +2973,7 @@ describe("createMobileSendFormFeature", () => {
 			remountedHost.querySelector(".mobile-send-form-shortcuts"),
 		).not.toBeInTheDocument();
 		expect(
-			remountedComposerHost.querySelector(".mobile-chat-composer"),
+			remountedComposerHost.querySelector(".astra-chat-composer"),
 		).toHaveAttribute("data-shortcuts-visible", "false");
 
 		feature.unmount();
@@ -3048,7 +3048,7 @@ describe("createMobileSendFormFeature", () => {
 				"textbox",
 			) as HTMLTextAreaElement;
 			const leftControls = host.querySelector(
-				".mobile-chat-input__tools",
+				".astra-chat-input__tools",
 			);
 
 			Object.defineProperty(textarea, "scrollHeight", {
@@ -3075,7 +3075,7 @@ describe("createMobileSendFormFeature", () => {
 
 			await waitFor(() => {
 				expect(
-					document.getElementById("mobile-send-form-options-drawer"),
+					document.getElementById("astra-send-form-options-drawer"),
 				).toBeInTheDocument();
 			});
 
@@ -3151,7 +3151,7 @@ describe("createMobileSendFormFeature", () => {
 				"textbox",
 			) as HTMLTextAreaElement;
 			const leftControls = host.querySelector(
-				".mobile-chat-input__tools",
+				".astra-chat-input__tools",
 			);
 
 			Object.defineProperty(textarea, "scrollHeight", {
@@ -3179,7 +3179,7 @@ describe("createMobileSendFormFeature", () => {
 			await waitFor(() => {
 				expect(
 					document.getElementById(
-						"mobile-send-form-extensions-drawer",
+						"astra-send-form-extensions-drawer",
 					),
 				).toBeInTheDocument();
 			});
@@ -3254,7 +3254,7 @@ describe("createMobileSendFormFeature", () => {
 		const textarea = within(host).getByRole(
 			"textbox",
 		) as HTMLTextAreaElement;
-		const leftControls = host.querySelector(".mobile-chat-input__tools");
+		const leftControls = host.querySelector(".astra-chat-input__tools");
 
 		Object.defineProperty(textarea, "scrollHeight", {
 			configurable: true,
@@ -3350,7 +3350,7 @@ describe("createMobileSendFormFeature", () => {
 		const textarea = within(host).getByRole(
 			"textbox",
 		) as HTMLTextAreaElement;
-		const leftControls = host.querySelector(".mobile-chat-input__tools");
+		const leftControls = host.querySelector(".astra-chat-input__tools");
 
 		Object.defineProperty(textarea, "scrollHeight", {
 			configurable: true,
@@ -3414,7 +3414,7 @@ describe("createMobileSendFormFeature", () => {
 		const host = await waitForInputRowHost();
 
 		const leftControlsExtensionsButton = document.getElementById(
-			"mobile-send-form-extension-shortcuts-button",
+			"astra-send-form-extension-shortcuts-button",
 		) as HTMLButtonElement | null;
 
 		expect(leftControlsExtensionsButton).toBeDisabled();
@@ -3429,7 +3429,7 @@ describe("createMobileSendFormFeature", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-send-form-extensions-drawer"),
+				document.getElementById("astra-send-form-extensions-drawer"),
 			).not.toBeInTheDocument();
 		});
 
@@ -3484,7 +3484,7 @@ describe("createMobileSendFormFeature", () => {
 		await waitForInputRowHost();
 
 		const leftControlsExtensionsButton = document.getElementById(
-			"mobile-send-form-extension-shortcuts-button",
+			"astra-send-form-extension-shortcuts-button",
 		) as HTMLButtonElement | null;
 
 		expect(leftControlsExtensionsButton).toBeDisabled();
@@ -3498,7 +3498,7 @@ describe("createMobileSendFormFeature", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-send-form-extensions-drawer"),
+				document.getElementById("astra-send-form-extensions-drawer"),
 			).not.toBeInTheDocument();
 		});
 
@@ -3569,7 +3569,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const replacementMenuHost = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-extensions-menu-host",
+				"astra-send-form-extensions-menu-host",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -3611,7 +3611,7 @@ describe("createMobileSendFormFeature", () => {
 
 		expect(replacementMenu.parentElement).toBe(document.body);
 		expect(
-			document.getElementById("mobile-send-form-extensions-drawer"),
+			document.getElementById("astra-send-form-extensions-drawer"),
 		).not.toBeInTheDocument();
 
 		feature.dispose();
@@ -3695,7 +3695,7 @@ describe("createMobileSendFormFeature", () => {
 
 		const extensionsDrawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-extensions-drawer",
+				"astra-send-form-extensions-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -3725,9 +3725,9 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const inputRow = inputRowHost.querySelector(".mobile-chat-input");
+		const inputRow = inputRowHost.querySelector(".astra-chat-input");
 		const textareaMain = inputRowHost.querySelector(
-			".mobile-chat-input__textarea-slot",
+			".astra-chat-input__textarea-slot",
 		);
 		const shortcutsStrip = shortcutsHost.querySelector(
 			".mobile-send-form-shortcuts__strip",
@@ -3738,7 +3738,7 @@ describe("createMobileSendFormFeature", () => {
 			shortcutsStrip as HTMLElement,
 		).getAllByRole("button");
 		const textareaActions = inputRowHost.querySelector(
-			".mobile-chat-input__actions",
+			".astra-chat-input__actions",
 		);
 		const quickReplyToggle = within(inputRowHost).getByRole("button", {
 			name: "Show quick replies",
@@ -3767,7 +3767,7 @@ describe("createMobileSendFormFeature", () => {
 		).not.toBeInTheDocument();
 		expect(quickReplyToggle).toHaveAttribute(
 			"id",
-			"mobile-send-form-quick-reply-toggle",
+			"astra-send-form-quick-reply-toggle",
 		);
 		expect(
 			quickReplyToggle.querySelector(".lucide-message-circle-reply"),
@@ -3792,9 +3792,9 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const inputRow = inputRowHost.querySelector(".mobile-chat-input");
+		const inputRow = inputRowHost.querySelector(".astra-chat-input");
 		const textareaMain = inputRowHost.querySelector(
-			".mobile-chat-input__textarea-slot",
+			".astra-chat-input__textarea-slot",
 		);
 		expect(
 			within(shortcutsHost).queryByRole("button", {
@@ -3848,9 +3848,9 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const inputRow = inputRowHost.querySelector(".mobile-chat-input");
+		const inputRow = inputRowHost.querySelector(".astra-chat-input");
 		const textareaMain = inputRowHost.querySelector(
-			".mobile-chat-input__textarea-slot",
+			".astra-chat-input__textarea-slot",
 		);
 
 		expect(quickReplyHost).toHaveAttribute("hidden");
@@ -3886,9 +3886,9 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const inputRow = inputRowHost.querySelector(".mobile-chat-input");
+		const inputRow = inputRowHost.querySelector(".astra-chat-input");
 		const textareaMain = inputRowHost.querySelector(
-			".mobile-chat-input__textarea-slot",
+			".astra-chat-input__textarea-slot",
 		);
 
 		expect(
@@ -3925,9 +3925,9 @@ describe("createMobileSendFormFeature", () => {
 
 		const { inputRowHost, quickReplyHost, shortcutsHost } =
 			await waitForSendFormHosts();
-		const inputRow = inputRowHost.querySelector(".mobile-chat-input");
+		const inputRow = inputRowHost.querySelector(".astra-chat-input");
 		const textareaMain = inputRowHost.querySelector(
-			".mobile-chat-input__textarea-slot",
+			".astra-chat-input__textarea-slot",
 		);
 
 		expect(
@@ -4342,7 +4342,7 @@ describe("createMobileSendFormFeature", () => {
 				".mobile-send-form-shortcuts__context-slot",
 			) as HTMLElement | null;
 			const trigger = contextSlot?.querySelector(
-				'[data-slot="mobile-chat-context-usage-shortcut"]',
+				'[data-slot="astra-chat-context-usage-shortcut"]',
 			) as HTMLButtonElement | null;
 
 			expect(contextSlot).toBeInTheDocument();
@@ -4369,7 +4369,7 @@ describe("createMobileSendFormFeature", () => {
 			expect(shortcutsToolbar).toBeInTheDocument();
 			expect(contextSlot).toBeInTheDocument();
 			const trigger = contextSlot?.querySelector(
-				'[data-slot="mobile-chat-context-usage-shortcut"]',
+				'[data-slot="astra-chat-context-usage-shortcut"]',
 			) as HTMLButtonElement | null;
 
 			expect(trigger).toBeInTheDocument();
@@ -4388,7 +4388,7 @@ describe("createMobileSendFormFeature", () => {
 
 		await waitFor(() => {
 			const trigger = host.querySelector(
-				'[data-slot="mobile-chat-context-usage-shortcut"]',
+				'[data-slot="astra-chat-context-usage-shortcut"]',
 			) as HTMLButtonElement | null;
 
 			expect(trigger).toBeInTheDocument();
@@ -4396,7 +4396,7 @@ describe("createMobileSendFormFeature", () => {
 			expect(trigger).toHaveAccessibleName("Loading context usage");
 			expect(
 				trigger?.querySelector(
-					".mobile-chat-context-usage-shortcut__loading-dots",
+					".astra-chat-context-usage-shortcut__loading-dots",
 				),
 			).toBeInTheDocument();
 		});
@@ -4413,7 +4413,7 @@ describe("createMobileSendFormFeature", () => {
 
 		await waitFor(() => {
 			const trigger = host.querySelector(
-				'[data-slot="mobile-chat-context-usage-shortcut"]',
+				'[data-slot="astra-chat-context-usage-shortcut"]',
 			) as HTMLButtonElement | null;
 
 			expect(trigger).toBeInTheDocument();

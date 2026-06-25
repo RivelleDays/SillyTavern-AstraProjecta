@@ -40,14 +40,14 @@ import {
 } from "@/app/shared/sillytavern-interface";
 import type { SendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 import {
-	MOBILE_CHAT_MAIN_MENU_DRAWER_BODY_ID,
-	MOBILE_CHAT_MAIN_MENU_DRAWER_CONTENT_ID,
-	MOBILE_CHAT_MAIN_MENU_DRAWER_DESCRIPTION_ID,
-	MOBILE_CHAT_MAIN_MENU_DRAWER_FOOTER_ID,
-	MOBILE_CHAT_MAIN_MENU_DRAWER_HEADER_ID,
-	MOBILE_CHAT_MAIN_MENU_DRAWER_ID,
-	MOBILE_CHAT_MAIN_MENU_DRAWER_SCROLLABLE_CONTENT_ID,
-	MOBILE_CHAT_MAIN_MENU_DRAWER_TITLE_ID,
+	ASTRA_CHAT_MAIN_MENU_DRAWER_BODY_ID,
+	ASTRA_CHAT_MAIN_MENU_DRAWER_CONTENT_ID,
+	ASTRA_CHAT_MAIN_MENU_DRAWER_DESCRIPTION_ID,
+	ASTRA_CHAT_MAIN_MENU_DRAWER_FOOTER_ID,
+	ASTRA_CHAT_MAIN_MENU_DRAWER_HEADER_ID,
+	ASTRA_CHAT_MAIN_MENU_DRAWER_ID,
+	ASTRA_CHAT_MAIN_MENU_DRAWER_SCROLLABLE_CONTENT_ID,
+	ASTRA_CHAT_MAIN_MENU_DRAWER_TITLE_ID,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import {
 	formatContextUsagePercent,
@@ -56,12 +56,12 @@ import {
 } from "@/packages/features/chat-session/send-form/context-usage/presentation";
 import { MobileChatMainMenuDrawerControls } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawerControls";
 import {
-	MOBILE_CHAT_MAIN_MENU_TILES,
+	ASTRA_CHAT_MAIN_MENU_TILES,
 	splitMobileChatMainMenuTileLabel,
 } from "@/packages/features/chat-session/send-form/main-menu/tiles";
 import { MobileChatMainMenuDrawerDetails } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawerDetails";
 
-const MOBILE_CHAT_MAIN_MENU_HEADER_ACTIONS = [
+const ASTRA_CHAT_MAIN_MENU_HEADER_ACTIONS = [
 	{
 		key: "delete",
 		icon: Trash2,
@@ -79,7 +79,7 @@ const MOBILE_CHAT_MAIN_MENU_HEADER_ACTIONS = [
 	},
 ] as const;
 
-const MOBILE_CHAT_MAIN_MENU_CURRENT_USER_ACTIONS = [
+const ASTRA_CHAT_MAIN_MENU_CURRENT_USER_ACTIONS = [
 	{
 		icon: NotebookPen,
 		key: "chatSettingsOverride",
@@ -112,10 +112,10 @@ function renderContextUsageSummary(
 ): React.ReactElement {
 	return (
 		<>
-			<span className="mobile-chat-main-menu-drawer__detail-usage-percent">
+			<span className="astra-chat-main-menu-drawer__detail-usage-percent">
 				{formatContextUsagePercent(snapshot.usagePercent)}
 			</span>
-			<span className="mobile-chat-main-menu-drawer__detail-usage-counts">
+			<span className="astra-chat-main-menu-drawer__detail-usage-counts">
 				({formatContextUsageTokenCount(snapshot.usedContextTokens)} /{" "}
 				{formatContextUsageTokenCount(snapshot.maxContextTokens)})
 			</span>
@@ -281,33 +281,33 @@ export function MobileChatMainMenuDrawer({
 			node: (
 				<dl
 					aria-label={`${apiRowLabel}: ${currentConnectionSnapshot.apiLabel}, ${currentConnectionSnapshot.modelLabel}`}
-					className="mobile-chat-main-menu-drawer__detail-row mobile-chat-main-menu-drawer__detail-connection-row"
+					className="astra-chat-main-menu-drawer__detail-row astra-chat-main-menu-drawer__detail-connection-row"
 					title={apiRowLabel}
 				>
-					<dt className="mobile-chat-main-menu-drawer__detail-term">
+					<dt className="astra-chat-main-menu-drawer__detail-term">
 						<UiIcon
 							aria-hidden={true}
-							className="mobile-chat-main-menu-drawer__detail-icon"
+							className="astra-chat-main-menu-drawer__detail-icon"
 							icon={Brain}
 							size="xs"
 						/>
 						<span>{apiRowLabel}</span>
 					</dt>
-					<dd className="mobile-chat-main-menu-drawer__detail-connection-summary">
+					<dd className="astra-chat-main-menu-drawer__detail-connection-summary">
 						<span
-							className="mobile-chat-main-menu-drawer__detail-connection-provider"
+							className="astra-chat-main-menu-drawer__detail-connection-provider"
 							title={currentConnectionSnapshot.apiLabel}
 						>
 							<ProviderSvgIcon
-								className="mobile-chat-main-menu-drawer__detail-connection-provider-icon"
+								className="astra-chat-main-menu-drawer__detail-connection-provider-icon"
 								iconKey={currentConnectionSnapshot.apiIconKey}
 							/>
-							<span className="mobile-chat-main-menu-drawer__detail-connection-provider-label">
+							<span className="astra-chat-main-menu-drawer__detail-connection-provider-label">
 								{currentConnectionSnapshot.apiLabel}
 							</span>
 						</span>
 						<span
-							className="mobile-chat-main-menu-drawer__detail-connection-model"
+							className="astra-chat-main-menu-drawer__detail-connection-model"
 							title={currentConnectionSnapshot.modelLabel}
 						>
 							{currentConnectionSnapshot.modelLabel}
@@ -324,20 +324,20 @@ export function MobileChatMainMenuDrawer({
 			node: (
 				<dl
 					aria-label={`${modelTitle}: ${chatInfoSnapshot.dominantModel}`}
-					className="mobile-chat-main-menu-drawer__detail-row"
+					className="astra-chat-main-menu-drawer__detail-row"
 					title={modelTitle}
 				>
-					<dt className="mobile-chat-main-menu-drawer__detail-term">
+					<dt className="astra-chat-main-menu-drawer__detail-term">
 						<UiIcon
 							aria-hidden={true}
-							className="mobile-chat-main-menu-drawer__detail-icon"
+							className="astra-chat-main-menu-drawer__detail-icon"
 							icon={Bot}
 							size="xs"
 						/>
 						<span>{modelLabel}</span>
 					</dt>
 					<dd
-						className="mobile-chat-main-menu-drawer__detail-definition"
+						className="astra-chat-main-menu-drawer__detail-definition"
 						title={chatInfoSnapshot.dominantModel || undefined}
 					>
 						{chatInfoSnapshot.dominantModel}
@@ -353,20 +353,20 @@ export function MobileChatMainMenuDrawer({
 			node: (
 				<dl
 					aria-label={`${contextUsageLabel}: ${contextUsageSummaryText}`}
-					className="mobile-chat-main-menu-drawer__detail-row mobile-chat-main-menu-drawer__detail-context-row"
+					className="astra-chat-main-menu-drawer__detail-row astra-chat-main-menu-drawer__detail-context-row"
 					title={`${contextUsageLabel}: ${contextUsageSummaryText}`}
 				>
-					<dt className="mobile-chat-main-menu-drawer__detail-term">
+					<dt className="astra-chat-main-menu-drawer__detail-term">
 						<UiIcon
 							aria-hidden={true}
-							className="mobile-chat-main-menu-drawer__detail-icon"
+							className="astra-chat-main-menu-drawer__detail-icon"
 							icon={DatabaseZap}
 							size="xs"
 						/>
 						<span>{contextUsageLabel}</span>
 					</dt>
-					<dd className="mobile-chat-main-menu-drawer__detail-context-summary">
-						<span className="mobile-chat-main-menu-drawer__detail-context-usage">
+					<dd className="astra-chat-main-menu-drawer__detail-context-summary">
+						<span className="astra-chat-main-menu-drawer__detail-context-usage">
 							{renderContextUsageSummary(
 								chatContextUsageSnapshot,
 							)}
@@ -378,7 +378,7 @@ export function MobileChatMainMenuDrawer({
 	}
 
 	const hasDetailItems = detailRows.length > 0;
-	const tiles = MOBILE_CHAT_MAIN_MENU_TILES.map((tile) => {
+	const tiles = ASTRA_CHAT_MAIN_MENU_TILES.map((tile) => {
 		const label = translateAstra(tile.labelKey);
 		return {
 			...tile,
@@ -412,54 +412,54 @@ export function MobileChatMainMenuDrawer({
 			repositionInputs={false}
 		>
 			<DrawerContent
-				aria-describedby={MOBILE_CHAT_MAIN_MENU_DRAWER_DESCRIPTION_ID}
-				aria-labelledby={MOBILE_CHAT_MAIN_MENU_DRAWER_TITLE_ID}
-				id={MOBILE_CHAT_MAIN_MENU_DRAWER_ID}
-				className="mobile-chat-main-menu-drawer"
+				aria-describedby={ASTRA_CHAT_MAIN_MENU_DRAWER_DESCRIPTION_ID}
+				aria-labelledby={ASTRA_CHAT_MAIN_MENU_DRAWER_TITLE_ID}
+				id={ASTRA_CHAT_MAIN_MENU_DRAWER_ID}
+				className="astra-chat-main-menu-drawer"
 			>
 				<DrawerHeader className="sr-only">
 					<DrawerTitle asChild={true}>
 						<div
 							aria-hidden={true}
-							className="mobile-chat-main-menu-drawer__primitive-a11y-guard sr-only"
+							className="astra-chat-main-menu-drawer__primitive-a11y-guard sr-only"
 						/>
 					</DrawerTitle>
 					<DrawerDescription asChild={true}>
 						<div
 							aria-hidden={true}
-							className="mobile-chat-main-menu-drawer__primitive-a11y-guard sr-only"
+							className="astra-chat-main-menu-drawer__primitive-a11y-guard sr-only"
 						/>
 					</DrawerDescription>
 					<div
-						id={MOBILE_CHAT_MAIN_MENU_DRAWER_TITLE_ID}
+						id={ASTRA_CHAT_MAIN_MENU_DRAWER_TITLE_ID}
 						data-slot="drawer-title"
 					>
 						{title}
 					</div>
 					<div
-						id={MOBILE_CHAT_MAIN_MENU_DRAWER_DESCRIPTION_ID}
+						id={ASTRA_CHAT_MAIN_MENU_DRAWER_DESCRIPTION_ID}
 						data-slot="drawer-description"
 					>
 						{description}
 					</div>
 				</DrawerHeader>
 				<div
-					id={MOBILE_CHAT_MAIN_MENU_DRAWER_HEADER_ID}
-					className="mobile-chat-main-menu-drawer__header"
+					id={ASTRA_CHAT_MAIN_MENU_DRAWER_HEADER_ID}
+					className="astra-chat-main-menu-drawer__header"
 				>
 					<div
 						className={cn(
-							"mobile-chat-main-menu-drawer__header-row",
+							"astra-chat-main-menu-drawer__header-row",
 							!snapshot.hasActiveChat &&
-								"mobile-chat-main-menu-drawer__empty-state",
+								"astra-chat-main-menu-drawer__empty-state",
 						)}
 					>
-						<div className="mobile-chat-main-menu-drawer__header-main">
-							<div className="mobile-chat-main-menu-drawer__avatar-frame">
+						<div className="astra-chat-main-menu-drawer__header-main">
+							<div className="astra-chat-main-menu-drawer__avatar-frame">
 								<AstraChatAvatar
 									alt={avatarLabel}
 									avatarUrl={snapshot.thumbnailUrl}
-									className="mobile-chat-main-menu-drawer__avatar"
+									className="astra-chat-main-menu-drawer__avatar"
 									groupAvatarUrls={
 										snapshot.kind === "group"
 											? snapshot.groupAvatarUrls
@@ -468,16 +468,16 @@ export function MobileChatMainMenuDrawer({
 									loading="eager"
 								/>
 							</div>
-							<div className="mobile-chat-main-menu-drawer__name-stack">
+							<div className="astra-chat-main-menu-drawer__name-stack">
 								<div
-									className="mobile-chat-main-menu-drawer__entity-name"
+									className="astra-chat-main-menu-drawer__entity-name"
 									title={displayName}
 								>
 									{displayName}
 								</div>
 								{snapshot.hasActiveChat ? (
 									<div
-										className="mobile-chat-main-menu-drawer__chat-file-name"
+										className="astra-chat-main-menu-drawer__chat-file-name"
 										title={snapshot.chatFileName}
 									>
 										{snapshot.chatFileName}
@@ -489,13 +489,13 @@ export function MobileChatMainMenuDrawer({
 							aria-label={translateAstra(
 								"sendForm.mainMenu.actions",
 							)}
-							className="mobile-chat-main-menu-drawer__actions"
+							className="astra-chat-main-menu-drawer__actions"
 						>
-							{MOBILE_CHAT_MAIN_MENU_HEADER_ACTIONS.map(
+							{ASTRA_CHAT_MAIN_MENU_HEADER_ACTIONS.map(
 								({ icon: Icon, key, labelKey }) => (
 									<Button
 										aria-label={translateAstra(labelKey)}
-										className="mobile-chat-main-menu-drawer__action-button rounded-full"
+										className="astra-chat-main-menu-drawer__action-button rounded-full"
 										key={labelKey}
 										size="icon"
 										type="button"
@@ -516,17 +516,17 @@ export function MobileChatMainMenuDrawer({
 					</div>
 				</div>
 				<DrawerBody
-					id={MOBILE_CHAT_MAIN_MENU_DRAWER_BODY_ID}
-					className="mobile-chat-main-menu-drawer__body"
+					id={ASTRA_CHAT_MAIN_MENU_DRAWER_BODY_ID}
+					className="astra-chat-main-menu-drawer__body"
 					viewportProps={{
-						id: MOBILE_CHAT_MAIN_MENU_DRAWER_SCROLLABLE_CONTENT_ID,
+						id: ASTRA_CHAT_MAIN_MENU_DRAWER_SCROLLABLE_CONTENT_ID,
 						className:
-							"mobile-chat-main-menu-drawer__scrollable-content",
+							"astra-chat-main-menu-drawer__scrollable-content",
 					}}
 				>
 					<div
-						id={MOBILE_CHAT_MAIN_MENU_DRAWER_CONTENT_ID}
-						className="mobile-chat-main-menu-drawer__content"
+						id={ASTRA_CHAT_MAIN_MENU_DRAWER_CONTENT_ID}
+						className="astra-chat-main-menu-drawer__content"
 					>
 						{hasDetailItems ? (
 							<MobileChatMainMenuDrawerDetails
@@ -538,7 +538,7 @@ export function MobileChatMainMenuDrawer({
 							aria-label={translateAstra(
 								"sendForm.mainMenu.tileGrid",
 							)}
-							className="mobile-chat-main-menu-drawer__grid"
+							className="astra-chat-main-menu-drawer__grid"
 						>
 							{tiles.map(
 								({
@@ -551,12 +551,12 @@ export function MobileChatMainMenuDrawer({
 								}) => (
 									<div
 										id={wrapperId}
-										className="mobile-chat-main-menu-drawer__tile-shell"
+										className="astra-chat-main-menu-drawer__tile-shell"
 										key={key}
 									>
 										<button
 											aria-label={label}
-											className="mobile-chat-main-menu-drawer__tile"
+											className="astra-chat-main-menu-drawer__tile"
 											type="button"
 											onClick={() => {
 												onSillyTavernInterfaceShortcutSelect?.(
@@ -566,23 +566,23 @@ export function MobileChatMainMenuDrawer({
 										>
 											<span
 												aria-hidden={true}
-												className="mobile-chat-main-menu-drawer__tile-glow"
+												className="astra-chat-main-menu-drawer__tile-glow"
 											/>
 											{renderSillyTavernInterfaceRouteIcon(
 												{
 													className:
-														"mobile-chat-main-menu-drawer__tile-deco-icon",
+														"astra-chat-main-menu-drawer__tile-deco-icon",
 													iconKey,
 												},
 											)}
 											<span
 												aria-hidden={true}
-												className="mobile-chat-main-menu-drawer__tile-fade"
+												className="astra-chat-main-menu-drawer__tile-fade"
 											/>
-											<span className="mobile-chat-main-menu-drawer__tile-title">
+											<span className="astra-chat-main-menu-drawer__tile-title">
 												{lines.map((line, index) => (
 													<span
-														className="mobile-chat-main-menu-drawer__tile-title-line"
+														className="astra-chat-main-menu-drawer__tile-title-line"
 														key={`${key}-${index}`}
 													>
 														{line}
@@ -607,21 +607,21 @@ export function MobileChatMainMenuDrawer({
 				</DrawerBody>
 				{hasCurrentUserCard && currentUserSnapshot ? (
 					<div
-						id={MOBILE_CHAT_MAIN_MENU_DRAWER_FOOTER_ID}
-						className="mobile-chat-main-menu-drawer__footer"
+						id={ASTRA_CHAT_MAIN_MENU_DRAWER_FOOTER_ID}
+						className="astra-chat-main-menu-drawer__footer"
 					>
 						<div
 							aria-label={currentUserCardLabel}
-							className="mobile-chat-main-menu-drawer__current-user-section"
+							className="astra-chat-main-menu-drawer__current-user-section"
 						>
-							<div className="mobile-chat-main-menu-drawer__current-user-card">
-								<div className="mobile-chat-main-menu-drawer__current-user-row">
-									<div className="mobile-chat-main-menu-drawer__current-user-main">
-										<div className="mobile-chat-main-menu-drawer__avatar-frame mobile-chat-main-menu-drawer__current-user-frame">
+							<div className="astra-chat-main-menu-drawer__current-user-card">
+								<div className="astra-chat-main-menu-drawer__current-user-row">
+									<div className="astra-chat-main-menu-drawer__current-user-main">
+										<div className="astra-chat-main-menu-drawer__avatar-frame astra-chat-main-menu-drawer__current-user-frame">
 											{currentUserSnapshot.thumbnailUrl ? (
 												<img
 													alt={currentUserAvatarLabel}
-													className="mobile-chat-main-menu-drawer__avatar mobile-chat-main-menu-drawer__current-user-image"
+													className="astra-chat-main-menu-drawer__avatar astra-chat-main-menu-drawer__current-user-image"
 													draggable={false}
 													loading="eager"
 													src={
@@ -629,16 +629,16 @@ export function MobileChatMainMenuDrawer({
 													}
 												/>
 											) : (
-												<span className="mobile-chat-main-menu-drawer__current-user-fallback">
+												<span className="astra-chat-main-menu-drawer__current-user-fallback">
 													{getAvatarFallbackText(
 														currentUserSnapshot,
 													)}
 												</span>
 											)}
 										</div>
-										<div className="mobile-chat-main-menu-drawer__name-stack mobile-chat-main-menu-drawer__current-user-name-stack">
+										<div className="astra-chat-main-menu-drawer__name-stack astra-chat-main-menu-drawer__current-user-name-stack">
 											<div
-												className="mobile-chat-main-menu-drawer__entity-name mobile-chat-main-menu-drawer__current-user-name"
+												className="astra-chat-main-menu-drawer__entity-name astra-chat-main-menu-drawer__current-user-name"
 												title={
 													currentUserSnapshot.displayName
 												}
@@ -650,7 +650,7 @@ export function MobileChatMainMenuDrawer({
 											{currentUserSubtitle ? (
 												<div
 													aria-label={`${translateAstra(currentUserSubtitle.labelKey)}: ${currentUserSubtitle.value}`}
-													className="mobile-chat-main-menu-drawer__chat-file-name mobile-chat-main-menu-drawer__current-user-subtitle"
+													className="astra-chat-main-menu-drawer__chat-file-name astra-chat-main-menu-drawer__current-user-subtitle"
 													title={
 														currentUserSubtitle.value
 													}
@@ -662,9 +662,9 @@ export function MobileChatMainMenuDrawer({
 									</div>
 									<div
 										aria-label={currentUserActionsLabel}
-										className="mobile-chat-main-menu-drawer__actions mobile-chat-main-menu-drawer__current-user-actions"
+										className="astra-chat-main-menu-drawer__actions astra-chat-main-menu-drawer__current-user-actions"
 									>
-										{MOBILE_CHAT_MAIN_MENU_CURRENT_USER_ACTIONS.map(
+										{ASTRA_CHAT_MAIN_MENU_CURRENT_USER_ACTIONS.map(
 											({
 												icon: Icon,
 												key,
@@ -689,7 +689,7 @@ export function MobileChatMainMenuDrawer({
 														aria-label={translateAstra(
 															labelKey,
 														)}
-														className="mobile-chat-main-menu-drawer__action-button mobile-chat-main-menu-drawer__current-user-action rounded-full"
+														className="astra-chat-main-menu-drawer__action-button astra-chat-main-menu-drawer__current-user-action rounded-full"
 														disabled={isDisabled}
 														key={key}
 														size="icon"

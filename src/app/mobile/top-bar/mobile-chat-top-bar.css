@@ -5,8 +5,8 @@ body.astra-projecta-mobile-layout {
 	}
 }
 
-#mobile-chat-session-shell {
-	--mobile-chat-top-bar-block-size: 52px;
+#astra-chat-session-shell {
+	--astra-chat-top-bar-block-size: 52px;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
@@ -17,23 +17,23 @@ body.astra-projecta-mobile-layout {
 	background: transparent;
 }
 
-#mobile-chat-top-bar-host {
+#astra-chat-top-bar-host {
 	box-sizing: border-box;
 	position: relative;
 	z-index: 2;
 	isolation: isolate;
-	flex: 0 0 var(--mobile-chat-top-bar-block-size);
+	flex: 0 0 var(--astra-chat-top-bar-block-size);
 	min-width: 0;
 	width: 100%;
-	min-height: var(--mobile-chat-top-bar-block-size);
+	min-height: var(--astra-chat-top-bar-block-size);
 	overflow: visible;
 	background: transparent;
 	border-bottom: none;
 }
 
-#mobile-chat-top-bar-host::before {
-	--mobile-chat-top-bar-glass-mask-visible: rgb(0 0 0);
-	--mobile-chat-top-bar-glass-mask-hidden: transparent;
+#astra-chat-top-bar-host::before {
+	--astra-chat-top-bar-glass-mask-visible: rgb(0 0 0);
+	--astra-chat-top-bar-glass-mask-hidden: transparent;
 
 	content: "";
 	position: absolute;
@@ -56,17 +56,17 @@ body.astra-projecta-mobile-layout {
 	);
 	-webkit-mask-image: linear-gradient(
 		to bottom,
-		var(--mobile-chat-top-bar-glass-mask-visible) 0%,
-		var(--mobile-chat-top-bar-glass-mask-visible)
+		var(--astra-chat-top-bar-glass-mask-visible) 0%,
+		var(--astra-chat-top-bar-glass-mask-visible)
 			calc(100% - var(--astra-mobile-glass-top-fade-size)),
-		var(--mobile-chat-top-bar-glass-mask-hidden) 100%
+		var(--astra-chat-top-bar-glass-mask-hidden) 100%
 	);
 	mask-image: linear-gradient(
 		to bottom,
-		var(--mobile-chat-top-bar-glass-mask-visible) 0%,
-		var(--mobile-chat-top-bar-glass-mask-visible)
+		var(--astra-chat-top-bar-glass-mask-visible) 0%,
+		var(--astra-chat-top-bar-glass-mask-visible)
 			calc(100% - var(--astra-mobile-glass-top-fade-size)),
-		var(--mobile-chat-top-bar-glass-mask-hidden) 100%
+		var(--astra-chat-top-bar-glass-mask-hidden) 100%
 	);
 	-webkit-mask-repeat: no-repeat;
 	mask-repeat: no-repeat;
@@ -78,7 +78,7 @@ body.astra-projecta-mobile-layout {
 		saturate(var(--astra-mobile-glass-saturate));
 }
 
-#mobile-chat-session-shell > #sheld {
+#astra-chat-session-shell > #sheld {
 	box-sizing: border-box;
 	position: relative !important;
 	top: auto !important;
@@ -94,7 +94,7 @@ body.astra-projecta-mobile-layout {
 	max-height: none;
 }
 
-.mobile-chat-top-bar {
+.astra-chat-top-bar {
 	box-sizing: border-box;
 	position: relative;
 	z-index: 1;
@@ -102,24 +102,24 @@ body.astra-projecta-mobile-layout {
 	align-items: center;
 	gap: 8px;
 	min-width: 0;
-	min-height: var(--mobile-chat-top-bar-block-size);
+	min-height: var(--astra-chat-top-bar-block-size);
 	padding: 0 8px;
 	padding-top: calc(env(safe-area-inset-top, 0px));
 }
 
-.mobile-chat-top-bar__astra-main-trigger {
+.astra-chat-top-bar__astra-main-trigger {
 	flex: 0 0 auto;
 	cursor: pointer;
 	border-radius: var(--radius-full);
 }
 
-.mobile-chat-top-bar__astra-main-trigger-icon {
+.astra-chat-top-bar__astra-main-trigger-icon {
 	width: 24px;
 	height: 24px;
 	stroke-width: 1.7;
 }
 
-.mobile-chat-top-bar__identity {
+.astra-chat-top-bar__identity {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -129,8 +129,8 @@ body.astra-projecta-mobile-layout {
 	flex: 1 1 auto;
 }
 
-.mobile-chat-top-bar__avatar-frame {
-	--mobile-chat-top-bar-avatar-size: max(
+.astra-chat-top-bar__avatar-frame {
+	--astra-chat-top-bar-avatar-size: max(
 		var(--astra-avatar-size-min),
 		var(--astra-avatar-size-mobile-top-bar)
 	);
@@ -139,56 +139,56 @@ body.astra-projecta-mobile-layout {
 	align-items: center;
 	justify-content: center;
 	flex: 0 0 auto;
-	width: var(--mobile-chat-top-bar-avatar-size);
-	height: var(--mobile-chat-top-bar-avatar-size);
+	width: var(--astra-chat-top-bar-avatar-size);
+	height: var(--astra-chat-top-bar-avatar-size);
 	overflow: hidden;
 	border-radius: 50%;
 	background: var(--muted);
 	border: 1px solid var(--border);
 }
 
-.mobile-chat-top-bar__avatar {
+.astra-chat-top-bar__avatar {
 	display: grid;
 	width: 100%;
 	height: 100%;
 	place-items: center;
 }
 
-.mobile-chat-top-bar__avatar-image {
+.astra-chat-top-bar__avatar-image {
 	display: block;
-	width: var(--mobile-chat-top-bar-avatar-size);
-	height: var(--mobile-chat-top-bar-avatar-size);
+	width: var(--astra-chat-top-bar-avatar-size);
+	height: var(--astra-chat-top-bar-avatar-size);
 	object-fit: cover;
 }
 
-.mobile-chat-top-bar__avatar.astra-chat-avatar--collage {
+.astra-chat-top-bar__avatar.astra-chat-avatar--collage {
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	grid-template-rows: repeat(2, minmax(0, 1fr));
 	gap: 1px;
 }
 
-.mobile-chat-top-bar__avatar.astra-chat-avatar--collage[data-count="1"] {
+.astra-chat-top-bar__avatar.astra-chat-avatar--collage[data-count="1"] {
 	grid-template-columns: minmax(0, 1fr);
 	grid-template-rows: minmax(0, 1fr);
 }
 
-.mobile-chat-top-bar__avatar.astra-chat-avatar--collage[data-count="2"] {
+.astra-chat-top-bar__avatar.astra-chat-avatar--collage[data-count="2"] {
 	grid-template-rows: minmax(0, 1fr);
 }
 
-.mobile-chat-top-bar__avatar.astra-chat-avatar--collage[data-count="3"]
+.astra-chat-top-bar__avatar.astra-chat-avatar--collage[data-count="3"]
 	.astra-chat-avatar__collage-image:nth-child(3) {
 	grid-column: 1 / -1;
 }
 
-.mobile-chat-top-bar__avatar .astra-chat-avatar__collage-image {
+.astra-chat-top-bar__avatar .astra-chat-avatar__collage-image {
 	width: 100%;
 	height: 100%;
 	min-width: 0;
 	object-fit: cover;
 }
 
-.mobile-chat-top-bar__name {
+.astra-chat-top-bar__name {
     display: block;
     width: 100%;
     max-width: 100%;

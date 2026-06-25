@@ -276,13 +276,13 @@ describe("createMobileSendFormFeature lifecycle", () => {
 		expect(contextUsageStoreFactory).not.toHaveBeenCalled();
 		expect(primarySendActionStoreFactory).not.toHaveBeenCalled();
 		expect(
-			document.getElementById("mobile-chat-shortcuts-host"),
+			document.getElementById("astra-chat-shortcuts-host"),
 		).not.toBeInTheDocument();
 		expect(
-			document.getElementById("mobile-chat-quick-replies-host"),
+			document.getElementById("astra-chat-quick-replies-host"),
 		).not.toBeInTheDocument();
 		expect(
-			document.getElementById("mobile-chat-input-host"),
+			document.getElementById("astra-chat-input-host"),
 		).not.toBeInTheDocument();
 
 		feature.dispose();
@@ -308,13 +308,13 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-chat-shortcuts-host"),
+				document.getElementById("astra-chat-shortcuts-host"),
 			).toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-chat-quick-replies-host"),
+				document.getElementById("astra-chat-quick-replies-host"),
 			).toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-chat-input-host"),
+				document.getElementById("astra-chat-input-host"),
 			).toBeInTheDocument();
 		});
 
@@ -363,13 +363,13 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-chat-shortcuts-host"),
+				document.getElementById("astra-chat-shortcuts-host"),
 			).not.toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-chat-quick-replies-host"),
+				document.getElementById("astra-chat-quick-replies-host"),
 			).not.toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-chat-input-host"),
+				document.getElementById("astra-chat-input-host"),
 			).not.toBeInTheDocument();
 		});
 
@@ -389,13 +389,13 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-chat-shortcuts-host"),
+				document.getElementById("astra-chat-shortcuts-host"),
 			).toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-chat-quick-replies-host"),
+				document.getElementById("astra-chat-quick-replies-host"),
 			).toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-chat-input-host"),
+				document.getElementById("astra-chat-input-host"),
 			).toBeInTheDocument();
 		});
 
@@ -509,7 +509,7 @@ describe("createMobileSendFormFeature lifecycle", () => {
 		feature.mount();
 
 		const host = await waitFor(() => {
-			const element = document.getElementById("mobile-chat-input-host");
+			const element = document.getElementById("astra-chat-input-host");
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
 		});
@@ -519,7 +519,7 @@ describe("createMobileSendFormFeature lifecycle", () => {
 			| ReturnType<typeof createCurrentChatInfoStoreStub>
 			| undefined;
 		host.querySelector<HTMLButtonElement>(
-			"#mobile-chat-main-menu-trigger",
+			"#astra-chat-main-menu-trigger",
 		)?.click();
 
 		expect(currentChatInfoStore?.refresh).toHaveBeenCalledTimes(1);
@@ -582,7 +582,7 @@ describe("createMobileSendFormFeature lifecycle", () => {
 		feature.mount();
 
 		const host = await waitFor(() => {
-			const element = document.getElementById("mobile-chat-input-host");
+			const element = document.getElementById("astra-chat-input-host");
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
 		});
@@ -592,7 +592,7 @@ describe("createMobileSendFormFeature lifecycle", () => {
 			| ReturnType<typeof createCurrentChatInfoStoreStub>
 			| undefined;
 		host.querySelector<HTMLButtonElement>(
-			"#mobile-chat-main-menu-trigger",
+			"#astra-chat-main-menu-trigger",
 		)?.click();
 
 		expect(currentChatInfoStore?.refresh).not.toHaveBeenCalled();
@@ -619,7 +619,7 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 		const quickReplyHost = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-chat-quick-replies-host",
+				"astra-chat-quick-replies-host",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -662,7 +662,7 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 		const quickReplyHost = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-chat-quick-replies-host",
+				"astra-chat-quick-replies-host",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;

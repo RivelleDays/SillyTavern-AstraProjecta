@@ -10,9 +10,9 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identity";
 import {
 	createMobileChatTopBarFeature,
-	MOBILE_ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
-	MOBILE_CHAT_TOP_BAR_HOST_ID,
-	MOBILE_CHAT_SESSION_SHELL_ID,
+	ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
+	ASTRA_CHAT_TOP_BAR_HOST_ID,
+	ASTRA_CHAT_SESSION_SHELL_ID,
 } from "@/app/mobile/top-bar/createMobileChatTopBarFeature";
 
 function createIdentitySnapshot(
@@ -103,8 +103,8 @@ describe("createMobileChatTopBarFeature", () => {
 			feature.mount();
 		});
 
-		const shell = document.getElementById(MOBILE_CHAT_SESSION_SHELL_ID);
-		const topBarHost = document.getElementById(MOBILE_CHAT_TOP_BAR_HOST_ID);
+		const shell = document.getElementById(ASTRA_CHAT_SESSION_SHELL_ID);
+		const topBarHost = document.getElementById(ASTRA_CHAT_TOP_BAR_HOST_ID);
 		const sheld = document.getElementById("sheld");
 
 		expect(shell?.parentElement).toBe(document.body);
@@ -119,7 +119,7 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 
 		expect(
-			document.getElementById(MOBILE_CHAT_SESSION_SHELL_ID),
+			document.getElementById(ASTRA_CHAT_SESSION_SHELL_ID),
 		).toBeNull();
 		expect([...document.body.children].map((child) => child.id)).toEqual([
 			"before",
@@ -143,7 +143,7 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 
 		expect(
-			document.querySelectorAll(`#${MOBILE_CHAT_SESSION_SHELL_ID}`),
+			document.querySelectorAll(`#${ASTRA_CHAT_SESSION_SHELL_ID}`),
 		).toHaveLength(1);
 		expect(store.factory).toHaveBeenCalledTimes(1);
 
@@ -153,7 +153,7 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 
 		expect(
-			document.getElementById(MOBILE_CHAT_SESSION_SHELL_ID),
+			document.getElementById(ASTRA_CHAT_SESSION_SHELL_ID),
 		).toBeNull();
 		expect(store.store.dispose).toHaveBeenCalledTimes(1);
 	});
@@ -170,7 +170,7 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 
 		expect(
-			document.getElementById(MOBILE_CHAT_SESSION_SHELL_ID),
+			document.getElementById(ASTRA_CHAT_SESSION_SHELL_ID),
 		).toBeNull();
 		expect(store.factory).not.toHaveBeenCalled();
 
@@ -274,7 +274,7 @@ describe("createMobileChatTopBarFeature", () => {
 			).toHaveLength(1);
 		});
 		expect(
-			document.getElementById("mobile-astra-main-interface-title"),
+			document.getElementById("astra-main-interface-title"),
 		).toHaveTextContent("SillyTavern");
 		expect(
 			fetchSpy.mock.calls.filter(([url]) => url === "/api/chats/search"),
@@ -284,7 +284,7 @@ describe("createMobileChatTopBarFeature", () => {
 
 		await waitFor(() => {
 			expect(
-				document.querySelector(".mobile-chat-top-bar__name"),
+				document.querySelector(".astra-chat-top-bar__name"),
 			).toHaveTextContent("Mage");
 		});
 		expect(mainInterfaceTrigger).toHaveAttribute("aria-expanded", "true");
@@ -297,7 +297,7 @@ describe("createMobileChatTopBarFeature", () => {
 		expect(selectCharacterById).not.toHaveBeenCalled();
 		expect(saveSettingsDebounced).toHaveBeenCalledTimes(1);
 		expect(
-			document.getElementById("mobile-astra-main-interface-title"),
+			document.getElementById("astra-main-interface-title"),
 		).toHaveTextContent("Mage");
 		expect(
 			document.querySelector(".astra-main-interface"),
@@ -330,7 +330,7 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 
 		expect(
-			document.getElementById("mobile-astra-main-interface-panel"),
+			document.getElementById("astra-main-interface-panel"),
 		).toBeInTheDocument();
 		expect(document.querySelector(".astra-main-interface")).toBeNull();
 		expect(fetchSpy).not.toHaveBeenCalled();
@@ -380,7 +380,7 @@ describe("createMobileChatTopBarFeature", () => {
 
 		await waitFor(() => {
 			expect(
-				document.querySelector(".mobile-chat-top-bar__name"),
+				document.querySelector(".astra-chat-top-bar__name"),
 			).toHaveTextContent("Star Captain");
 		});
 		const avatar = screen.getByRole("img", {
@@ -396,11 +396,11 @@ describe("createMobileChatTopBarFeature", () => {
 		expect(mainInterfaceTrigger).toBeEnabled();
 		expect(mainInterfaceTrigger).toHaveAttribute(
 			"id",
-			"mobile-astra-main-interface-trigger",
+			"astra-main-interface-trigger",
 		);
 		expect(mainInterfaceTrigger).toHaveAttribute(
 			"aria-controls",
-			"mobile-astra-main-interface-panel",
+			"astra-main-interface-panel",
 		);
 		expect(mainInterfaceTrigger).toHaveAttribute("aria-expanded", "false");
 		expect(mainInterfaceTrigger).toHaveAttribute("aria-haspopup", "dialog");
@@ -415,20 +415,20 @@ describe("createMobileChatTopBarFeature", () => {
 
 		const mainInterfacePanel = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-astra-main-interface-panel",
+				"astra-main-interface-panel",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
 		});
 		const content = document.getElementById(
-			"mobile-astra-main-interface-content",
+			"astra-main-interface-content",
 		);
 
 		expect(mainInterfaceTrigger).toHaveAttribute("aria-expanded", "true");
 		expect(mainInterfacePanel).toHaveAttribute("data-side", "left");
 		expect(mainInterfacePanel).toHaveAccessibleName("Main UI");
 		expect(
-			document.getElementById("mobile-astra-main-interface-title"),
+			document.getElementById("astra-main-interface-title"),
 		).toHaveTextContent("SillyTavern");
 		expect(content).toBeInTheDocument();
 		expect(
@@ -448,7 +448,7 @@ describe("createMobileChatTopBarFeature", () => {
 		);
 		expect(globalTabsListFrame).toHaveAttribute(
 			"id",
-			MOBILE_ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
+			ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
 		);
 		const panelBody = mainInterfacePanel.querySelector(
 			".astra-main-interface-panel__body",
@@ -482,7 +482,7 @@ describe("createMobileChatTopBarFeature", () => {
 		);
 
 		expect(
-			document.getElementById("mobile-astra-main-interface-title"),
+			document.getElementById("astra-main-interface-title"),
 		).toHaveTextContent("Star Captain");
 
 		const currentContextTabs = within(mainInterfacePanel).getByRole(
@@ -497,7 +497,7 @@ describe("createMobileChatTopBarFeature", () => {
 		expect(currentTabsListFrame).toBe(globalTabsListFrame);
 		expect(currentTabsListFrame).toHaveAttribute(
 			"id",
-			MOBILE_ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
+			ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
 		);
 		expect(content).not.toContainElement(currentTabsListFrame);
 
@@ -513,14 +513,14 @@ describe("createMobileChatTopBarFeature", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById("mobile-astra-main-interface-panel"),
+				document.getElementById("astra-main-interface-panel"),
 			).toHaveAttribute("data-state", "closed");
 			expect(
-				document.getElementById("mobile-astra-main-interface-panel"),
+				document.getElementById("astra-main-interface-panel"),
 			).toHaveAttribute("inert");
 		});
 		expect(
-			document.getElementById("mobile-astra-main-interface-panel"),
+			document.getElementById("astra-main-interface-panel"),
 		).not.toHaveAttribute("aria-hidden");
 		expect(mainInterfaceTrigger).toHaveAttribute("aria-expanded", "false");
 
@@ -556,11 +556,11 @@ describe("createMobileChatTopBarFeature", () => {
 
 		await waitFor(() => {
 			expect(
-				document.querySelector(".mobile-chat-top-bar__name"),
+				document.querySelector(".astra-chat-top-bar__name"),
 			).toHaveTextContent("Party");
 		});
 		const collage = document.querySelector(
-			".mobile-chat-top-bar__avatar-frame .astra-chat-avatar--collage",
+			".astra-chat-top-bar__avatar-frame .astra-chat-avatar--collage",
 		);
 
 		expect(collage).toBeInTheDocument();

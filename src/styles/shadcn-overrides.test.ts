@@ -185,7 +185,7 @@ describe("shadcn-overrides.css", () => {
 		expect(css).not.toContain("--astra-drawer-overlay-motion-duration");
 		expect(css).not.toContain("--astra-drawer-margin-top:");
 		expect(css).not.toContain(
-			".mobile-send-form-options-drawer__toggle-switch",
+			".astra-send-form-options-drawer__toggle-switch",
 		);
 	});
 
@@ -209,7 +209,7 @@ describe("shadcn-overrides.css", () => {
 			"[data-astra-scroll-affordance='surface']\n    .astra-scroll-area__scrollbar[data-has-overflow-y][data-hovering]",
 			"[data-astra-scroll-affordance='surface']\n    .astra-scroll-area__scrollbar[data-has-overflow-y][data-scrolling]",
 		]);
-		expect(css).not.toContain("#mobile-astra-main-interface-panel");
+		expect(css).not.toContain("#astra-main-interface-panel");
 		expect(css).not.toContain(".astra-main-interface-panel__scrollbar");
 		expect(css).not.toContain(".astra-main-interface-panel__scroll-area");
 		expect(css).not.toContain(
@@ -268,12 +268,12 @@ describe("shadcn-overrides.css", () => {
 
 		expectSelectors(css, [
 			".sillytavern-interface__native-host\n    > .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source='right-nav-panel']",
-			".mobile-chat-main-menu-sheet__native-host\n    > .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source='right-nav-panel']",
+			".astra-chat-main-menu-sheet__native-host\n    > .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source='right-nav-panel']",
 			".sillytavern-interface__native-host\n    [data-astra-projecta-native-drawer-source='right-nav-panel']\n    .scrollableInner",
-			".mobile-chat-main-menu-sheet__native-host\n    [data-astra-projecta-native-drawer-source='right-nav-panel']\n    .scrollableInner",
+			".astra-chat-main-menu-sheet__native-host\n    [data-astra-projecta-native-drawer-source='right-nav-panel']\n    .scrollableInner",
 		]);
 		expect(css).not.toContain(
-			".sillytavern-interface__native-host\n    > .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source='right-nav-panel'],\n.mobile-chat-main-menu-sheet__native-host\n    > .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source='right-nav-panel']",
+			".sillytavern-interface__native-host\n    > .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source='right-nav-panel'],\n.astra-chat-main-menu-sheet__native-host\n    > .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source='right-nav-panel']",
 		);
 		expect(css).not.toContain(
 			"[data-astra-projecta-native-drawer-source='right-nav-panel'] .scrollableInner {\n    min-height: 0;",
@@ -419,23 +419,23 @@ describe("shadcn-overrides.css", () => {
 		const css = readCss();
 
 		expectSelectors(css, [
-			".mobile-chat-main-menu-sheet",
-			".mobile-chat-main-menu-sheet__header",
-			".mobile-chat-main-menu-sheet__header-main",
-			".mobile-chat-main-menu-sheet__icon",
-			".mobile-chat-main-menu-sheet__title",
-			".mobile-chat-main-menu-sheet__content",
-			".mobile-chat-main-menu-sheet__viewport",
-			".mobile-chat-main-menu-sheet__body",
-			".mobile-chat-main-menu-sheet__footer",
-			".mobile-chat-main-menu-sheet__close-button",
-			".mobile-chat-main-menu-sheet__native-host",
-			"#mobile-chat-main-menu-lorebook-host",
-			"#mobile-chat-main-menu-extensions-host",
-			"#mobile-chat-main-menu-backgrounds-host",
-			"#mobile-chat-main-menu-character-management-host",
-			".mobile-chat-main-menu-backgrounds-tab-scroll-area",
-			".mobile-chat-main-menu-backgrounds-tab-scroll-area__content-host",
+			".astra-chat-main-menu-sheet",
+			".astra-chat-main-menu-sheet__header",
+			".astra-chat-main-menu-sheet__header-main",
+			".astra-chat-main-menu-sheet__icon",
+			".astra-chat-main-menu-sheet__title",
+			".astra-chat-main-menu-sheet__content",
+			".astra-chat-main-menu-sheet__viewport",
+			".astra-chat-main-menu-sheet__body",
+			".astra-chat-main-menu-sheet__footer",
+			".astra-chat-main-menu-sheet__close-button",
+			".astra-chat-main-menu-sheet__native-host",
+			"#astra-chat-main-menu-lorebook-host",
+			"#astra-chat-main-menu-extensions-host",
+			"#astra-chat-main-menu-backgrounds-host",
+			"#astra-chat-main-menu-character-management-host",
+			".astra-chat-main-menu-backgrounds-tab-scroll-area",
+			".astra-chat-main-menu-backgrounds-tab-scroll-area__content-host",
 			"[data-astra-projecta-native-drawer-source='Backgrounds'] #auto_background",
 			"[data-astra-projecta-native-drawer-source='Backgrounds'] #bg_add_folder_button",
 			"[data-astra-projecta-native-drawer-source='Backgrounds'] #add_background_button_top",

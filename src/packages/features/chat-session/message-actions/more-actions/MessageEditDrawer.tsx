@@ -66,7 +66,7 @@ export interface MessageEditDrawerActionsConfig {
 	moveUp?: MessageEditDrawerActionConfig;
 }
 
-const EDIT_DRAWER_ID = "mobile-message-edit-drawer";
+const EDIT_DRAWER_ID = "astra-message-edit-drawer";
 const EDIT_DRAWER_TITLE_ID = `${EDIT_DRAWER_ID}-title`;
 const EDIT_DRAWER_DESCRIPTION_ID = `${EDIT_DRAWER_ID}-description`;
 const EDIT_DRAWER_HEADER_ID = `${EDIT_DRAWER_ID}-header`;
