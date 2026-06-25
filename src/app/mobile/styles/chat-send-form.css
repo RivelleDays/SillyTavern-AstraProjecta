@@ -480,10 +480,10 @@ body.astra-projecta-mobile-layout {
 		background: transparent;
 	}
 
-	.astra-send-form-shortcuts {
+	.mobile-send-form-shortcuts {
 		display: flex;
 		gap: 8px;
-		justify-content: flex-start;
+		justify-content: space-between;
 		align-items: center;
 		flex-wrap: nowrap;
 		position: relative;
@@ -494,7 +494,7 @@ body.astra-projecta-mobile-layout {
 		color: var(--color-muted-t90);
 	}
 
-	.astra-send-form-shortcuts__strip {
+	.mobile-send-form-shortcuts__strip {
 		display: flex;
 		align-items: center;
 		justify-content: flex-start;
@@ -507,29 +507,34 @@ body.astra-projecta-mobile-layout {
 		-webkit-overflow-scrolling: touch;
 	}
 
-	.astra-send-form-shortcuts__item {
+	.mobile-send-form-shortcuts__item {
 		display: inline-flex;
 		flex: 0 0 auto;
 		margin-bottom: 1px;
 	}
 
-	.astra-send-form-shortcuts__strip::-webkit-scrollbar {
+	.mobile-send-form-shortcuts__strip::-webkit-scrollbar {
 		display: none;
 	}
 
-	.astra-send-form-shortcuts__button {
+	.mobile-send-form-shortcuts__button {
 		flex: 0 0 auto;
 	}
 
-	.astra-send-form-shortcuts__button[data-variant="ghost"] {
+	.mobile-send-form-shortcuts__button[data-variant="ghost"] {
 		color: inherit;
 	}
 
-	.astra-send-form-shortcuts__button-chevron {
+	.mobile-send-form-shortcuts__button-chevron {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		color: var(--color-muted-t70);
+	}
+
+	.mobile-send-form-shortcuts__context-slot {
+		flex: 0 0 auto;
+		min-width: 0;
 	}
 
 	.astra-chat-context-usage-shortcut__trigger {
