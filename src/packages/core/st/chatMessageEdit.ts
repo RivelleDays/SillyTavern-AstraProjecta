@@ -1,5 +1,9 @@
 import { getStContext } from "@/packages/core/st/context";
 import {
+	renderMessageContent,
+	writeRenderedMessageContent,
+} from "@/packages/core/st/chatMessageRendering";
+import {
 	asTrimmedString,
 	type EventSourceLike,
 	type EventTypesLike,
@@ -281,37 +285,6 @@ function writeDraftToMessage({
 	});
 }
 
-function formatMessageText({
-	context,
-	message,
-	messageId,
-	text,
-}: {
-	context: StContextLike;
-	message: ChatMessageEditLike;
-	messageId: number;
-	text: string;
-}): string {
-	const formatter =
-		typeof context.messageFormatting === "function"
-			? (context.messageFormatting as (
-					value: string,
-					name?: unknown,
-					isSystem?: boolean,
-					isUser?: unknown,
-					messageId?: unknown,
-				) => string)
-			: (value: string) => value;
-
-	return formatter(
-		text,
-		message.name,
-		message.is_system === true,
-		message.is_user === true,
-		messageId,
-	);
-}
-
 function updateMessageDomFallback({
 	context,
 	message,
@@ -329,13 +302,18 @@ function updateMessageDomFallback({
 	}
 
 	const text =
-		typeof message.mes === "string" ? message.mes : asTrimmedString(message.mes);
-	target.innerHTML = formatMessageText({
-		context,
-		message,
-		messageId,
-		text,
-	});
+		typeof message.mes === "string"
+			? message.mes
+			: asTrimmedString(message.mes);
+	writeRenderedMessageContent(
+		target,
+		renderMessageContent({
+			context,
+			message,
+			messageId,
+			text,
+		}),
+	);
 }
 
 function updateMessageBlock({

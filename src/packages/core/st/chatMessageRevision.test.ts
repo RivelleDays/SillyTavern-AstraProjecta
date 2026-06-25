@@ -37,6 +37,13 @@ type TestMessage = {
 	swipes?: string[];
 };
 
+const XSS_PAYLOADS = [
+	"<img src=x onerror=alert(1)>",
+	"<svg onload=alert(1)>",
+	'<a href="javascript:alert(1)">link</a>',
+	"<script>alert(1)</script>",
+] as const;
+
 function createEventSourceStub() {
 	const listeners = new Map<string, Set<Listener>>();
 
@@ -92,6 +99,54 @@ function expectAstraHistory(message: TestMessage): TestRevisionNode[] {
 	const roots = message.astra_projecta?.revisionHistory?.roots;
 	expect(roots).toBeDefined();
 	return roots ?? [];
+}
+
+function renderMessageTarget(): Element {
+	document.body.innerHTML = `
+		<div id="chat">
+			<div class="mes" mesid="0">
+				<div class="mes_block">
+					<div class="mes_text">Original</div>
+				</div>
+			</div>
+		</div>
+	`;
+
+	const target = document.querySelector(".mes_text");
+	expect(target).toBeInstanceOf(Element);
+	return target as Element;
+}
+
+function createRevisionMessage(revisionText: string): TestMessage {
+	return {
+		continueHistory: [
+			{
+				active: [0],
+				fullText: "Original",
+				kind: "origin",
+				mes: "Original",
+				parent: [],
+				swipes: [
+					{
+						fullText: revisionText,
+						kind: "edit",
+						mes: revisionText,
+						parent: [0],
+						swipes: [],
+					},
+				],
+			},
+		],
+		is_user: false,
+		mes: "Original",
+		name: "Assistant",
+		swipe_id: 0,
+		swipes: ["Original"],
+	};
+}
+
+function expectNoExecutableMarkup(target: Element): void {
+	expect(target.querySelector("img, svg, a, script")).toBeNull();
 }
 
 describe("chat message revision adapter", () => {
@@ -811,6 +866,70 @@ describe("chat message revision adapter", () => {
 		);
 		expect(saveChatConditional).toHaveBeenCalledTimes(1);
 		expect(eventSource.emit).toHaveBeenCalledWith("message_edited", 0);
+	});
+
+	test("keeps formatted revision fallback output as SillyTavern HTML", () => {
+		const target = renderMessageTarget();
+		const message = createRevisionMessage("Formatted body");
+		setSillyTavernContext({
+			chat: [message],
+			messageFormatting: (value: string) => `<p>${value}</p>`,
+			saveChatConditional: vi.fn(),
+			substituteParams: (value: string) => value,
+		});
+
+		expect(
+			applyChatMessageRevisionPath({
+				messageId: 0,
+				path: [0, 0],
+			}),
+		).toBe(true);
+		expect(target.innerHTML).toBe("<p>Formatted body</p>");
+	});
+
+	test.each(XSS_PAYLOADS)(
+		"writes formatter-missing revision fallback payload as text: %s",
+		(payload) => {
+			const target = renderMessageTarget();
+			const message = createRevisionMessage(payload);
+			setSillyTavernContext({
+				chat: [message],
+				saveChatConditional: vi.fn(),
+				substituteParams: (value: string) => value,
+			});
+
+			expect(
+				applyChatMessageRevisionPath({
+					messageId: 0,
+					path: [0, 0],
+				}),
+			).toBe(true);
+			expect(target.textContent).toBe(payload);
+			expectNoExecutableMarkup(target);
+		},
+	);
+
+	test("writes formatter-throwing revision fallback payload as text", () => {
+		const target = renderMessageTarget();
+		const payload = '<a href="javascript:alert(1)">link</a>';
+		const message = createRevisionMessage(payload);
+		setSillyTavernContext({
+			chat: [message],
+			messageFormatting: () => {
+				throw new Error("formatter unavailable");
+			},
+			saveChatConditional: vi.fn(),
+			substituteParams: (value: string) => value,
+		});
+
+		expect(() =>
+			applyChatMessageRevisionPath({
+				messageId: 0,
+				path: [0, 0],
+			}),
+		).not.toThrow();
+		expect(target.textContent).toBe(payload);
+		expectNoExecutableMarkup(target);
 	});
 
 	test("does not apply a selected revision while native generation is busy", () => {

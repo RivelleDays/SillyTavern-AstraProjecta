@@ -18,10 +18,37 @@ type TestMessage = {
 	swipes?: string[];
 };
 
+const XSS_PAYLOADS = [
+	"<img src=x onerror=alert(1)>",
+	"<svg onload=alert(1)>",
+	'<a href="javascript:alert(1)">link</a>',
+	"<script>alert(1)</script>",
+] as const;
+
 function setSillyTavernContext(context: unknown) {
 	(globalThis as { SillyTavern?: unknown }).SillyTavern = {
 		getContext: () => context,
 	};
+}
+
+function renderMessageTarget(): Element {
+	document.body.innerHTML = `
+		<div id="chat">
+			<div class="mes" mesid="0">
+				<div class="mes_block">
+					<div class="mes_text">Original</div>
+				</div>
+			</div>
+		</div>
+	`;
+
+	const target = document.querySelector(".mes_text");
+	expect(target).toBeInstanceOf(Element);
+	return target as Element;
+}
+
+function expectNoExecutableMarkup(target: Element): void {
+	expect(target.querySelector("img, svg, a, script")).toBeNull();
 }
 
 describe("chatMessageEdit", () => {
@@ -117,6 +144,91 @@ describe("chatMessageEdit", () => {
 		);
 		expect(eventSource.emit).toHaveBeenCalledWith("message_updated", 0);
 		expect(saveChat).toHaveBeenCalledTimes(1);
+	});
+
+	test("keeps formatted edit fallback output as SillyTavern HTML", async () => {
+		const target = renderMessageTarget();
+		const chat: TestMessage[] = [
+			{
+				is_user: false,
+				mes: "Original",
+				name: "Assistant",
+			},
+		];
+		setSillyTavernContext({
+			chat,
+			messageFormatting: (value: string) => `<p>${value}</p>`,
+			saveChatConditional: vi.fn(async () => undefined),
+		});
+
+		await expect(
+			saveChatMessageEdit({
+				hasReasoning: false,
+				messageId: 0,
+				messageText: "Formatted body",
+				reasoningText: "",
+			}),
+		).resolves.toEqual({ messageId: 0, ok: true });
+		expect(target.innerHTML).toBe("<p>Formatted body</p>");
+	});
+
+	test.each(XSS_PAYLOADS)(
+		"writes formatter-missing edit fallback payload as text: %s",
+		async (payload) => {
+			const target = renderMessageTarget();
+			const chat: TestMessage[] = [
+				{
+					is_user: false,
+					mes: "Original",
+					name: "Assistant",
+				},
+			];
+			setSillyTavernContext({
+				chat,
+				saveChatConditional: vi.fn(async () => undefined),
+			});
+
+			await expect(
+				saveChatMessageEdit({
+					hasReasoning: false,
+					messageId: 0,
+					messageText: payload,
+					reasoningText: "",
+				}),
+			).resolves.toEqual({ messageId: 0, ok: true });
+			expect(target.textContent).toBe(payload);
+			expectNoExecutableMarkup(target);
+		},
+	);
+
+	test("writes formatter-throwing edit fallback payload as text", async () => {
+		const target = renderMessageTarget();
+		const payload = '<a href="javascript:alert(1)">link</a>';
+		const chat: TestMessage[] = [
+			{
+				is_user: false,
+				mes: "Original",
+				name: "Assistant",
+			},
+		];
+		setSillyTavernContext({
+			chat,
+			messageFormatting: () => {
+				throw new Error("formatter unavailable");
+			},
+			saveChatConditional: vi.fn(async () => undefined),
+		});
+
+		await expect(
+			saveChatMessageEdit({
+				hasReasoning: false,
+				messageId: 0,
+				messageText: payload,
+				reasoningText: "",
+			}),
+		).resolves.toEqual({ messageId: 0, ok: true });
+		expect(target.textContent).toBe(payload);
+		expectNoExecutableMarkup(target);
 	});
 
 	test("clears reasoning when the draft no longer has a reasoning block", async () => {

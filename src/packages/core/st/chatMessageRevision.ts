@@ -1,5 +1,10 @@
 import { getStContext } from "@/packages/core/st/context";
 import {
+	type RenderedMessageContent,
+	renderMessageContent,
+	writeRenderedMessageContent,
+} from "@/packages/core/st/chatMessageRendering";
+import {
 	cleanupDerivedRevisionFields,
 	ensureWritableRevisionRoots,
 	readRevisionRoots,
@@ -541,46 +546,42 @@ function pathStartsWithRootReplacement(
 	);
 }
 
-function formatMessageText(
+function substituteMessageText(
 	raw: string,
-	message: ChatMessageRevisionLike,
 	context: StContextLike | null,
-	messageId: number,
 ): string {
 	const substitute =
 		typeof context?.substituteParams === "function"
 			? (context.substituteParams as (value: string) => string)
 			: (value: string) => value;
-	const formatter =
-		typeof context?.messageFormatting === "function"
-			? (context.messageFormatting as (
-					value: string,
-					name?: unknown,
-					isSystem?: boolean,
-					isUser?: unknown,
-					messageId?: unknown,
-				) => string)
-			: (value: string) => value;
 
-	return formatter(
-		substitute(raw),
-		message.name,
-		message.is_system === true,
-		message.is_user === true,
+	return substitute(raw);
+}
+
+function renderRevisionMessageContent(
+	raw: string,
+	message: ChatMessageRevisionLike,
+	context: StContextLike | null,
+	messageId: number,
+): RenderedMessageContent {
+	return renderMessageContent({
+		context,
+		message,
 		messageId,
-	);
+		text: substituteMessageText(raw, context),
+	});
 }
 
 function updateMessageDom(
 	messageId: number,
-	html: string,
+	content: RenderedMessageContent,
 	documentRef = document,
 ): void {
 	const target = documentRef.querySelector(
 		`#chat .mes[mesid="${messageId}"] .mes_text`,
 	);
 	if (target) {
-		target.innerHTML = html;
+		writeRenderedMessageContent(target, content);
 	}
 }
 
@@ -719,7 +720,7 @@ function applyPathToMessage(
 
 		updateMessageDom(
 			messageId,
-			formatMessageText(text, message, context, messageId),
+			renderRevisionMessageContent(text, message, context, messageId),
 		);
 		saveChat(context);
 		emitMessageSwiped(context, messageId);
@@ -752,7 +753,7 @@ function applyPathToMessage(
 
 	updateMessageDom(
 		messageId,
-		formatMessageText(text, message, context, messageId),
+		renderRevisionMessageContent(text, message, context, messageId),
 	);
 	saveChat(context);
 	emitMessageEdited(context, messageId);
@@ -825,7 +826,7 @@ async function regenerateLastRevisionNative(
 		message.mes = rootText;
 		updateMessageDom(
 			resolvedMessageId,
-			formatMessageText(
+			renderRevisionMessageContent(
 				`${rootText} ...`,
 				message,
 				context,
@@ -883,7 +884,12 @@ async function regenerateLastRevisionNative(
 
 	updateMessageDom(
 		resolvedMessageId,
-		formatMessageText(`${text} ...`, message, context, resolvedMessageId),
+		renderRevisionMessageContent(
+			`${text} ...`,
+			message,
+			context,
+			resolvedMessageId,
+		),
 	);
 	cacheMessageText(message);
 	startRevisionGenerationTransaction({

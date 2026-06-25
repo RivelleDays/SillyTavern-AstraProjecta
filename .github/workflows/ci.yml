@@ -1,0 +1,27 @@
+name: CI
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+
+jobs:
+    verify:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+
+            - run: npm ci
+            - run: npm run typecheck
+            - run: npm run test:run
+            - run: npm run build
+            - run: git diff --check
+            - run: git diff --exit-code -- dist src/types/i18n.d.ts src/styles/generated/tailwind-scoped-preflight.css
+            - run: git diff --exit-code
