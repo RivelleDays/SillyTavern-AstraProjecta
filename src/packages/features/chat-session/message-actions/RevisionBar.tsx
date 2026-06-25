@@ -82,6 +82,16 @@ export function RevisionBar({
 	return (
 		<TooltipProvider delayDuration={0}>
 			<div className="astra-revisionBar">
+				{historyAction ? (
+					<RevisionBarButton
+						disabled={historyAction.disabled === true}
+						icon={History}
+						label={translateAstra(
+							"messageActions.revisionHistory.open",
+						)}
+						onClick={historyAction.onClick}
+					/>
+				) : null}
 				{canUndo ? (
 					<RevisionBarButton
 						disabled={isBusy}
@@ -108,16 +118,6 @@ export function RevisionBar({
 							"messageActions.revision.continue",
 						)}
 						onClick={onContinue}
-					/>
-				) : null}
-				{historyAction ? (
-					<RevisionBarButton
-						disabled={historyAction.disabled === true}
-						icon={History}
-						label={translateAstra(
-							"messageActions.revisionHistory.open",
-						)}
-						onClick={historyAction.onClick}
 					/>
 				) : null}
 			</div>
