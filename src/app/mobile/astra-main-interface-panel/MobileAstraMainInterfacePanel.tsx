@@ -7,11 +7,11 @@ import { MobilePagePanel } from "@/components/ui/astra/MobilePagePanel";
 import { Button } from "@/components/ui/shadcn/button";
 import { translateAstra } from "@/packages/core/i18n";
 import {
-	MOBILE_ASTRA_MAIN_INTERFACE_CLOSE_BUTTON_ID,
-	MOBILE_ASTRA_MAIN_INTERFACE_CLOSE_BUTTON_WRAPPER_ID,
-	MOBILE_ASTRA_MAIN_INTERFACE_CONTENT_ID,
-	MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID,
-	MOBILE_ASTRA_MAIN_INTERFACE_TITLE_ID,
+	ASTRA_MAIN_INTERFACE_CLOSE_BUTTON_ID,
+	ASTRA_MAIN_INTERFACE_CLOSE_BUTTON_WRAPPER_ID,
+	ASTRA_MAIN_INTERFACE_PANEL_CONTENT_ID,
+	ASTRA_MAIN_INTERFACE_PANEL_ID,
+	ASTRA_MAIN_INTERFACE_TITLE_ID,
 } from "@/app/mobile/astra-main-interface-panel/contracts/dom";
 
 export interface MobileAstraMainInterfacePanelProps {
@@ -43,7 +43,7 @@ export function MobileAstraMainInterfacePanel({
 	const content = (
 		<div
 			className="astra-main-interface-panel__content"
-			id={MOBILE_ASTRA_MAIN_INTERFACE_CONTENT_ID}
+			id={ASTRA_MAIN_INTERFACE_PANEL_CONTENT_ID}
 			style={contentStyle}
 		>
 			{children}
@@ -55,7 +55,7 @@ export function MobileAstraMainInterfacePanel({
 			accessibleTitle={accessibleTitle}
 			className="astra-main-interface-panel"
 			forceMount={true}
-			id={MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID}
+			id={ASTRA_MAIN_INTERFACE_PANEL_ID}
 			open={open}
 			side="left"
 			onOpenChange={onOpenChange}
@@ -65,21 +65,21 @@ export function MobileAstraMainInterfacePanel({
 					<div className="astra-main-interface-panel__header-main">
 						<div
 							className="astra-main-interface-panel__title"
-							id={MOBILE_ASTRA_MAIN_INTERFACE_TITLE_ID}
+							id={ASTRA_MAIN_INTERFACE_TITLE_ID}
 						>
 							{visibleTitle}
 						</div>
 					</div>
 					<div
 						className="astra-main-interface-panel__header-end"
-						id={MOBILE_ASTRA_MAIN_INTERFACE_CLOSE_BUTTON_WRAPPER_ID}
+						id={ASTRA_MAIN_INTERFACE_CLOSE_BUTTON_WRAPPER_ID}
 					>
 						<Button
 							aria-label={translateAstra(
 								"astraMainInterface.close",
 							)}
 							className="astra-main-interface-panel__close-button"
-							id={MOBILE_ASTRA_MAIN_INTERFACE_CLOSE_BUTTON_ID}
+							id={ASTRA_MAIN_INTERFACE_CLOSE_BUTTON_ID}
 							size="icon-sm"
 							type="button"
 							variant="ghost"
@@ -113,7 +113,7 @@ export function MobileAstraMainInterfacePanel({
 						<ScrollArea.Viewport className="astra-main-interface-panel__viewport">
 							<ScrollArea.Content
 								className="astra-main-interface-panel__content"
-								id={MOBILE_ASTRA_MAIN_INTERFACE_CONTENT_ID}
+								id={ASTRA_MAIN_INTERFACE_PANEL_CONTENT_ID}
 								style={contentStyle}
 							>
 								{children}

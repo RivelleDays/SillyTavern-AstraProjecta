@@ -33,14 +33,14 @@ import {
 } from "@/packages/core/st/current-chat-catalog";
 import { translateAstra } from "@/packages/core/i18n";
 import {
-	MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID,
-	MOBILE_ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
-	MOBILE_ASTRA_MAIN_INTERFACE_TRIGGER_ID,
+	ASTRA_MAIN_INTERFACE_PANEL_ID,
+	ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
+	ASTRA_MAIN_INTERFACE_TRIGGER_ID,
 	MobileAstraMainInterfacePanel,
 } from "@/app/mobile/astra-main-interface-panel";
 import {
-	MOBILE_CHAT_TOP_BAR_HOST_ID,
-	MOBILE_CHAT_SESSION_SHELL_ID,
+	ASTRA_CHAT_TOP_BAR_HOST_ID,
+	ASTRA_CHAT_SESSION_SHELL_ID,
 } from "@/app/mobile/top-bar/contracts/dom";
 
 const NATIVE_SHELD_ID = "sheld";
@@ -52,13 +52,13 @@ interface MainInterfaceStores {
 }
 
 export {
-	MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID,
-	MOBILE_ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
-	MOBILE_ASTRA_MAIN_INTERFACE_TRIGGER_ID,
+	ASTRA_MAIN_INTERFACE_PANEL_ID,
+	ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
+	ASTRA_MAIN_INTERFACE_TRIGGER_ID,
 } from "@/app/mobile/astra-main-interface-panel";
 export {
-	MOBILE_CHAT_TOP_BAR_HOST_ID,
-	MOBILE_CHAT_SESSION_SHELL_ID,
+	ASTRA_CHAT_TOP_BAR_HOST_ID,
+	ASTRA_CHAT_SESSION_SHELL_ID,
 } from "@/app/mobile/top-bar/contracts/dom";
 
 export interface MobileChatTopBarFeature {
@@ -160,16 +160,16 @@ function MobileChatTopBar({
 	return (
 		<div
 			aria-label={translateAstra("sendForm.mainMenu.title")}
-			className="mobile-chat-top-bar"
-			data-slot="mobile-chat-top-bar"
+			className="astra-chat-top-bar"
+			data-slot="astra-chat-top-bar"
 		>
 			<Button
-				aria-controls={MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID}
+				aria-controls={ASTRA_MAIN_INTERFACE_PANEL_ID}
 				aria-expanded={isMainInterfaceOpen}
 				aria-haspopup="dialog"
 				aria-label={openMainInterfaceLabel}
-				id={MOBILE_ASTRA_MAIN_INTERFACE_TRIGGER_ID}
-				className="mobile-chat-top-bar__astra-main-trigger"
+				id={ASTRA_MAIN_INTERFACE_TRIGGER_ID}
+				className="astra-chat-top-bar__astra-main-trigger"
 				size="icon-sm"
 				title={openMainInterfaceLabel}
 				type="button"
@@ -180,24 +180,24 @@ function MobileChatTopBar({
 			>
 				<UiIcon
 					aria-hidden={true}
-					className="mobile-chat-top-bar__astra-main-trigger-icon"
+					className="astra-chat-top-bar__astra-main-trigger-icon"
 					icon={Equal}
 					size="sm"
 				/>
 			</Button>
-			<div className="mobile-chat-top-bar__identity">
-				<div className="mobile-chat-top-bar__avatar-frame">
+			<div className="astra-chat-top-bar__identity">
+				<div className="astra-chat-top-bar__avatar-frame">
 					<AstraChatAvatar
 						alt={avatarLabel}
-						className="mobile-chat-top-bar__avatar"
+						className="astra-chat-top-bar__avatar"
 						avatarUrl={snapshot.thumbnailUrl}
 						fallbackText={displayName.trim().charAt(0) || "?"}
 						groupAvatarUrls={snapshot.groupAvatarUrls}
-						imageClassName="mobile-chat-top-bar__avatar-image"
+						imageClassName="astra-chat-top-bar__avatar-image"
 						loading="eager"
 					/>
 				</div>
-				<div className="mobile-chat-top-bar__name" title={displayName}>
+				<div className="astra-chat-top-bar__name" title={displayName}>
 					{displayName}
 				</div>
 			</div>
@@ -206,7 +206,7 @@ function MobileChatTopBar({
 					showSecondaryTabsListFrame ? (
 						<div
 							id={
-								MOBILE_ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID
+								ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID
 							}
 							className="astra-smooth-tabs__list-frame"
 							ref={setSecondaryTabsListFramePortalTarget}
@@ -306,12 +306,12 @@ export function createMobileChatTopBarFeature({
 			return;
 		}
 
-		if (sheld.parentElement?.id === MOBILE_CHAT_SESSION_SHELL_ID) {
+		if (sheld.parentElement?.id === ASTRA_CHAT_SESSION_SHELL_ID) {
 			return;
 		}
 
 		const existingShell = documentRef.getElementById(
-			MOBILE_CHAT_SESSION_SHELL_ID,
+			ASTRA_CHAT_SESSION_SHELL_ID,
 		);
 		if (existingShell) {
 			return;
@@ -321,12 +321,12 @@ export function createMobileChatTopBarFeature({
 		originalNextSibling = sheld.nextSibling;
 
 		shell = markAstraProjectaUiRoot(documentRef.createElement("div"));
-		shell.id = MOBILE_CHAT_SESSION_SHELL_ID;
-		shell.className = "mobile-chat-session-shell";
+		shell.id = ASTRA_CHAT_SESSION_SHELL_ID;
+		shell.className = "astra-chat-session-shell";
 
 		topBarHost = markAstraProjectaUiRoot(documentRef.createElement("div"));
-		topBarHost.id = MOBILE_CHAT_TOP_BAR_HOST_ID;
-		topBarHost.className = "mobile-chat-top-bar-host";
+		topBarHost.id = ASTRA_CHAT_TOP_BAR_HOST_ID;
+		topBarHost.className = "astra-chat-top-bar-host";
 
 		originalParent.insertBefore(shell, sheld);
 		shell.append(topBarHost, sheld);

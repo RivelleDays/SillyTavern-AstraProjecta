@@ -341,7 +341,7 @@ function ChatCatalogRowActionsDrawer({
 					id={CHAT_ROW_ACTIONS_DRAWER_MENU_ID}
 				>
 					<section className="astra-main-interface-chat-actions-drawer__group astra-main-interface-chat-actions-drawer__group--chat-file">
-						<div className="astra-main-interface-chat-actions-drawer__group-label mobile-send-form-surface-label">
+						<div className="astra-main-interface-chat-actions-drawer__group-label astra-send-form-surface-label">
 							{chatFileGroupLabel}
 						</div>
 						<div className="astra-main-interface-chat-actions-drawer__group-items">
@@ -393,7 +393,7 @@ function ChatCatalogRowActionsDrawer({
 						</div>
 					</section>
 					<section className="astra-main-interface-chat-actions-drawer__group astra-main-interface-chat-actions-drawer__group--export">
-						<div className="astra-main-interface-chat-actions-drawer__group-label mobile-send-form-surface-label">
+						<div className="astra-main-interface-chat-actions-drawer__group-label astra-send-form-surface-label">
 							{exportTitle}
 						</div>
 						<div className="astra-main-interface-chat-actions-drawer__group-items">

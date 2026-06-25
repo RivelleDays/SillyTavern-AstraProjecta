@@ -35,16 +35,16 @@ describe("mobile chat input tool drawer contract", () => {
 		expect(inputRowSource).not.toContain("expandLeftControlsLabel");
 		expect(inputRowSource).not.toContain("onExpandLeftControlsClick");
 		expect(inputRowSource).not.toContain(
-			"mobile-chat-input__tools-composing",
+			"astra-chat-input__tools-composing",
 		);
 		expect(sendFormSource).not.toContain("armLeftControlsInteractionBlock");
 		expect(sendFormSource).not.toContain("isComposingLeftControlsTarget");
 		expect(sendFormSource).not.toContain(
-			".mobile-chat-input__tools-composing",
+			".astra-chat-input__tools-composing",
 		);
 		expect(inputRowSource).not.toContain("interactionBlocked={");
 		expect(inputRowSource).toContain("documentRef={documentRef}");
-		expect(inputRowSource).toContain("MOBILE_CHAT_MAIN_MENU_DRAWER_ID");
+		expect(inputRowSource).toContain("ASTRA_CHAT_MAIN_MENU_DRAWER_ID");
 			expect(sendFormSource).not.toContain("MobileSillyTavernInterfacePanel");
 			expect(shortcutsToolbarSource).toContain("BrainCircuit");
 			expect(shortcutsToolbarSource).toContain("ChevronDown");
@@ -61,14 +61,14 @@ describe("mobile chat input tool drawer contract", () => {
 		expect(sendFormSource).not.toContain("onPresetChange={");
 		expect(sendFormSource).not.toContain("NATIVE_OPTIONS_BUTTON_ID");
 		expect(sendFormSource).not.toContain("triggerNativeButton");
-		expect(optionsMenuSource).toContain("MOBILE_SEND_FORM_MENU_BUTTON_ID");
+		expect(optionsMenuSource).toContain("ASTRA_SEND_FORM_MENU_BUTTON_ID");
 		expect(optionsMenuSource).toContain("interactionBlocked = false");
 		expect(extensionsMenuSource).toContain(
-			"MOBILE_SEND_FORM_EXTENSION_SHORTCUTS_BUTTON_ID",
+			"ASTRA_SEND_FORM_EXTENSION_SHORTCUTS_BUTTON_ID",
 		);
 		expect(extensionsMenuSource).toContain("interactionBlocked = false");
 		expect(extensionsMenuSource).toContain(
-			"MOBILE_SEND_FORM_EXTENSIONS_DRAWER_ID",
+			"ASTRA_SEND_FORM_EXTENSIONS_DRAWER_ID",
 		);
 		expect(extensionsBridgeSource).toContain("NATIVE_EXTENSIONS_MENU_ID");
 		expect(extensionsBridgeSource).toContain(
@@ -99,10 +99,10 @@ describe("mobile chat input tool drawer contract", () => {
 		);
 
 		expect(sendFormSource).toMatch(
-			/<div\s+id=\{MOBILE_CHAT_INPUT_HOST_ID\}\s+className="mobile-chat-input-host"/,
+			/<div\s+id=\{ASTRA_CHAT_INPUT_HOST_ID\}\s+className="astra-chat-input-host"/,
 		);
 		expect(inputSource).toMatch(
-			/<button\s+[^>]*id=\{MOBILE_CHAT_MAIN_MENU_TRIGGER_ID\}\s+className="mobile-chat-input__avatar-button mobile-chat-main-menu__trigger"/,
+			/<button\s+[^>]*id=\{ASTRA_CHAT_MAIN_MENU_TRIGGER_ID\}\s+className="astra-chat-input__avatar-button astra-chat-main-menu__trigger"/,
 		);
 	});
 

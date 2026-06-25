@@ -3,15 +3,15 @@ import { describe, expect, test } from "vitest";
 import { SILLYTAVERN_INTERFACE_ROUTES } from "@/app/shared/sillytavern-interface";
 import { SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES } from "@/packages/features/sillytavern-interface/icons/registry";
 import {
-	MOBILE_CHAT_MAIN_MENU_TILES,
+	ASTRA_CHAT_MAIN_MENU_TILES,
 	splitMobileChatMainMenuTileLabel,
 } from "@/packages/features/chat-session/send-form/main-menu/tiles";
 
-describe("MOBILE_CHAT_MAIN_MENU_TILES", () => {
+describe("ASTRA_CHAT_MAIN_MENU_TILES", () => {
 	test("maps every tile iconKey to a centralized SVG source entry", () => {
-		expect(MOBILE_CHAT_MAIN_MENU_TILES).toHaveLength(6);
+		expect(ASTRA_CHAT_MAIN_MENU_TILES).toHaveLength(6);
 
-			for (const tile of MOBILE_CHAT_MAIN_MENU_TILES) {
+			for (const tile of ASTRA_CHAT_MAIN_MENU_TILES) {
 				expect(tile.iconKey).toBeTruthy();
 				expect(
 					SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES[tile.iconKey],
@@ -33,12 +33,12 @@ describe("MOBILE_CHAT_MAIN_MENU_TILES", () => {
 			"user-settings": "main-menu-user",
 		} as const;
 
-		for (const tile of MOBILE_CHAT_MAIN_MENU_TILES) {
+		for (const tile of ASTRA_CHAT_MAIN_MENU_TILES) {
 			expect(tile.wrapperId).toBe(expectedWrapperIds[tile.key]);
 			wrapperIds.add(tile.wrapperId);
 		}
 
-		expect(wrapperIds.size).toBe(MOBILE_CHAT_MAIN_MENU_TILES.length);
+		expect(wrapperIds.size).toBe(ASTRA_CHAT_MAIN_MENU_TILES.length);
 	});
 
 	test("keeps approved label split metadata for the static tile layout", () => {
@@ -51,7 +51,7 @@ describe("MOBILE_CHAT_MAIN_MENU_TILES", () => {
 			"user-settings": [1, 1],
 		} as const;
 
-		for (const tile of MOBILE_CHAT_MAIN_MENU_TILES) {
+		for (const tile of ASTRA_CHAT_MAIN_MENU_TILES) {
 			expect(tile.labelLines).toEqual(expectedLabelLines[tile.key]);
 		}
 	});
@@ -67,7 +67,7 @@ describe("MOBILE_CHAT_MAIN_MENU_TILES", () => {
 			"user-settings": SILLYTAVERN_INTERFACE_ROUTES.userSettings,
 		} as const;
 
-		for (const tile of MOBILE_CHAT_MAIN_MENU_TILES) {
+		for (const tile of ASTRA_CHAT_MAIN_MENU_TILES) {
 			expect(tile.sillyTavernInterfacePageKey).toBe(
 				expectedPageKeys[tile.key],
 			);

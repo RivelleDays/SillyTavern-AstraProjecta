@@ -27,7 +27,7 @@ export interface MobileChatMainMenuTileDescriptor {
 	wrapperId: string;
 }
 
-export const MOBILE_CHAT_MAIN_MENU_TILES = [
+export const ASTRA_CHAT_MAIN_MENU_TILES = [
 	{
 		iconKey: "ai-settings",
 		key: "ai-settings",

@@ -24,8 +24,8 @@ import {
 } from "@/packages/features/sillytavern-interface/routes/registry";
 import { readStoredAiSettingsPageKey } from "@/packages/features/sillytavern-interface/routes/subheaderStorage";
 
-const MOBILE_SILLYTAVERN_INTERFACE_PANEL_HOST_ID =
-	"mobile-sillytavern-interface-panel-host";
+const ASTRA_SILLYTAVERN_INTERFACE_PANEL_HOST_ID =
+	"astra-sillytavern-interface-panel-host";
 
 type ScheduledOpenHandleKind = "frame" | "timeout";
 
@@ -246,7 +246,7 @@ export function createMobileSillyTavernInterfacePanelFeature({
 } = {}): MobileSillyTavernInterfacePanelFeature {
 	const rootManager = createAstraReactPortalRootManager({
 		documentRef,
-		id: MOBILE_SILLYTAVERN_INTERFACE_PANEL_HOST_ID,
+		id: ASTRA_SILLYTAVERN_INTERFACE_PANEL_HOST_ID,
 	});
 	const controller = createPanelStateController({ documentRef });
 	let currentChatIdentityStore: CurrentChatIdentityStore | null = null;

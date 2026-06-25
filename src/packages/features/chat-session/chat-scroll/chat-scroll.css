@@ -1,7 +1,7 @@
 body.astra-projecta-mobile-layout {
 	& #chat {
 		--astra-chat-scroll-inline-padding: calc(
-			var(--mobile-chat-spacing) - 4px
+			var(--astra-chat-spacing) - 4px
 		);
 		--astra-chat-scroll-glass-clearance-block-start: 0;
 		--astra-chat-scroll-glass-clearance-block-end: 0;

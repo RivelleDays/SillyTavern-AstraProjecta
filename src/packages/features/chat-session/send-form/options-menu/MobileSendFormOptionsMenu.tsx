@@ -22,14 +22,14 @@ import {
 	resolveEventTypes,
 } from "@/packages/core/st/shared";
 import {
-	MOBILE_SEND_FORM_MENU_BUTTON_ID,
-	MOBILE_SEND_FORM_OPTIONS_DRAWER_DESCRIPTION_ID,
-	MOBILE_SEND_FORM_OPTIONS_DRAWER_ID,
-	MOBILE_SEND_FORM_OPTIONS_DRAWER_MENU_ID,
-	MOBILE_SEND_FORM_OPTIONS_DRAWER_SCROLLABLE_CONTENT_ID,
-	MOBILE_SEND_FORM_OPTIONS_DRAWER_TITLE_ID,
-	MOBILE_SEND_FORM_SHORTCUTS_TOGGLE_ID,
-	MOBILE_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID,
+	ASTRA_SEND_FORM_MENU_BUTTON_ID,
+	ASTRA_SEND_FORM_OPTIONS_DRAWER_DESCRIPTION_ID,
+	ASTRA_SEND_FORM_OPTIONS_DRAWER_ID,
+	ASTRA_SEND_FORM_OPTIONS_DRAWER_MENU_ID,
+	ASTRA_SEND_FORM_OPTIONS_DRAWER_SCROLLABLE_CONTENT_ID,
+	ASTRA_SEND_FORM_OPTIONS_DRAWER_TITLE_ID,
+	ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_ID,
+	ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID,
 	NATIVE_OPTIONS_ROOT_ID,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { triggerNativeOption } from "@/packages/features/chat-session/send-form/bridges/nativeOptionBridge";
@@ -266,16 +266,16 @@ export function MobileSendFormOptionsMenu({
 			repositionInputs={false}
 		>
 			<button
-				aria-controls={MOBILE_SEND_FORM_OPTIONS_DRAWER_ID}
+				aria-controls={ASTRA_SEND_FORM_OPTIONS_DRAWER_ID}
 				aria-expanded={isOpen}
 				aria-label={triggerLabel}
-				id={MOBILE_SEND_FORM_MENU_BUTTON_ID}
+				id={ASTRA_SEND_FORM_MENU_BUTTON_ID}
 				className={cn(
 					buttonVariants({
 						size: "icon-xs",
 						variant: "ghost",
 					}),
-					"mobile-chat-input__tool-button",
+					"astra-chat-input__tool-button",
 				)}
 				title={triggerLabel}
 				type="button"
@@ -287,17 +287,17 @@ export function MobileSendFormOptionsMenu({
 			</button>
 			<DrawerContent
 				aria-describedby={
-					MOBILE_SEND_FORM_OPTIONS_DRAWER_DESCRIPTION_ID
+					ASTRA_SEND_FORM_OPTIONS_DRAWER_DESCRIPTION_ID
 				}
-				aria-labelledby={MOBILE_SEND_FORM_OPTIONS_DRAWER_TITLE_ID}
-				id={MOBILE_SEND_FORM_OPTIONS_DRAWER_ID}
-				className="mobile-send-form-options-drawer"
+				aria-labelledby={ASTRA_SEND_FORM_OPTIONS_DRAWER_TITLE_ID}
+				id={ASTRA_SEND_FORM_OPTIONS_DRAWER_ID}
+				className="astra-send-form-options-drawer"
 			>
 				<DrawerHeader className="sr-only">
 					<DrawerTitle asChild={true}>
 						<span>
 							<span
-								id={MOBILE_SEND_FORM_OPTIONS_DRAWER_TITLE_ID}
+								id={ASTRA_SEND_FORM_OPTIONS_DRAWER_TITLE_ID}
 								data-slot="drawer-title"
 							>
 								{title}
@@ -308,7 +308,7 @@ export function MobileSendFormOptionsMenu({
 						<span>
 							<span
 								id={
-									MOBILE_SEND_FORM_OPTIONS_DRAWER_DESCRIPTION_ID
+									ASTRA_SEND_FORM_OPTIONS_DRAWER_DESCRIPTION_ID
 								}
 								data-slot="drawer-description"
 							>
@@ -320,36 +320,36 @@ export function MobileSendFormOptionsMenu({
 				<DrawerBody
 					scrollAreaProps={{
 						className:
-							"mobile-send-form-options-drawer__scroll-area",
+							"astra-send-form-options-drawer__scroll-area",
 					}}
 					viewportProps={{
 						className:
-							"mobile-send-form-options-drawer__scrollable-content",
-						id: MOBILE_SEND_FORM_OPTIONS_DRAWER_SCROLLABLE_CONTENT_ID,
+							"astra-send-form-options-drawer__scrollable-content",
+						id: ASTRA_SEND_FORM_OPTIONS_DRAWER_SCROLLABLE_CONTENT_ID,
 					}}
 				>
 					<div
-						id={MOBILE_SEND_FORM_OPTIONS_DRAWER_MENU_ID}
-						className="mobile-send-form-options-drawer__menu"
+						id={ASTRA_SEND_FORM_OPTIONS_DRAWER_MENU_ID}
+						className="astra-send-form-options-drawer__menu"
 					>
 						{groups.map((group) => {
 							const groupSection = (
 								<section
-									className={`mobile-send-form-options-drawer__group mobile-send-form-options-drawer__group--${group.key}`}
+									className={`astra-send-form-options-drawer__group astra-send-form-options-drawer__group--${group.key}`}
 									key={group.key}
 								>
-									<div className="mobile-send-form-options-drawer__group-label mobile-send-form-surface-label">
+									<div className="astra-send-form-options-drawer__group-label astra-send-form-surface-label">
 										{group.label}
 									</div>
-									<div className="mobile-send-form-options-drawer__group-items">
+									<div className="astra-send-form-options-drawer__group-items">
 										{group.actions.map((action) => {
 											return (
 												<button
 													className={[
-														"mobile-send-form-options-drawer__item",
+														"astra-send-form-options-drawer__item",
 														action.variant ===
 														"destructive"
-															? "mobile-send-form-options-drawer__item--destructive"
+															? "astra-send-form-options-drawer__item--destructive"
 															: "",
 													]
 														.join(" ")
@@ -382,18 +382,18 @@ export function MobileSendFormOptionsMenu({
 
 							return (
 								<React.Fragment key={group.key}>
-									<section className="mobile-send-form-options-drawer__group mobile-send-form-options-drawer__group--shortcuts-visibility">
-										<div className="mobile-send-form-options-drawer__group-items">
+									<section className="astra-send-form-options-drawer__group astra-send-form-options-drawer__group--shortcuts-visibility">
+										<div className="astra-send-form-options-drawer__group-items">
 											<div
 												id={
-													MOBILE_SEND_FORM_SHORTCUTS_TOGGLE_ID
+													ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_ID
 												}
-												className="mobile-send-form-options-drawer__toggle"
+												className="astra-send-form-options-drawer__toggle"
 											>
 												<Label
-													className="mobile-send-form-options-drawer__toggle-label"
+													className="astra-send-form-options-drawer__toggle-label"
 													htmlFor={
-														MOBILE_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID
+														ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID
 													}
 												>
 													{shortcutsVisibilityLabel}
@@ -403,7 +403,7 @@ export function MobileSendFormOptionsMenu({
 														showShortcutsToolbar
 													}
 													id={
-														MOBILE_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID
+														ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID
 													}
 													size="default"
 													type="button"

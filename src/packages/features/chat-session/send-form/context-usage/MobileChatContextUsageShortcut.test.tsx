@@ -75,7 +75,7 @@ describe("MobileChatContextUsageShortcut", () => {
 		expect(trigger).toHaveClass("is-idle");
 		expect(trigger).not.toBeDisabled();
 		expect(
-			trigger.querySelector(".mobile-chat-context-usage-shortcut__idle-icon"),
+			trigger.querySelector(".astra-chat-context-usage-shortcut__idle-icon"),
 		).toBeInTheDocument();
 	});
 
@@ -118,12 +118,12 @@ describe("MobileChatContextUsageShortcut", () => {
 		expect(trigger).toHaveClass("is-loading");
 		expect(
 			trigger.querySelector(
-				".mobile-chat-context-usage-shortcut__loading-dots",
+				".astra-chat-context-usage-shortcut__loading-dots",
 			),
 		).toBeInTheDocument();
 		expect(
 			trigger.querySelectorAll(
-				".mobile-chat-context-usage-shortcut__loading-dot",
+				".astra-chat-context-usage-shortcut__loading-dot",
 			),
 		).toHaveLength(3);
 		expect(screen.queryByRole("status")).not.toBeInTheDocument();
@@ -157,7 +157,7 @@ describe("MobileChatContextUsageShortcut", () => {
 		expect(trigger).toHaveTextContent("42%");
 		expect(
 			trigger.querySelector(
-				".mobile-chat-context-usage-shortcut__loading-dots",
+				".astra-chat-context-usage-shortcut__loading-dots",
 			),
 		).not.toBeInTheDocument();
 		},
@@ -200,7 +200,7 @@ describe("MobileChatContextUsageShortcut", () => {
 		expect(trigger).toHaveClass("is-idle");
 		expect(trigger).not.toBeDisabled();
 		expect(
-			trigger.querySelector(".mobile-chat-context-usage-shortcut__idle-icon"),
+			trigger.querySelector(".astra-chat-context-usage-shortcut__idle-icon"),
 		).toBeInTheDocument();
 
 		fireEvent.click(trigger);
@@ -249,7 +249,7 @@ describe("MobileChatContextUsageShortcut", () => {
 		).not.toBeInTheDocument();
 		expect(
 			document.querySelector(
-				".mobile-chat-context-usage-shortcut__popover-header",
+				".astra-chat-context-usage-shortcut__popover-header",
 			),
 		).not.toBeInTheDocument();
 		expect(

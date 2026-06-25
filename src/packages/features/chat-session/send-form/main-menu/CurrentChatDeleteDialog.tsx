@@ -19,7 +19,7 @@ import type { DeleteCurrentChatResult } from "@/packages/core/st/currentChatDele
 import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identity";
 import type { CurrentChatInfoSnapshot } from "@/packages/core/st/currentChatInfo";
 import { formatStAbsoluteTimestamp } from "@/packages/core/st/timestamps";
-import { MOBILE_CHAT_MAIN_MENU_DELETE_DIALOG_ID } from "@/packages/features/chat-session/send-form/contracts/dom";
+import { ASTRA_CHAT_MAIN_MENU_DELETE_DIALOG_ID } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { CurrentChatActionDialogDescription } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatActionDialogDescription";
 
 type ConfirmDeleteResult = DeleteCurrentChatResult | void;
@@ -224,7 +224,7 @@ export function CurrentChatDeleteDialog({
 			description={description}
 			footer={footer}
 			headerContent={headerContent}
-			id={MOBILE_CHAT_MAIN_MENU_DELETE_DIALOG_ID}
+			id={ASTRA_CHAT_MAIN_MENU_DELETE_DIALOG_ID}
 			icon={<UiIcon aria-hidden={true} icon={Trash2} size="sm" />}
 			open={open}
 			title={title}

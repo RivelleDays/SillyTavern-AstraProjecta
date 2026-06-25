@@ -108,26 +108,26 @@ describe("CurrentChatRenameDialog", () => {
 			name: "Rename chat",
 		});
 		const title = document.getElementById(
-			"mobile-chat-main-menu-rename-dialog-title",
+			"astra-chat-main-menu-rename-dialog-title",
 		);
 		const semanticDescription = document.getElementById(
-			"mobile-chat-main-menu-rename-dialog-description",
+			"astra-chat-main-menu-rename-dialog-description",
 		);
 
 		expect(dialog).toHaveAttribute(
 			"id",
-			"mobile-chat-main-menu-rename-dialog",
+			"astra-chat-main-menu-rename-dialog",
 		);
 		const labelledBy = dialog.getAttribute("aria-labelledby");
 		const describedBy = dialog.getAttribute("aria-describedby");
 		expect(labelledBy).toBeTruthy();
-		expect(labelledBy).not.toBe("mobile-chat-main-menu-rename-dialog-title");
+		expect(labelledBy).not.toBe("astra-chat-main-menu-rename-dialog-title");
 		expect(document.getElementById(labelledBy ?? "")).toHaveClass(
 			"astra-dialog-title",
 		);
 		expect(describedBy).toBeTruthy();
 		expect(describedBy).not.toBe(
-			"mobile-chat-main-menu-rename-dialog-description",
+			"astra-chat-main-menu-rename-dialog-description",
 		);
 		expect(document.getElementById(describedBy ?? "")).toHaveClass(
 			"astra-dialog-description",
@@ -174,7 +174,7 @@ describe("CurrentChatRenameDialog", () => {
 		).not.toBeInTheDocument();
 		expect(
 			within(dialog).getByRole("textbox", { name: "New chat name" }),
-		).toHaveAttribute("id", "mobile-chat-main-menu-rename-dialog-input");
+		).toHaveAttribute("id", "astra-chat-main-menu-rename-dialog-input");
 		expect(
 			within(dialog).getByRole("textbox", { name: "New chat name" }),
 		).toHaveValue("chapter-1");

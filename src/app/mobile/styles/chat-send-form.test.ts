@@ -65,49 +65,49 @@ describe("chat-send-form.css", () => {
 		expectSelectors(css, [
 			"--astra-mobile-visual-viewport-bottom",
 			"--astra-mobile-safe-bottom-effective",
-			"--mobile-chat-top-bar-block-size",
+			"--astra-chat-top-bar-block-size",
 			"#send_form",
 			"#send_form #leftSendForm",
 			"#send_form #rightSendForm",
 			"#send_form #nonQRFormItems",
 			"&.PWA #sheld",
-			"#mobile-chat-composer-shell",
-			"#mobile-chat-composer-shell::before",
-			"#mobile-chat-composer-shell > #form_sheld",
+			"#astra-chat-composer-shell",
+			"#astra-chat-composer-shell::before",
+			"#astra-chat-composer-shell > #form_sheld",
 			"#form_sheld",
-			"#mobile-chat-composer-host",
-			"#mobile-chat-shortcuts-host",
-			"#mobile-chat-quick-replies-host",
-			"#mobile-chat-input-host",
-			".mobile-chat-input__field > #mobile-chat-quick-replies-host",
-			"#mobile-chat-quick-replies-host > #qr--bar",
-			"#send_form > #mobile-chat-composer-host",
-			".mobile-chat-composer",
-			".mobile-chat-composer__input-region",
-			".mobile-chat-composer__shortcuts-region",
-			'.mobile-chat-composer[data-shortcuts-visible="false"]',
-			'.mobile-chat-composer[data-shortcuts-visible="false"] .mobile-chat-composer__shortcuts-region',
-			".mobile-chat-composer__input-region > #mobile-chat-input-host",
-			".mobile-chat-composer__shortcuts-region > #mobile-chat-shortcuts-host",
+			"#astra-chat-composer-host",
+			"#astra-chat-shortcuts-host",
+			"#astra-chat-quick-replies-host",
+			"#astra-chat-input-host",
+			".astra-chat-input__field > #astra-chat-quick-replies-host",
+			"#astra-chat-quick-replies-host > #qr--bar",
+			"#send_form > #astra-chat-composer-host",
+			".astra-chat-composer",
+			".astra-chat-composer__input-region",
+			".astra-chat-composer__shortcuts-region",
+			'.astra-chat-composer[data-shortcuts-visible="false"]',
+			'.astra-chat-composer[data-shortcuts-visible="false"] .astra-chat-composer__shortcuts-region',
+			".astra-chat-composer__input-region > #astra-chat-input-host",
+			".astra-chat-composer__shortcuts-region > #astra-chat-shortcuts-host",
 		]);
 
 		const composerHostBlock = readBlock(
 			css,
-			"#send_form > #mobile-chat-composer-host",
+			"#send_form > #astra-chat-composer-host",
 		);
 
-		expect(composerHostBlock).toContain("--mobile-chat-spacing");
+		expect(composerHostBlock).toContain("--astra-chat-spacing");
 		expect(css).not.toContain(
-			"#form_sheld > #mobile-chat-quick-replies-host",
+			"#form_sheld > #astra-chat-quick-replies-host",
 		);
-		expect(css).not.toContain("mobile-send-form-input-row");
+		expect(css).not.toContain("astra-send-form-input-row");
 	});
 
 	test("keeps the bottom glass overlay masked so blur fades in with the surface", () => {
 		const css = readCss();
 		const overlayBlock = readBlock(
 			css,
-			"#mobile-chat-composer-shell::before",
+			"#astra-chat-composer-shell::before",
 		);
 
 		expect(overlayBlock).not.toBe("");
@@ -119,25 +119,25 @@ describe("chat-send-form.css", () => {
 		const css = readCss();
 
 		expectSelectors(css, [
-			".mobile-send-form-shortcuts",
-			".mobile-send-form-shortcuts__strip",
-			".mobile-chat-input",
-			".mobile-chat-input__content",
-			".mobile-chat-input__avatar-button",
-			".mobile-chat-input__field",
-			".mobile-chat-input__textarea-slot",
-			".mobile-chat-input__textarea-slot[hidden]",
-			".mobile-chat-input__field > #mobile-chat-quick-replies-host[hidden]",
-			".mobile-chat-input__toolbar",
-			".mobile-chat-input__actions",
-			".mobile-chat-input__quick-reply-toggle",
-			".mobile-chat-input__send-button",
-			".mobile-chat-input__tool-button:not(:disabled)",
-			".mobile-chat-input__tool-button:disabled",
+			".astra-send-form-shortcuts",
+			".astra-send-form-shortcuts__strip",
+			".astra-chat-input",
+			".astra-chat-input__content",
+			".astra-chat-input__avatar-button",
+			".astra-chat-input__field",
+			".astra-chat-input__textarea-slot",
+			".astra-chat-input__textarea-slot[hidden]",
+			".astra-chat-input__field > #astra-chat-quick-replies-host[hidden]",
+			".astra-chat-input__toolbar",
+			".astra-chat-input__actions",
+			".astra-chat-input__quick-reply-toggle",
+			".astra-chat-input__send-button",
+			".astra-chat-input__tool-button:not(:disabled)",
+			".astra-chat-input__tool-button:disabled",
 		]);
-		expect(css).toContain("--mobile-send-form-textarea-flex-basis:");
-		expect(css).toContain("--mobile-send-form-avatar-size:");
-		expect(css).not.toContain(".mobile-chat-input__tools-composing");
+		expect(css).toContain("--astra-send-form-textarea-flex-basis:");
+		expect(css).toContain("--astra-send-form-avatar-size:");
+		expect(css).not.toContain(".astra-chat-input__tools-composing");
 		expect(css).not.toContain('[data-left-state="composing"]');
 	});
 
@@ -145,32 +145,32 @@ describe("chat-send-form.css", () => {
 		const css = readCss();
 		const quickReplySlice = readBlock(
 			css,
-			".mobile-chat-input__field > #mobile-chat-quick-replies-host",
+			".astra-chat-input__field > #astra-chat-quick-replies-host",
 		);
 
 		expectSelectors(css, [
-			".mobile-chat-input__field > #mobile-chat-quick-replies-host",
-			"#mobile-chat-quick-replies-host > #qr--bar > .qr--buttons",
-			"#mobile-chat-quick-replies-host > #qr--bar .qr--button",
-			"#mobile-chat-quick-replies-host > #qr--bar .qr--button-expander",
+			".astra-chat-input__field > #astra-chat-quick-replies-host",
+			"#astra-chat-quick-replies-host > #qr--bar > .qr--buttons",
+			"#astra-chat-quick-replies-host > #qr--bar .qr--button",
+			"#astra-chat-quick-replies-host > #qr--bar .qr--button-expander",
 		]);
 		expect(quickReplySlice).toContain(
-			"--mobile-send-form-quick-reply-gap:",
+			"--astra-send-form-quick-reply-gap:",
 		);
 		expect(quickReplySlice).toContain(
-			"--mobile-send-form-quick-reply-button-padding-x:",
+			"--astra-send-form-quick-reply-button-padding-x:",
 		);
 		expect(quickReplySlice).toContain(
-			"--mobile-send-form-quick-reply-button-padding-y:",
+			"--astra-send-form-quick-reply-button-padding-y:",
 		);
 		expect(quickReplySlice).toContain(
-			"--mobile-send-form-quick-reply-button-font-size:",
+			"--astra-send-form-quick-reply-button-font-size:",
 		);
 		expect(quickReplySlice).toContain(
-			"--mobile-send-form-quick-reply-max-block-size:",
+			"--astra-send-form-quick-reply-max-block-size:",
 		);
 		expect(quickReplySlice).toContain(
-			"--mobile-send-form-quick-reply-expander-size:",
+			"--astra-send-form-quick-reply-expander-size:",
 		);
 		expect(quickReplySlice).not.toContain("!important");
 		expect(quickReplySlice).not.toContain("--mobileQRsBarHeight");
@@ -182,8 +182,8 @@ describe("chat-send-form.css", () => {
 		const css = readCss();
 		const quickReplyMenuSlice = readSlice(
 			css,
-			"\t& {\n\t\t--mobile-send-form-menu-surface-padding-inline:",
-			".mobile-chat-composer {",
+			"\t& {\n\t\t--astra-send-form-menu-surface-padding-inline:",
+			".astra-chat-composer {",
 		);
 
 		expectSelectors(css, [
@@ -204,52 +204,52 @@ describe("chat-send-form.css", () => {
 			/&\s+#qr--popout\s*>\s*\.qr--body\s*>\s*\.qr--buttons\.qr--color\s*\{/u,
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-surface-padding-inline:",
+			"--astra-send-form-menu-surface-padding-inline:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-surface-padding-block:",
+			"--astra-send-form-menu-surface-padding-block:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-surface:",
+			"--astra-send-form-menu-surface:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-border-color:",
+			"--astra-send-form-menu-border-color:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-section-gap:",
+			"--astra-send-form-menu-section-gap:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-section-separator-color:",
+			"--astra-send-form-menu-section-separator-color:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-label-padding-inline:",
+			"--astra-send-form-menu-label-padding-inline:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-label-font-size:",
+			"--astra-send-form-menu-label-font-size:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-row-height:",
+			"--astra-send-form-menu-row-height:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-row-padding-inline:",
+			"--astra-send-form-menu-row-padding-inline:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-row-padding-block:",
+			"--astra-send-form-menu-row-padding-block:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-row-gap:",
+			"--astra-send-form-menu-row-gap:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-row-radius:",
+			"--astra-send-form-menu-row-radius:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-row-font-size:",
+			"--astra-send-form-menu-row-font-size:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-row-font-weight:",
+			"--astra-send-form-menu-row-font-weight:",
 		);
 		expect(quickReplyMenuSlice).toContain(
-			"--mobile-send-form-menu-row-hover-surface:",
+			"--astra-send-form-menu-row-hover-surface:",
 		);
 		expect(quickReplyMenuSlice).not.toContain("!important");
 		expect(quickReplyMenuSlice).not.toContain("--mobileQRsBarHeight");
@@ -261,14 +261,14 @@ describe("chat-send-form.css", () => {
 
 	test("keeps the inline send button on the input-row size token", () => {
 		const css = readCss();
-		const block = readBlock(css, ".mobile-chat-input__send-button");
+		const block = readBlock(css, ".astra-chat-input__send-button");
 
 		expect(block).not.toBe("");
 		expect(block).toContain(
-			"var(--mobile-send-form-inline-send-button-size)",
+			"var(--astra-send-form-inline-send-button-size)",
 		);
 		expect(block).toContain(
-			"min-width: var(--mobile-send-form-inline-send-button-size)",
+			"min-width: var(--astra-send-form-inline-send-button-size)",
 		);
 		expect(block).not.toContain("var(--astra-button-min-size)");
 	});
@@ -277,56 +277,56 @@ describe("chat-send-form.css", () => {
 		const css = readCss();
 
 		expectSelectors(css, [
-			"#mobile-send-form-options-drawer",
-			"#mobile-send-form-options-drawer-scrollable-content",
-			"#mobile-send-form-options-drawer-menu",
-			".mobile-send-form-options-drawer__scroll-area",
-			".mobile-send-form-options-drawer__group",
-			".mobile-send-form-options-drawer__group-label",
-			".mobile-send-form-options-drawer__item",
-			".mobile-send-form-options-drawer__item:not(:disabled)",
-			".mobile-send-form-options-drawer__item:disabled",
-			".mobile-send-form-options-drawer__item--destructive",
-			".mobile-send-form-options-drawer__toggle",
-			".mobile-send-form-options-drawer__toggle-label",
-			"#mobile-send-form-extensions-drawer",
-			"#mobile-send-form-extensions-drawer-scrollable-content",
-			".mobile-send-form-extensions-drawer__content",
-			".mobile-send-form-extensions-drawer__label",
-			".mobile-send-form-extensions-drawer__menu-host",
-			"#mobile-send-form-extensions-drawer #extensionsMenu",
+			"#astra-send-form-options-drawer",
+			"#astra-send-form-options-drawer-scrollable-content",
+			"#astra-send-form-options-drawer-menu",
+			".astra-send-form-options-drawer__scroll-area",
+			".astra-send-form-options-drawer__group",
+			".astra-send-form-options-drawer__group-label",
+			".astra-send-form-options-drawer__item",
+			".astra-send-form-options-drawer__item:not(:disabled)",
+			".astra-send-form-options-drawer__item:disabled",
+			".astra-send-form-options-drawer__item--destructive",
+			".astra-send-form-options-drawer__toggle",
+			".astra-send-form-options-drawer__toggle-label",
+			"#astra-send-form-extensions-drawer",
+			"#astra-send-form-extensions-drawer-scrollable-content",
+			".astra-send-form-extensions-drawer__content",
+			".astra-send-form-extensions-drawer__label",
+			".astra-send-form-extensions-drawer__menu-host",
+			"#astra-send-form-extensions-drawer #extensionsMenu",
 			'.astra-scroll-area__scrollbar[data-orientation="vertical"]',
 		]);
 		expect(css).toMatch(
-			/\.mobile-send-form-options-drawer__scroll-area\s+\.astra-scroll-area__scrollbar\[data-orientation="vertical"\]/u,
+			/\.astra-send-form-options-drawer__scroll-area\s+\.astra-scroll-area__scrollbar\[data-orientation="vertical"\]/u,
 		);
 		expect(css).toMatch(
-			/\.mobile-send-form-extensions-drawer__scroll-area\s+\.astra-scroll-area__scrollbar\[data-orientation="vertical"\]/u,
+			/\.astra-send-form-extensions-drawer__scroll-area\s+\.astra-scroll-area__scrollbar\[data-orientation="vertical"\]/u,
 		);
 		expect(css).not.toContain(
-			".mobile-send-form-options-drawer__scroll-area .astra-scroll-area__thumb",
+			".astra-send-form-options-drawer__scroll-area .astra-scroll-area__thumb",
 		);
 		expect(css).not.toContain(
-			".mobile-send-form-extensions-drawer__scroll-area .astra-scroll-area__thumb",
+			".astra-send-form-extensions-drawer__scroll-area .astra-scroll-area__thumb",
 		);
 		expect(css).not.toContain(
-			".mobile-send-form-options-drawer__scroll-area .astra-scroll-area__scrollbar::before",
+			".astra-send-form-options-drawer__scroll-area .astra-scroll-area__scrollbar::before",
 		);
 		expect(css).not.toContain(
-			".mobile-send-form-extensions-drawer__scroll-area .astra-scroll-area__scrollbar::before",
+			".astra-send-form-extensions-drawer__scroll-area .astra-scroll-area__scrollbar::before",
 		);
-		expect(css).not.toContain(".mobile-send-form-extensions-drawer__item");
+		expect(css).not.toContain(".astra-send-form-extensions-drawer__item");
 		expect(css).not.toContain(
-			".mobile-send-form-options-drawer__toggle-switch",
+			".astra-send-form-options-drawer__toggle-switch",
 		);
 		expect(css).not.toContain("[data-slot='field-content']");
 		expect(css).not.toContain("[data-slot='field-label']");
-		expect(css).not.toContain("--mobile-send-form-drawer-content-padding:");
+		expect(css).not.toContain("--astra-send-form-drawer-content-padding:");
 		expect(css).not.toContain(
-			"--mobile-send-form-options-scroll-fade-size:",
+			"--astra-send-form-options-scroll-fade-size:",
 		);
 		expect(css).not.toContain(
-			"#mobile-send-form-options-drawer-scrollable-content:not([data-has-overflow-y])",
+			"#astra-send-form-options-drawer-scrollable-content:not([data-has-overflow-y])",
 		);
 	});
 
@@ -334,10 +334,10 @@ describe("chat-send-form.css", () => {
 		const css = readCss();
 
 		expectSelectors(css, [
-			".mobile-send-form-surface-label",
-			".mobile-chat-context-usage-shortcut__trigger:not(:disabled)",
-			".mobile-chat-context-usage-shortcut__trigger:disabled",
-			".mobile-chat-context-usage-shortcut__helper.is-alert",
+			".astra-send-form-surface-label",
+			".astra-chat-context-usage-shortcut__trigger:not(:disabled)",
+			".astra-chat-context-usage-shortcut__trigger:disabled",
+			".astra-chat-context-usage-shortcut__helper.is-alert",
 			".astra-chat-library-dialog-action--confirm:disabled",
 			".astra-chat-library-dialog-action--confirm[disabled]",
 			".astra-chat-library-dialog-footer--delete",
@@ -350,67 +350,67 @@ describe("chat-send-form.css", () => {
 		const css = readCss();
 
 		expectSelectors(css, [
-			"#mobile-chat-main-menu-drawer",
-			".mobile-chat-main-menu-drawer__header",
-			".mobile-chat-main-menu-drawer__scrollable-content",
-			".mobile-chat-main-menu-drawer__content",
-			".mobile-chat-main-menu-drawer__header-row",
-			".mobile-chat-main-menu-drawer__header-main",
-			".mobile-chat-main-menu-drawer__avatar-frame",
-			".mobile-chat-main-menu-drawer__avatar",
-			".mobile-chat-main-menu-drawer__avatar.astra-chat-avatar--collage",
-			".mobile-chat-main-menu-drawer__avatar .astra-chat-avatar__collage-image",
-			".mobile-chat-main-menu-drawer__name-stack",
-			".mobile-chat-main-menu-drawer__actions",
-			".mobile-chat-main-menu-drawer__action-button",
-			".mobile-chat-main-menu-drawer__entity-name",
-			".mobile-chat-main-menu-drawer__chat-file-name",
-			".mobile-chat-main-menu-drawer__detail-section",
-			".mobile-chat-main-menu-drawer__detail-row",
-			".mobile-chat-main-menu-drawer__detail-term",
-			".mobile-chat-main-menu-drawer__detail-definition",
-			".mobile-chat-main-menu-drawer__detail-connection-provider",
-			".mobile-chat-main-menu-drawer__detail-connection-provider-icon",
-			".mobile-chat-main-menu-drawer__detail-connection-provider-icon svg",
-			".mobile-chat-main-menu-drawer__detail-connection-provider-label",
-			".mobile-chat-main-menu-drawer__detail-connection-model",
-			".mobile-chat-main-menu-drawer__detail-helper",
-			".mobile-chat-main-menu-drawer__detail-separator",
-			".mobile-chat-main-menu-drawer__detail-context-row",
-			".mobile-chat-main-menu-drawer__detail-context-summary",
-			".mobile-chat-main-menu-drawer__detail-context-usage",
-			".mobile-chat-main-menu-drawer__detail-usage-percent",
-			".mobile-chat-main-menu-drawer__detail-usage-counts",
-			".mobile-chat-main-menu-drawer__controls-section",
-			".mobile-chat-main-menu-drawer__control",
-			".mobile-chat-main-menu-drawer__control-label",
-			".mobile-chat-main-menu-drawer__control-trigger",
-			".mobile-chat-main-menu-drawer__control-value",
-			".mobile-chat-main-menu-drawer__control-content",
-			".mobile-chat-main-menu-drawer__control-option",
-			".mobile-chat-main-menu-drawer__control-option-label",
-			".mobile-chat-main-menu-drawer__control-helper",
-			".mobile-chat-main-menu-drawer__empty-state",
-			".mobile-chat-main-menu-drawer__grid",
-			".mobile-chat-main-menu-drawer__tile-shell",
-			".mobile-chat-main-menu-drawer__tile",
-			".mobile-chat-main-menu-drawer__tile-title",
-			".mobile-chat-main-menu-drawer__tile-title-line",
-			".mobile-chat-main-menu-drawer__tile-glow",
-			".mobile-chat-main-menu-drawer__tile-fade",
-			".mobile-chat-main-menu-drawer__tile-deco-icon",
-			".mobile-chat-main-menu-drawer__footer",
-			".mobile-chat-main-menu-drawer__current-user-section",
-			".mobile-chat-main-menu-drawer__current-user-card",
-			".mobile-chat-main-menu-drawer__current-user-row",
-			".mobile-chat-main-menu-drawer__current-user-main",
-			".mobile-chat-main-menu-drawer__current-user-frame",
-			".mobile-chat-main-menu-drawer__current-user-image",
-			".mobile-chat-main-menu-drawer__current-user-name-stack",
-			".mobile-chat-main-menu-drawer__current-user-actions",
+			"#astra-chat-main-menu-drawer",
+			".astra-chat-main-menu-drawer__header",
+			".astra-chat-main-menu-drawer__scrollable-content",
+			".astra-chat-main-menu-drawer__content",
+			".astra-chat-main-menu-drawer__header-row",
+			".astra-chat-main-menu-drawer__header-main",
+			".astra-chat-main-menu-drawer__avatar-frame",
+			".astra-chat-main-menu-drawer__avatar",
+			".astra-chat-main-menu-drawer__avatar.astra-chat-avatar--collage",
+			".astra-chat-main-menu-drawer__avatar .astra-chat-avatar__collage-image",
+			".astra-chat-main-menu-drawer__name-stack",
+			".astra-chat-main-menu-drawer__actions",
+			".astra-chat-main-menu-drawer__action-button",
+			".astra-chat-main-menu-drawer__entity-name",
+			".astra-chat-main-menu-drawer__chat-file-name",
+			".astra-chat-main-menu-drawer__detail-section",
+			".astra-chat-main-menu-drawer__detail-row",
+			".astra-chat-main-menu-drawer__detail-term",
+			".astra-chat-main-menu-drawer__detail-definition",
+			".astra-chat-main-menu-drawer__detail-connection-provider",
+			".astra-chat-main-menu-drawer__detail-connection-provider-icon",
+			".astra-chat-main-menu-drawer__detail-connection-provider-icon svg",
+			".astra-chat-main-menu-drawer__detail-connection-provider-label",
+			".astra-chat-main-menu-drawer__detail-connection-model",
+			".astra-chat-main-menu-drawer__detail-helper",
+			".astra-chat-main-menu-drawer__detail-separator",
+			".astra-chat-main-menu-drawer__detail-context-row",
+			".astra-chat-main-menu-drawer__detail-context-summary",
+			".astra-chat-main-menu-drawer__detail-context-usage",
+			".astra-chat-main-menu-drawer__detail-usage-percent",
+			".astra-chat-main-menu-drawer__detail-usage-counts",
+			".astra-chat-main-menu-drawer__controls-section",
+			".astra-chat-main-menu-drawer__control",
+			".astra-chat-main-menu-drawer__control-label",
+			".astra-chat-main-menu-drawer__control-trigger",
+			".astra-chat-main-menu-drawer__control-value",
+			".astra-chat-main-menu-drawer__control-content",
+			".astra-chat-main-menu-drawer__control-option",
+			".astra-chat-main-menu-drawer__control-option-label",
+			".astra-chat-main-menu-drawer__control-helper",
+			".astra-chat-main-menu-drawer__empty-state",
+			".astra-chat-main-menu-drawer__grid",
+			".astra-chat-main-menu-drawer__tile-shell",
+			".astra-chat-main-menu-drawer__tile",
+			".astra-chat-main-menu-drawer__tile-title",
+			".astra-chat-main-menu-drawer__tile-title-line",
+			".astra-chat-main-menu-drawer__tile-glow",
+			".astra-chat-main-menu-drawer__tile-fade",
+			".astra-chat-main-menu-drawer__tile-deco-icon",
+			".astra-chat-main-menu-drawer__footer",
+			".astra-chat-main-menu-drawer__current-user-section",
+			".astra-chat-main-menu-drawer__current-user-card",
+			".astra-chat-main-menu-drawer__current-user-row",
+			".astra-chat-main-menu-drawer__current-user-main",
+			".astra-chat-main-menu-drawer__current-user-frame",
+			".astra-chat-main-menu-drawer__current-user-image",
+			".astra-chat-main-menu-drawer__current-user-name-stack",
+			".astra-chat-main-menu-drawer__current-user-actions",
 			"@media (hover: hover) and (pointer: fine)",
 		]);
-		expect(css).toContain("--mobile-chat-main-menu-drawer-avatar-size:");
+		expect(css).toContain("--astra-chat-main-menu-drawer-avatar-size:");
 		expect(css).toContain("var(--astra-avatar-size-min)");
 		expect(css).toContain(
 			"var(--astra-avatar-size-mobile-main-menu-drawer)",
@@ -421,12 +421,12 @@ describe("chat-send-form.css", () => {
 		const css = readCss();
 
 		for (const selector of [
-			".mobile-chat-main-menu-drawer__header-row",
-			".mobile-chat-main-menu-drawer__header-main",
-			".mobile-chat-main-menu-drawer__name-stack",
-			".mobile-chat-main-menu-drawer__current-user-row",
-			".mobile-chat-main-menu-drawer__current-user-main",
-			".mobile-chat-main-menu-drawer__current-user-name-stack",
+			".astra-chat-main-menu-drawer__header-row",
+			".astra-chat-main-menu-drawer__header-main",
+			".astra-chat-main-menu-drawer__name-stack",
+			".astra-chat-main-menu-drawer__current-user-row",
+			".astra-chat-main-menu-drawer__current-user-main",
+			".astra-chat-main-menu-drawer__current-user-name-stack",
 		]) {
 			const block = readBlock(css, selector);
 
@@ -436,10 +436,10 @@ describe("chat-send-form.css", () => {
 		}
 
 		for (const selector of [
-			".mobile-chat-main-menu-drawer__entity-name",
-			".mobile-chat-main-menu-drawer__chat-file-name",
-			".mobile-chat-main-menu-drawer__current-user-name",
-			".mobile-chat-main-menu-drawer__current-user-subtitle",
+			".astra-chat-main-menu-drawer__entity-name",
+			".astra-chat-main-menu-drawer__chat-file-name",
+			".astra-chat-main-menu-drawer__current-user-name",
+			".astra-chat-main-menu-drawer__current-user-subtitle",
 		]) {
 			const block = readBlock(css, selector);
 
@@ -455,11 +455,11 @@ describe("chat-send-form.css", () => {
 		const css = readCss();
 		const actionButtonBlock = readBlock(
 			css,
-			'.mobile-chat-main-menu-drawer__action-button[data-slot="button"]',
+			'.astra-chat-main-menu-drawer__action-button[data-slot="button"]',
 		);
 		const currentUserActionBlock = readBlock(
 			css,
-			".mobile-chat-main-menu-drawer__current-user-action",
+			".astra-chat-main-menu-drawer__current-user-action",
 		);
 
 		expect(actionButtonBlock).not.toBe("");
@@ -472,33 +472,33 @@ describe("chat-send-form.css", () => {
 	test("does not keep removed main-menu drawer selector contracts", () => {
 		const css = readCss();
 
-		expect(css).not.toContain(".mobile-chat-main-menu-sheet");
-		expect(css).not.toContain(".mobile-chat-main-menu-sheet__header");
-		expect(css).not.toContain(".mobile-chat-main-menu-sheet__header-main");
-		expect(css).not.toContain(".mobile-chat-main-menu-sheet__icon");
-		expect(css).not.toContain(".mobile-chat-main-menu-sheet__title");
-		expect(css).not.toContain(".mobile-chat-main-menu-sheet__content");
-		expect(css).not.toContain(".mobile-chat-main-menu-sheet__footer");
-		expect(css).not.toContain(".mobile-chat-main-menu-sheet__close-button");
+		expect(css).not.toContain(".astra-chat-main-menu-sheet");
+		expect(css).not.toContain(".astra-chat-main-menu-sheet__header");
+		expect(css).not.toContain(".astra-chat-main-menu-sheet__header-main");
+		expect(css).not.toContain(".astra-chat-main-menu-sheet__icon");
+		expect(css).not.toContain(".astra-chat-main-menu-sheet__title");
+		expect(css).not.toContain(".astra-chat-main-menu-sheet__content");
+		expect(css).not.toContain(".astra-chat-main-menu-sheet__footer");
+		expect(css).not.toContain(".astra-chat-main-menu-sheet__close-button");
 		expect(css).not.toContain(
-			".mobile-chat-main-menu-drawer__tile-icon-box",
+			".astra-chat-main-menu-drawer__tile-icon-box",
 		);
-		expect(css).not.toContain(".mobile-chat-main-menu-drawer__meta-row");
-		expect(css).not.toContain(".mobile-chat-main-menu-drawer__meta-stats");
-		expect(css).not.toContain(".mobile-chat-main-menu-drawer__meta-item");
-		expect(css).not.toContain(".mobile-chat-main-menu-drawer__meta-icon");
-		expect(css).not.toContain(".mobile-chat-main-menu-drawer__meta-value");
+		expect(css).not.toContain(".astra-chat-main-menu-drawer__meta-row");
+		expect(css).not.toContain(".astra-chat-main-menu-drawer__meta-stats");
+		expect(css).not.toContain(".astra-chat-main-menu-drawer__meta-item");
+		expect(css).not.toContain(".astra-chat-main-menu-drawer__meta-icon");
+		expect(css).not.toContain(".astra-chat-main-menu-drawer__meta-value");
 		expect(css).not.toContain(
-			".mobile-chat-main-menu-drawer__details-toggle",
-		);
-		expect(css).not.toContain(
-			".mobile-chat-main-menu-drawer__detail-accordion",
+			".astra-chat-main-menu-drawer__details-toggle",
 		);
 		expect(css).not.toContain(
-			".mobile-chat-main-menu-drawer__detail-table",
+			".astra-chat-main-menu-drawer__detail-accordion",
 		);
 		expect(css).not.toContain(
-			".mobile-chat-main-menu-drawer__detail-usage-fallback",
+			".astra-chat-main-menu-drawer__detail-table",
+		);
+		expect(css).not.toContain(
+			".astra-chat-main-menu-drawer__detail-usage-fallback",
 		);
 	});
 });

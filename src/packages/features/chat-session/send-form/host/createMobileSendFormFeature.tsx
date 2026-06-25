@@ -11,8 +11,8 @@ import { createCurrentUserAvatarStore } from "@/packages/core/st/currentUserAvat
 import { createPrimarySendActionStore } from "@/packages/core/st/primarySendAction";
 import { createQuickShortcutStore } from "@/packages/core/st/quickShortcuts";
 import {
-	MOBILE_CHAT_COMPOSER_HOST_ID,
-	MOBILE_CHAT_COMPOSER_SHELL_ID,
+	ASTRA_CHAT_COMPOSER_HOST_ID,
+	ASTRA_CHAT_COMPOSER_SHELL_ID,
 	NATIVE_FORM_SHELD_ID,
 	NATIVE_NON_QR_FORM_ITEMS_ID,
 	NATIVE_RIGHT_SEND_FORM_ID,
@@ -159,7 +159,7 @@ export function createMobileSendFormFeature({
 	}
 
 	function ensureComposerShell(formSheld: HTMLElement) {
-		if (formSheld.parentElement?.id === MOBILE_CHAT_COMPOSER_SHELL_ID) {
+		if (formSheld.parentElement?.id === ASTRA_CHAT_COMPOSER_SHELL_ID) {
 			const parent = formSheld.parentElement;
 			if (parent instanceof HTMLDivElement) {
 				composerShell = markAstraProjectaUiRoot(parent);
@@ -168,7 +168,7 @@ export function createMobileSendFormFeature({
 		}
 
 		const existingShell = documentRef.getElementById(
-			MOBILE_CHAT_COMPOSER_SHELL_ID,
+			ASTRA_CHAT_COMPOSER_SHELL_ID,
 		);
 		if (existingShell) {
 			return null;
@@ -182,8 +182,8 @@ export function createMobileSendFormFeature({
 		originalFormSheldNextSibling = formSheld.nextSibling;
 
 		composerShell = documentRef.createElement("div");
-		composerShell.id = MOBILE_CHAT_COMPOSER_SHELL_ID;
-		composerShell.className = "mobile-chat-composer-shell";
+		composerShell.id = ASTRA_CHAT_COMPOSER_SHELL_ID;
+		composerShell.className = "astra-chat-composer-shell";
 		markAstraProjectaUiRoot(composerShell);
 
 		originalFormSheldParent.insertBefore(composerShell, formSheld);
@@ -334,10 +334,10 @@ export function createMobileSendFormFeature({
 		}
 
 		composerHost =
-			resolveHost(documentRef, MOBILE_CHAT_COMPOSER_HOST_ID) ??
+			resolveHost(documentRef, ASTRA_CHAT_COMPOSER_HOST_ID) ??
 			documentRef.createElement("div");
-		composerHost.id = MOBILE_CHAT_COMPOSER_HOST_ID;
-		composerHost.className = "mobile-chat-composer-host";
+		composerHost.id = ASTRA_CHAT_COMPOSER_HOST_ID;
+		composerHost.className = "astra-chat-composer-host";
 		markAstraProjectaUiRoot(composerHost);
 
 		if (

@@ -6,9 +6,9 @@ import type { LucideIcon } from "@/components/ui/shared/icons";
 import type { PrimarySendActionSnapshot } from "@/packages/core/st/primarySendAction";
 import type { CurrentUserAvatarSnapshot } from "@/packages/core/st/currentUserAvatar";
 import {
-	MOBILE_CHAT_MAIN_MENU_DRAWER_ID,
-	MOBILE_CHAT_MAIN_MENU_TRIGGER_ID,
-	MOBILE_CHAT_QUICK_REPLIES_HOST_ID,
+	ASTRA_CHAT_MAIN_MENU_DRAWER_ID,
+	ASTRA_CHAT_MAIN_MENU_TRIGGER_ID,
+	ASTRA_CHAT_QUICK_REPLIES_HOST_ID,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { MobileSendFormExtensionsMenu } from "@/packages/features/chat-session/send-form/extensions-menu/MobileSendFormExtensionsMenu";
 import { MobileSendFormOptionsMenu } from "@/packages/features/chat-session/send-form/options-menu/MobileSendFormOptionsMenu";
@@ -66,9 +66,9 @@ export function MobileChatInput({
 	return (
 		<div
 			aria-label={inputRowLabel}
-			className="mobile-chat-input"
+			className="astra-chat-input"
 			data-input-state="default"
-			data-slot="mobile-chat-input"
+			data-slot="astra-chat-input"
 			data-active-panel={
 				isQuickReplyHostVisible ? "quick-reply" : "textarea"
 			}
@@ -76,42 +76,42 @@ export function MobileChatInput({
 				isTextareaMultiline ? "multi-line" : "single-line"
 			}
 		>
-			<div className="mobile-chat-input__content">
+			<div className="astra-chat-input__content">
 				<div
-					className="mobile-chat-input__field"
+					className="astra-chat-input__field"
 					data-avatar-source={userAvatarSnapshot.source}
 				>
 					<div
-						className="mobile-chat-input__textarea-slot"
+						className="astra-chat-input__textarea-slot"
 						hidden={isQuickReplyHostVisible}
 						ref={onTextareaHostChange}
 					/>
 					<div
-						id={MOBILE_CHAT_QUICK_REPLIES_HOST_ID}
-						className="mobile-chat-quick-replies-host"
+						id={ASTRA_CHAT_QUICK_REPLIES_HOST_ID}
+						className="astra-chat-quick-replies-host"
 						hidden={!isQuickReplyHostVisible}
 						ref={onQuickReplyHostChange}
 					/>
 					<div
-						className="mobile-chat-input__toolbar"
+						className="astra-chat-input__toolbar"
 						data-slot="mobile-send-form-input-controls"
 					>
 						<div
 							aria-label={leftControlsLabel}
-							className="mobile-chat-input__tools"
+							className="astra-chat-input__tools"
 							data-left-state="default"
 							role="toolbar"
 						>
-							<div className="mobile-chat-input__tool-list">
+							<div className="astra-chat-input__tool-list">
 								<button
 									aria-controls={
-										MOBILE_CHAT_MAIN_MENU_DRAWER_ID
+										ASTRA_CHAT_MAIN_MENU_DRAWER_ID
 									}
 									aria-expanded={isMainMenuOpen}
 									aria-haspopup="dialog"
 									aria-label={currentUserAvatarLabel}
-									id={MOBILE_CHAT_MAIN_MENU_TRIGGER_ID}
-									className="mobile-chat-input__avatar-button mobile-chat-main-menu__trigger"
+									id={ASTRA_CHAT_MAIN_MENU_TRIGGER_ID}
+									className="astra-chat-input__avatar-button astra-chat-main-menu__trigger"
 									data-avatar-source={
 										userAvatarSnapshot.source
 									}
@@ -126,7 +126,7 @@ export function MobileChatInput({
 								>
 									<img
 										alt={currentUserAvatarLabel}
-										className="mobile-chat-input__avatar-image"
+										className="astra-chat-input__avatar-image"
 										draggable={false}
 										loading="eager"
 										src={userAvatarSnapshot.thumbnailUrl}
@@ -144,10 +144,10 @@ export function MobileChatInput({
 								/>
 							</div>
 						</div>
-						<div className="mobile-chat-input__actions">
+						<div className="astra-chat-input__actions">
 							{showQuickReplyVisibilityToggle ? (
 								<MobileSendFormQuickReplyToggleButton
-									className="mobile-chat-input__quick-reply-toggle"
+									className="astra-chat-input__quick-reply-toggle"
 									isQuickReplyHostVisible={
 										isQuickReplyHostVisible
 									}
@@ -158,7 +158,7 @@ export function MobileChatInput({
 							{primarySendActionSnapshot.visible ? (
 								<Button
 									aria-label={primarySendActionSnapshot.label}
-									className="mobile-chat-input__send-button data-[action-kind=stop]:[&_svg]:fill-current"
+									className="astra-chat-input__send-button data-[action-kind=stop]:[&_svg]:fill-current"
 									data-action-kind={
 										primarySendActionSnapshot.kind
 									}

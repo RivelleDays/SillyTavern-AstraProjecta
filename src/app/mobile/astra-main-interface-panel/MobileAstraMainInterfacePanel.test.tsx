@@ -10,9 +10,9 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ensureAstraProjectaUiInfrastructure } from "@/packages/core/runtime/uiScope";
 import {
-	MOBILE_ASTRA_MAIN_INTERFACE_CONTENT_ID,
-	MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID,
-	MOBILE_ASTRA_MAIN_INTERFACE_TITLE_ID,
+	ASTRA_MAIN_INTERFACE_PANEL_CONTENT_ID,
+	ASTRA_MAIN_INTERFACE_PANEL_ID,
+	ASTRA_MAIN_INTERFACE_TITLE_ID,
 	MobileAstraMainInterfacePanel,
 } from "@/app/mobile/astra-main-interface-panel";
 
@@ -51,15 +51,15 @@ describe("MobileAstraMainInterfacePanel", () => {
 
 		expect(panel).toHaveAttribute(
 			"id",
-			MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID,
+			ASTRA_MAIN_INTERFACE_PANEL_ID,
 		);
 		expect(panel).toHaveAttribute("data-side", "left");
 		expect(panel).toHaveClass("astra-main-interface-panel");
 		expect(
-			document.getElementById(MOBILE_ASTRA_MAIN_INTERFACE_TITLE_ID),
+			document.getElementById(ASTRA_MAIN_INTERFACE_TITLE_ID),
 		).toHaveTextContent("Main UI");
 		expect(
-			document.getElementById(MOBILE_ASTRA_MAIN_INTERFACE_CONTENT_ID),
+			document.getElementById(ASTRA_MAIN_INTERFACE_PANEL_CONTENT_ID),
 		).toHaveTextContent("Future main interface content");
 		expect(
 			panel.querySelector(".astra-main-interface-panel__header"),
@@ -90,13 +90,13 @@ describe("MobileAstraMainInterfacePanel", () => {
 		).toHaveAttribute("data-astra-scroll-affordance", "surface");
 		expect(
 			panel.querySelector(".astra-main-interface-panel__content"),
-		).toHaveAttribute("id", MOBILE_ASTRA_MAIN_INTERFACE_CONTENT_ID);
+		).toHaveAttribute("id", ASTRA_MAIN_INTERFACE_PANEL_CONTENT_ID);
 		expect(
 			panel.querySelector(".astra-main-interface-panel__body")
 				?.firstElementChild,
 		).toBe(screen.getByTestId("astra-main-interface-body-start"));
 		expect(
-			document.getElementById(MOBILE_ASTRA_MAIN_INTERFACE_CONTENT_ID),
+			document.getElementById(ASTRA_MAIN_INTERFACE_PANEL_CONTENT_ID),
 		).not.toContainElement(
 			screen.getByTestId("astra-main-interface-body-start"),
 		);
@@ -110,7 +110,7 @@ describe("MobileAstraMainInterfacePanel", () => {
 		).toContainElement(closeButton);
 		expect(
 			document.getElementById(
-				"mobile-astra-main-interface-close-button-wrapper",
+				"astra-main-interface-close-button-wrapper",
 			),
 		).toContainElement(closeButton);
 		expect(closeButton.querySelector('[data-slot="ui-icon"]')).toHaveClass(
@@ -141,7 +141,7 @@ describe("MobileAstraMainInterfacePanel", () => {
 
 		expect(panel).toBeInTheDocument();
 		expect(
-			document.getElementById(MOBILE_ASTRA_MAIN_INTERFACE_TITLE_ID),
+			document.getElementById(ASTRA_MAIN_INTERFACE_TITLE_ID),
 		).toHaveTextContent("SillyTavern");
 	});
 
@@ -180,14 +180,14 @@ describe("MobileAstraMainInterfacePanel", () => {
 
 		await waitFor(() => {
 			expect(
-				document.getElementById(MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID),
+				document.getElementById(ASTRA_MAIN_INTERFACE_PANEL_ID),
 			).toHaveAttribute("data-state", "closed");
 			expect(
-				document.getElementById(MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID),
+				document.getElementById(ASTRA_MAIN_INTERFACE_PANEL_ID),
 			).toHaveAttribute("inert");
 		});
 		expect(
-			document.getElementById(MOBILE_ASTRA_MAIN_INTERFACE_PANEL_ID),
+			document.getElementById(ASTRA_MAIN_INTERFACE_PANEL_ID),
 		).not.toHaveAttribute("aria-hidden");
 
 		fireEvent.click(
@@ -228,7 +228,7 @@ describe("MobileAstraMainInterfacePanel", () => {
 		const panel = await screen.findByRole("dialog", { name: "Main UI" });
 		const body = panel.querySelector(".astra-main-interface-panel__body");
 		const content = document.getElementById(
-			MOBILE_ASTRA_MAIN_INTERFACE_CONTENT_ID,
+			ASTRA_MAIN_INTERFACE_PANEL_CONTENT_ID,
 		);
 
 		expect(

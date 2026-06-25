@@ -8,7 +8,7 @@ import {
 	SelectValue,
 } from "@/components/ui/astra/select";
 import { translateAstra } from "@/packages/core/i18n";
-import { MOBILE_CHAT_MAIN_MENU_CONNECTION_PROFILE_SELECT_ID } from "@/packages/features/chat-session/send-form/contracts/dom";
+import { ASTRA_CHAT_MAIN_MENU_CONNECTION_PROFILE_SELECT_ID } from "@/packages/features/chat-session/send-form/contracts/dom";
 import type { CurrentPresetProfileControlsSnapshot } from "@/packages/core/st/currentPresetProfileControls";
 
 const NONE_OPTION_VALUE = "__astra-none__";
@@ -51,14 +51,14 @@ function DrawerSelectControl({
 
 	return (
 		<div
-			className={`mobile-chat-main-menu-drawer__control group relative${
+			className={`astra-chat-main-menu-drawer__control group relative${
 				disabled
-					? " mobile-chat-main-menu-drawer__control--disabled"
+					? " astra-chat-main-menu-drawer__control--disabled"
 					: ""
 			}`}
 		>
 			<label
-				className="mobile-chat-main-menu-drawer__control-label"
+				className="astra-chat-main-menu-drawer__control-label"
 				htmlFor={id}
 			>
 				{label}
@@ -74,24 +74,24 @@ function DrawerSelectControl({
 			>
 					<SelectTrigger
 						aria-label={label}
-						className="mobile-chat-main-menu-drawer__control-trigger"
+						className="astra-chat-main-menu-drawer__control-trigger"
 						disabled={disabled}
 						id={id}
 						size="sm"
 						title={triggerTitle}
 					>
-						<span className="mobile-chat-main-menu-drawer__control-value">
+						<span className="astra-chat-main-menu-drawer__control-value">
 							<SelectValue placeholder={placeholder} />
 						</span>
 					</SelectTrigger>
 				<SelectContent
 					align="start"
-					className="mobile-chat-main-menu-drawer__control-content"
+					className="astra-chat-main-menu-drawer__control-content"
 					position="popper"
 				>
 					{options.map((option) => (
 						<SelectItem
-							className="mobile-chat-main-menu-drawer__control-option"
+							className="astra-chat-main-menu-drawer__control-option"
 							disabled={option.disabled}
 							key={`${option.value || NONE_OPTION_VALUE}-${option.label}`}
 							textValue={option.label}
@@ -102,7 +102,7 @@ function DrawerSelectControl({
 							}
 						>
 							<span
-								className="mobile-chat-main-menu-drawer__control-option-label"
+								className="astra-chat-main-menu-drawer__control-option-label"
 								title={option.label}
 							>
 								{option.label}
@@ -157,10 +157,10 @@ export function MobileChatMainMenuDrawerControls({
 			: profileControl.selectedProfileId;
 
 	return (
-		<div className="mobile-chat-main-menu-drawer__controls-section">
+		<div className="astra-chat-main-menu-drawer__controls-section">
 			<DrawerSelectControl
 				disabled={busy}
-				id={MOBILE_CHAT_MAIN_MENU_CONNECTION_PROFILE_SELECT_ID}
+				id={ASTRA_CHAT_MAIN_MENU_CONNECTION_PROFILE_SELECT_ID}
 				label={translateAstra(
 					"sendForm.mainMenu.controls.connectionProfile",
 				)}
@@ -172,7 +172,7 @@ export function MobileChatMainMenuDrawerControls({
 				onValueChange={onConnectionProfileChange}
 			/>
 			{detachedHelper ? (
-				<p className="mobile-chat-main-menu-drawer__control-helper">
+				<p className="astra-chat-main-menu-drawer__control-helper">
 					{detachedHelper}
 				</p>
 			) : null}

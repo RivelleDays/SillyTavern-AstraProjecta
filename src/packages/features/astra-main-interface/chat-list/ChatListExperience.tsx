@@ -1073,13 +1073,13 @@ export function ChatMenuControlsDrawer({
 								<section className="astra-main-interface-controls-drawer__group astra-main-interface-controls-drawer__group--avatars">
 									<div className="astra-main-interface-controls-drawer__group-items">
 										<div
-											className="astra-main-interface-controls-drawer__avatar-toggle mobile-send-form-options-drawer__toggle"
+											className="astra-main-interface-controls-drawer__avatar-toggle astra-send-form-options-drawer__toggle"
 											id={
 												CHAT_MENU_CONTROLS_DRAWER_AVATARS_TOGGLE_ID
 											}
 										>
 											<Label
-												className="astra-main-interface-controls-drawer__avatar-toggle-label mobile-send-form-options-drawer__toggle-label"
+												className="astra-main-interface-controls-drawer__avatar-toggle-label astra-send-form-options-drawer__toggle-label"
 												htmlFor={
 													CHAT_MENU_CONTROLS_DRAWER_AVATARS_TOGGLE_SWITCH_ID
 												}

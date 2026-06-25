@@ -17,67 +17,67 @@ export const NATIVE_QUICK_REPLY_CONTAINER_ID = "qr_container";
 export const NATIVE_QUICK_REPLY_BAR_ID = "qr--bar";
 export const NATIVE_QUICK_REPLY_ENABLED_TOGGLE_ID = "qr--isEnabled";
 
-export const MOBILE_CHAT_COMPOSER_SHELL_ID = "mobile-chat-composer-shell";
-export const MOBILE_CHAT_SHORTCUTS_HOST_ID = "mobile-chat-shortcuts-host";
-export const MOBILE_CHAT_COMPOSER_HOST_ID = "mobile-chat-composer-host";
-export const MOBILE_CHAT_QUICK_REPLIES_HOST_ID =
-	"mobile-chat-quick-replies-host";
-export const MOBILE_CHAT_INPUT_HOST_ID = "mobile-chat-input-host";
-export const MOBILE_SEND_FORM_QUICK_REPLY_TOGGLE_ID =
-	"mobile-send-form-quick-reply-toggle";
-export const MOBILE_CHAT_MAIN_MENU_TRIGGER_ID = "mobile-chat-main-menu-trigger";
+export const ASTRA_CHAT_COMPOSER_SHELL_ID = "astra-chat-composer-shell";
+export const ASTRA_CHAT_SHORTCUTS_HOST_ID = "astra-chat-shortcuts-host";
+export const ASTRA_CHAT_COMPOSER_HOST_ID = "astra-chat-composer-host";
+export const ASTRA_CHAT_QUICK_REPLIES_HOST_ID =
+	"astra-chat-quick-replies-host";
+export const ASTRA_CHAT_INPUT_HOST_ID = "astra-chat-input-host";
+export const ASTRA_SEND_FORM_QUICK_REPLY_TOGGLE_ID =
+	"astra-send-form-quick-reply-toggle";
+export const ASTRA_CHAT_MAIN_MENU_TRIGGER_ID = "astra-chat-main-menu-trigger";
 export const SILLYTAVERN_INTERFACE_TRIGGER_ID =
 	"sillytavern-interface-panel-trigger";
-export const MOBILE_CHAT_MAIN_MENU_DRAWER_ID = "mobile-chat-main-menu-drawer";
-export const MOBILE_CHAT_MAIN_MENU_DRAWER_TITLE_ID =
-	"mobile-chat-main-menu-drawer-title";
-export const MOBILE_CHAT_MAIN_MENU_DRAWER_DESCRIPTION_ID =
-	"mobile-chat-main-menu-drawer-description";
-export const MOBILE_CHAT_MAIN_MENU_DRAWER_HEADER_ID =
-	"mobile-chat-main-menu-drawer-header";
-export const MOBILE_CHAT_MAIN_MENU_DRAWER_BODY_ID =
-	"mobile-chat-main-menu-drawer-body";
-export const MOBILE_CHAT_MAIN_MENU_DRAWER_SCROLLABLE_CONTENT_ID =
-	"mobile-chat-main-menu-drawer-scrollable-content";
-export const MOBILE_CHAT_MAIN_MENU_DRAWER_CONTENT_ID =
-	"mobile-chat-main-menu-drawer-content";
-export const MOBILE_CHAT_MAIN_MENU_DRAWER_FOOTER_ID =
-	"mobile-chat-main-menu-drawer-footer";
-export const MOBILE_CHAT_MAIN_MENU_RENAME_DIALOG_ID =
-	"mobile-chat-main-menu-rename-dialog";
-export const MOBILE_CHAT_MAIN_MENU_RENAME_DIALOG_INPUT_ID =
-	"mobile-chat-main-menu-rename-dialog-input";
-export const MOBILE_CHAT_MAIN_MENU_DELETE_DIALOG_ID =
-	"mobile-chat-main-menu-delete-dialog";
-export const MOBILE_CHAT_MAIN_MENU_CONNECTION_PROFILE_SELECT_ID =
-	"mobile-chat-main-menu-connection-profile-select";
-export const MOBILE_SEND_FORM_MENU_BUTTON_ID = "mobile-send-form-menu-button";
-export const MOBILE_SEND_FORM_OPTIONS_DRAWER_ID =
-	"mobile-send-form-options-drawer";
-export const MOBILE_SEND_FORM_OPTIONS_DRAWER_TITLE_ID =
-	"mobile-send-form-options-drawer-title";
-export const MOBILE_SEND_FORM_OPTIONS_DRAWER_DESCRIPTION_ID =
-	"mobile-send-form-options-drawer-description";
-export const MOBILE_SEND_FORM_OPTIONS_DRAWER_SCROLLABLE_CONTENT_ID =
-	"mobile-send-form-options-drawer-scrollable-content";
-export const MOBILE_SEND_FORM_OPTIONS_DRAWER_MENU_ID =
-	"mobile-send-form-options-drawer-menu";
-export const MOBILE_SEND_FORM_SHORTCUTS_TOGGLE_ID =
-	"mobile-send-form-options-drawer-shortcuts-toggle";
-export const MOBILE_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID =
-	"mobile-send-form-options-drawer-shortcuts-toggle-switch";
-export const MOBILE_SEND_FORM_EXTENSION_SHORTCUTS_BUTTON_ID =
-	"mobile-send-form-extension-shortcuts-button";
-export const MOBILE_SEND_FORM_EXTENSIONS_DRAWER_ID =
-	"mobile-send-form-extensions-drawer";
-export const MOBILE_SEND_FORM_EXTENSIONS_DRAWER_TITLE_ID =
-	"mobile-send-form-extensions-drawer-title";
-export const MOBILE_SEND_FORM_EXTENSIONS_DRAWER_DESCRIPTION_ID =
-	"mobile-send-form-extensions-drawer-description";
-export const MOBILE_SEND_FORM_EXTENSIONS_DRAWER_SCROLLABLE_CONTENT_ID =
-	"mobile-send-form-extensions-drawer-scrollable-content";
-export const MOBILE_SEND_FORM_EXTENSIONS_MENU_HOST_ID =
-	"mobile-send-form-extensions-menu-host";
+export const ASTRA_CHAT_MAIN_MENU_DRAWER_ID = "astra-chat-main-menu-drawer";
+export const ASTRA_CHAT_MAIN_MENU_DRAWER_TITLE_ID =
+	"astra-chat-main-menu-drawer-title";
+export const ASTRA_CHAT_MAIN_MENU_DRAWER_DESCRIPTION_ID =
+	"astra-chat-main-menu-drawer-description";
+export const ASTRA_CHAT_MAIN_MENU_DRAWER_HEADER_ID =
+	"astra-chat-main-menu-drawer-header";
+export const ASTRA_CHAT_MAIN_MENU_DRAWER_BODY_ID =
+	"astra-chat-main-menu-drawer-body";
+export const ASTRA_CHAT_MAIN_MENU_DRAWER_SCROLLABLE_CONTENT_ID =
+	"astra-chat-main-menu-drawer-scrollable-content";
+export const ASTRA_CHAT_MAIN_MENU_DRAWER_CONTENT_ID =
+	"astra-chat-main-menu-drawer-content";
+export const ASTRA_CHAT_MAIN_MENU_DRAWER_FOOTER_ID =
+	"astra-chat-main-menu-drawer-footer";
+export const ASTRA_CHAT_MAIN_MENU_RENAME_DIALOG_ID =
+	"astra-chat-main-menu-rename-dialog";
+export const ASTRA_CHAT_MAIN_MENU_RENAME_DIALOG_INPUT_ID =
+	"astra-chat-main-menu-rename-dialog-input";
+export const ASTRA_CHAT_MAIN_MENU_DELETE_DIALOG_ID =
+	"astra-chat-main-menu-delete-dialog";
+export const ASTRA_CHAT_MAIN_MENU_CONNECTION_PROFILE_SELECT_ID =
+	"astra-chat-main-menu-connection-profile-select";
+export const ASTRA_SEND_FORM_MENU_BUTTON_ID = "astra-send-form-menu-button";
+export const ASTRA_SEND_FORM_OPTIONS_DRAWER_ID =
+	"astra-send-form-options-drawer";
+export const ASTRA_SEND_FORM_OPTIONS_DRAWER_TITLE_ID =
+	"astra-send-form-options-drawer-title";
+export const ASTRA_SEND_FORM_OPTIONS_DRAWER_DESCRIPTION_ID =
+	"astra-send-form-options-drawer-description";
+export const ASTRA_SEND_FORM_OPTIONS_DRAWER_SCROLLABLE_CONTENT_ID =
+	"astra-send-form-options-drawer-scrollable-content";
+export const ASTRA_SEND_FORM_OPTIONS_DRAWER_MENU_ID =
+	"astra-send-form-options-drawer-menu";
+export const ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_ID =
+	"astra-send-form-options-drawer-shortcuts-toggle";
+export const ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID =
+	"astra-send-form-options-drawer-shortcuts-toggle-switch";
+export const ASTRA_SEND_FORM_EXTENSION_SHORTCUTS_BUTTON_ID =
+	"astra-send-form-extension-shortcuts-button";
+export const ASTRA_SEND_FORM_EXTENSIONS_DRAWER_ID =
+	"astra-send-form-extensions-drawer";
+export const ASTRA_SEND_FORM_EXTENSIONS_DRAWER_TITLE_ID =
+	"astra-send-form-extensions-drawer-title";
+export const ASTRA_SEND_FORM_EXTENSIONS_DRAWER_DESCRIPTION_ID =
+	"astra-send-form-extensions-drawer-description";
+export const ASTRA_SEND_FORM_EXTENSIONS_DRAWER_SCROLLABLE_CONTENT_ID =
+	"astra-send-form-extensions-drawer-scrollable-content";
+export const ASTRA_SEND_FORM_EXTENSIONS_MENU_HOST_ID =
+	"astra-send-form-extensions-menu-host";
 export const MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY =
 	"astra_projecta.mobile_send_form.shortcuts_visible";
 export const MOBILE_SEND_FORM_QUICK_REPLY_VISIBILITY_STORAGE_KEY =

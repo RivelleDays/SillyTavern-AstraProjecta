@@ -14,12 +14,12 @@ import { buttonVariants } from "@/components/ui/shadcn/button";
 import { cn } from "@/lib/utils";
 import { translateAstra } from "@/packages/core/i18n";
 import {
-	MOBILE_SEND_FORM_EXTENSION_SHORTCUTS_BUTTON_ID,
-	MOBILE_SEND_FORM_EXTENSIONS_DRAWER_DESCRIPTION_ID,
-	MOBILE_SEND_FORM_EXTENSIONS_DRAWER_ID,
-	MOBILE_SEND_FORM_EXTENSIONS_DRAWER_SCROLLABLE_CONTENT_ID,
-	MOBILE_SEND_FORM_EXTENSIONS_DRAWER_TITLE_ID,
-	MOBILE_SEND_FORM_EXTENSIONS_MENU_HOST_ID,
+	ASTRA_SEND_FORM_EXTENSION_SHORTCUTS_BUTTON_ID,
+	ASTRA_SEND_FORM_EXTENSIONS_DRAWER_DESCRIPTION_ID,
+	ASTRA_SEND_FORM_EXTENSIONS_DRAWER_ID,
+	ASTRA_SEND_FORM_EXTENSIONS_DRAWER_SCROLLABLE_CONTENT_ID,
+	ASTRA_SEND_FORM_EXTENSIONS_DRAWER_TITLE_ID,
+	ASTRA_SEND_FORM_EXTENSIONS_MENU_HOST_ID,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import {
 	createNativeExtensionsMenuBridge,
@@ -173,17 +173,17 @@ export function MobileSendFormExtensionsMenu({
 			repositionInputs={false}
 		>
 			<button
-				aria-controls={MOBILE_SEND_FORM_EXTENSIONS_DRAWER_ID}
+				aria-controls={ASTRA_SEND_FORM_EXTENSIONS_DRAWER_ID}
 				aria-expanded={bridgeSnapshot.hasItems ? isOpen : false}
 				aria-hidden={bridgeSnapshot.hasItems ? "false" : "true"}
 				aria-label={triggerLabel}
-				id={MOBILE_SEND_FORM_EXTENSION_SHORTCUTS_BUTTON_ID}
+				id={ASTRA_SEND_FORM_EXTENSION_SHORTCUTS_BUTTON_ID}
 				className={cn(
 					buttonVariants({
 						size: "icon-xs",
 						variant: "ghost",
 					}),
-					"mobile-chat-input__tool-button",
+					"astra-chat-input__tool-button",
 				)}
 				data-availability={bridgeSnapshot.hasItems ? "ready" : "empty"}
 				disabled={!bridgeSnapshot.hasItems}
@@ -198,17 +198,17 @@ export function MobileSendFormExtensionsMenu({
 			</button>
 			<DrawerContent
 				aria-describedby={
-					MOBILE_SEND_FORM_EXTENSIONS_DRAWER_DESCRIPTION_ID
+					ASTRA_SEND_FORM_EXTENSIONS_DRAWER_DESCRIPTION_ID
 				}
-				aria-labelledby={MOBILE_SEND_FORM_EXTENSIONS_DRAWER_TITLE_ID}
-				id={MOBILE_SEND_FORM_EXTENSIONS_DRAWER_ID}
-				className="mobile-send-form-extensions-drawer"
+				aria-labelledby={ASTRA_SEND_FORM_EXTENSIONS_DRAWER_TITLE_ID}
+				id={ASTRA_SEND_FORM_EXTENSIONS_DRAWER_ID}
+				className="astra-send-form-extensions-drawer"
 			>
 				<DrawerHeader className="sr-only">
 					<DrawerTitle asChild={true}>
 						<span>
 							<span
-								id={MOBILE_SEND_FORM_EXTENSIONS_DRAWER_TITLE_ID}
+								id={ASTRA_SEND_FORM_EXTENSIONS_DRAWER_TITLE_ID}
 								data-slot="drawer-title"
 							>
 								{title}
@@ -219,7 +219,7 @@ export function MobileSendFormExtensionsMenu({
 						<span>
 							<span
 								id={
-									MOBILE_SEND_FORM_EXTENSIONS_DRAWER_DESCRIPTION_ID
+									ASTRA_SEND_FORM_EXTENSIONS_DRAWER_DESCRIPTION_ID
 								}
 								data-slot="drawer-description"
 							>
@@ -231,21 +231,21 @@ export function MobileSendFormExtensionsMenu({
 				<DrawerBody
 					scrollAreaProps={{
 						className:
-							"mobile-send-form-extensions-drawer__scroll-area",
+							"astra-send-form-extensions-drawer__scroll-area",
 					}}
 					viewportProps={{
 						className:
-							"mobile-send-form-extensions-drawer__scrollable-content",
-						id: MOBILE_SEND_FORM_EXTENSIONS_DRAWER_SCROLLABLE_CONTENT_ID,
+							"astra-send-form-extensions-drawer__scrollable-content",
+						id: ASTRA_SEND_FORM_EXTENSIONS_DRAWER_SCROLLABLE_CONTENT_ID,
 					}}
 				>
-					<div className="mobile-send-form-extensions-drawer__content">
-						<div className="mobile-send-form-options-drawer__group-label mobile-send-form-extensions-drawer__label mobile-send-form-surface-label">
+					<div className="astra-send-form-extensions-drawer__content">
+						<div className="astra-send-form-options-drawer__group-label astra-send-form-extensions-drawer__label astra-send-form-surface-label">
 							{sectionLabel}
 						</div>
 						<div
-							id={MOBILE_SEND_FORM_EXTENSIONS_MENU_HOST_ID}
-							className="mobile-send-form-extensions-drawer__menu-host"
+							id={ASTRA_SEND_FORM_EXTENSIONS_MENU_HOST_ID}
+							className="astra-send-form-extensions-drawer__menu-host"
 							ref={setHostNode}
 						/>
 					</div>

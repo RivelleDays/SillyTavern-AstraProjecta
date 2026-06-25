@@ -104,7 +104,7 @@ describe("MessageExtraActionsDrawer", () => {
 			name: "More Message Actions",
 		});
 		const content = document.getElementById(
-			"mobile-message-extra-actions-drawer-content",
+			"astra-message-extra-actions-drawer-content",
 		);
 		const groups = Array.from(
 			content?.querySelectorAll(".astra-messageExtraActionsDrawer__group") ??
@@ -113,7 +113,7 @@ describe("MessageExtraActionsDrawer", () => {
 
 		expect(dialog).toHaveAttribute(
 			"id",
-			"mobile-message-extra-actions-drawer",
+			"astra-message-extra-actions-drawer",
 		);
 		expect(groups).toHaveLength(2);
 		expect(within(groups[0] as HTMLElement).getByText("Danger zone")).toBeInTheDocument();
@@ -246,13 +246,13 @@ describe("MessageExtraActionsDrawer", () => {
 			name: "More Message Actions",
 		});
 		const header = document.getElementById(
-			"mobile-message-extra-actions-drawer-header",
+			"astra-message-extra-actions-drawer-header",
 		);
 		const heading = document.getElementById(
-			"mobile-message-extra-actions-drawer-heading",
+			"astra-message-extra-actions-drawer-heading",
 		);
 		const body = document.getElementById(
-			"mobile-message-extra-actions-drawer-body",
+			"astra-message-extra-actions-drawer-body",
 		);
 		const preview = heading?.querySelector(
 			".astra-messageExtraActionsDrawer__messagePreview",

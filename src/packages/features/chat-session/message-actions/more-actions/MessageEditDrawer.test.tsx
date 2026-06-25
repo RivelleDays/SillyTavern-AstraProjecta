@@ -106,35 +106,35 @@ describe("MessageEditDrawer", () => {
 		const dialog = screen.getByRole("dialog", {
 			name: "Edit Message",
 		});
-		expect(dialog).toHaveAttribute("id", "mobile-message-edit-drawer");
+		expect(dialog).toHaveAttribute("id", "astra-message-edit-drawer");
 		expect(dialog).toHaveAttribute(
 			"aria-labelledby",
-			"mobile-message-edit-drawer-title",
+			"astra-message-edit-drawer-title",
 		);
 		expect(dialog).toHaveAttribute(
 			"aria-describedby",
-			"mobile-message-edit-drawer-description",
+			"astra-message-edit-drawer-description",
 		);
 		expect(dialog).toHaveClass("astra-messageEditDrawer");
 
 		const header = document.getElementById(
-			"mobile-message-edit-drawer-header",
+			"astra-message-edit-drawer-header",
 		);
 		const actionContent = document.getElementById(
-			"mobile-message-edit-drawer-extra-actions-content",
+			"astra-message-edit-drawer-extra-actions-content",
 		);
 		const actionStartGroup = document.getElementById(
-			"mobile-message-edit-drawer-extra-actions-start",
+			"astra-message-edit-drawer-extra-actions-start",
 		);
 		const actionEndGroup = document.getElementById(
-			"mobile-message-edit-drawer-extra-actions-end",
+			"astra-message-edit-drawer-extra-actions-end",
 		);
-		const body = document.getElementById("mobile-message-edit-drawer-body");
+		const body = document.getElementById("astra-message-edit-drawer-body");
 		const content = document.getElementById(
-			"mobile-message-edit-drawer-content",
+			"astra-message-edit-drawer-content",
 		);
 		const footer = document.getElementById(
-			"mobile-message-edit-drawer-footer",
+			"astra-message-edit-drawer-footer",
 		);
 
 		expect(header).toHaveClass("astra-messageEditDrawer__header");
@@ -152,7 +152,7 @@ describe("MessageEditDrawer", () => {
 		);
 		expect(
 			document.getElementById(
-				"mobile-message-edit-drawer-extra-actions-scrollbar",
+				"astra-message-edit-drawer-extra-actions-scrollbar",
 			),
 		).toBeNull();
 		expect(body).toHaveClass("astra-messageEditDrawer__body");
@@ -298,7 +298,7 @@ describe("MessageEditDrawer", () => {
 			name: "Edit Message",
 		});
 		const actionContent = document.getElementById(
-			"mobile-message-edit-drawer-extra-actions-content",
+			"astra-message-edit-drawer-extra-actions-content",
 		);
 		expect(
 			within(actionContent as HTMLElement).queryByRole("button", {

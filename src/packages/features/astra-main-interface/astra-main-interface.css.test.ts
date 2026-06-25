@@ -80,7 +80,7 @@ describe("astra-main-interface.css", () => {
 		expect(css).toContain(".astra-main-interface__current-context-tabs");
 		expect(css).toContain(".astra-main-interface__favorite-tabs");
 		expect(css).toContain(
-			"#mobile-astra-main-interface-content > .astra-main-interface",
+			"#astra-main-interface-content > .astra-main-interface",
 		);
 		expect(css).toContain(
 			".astra-main-interface-panel__body > .astra-smooth-tabs__list-frame",

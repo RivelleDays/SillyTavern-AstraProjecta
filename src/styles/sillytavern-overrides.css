@@ -1,0 +1,32 @@
+/* Restyles SillyTavern *native* elements (not Astra components, not shadcn
+   components) to align with the shadcn visual language. Applies globally
+   (mobile and desktop) by default; nest mobile-only rules inside
+   body.astra-projecta-mobile-layout instead of adding a second file. */
+
+.menu_button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.375rem;
+	height: var(--astra-button-size-default);
+	padding-inline: 0.75rem;
+	border-radius: var(--radius-md);
+	border: 1px solid var(--border-color-base-t20);
+	background: var(--surface-background-t10);
+	color: var(--color-base-t90);
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.menu_button:hover {
+	background: var(--surface-accent-t20);
+}
+
+.menu_button:focus-visible {
+	outline: 2px solid var(--color-ring-t60);
+	outline-offset: 1px;
+}
+
+.menu_button_icon {
+	width: var(--astra-button-icon-size);
+	height: var(--astra-button-icon-size);
+}

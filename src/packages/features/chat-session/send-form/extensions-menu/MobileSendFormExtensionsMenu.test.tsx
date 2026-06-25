@@ -90,25 +90,25 @@ describe("MobileSendFormExtensionsMenu", () => {
 
 		const drawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-extensions-drawer",
+				"astra-send-form-extensions-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
 		});
 		const title = document.getElementById(
-			"mobile-send-form-extensions-drawer-title",
+			"astra-send-form-extensions-drawer-title",
 		);
 		const description = document.getElementById(
-			"mobile-send-form-extensions-drawer-description",
+			"astra-send-form-extensions-drawer-description",
 		);
 
 		expect(drawer).toHaveAttribute(
 			"aria-labelledby",
-			"mobile-send-form-extensions-drawer-title",
+			"astra-send-form-extensions-drawer-title",
 		);
 		expect(drawer).toHaveAttribute(
 			"aria-describedby",
-			"mobile-send-form-extensions-drawer-description",
+			"astra-send-form-extensions-drawer-description",
 		);
 		expect(title).toHaveAttribute("data-slot", "drawer-title");
 		expect(description).toHaveAttribute("data-slot", "drawer-description");

@@ -77,7 +77,7 @@ export interface MoreActionsDrawerActionsConfig {
 	promptVisibility?: MoreActionsDrawerPromptVisibilityActionConfig;
 }
 
-const MORE_ACTIONS_DRAWER_ID = "mobile-message-more-actions-drawer";
+const MORE_ACTIONS_DRAWER_ID = "astra-message-more-actions-drawer";
 const MORE_ACTIONS_DRAWER_TITLE_ID = `${MORE_ACTIONS_DRAWER_ID}-title`;
 const MORE_ACTIONS_DRAWER_DESCRIPTION_ID = `${MORE_ACTIONS_DRAWER_ID}-description`;
 const MORE_ACTIONS_DRAWER_HEADER_ID = `${MORE_ACTIONS_DRAWER_ID}-header`;

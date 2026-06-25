@@ -595,7 +595,7 @@
 	}
 }
 
-.mobile-chat-main-menu-sheet {
+.astra-chat-main-menu-sheet {
 	gap: 0;
 	padding: 0;
 	overflow: hidden;
@@ -1034,7 +1034,7 @@
 	}
 }
 
-.mobile-chat-main-menu-sheet__header {
+.astra-chat-main-menu-sheet__header {
 	display: flex;
 	flex: 0 0 52px;
 	min-height: 52px;
@@ -1045,7 +1045,7 @@
 	border-bottom: 1px solid var(--border);
 }
 
-.mobile-chat-main-menu-sheet__header-main {
+.astra-chat-main-menu-sheet__header-main {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -1053,7 +1053,7 @@
 	min-width: 0;
 }
 
-.mobile-chat-main-menu-sheet__icon {
+.astra-chat-main-menu-sheet__icon {
 	display: inline-flex;
 	width: 20px;
 	height: 20px;
@@ -1063,13 +1063,13 @@
 	justify-content: center;
 }
 
-.mobile-chat-main-menu-sheet__icon svg {
+.astra-chat-main-menu-sheet__icon svg {
 	display: block;
 	width: 20px;
 	height: 20px;
 }
 
-.mobile-chat-main-menu-sheet__title {
+.astra-chat-main-menu-sheet__title {
 	display: flex;
 	align-items: center;
 	min-height: 24px;
@@ -1080,37 +1080,37 @@
 	text-align: left;
 }
 
-.mobile-chat-main-menu-sheet__content {
+.astra-chat-main-menu-sheet__content {
 	flex: 1 1 auto;
 	min-height: 0;
 }
 
-.mobile-chat-main-menu-sheet__content--native-root,
-.mobile-chat-main-menu-sheet__body--native-root {
+.astra-chat-main-menu-sheet__content--native-root,
+.astra-chat-main-menu-sheet__body--native-root {
 	display: flex;
 	flex: 1 1 auto;
 	min-height: 0;
 	flex-direction: column;
 }
 
-.mobile-chat-main-menu-sheet__viewport {
+.astra-chat-main-menu-sheet__viewport {
 	min-height: 0;
 }
 
-.mobile-chat-main-menu-sheet__body {
+.astra-chat-main-menu-sheet__body {
 	display: flex;
 	min-height: 100%;
 	flex-direction: column;
 }
 
-.mobile-chat-main-menu-sheet__native-host {
+.astra-chat-main-menu-sheet__native-host {
 	display: flex;
 	flex: 1 1 auto;
 	min-height: 0;
 	flex-direction: column;
 }
 
-.mobile-chat-main-menu-sheet__native-host
+.astra-chat-main-menu-sheet__native-host
 	> .astra-projecta-native-drawer-ported {
 	position: static !important;
 	top: auto !important;
@@ -1132,20 +1132,20 @@
 	-webkit-backdrop-filter: none !important;
 }
 
-#mobile-chat-main-menu-lorebook-host,
-#mobile-chat-main-menu-extensions-host,
-#mobile-chat-main-menu-backgrounds-host,
-#mobile-chat-main-menu-character-management-host {
+#astra-chat-main-menu-lorebook-host,
+#astra-chat-main-menu-extensions-host,
+#astra-chat-main-menu-backgrounds-host,
+#astra-chat-main-menu-character-management-host {
 	min-height: 0;
 }
 
-#mobile-chat-main-menu-user-settings-host
+#astra-chat-main-menu-user-settings-host
 	> .astra-projecta-native-drawer-ported {
 	display: block !important;
 	overflow: visible !important;
 }
 
-#mobile-chat-main-menu-user-settings-host
+#astra-chat-main-menu-user-settings-host
 	> .astra-projecta-native-drawer-ported
 	> .flex-container.flexFlowColumn
 	> [name="userSettingsRowOne"]
@@ -1153,38 +1153,38 @@
 	display: none;
 }
 
-#mobile-chat-main-menu-user-settings-host
+#astra-chat-main-menu-user-settings-host
 	> .astra-projecta-native-drawer-ported
 	> .flex-container.flexFlowColumn,
-#mobile-chat-main-menu-user-settings-host #user-settings-block-content {
+#astra-chat-main-menu-user-settings-host #user-settings-block-content {
 	gap: 12px;
 }
 
-#mobile-chat-main-menu-user-settings-host
+#astra-chat-main-menu-user-settings-host
 	> .astra-projecta-native-drawer-ported
 	> .flex-container.flexFlowColumn
 	> [name="userSettingsRowOne"],
-#mobile-chat-main-menu-user-settings-host
+#astra-chat-main-menu-user-settings-host
 	> .astra-projecta-native-drawer-ported
 	> .flex-container.flexFlowColumn
 	> [name="UserSettingsRowTwo"],
-#mobile-chat-main-menu-user-settings-host #user-settings-block-content {
+#astra-chat-main-menu-user-settings-host #user-settings-block-content {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
 }
 
-#mobile-chat-main-menu-user-settings-host #UI-language-block {
+#astra-chat-main-menu-user-settings-host #UI-language-block {
 	min-width: 0;
 	gap: 8px;
 }
 
-#mobile-chat-main-menu-user-settings-host #version_display {
+#astra-chat-main-menu-user-settings-host #version_display {
 	text-align: left;
 }
 
-#mobile-chat-main-menu-user-settings-host #settingsSearch,
-#mobile-chat-main-menu-user-settings-host #user-settings-block-content > * {
+#astra-chat-main-menu-user-settings-host #settingsSearch,
+#astra-chat-main-menu-user-settings-host #user-settings-block-content > * {
 	min-width: 0;
 	width: 100%;
 }
@@ -1195,7 +1195,7 @@
 	overflow: visible !important;
 }
 
-.mobile-chat-main-menu-sheet__native-host
+.astra-chat-main-menu-sheet__native-host
 	> .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source="WorldInfo"] {
 	display: block !important;
 	height: 100% !important;
@@ -1220,7 +1220,7 @@
 
 #sillytavern-interface-panel-extensions-host
 	> .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source="rm_extensions_block"],
-#mobile-chat-main-menu-extensions-host
+#astra-chat-main-menu-extensions-host
 	> .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source="rm_extensions_block"] {
 	display: block !important;
 	overflow: visible !important;
@@ -1246,7 +1246,7 @@
 
 .sillytavern-interface__native-host
 	> .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source="Backgrounds"],
-.mobile-chat-main-menu-sheet__native-host
+.astra-chat-main-menu-sheet__native-host
 	> .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source="Backgrounds"] {
 	position: relative !important;
 	display: flex !important;
@@ -1295,9 +1295,9 @@
 }
 
 [data-astra-projecta-native-drawer-source="Backgrounds"]
-	.mobile-chat-main-menu-backgrounds-tab-scroll-area-host,
+	.astra-chat-main-menu-backgrounds-tab-scroll-area-host,
 [data-astra-projecta-native-drawer-source="Backgrounds"]
-	.mobile-chat-main-menu-backgrounds-tab-scroll-area {
+	.astra-chat-main-menu-backgrounds-tab-scroll-area {
 	display: flex;
 	flex: 1 1 auto;
 	min-height: 0;
@@ -1305,12 +1305,12 @@
 }
 
 [data-astra-projecta-native-drawer-source="Backgrounds"]
-	.mobile-chat-main-menu-backgrounds-tab-scroll-area__content {
+	.astra-chat-main-menu-backgrounds-tab-scroll-area__content {
 	min-height: 100%;
 }
 
 [data-astra-projecta-native-drawer-source="Backgrounds"]
-	.mobile-chat-main-menu-backgrounds-tab-scroll-area__content-host {
+	.astra-chat-main-menu-backgrounds-tab-scroll-area__content-host {
 	min-height: 100%;
 	min-width: 0;
 	width: 100%;
@@ -1377,7 +1377,7 @@
 	bottom: 16px;
 }
 [data-astra-projecta-native-drawer-source="Backgrounds"]
-	.mobile-chat-main-menu-backgrounds-tab-scroll-area {
+	.astra-chat-main-menu-backgrounds-tab-scroll-area {
 	padding: 12px;
 }
 
@@ -1476,7 +1476,7 @@
 	overflow: visible !important;
 }
 
-.mobile-chat-main-menu-sheet__native-host
+.astra-chat-main-menu-sheet__native-host
 	> .astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source="right-nav-panel"] {
 	display: flex !important;
 	flex-direction: column;
@@ -1488,7 +1488,7 @@
 
 .sillytavern-interface__native-host
 	> #right-nav-panel.astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source="right-nav-panel"],
-.mobile-chat-main-menu-sheet__native-host
+.astra-chat-main-menu-sheet__native-host
 	> #right-nav-panel.astra-projecta-native-drawer-ported[data-astra-projecta-native-drawer-source="right-nav-panel"] {
 	width: 100% !important;
 	min-width: 0 !important;
@@ -1605,7 +1605,7 @@
 	overflow: visible !important;
 }
 
-.mobile-chat-main-menu-sheet__native-host
+.astra-chat-main-menu-sheet__native-host
 	[data-astra-projecta-native-drawer-source="right-nav-panel"]
 	.scrollableInner {
 	min-height: 0;
@@ -1644,7 +1644,7 @@
 	min-height: 0;
 }
 
-.mobile-chat-main-menu-sheet__footer {
+.astra-chat-main-menu-sheet__footer {
 	margin-top: auto;
 	flex-shrink: 0;
 	border-top: 1px dashed var(--border-color-base);
@@ -1653,7 +1653,7 @@
 	padding-bottom: calc(12px + var(--safe-bottom));
 }
 
-.mobile-chat-main-menu-sheet__close-button {
+.astra-chat-main-menu-sheet__close-button {
 	width: 100%;
 	min-height: 44px;
 	border-radius: 14px;

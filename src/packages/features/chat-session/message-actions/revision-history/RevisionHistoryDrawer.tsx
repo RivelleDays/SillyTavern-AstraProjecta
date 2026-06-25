@@ -53,11 +53,11 @@ const SHOW_FULL_TEXT_STORAGE_KEY =
 	"astra_projecta.message_revision_history.show_full_text";
 const INCLUDE_UNCHANGED_TEXT_STORAGE_KEY =
 	"astra_projecta.message_revision_history.include_unchanged_text";
-const REVISION_HISTORY_DIALOG_ID = "mobile-message-revision-history-dialog";
+const REVISION_HISTORY_DIALOG_ID = "astra-message-revision-history-dialog";
 const REVISION_HISTORY_EXPAND_TEXT_TOGGLE_ID =
-	"mobile-message-revision-history-dialog-expand-text-toggle";
+	"astra-message-revision-history-dialog-expand-text-toggle";
 const REVISION_HISTORY_INCLUDE_UNCHANGED_TEXT_TOGGLE_ID =
-	"mobile-message-revision-history-dialog-include-unchanged-text-toggle";
+	"astra-message-revision-history-dialog-include-unchanged-text-toggle";
 
 function formatNumericBadgeText(value: string, fallbackValue?: number): string {
 	const match = value.match(/\d+/);

@@ -6,7 +6,8 @@
 ## Owned Paths / Responsibilities
 
 - `globals.css` as the single emitted stylesheet entry imported by `src/index.js`.
-- `shadcn-overrides.css` as the only supported home for shadcn-specific CSS fixes.
+- `shadcn-overrides.css` as the only supported home for shadcn-specific CSS fixes (Astra-owned shadcn components only).
+- `sillytavern-overrides.css` as the only supported home for restyling SillyTavern *native* elements (e.g. `.menu_button`, `.menu_button_icon`) to align with the shadcn visual language. Keep this strictly separate from `shadcn-overrides.css`, which only covers Astra-owned shadcn components.
 - Tailwind layer assembly order and generated preflight inclusion.
 - Product-wide theme tokens, body-class contracts, and shared CSS runtime variables.
 - CSS imports for mobile top-bar, Astra main-interface panel shell, and SillyTavern interface feature styles.
@@ -17,6 +18,8 @@
 - Register product CSS through `src/styles/globals.css`; do not add ad hoc global CSS imports from feature or runtime modules.
 - `src/styles/globals.css` is the Tailwind v4 CSS entrypoint for this repository. Keep Tailwind CSS-first directives and split imports there unless the repository-wide CSS isolation strategy itself changes.
 - Import `src/styles/shadcn-overrides.css` from `globals.css`; do not scatter shadcn CSS fixes across feature styles or upstream component files.
+- Import `src/styles/sillytavern-overrides.css` from `globals.css`; native-element overrides apply globally (mobile and desktop) by default. If a rule is mobile-only, nest it inside `body.astra-projecta-mobile-layout` within this same file instead of creating a second file.
+- Prefer existing design tokens (`--color-base-*`, `--surface-*`, `--astra-button-size-*`, `--astra-icon-size-*`, etc.) when overriding native SillyTavern elements instead of introducing a parallel set of hardcoded values.
 - Shared Astra drawer visual contracts such as `DrawerBody` gradient scroll fade belong in `shadcn-overrides.css`, not in feature-local drawer styles.
 - Feature-owned mobile panel layout selectors belong in the owning feature or app CSS, such as `astra-main-interface-panel__*` and `sillytavern-interface-panel__*`, not in `shadcn-overrides.css`.
 - `body.astra-projecta-theme` is the only supported home for AstraProjecta global theme takeover and SmartTheme mappings.

@@ -5,6 +5,7 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "tw-animate-css";
 @import "./shadcn-overrides.css";
+@import "./sillytavern-overrides.css";
 @import "../components/ui/astra/smooth-tabs.css";
 @import "../app/mobile/styles/chat-send-form.css";
 @import "../app/mobile/top-bar/mobile-chat-top-bar.css";

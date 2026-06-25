@@ -519,7 +519,7 @@ describe("createMobileMessageActionsFeature", () => {
 			});
 			expect(dialog).toHaveAttribute(
 				"id",
-				"mobile-message-more-actions-drawer",
+				"astra-message-more-actions-drawer",
 			);
 			expect(within(dialog).getByText("Assistant")).toBeInTheDocument();
 			expect(
@@ -628,7 +628,7 @@ describe("createMobileMessageActionsFeature", () => {
 			});
 			expect(editDialog).toHaveAttribute(
 				"id",
-				"mobile-message-edit-drawer",
+				"astra-message-edit-drawer",
 			);
 			expect(editClick).not.toHaveBeenCalled();
 			expect(
@@ -756,7 +756,7 @@ describe("createMobileMessageActionsFeature", () => {
 			});
 			expect(editDialog).toHaveAttribute(
 				"id",
-				"mobile-message-edit-drawer",
+				"astra-message-edit-drawer",
 			);
 			expect(nativeClickToEdit).not.toHaveBeenCalled();
 			expect(editClick).not.toHaveBeenCalled();
@@ -869,7 +869,7 @@ describe("createMobileMessageActionsFeature", () => {
 			const moreDialog = await openMoreActionsDrawerForMessage(message);
 			expect(moreDialog).toHaveAttribute(
 				"id",
-				"mobile-message-more-actions-drawer",
+				"astra-message-more-actions-drawer",
 			);
 
 			fireEvent.click(getMessageText(message));
@@ -1393,10 +1393,10 @@ describe("createMobileMessageActionsFeature", () => {
 
 			const dialog = await openMoreActionsDrawerForMessage(message);
 			const header = dialog.querySelector(
-				"#mobile-message-more-actions-drawer-header",
+				"#astra-message-more-actions-drawer-header",
 			);
 			const modelRow = dialog.querySelector(
-				"#mobile-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__detailSection",
+				"#astra-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__detailSection",
 			);
 			const identityMetaLine = header?.querySelector(
 				".astra-messageMoreActionsDrawer__identityMetaLine",
@@ -1567,7 +1567,7 @@ describe("createMobileMessageActionsFeature", () => {
 				document.querySelector('.mes[mesid="0"]') as HTMLElement,
 			);
 			const heading = dialog.querySelector(
-				"#mobile-message-more-actions-drawer-heading",
+				"#astra-message-more-actions-drawer-heading",
 			);
 			const modelName = heading?.querySelector(
 				".astra-messageMoreActionsDrawer__modelName",
@@ -1755,10 +1755,10 @@ describe("createMobileMessageActionsFeature", () => {
 
 			const dialog = await openMoreActionsDrawerForMessage(systemMessage);
 			const header = dialog.querySelector(
-				"#mobile-message-more-actions-drawer-header",
+				"#astra-message-more-actions-drawer-header",
 			);
 			const modelRow = dialog.querySelector(
-				"#mobile-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__detailSection",
+				"#astra-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__detailSection",
 			);
 			const identityMetaLine = header?.querySelector(
 				".astra-messageMoreActionsDrawer__identityMetaLine",
@@ -1903,7 +1903,7 @@ describe("createMobileMessageActionsFeature", () => {
 		const dialog = await openMoreActionsDrawerForMessage(assistantMessage);
 		expect(dialog).toHaveAttribute(
 			"id",
-			"mobile-message-more-actions-drawer",
+			"astra-message-more-actions-drawer",
 		);
 		expect(dialog).toHaveClass("astra-drawer-surface");
 		expect(
@@ -1912,7 +1912,7 @@ describe("createMobileMessageActionsFeature", () => {
 			),
 		).toBeNull();
 		const header = dialog.querySelector(
-			"#mobile-message-more-actions-drawer-header",
+			"#astra-message-more-actions-drawer-header",
 		);
 		expect(
 			header?.querySelector(
@@ -1957,7 +1957,7 @@ describe("createMobileMessageActionsFeature", () => {
 			),
 		).toBeNull();
 		const modelRow = dialog.querySelector(
-			"#mobile-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__detailSection",
+			"#astra-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__detailSection",
 		);
 		expect(modelRow).toBeInTheDocument();
 		expect(header?.nextElementSibling).toBe(modelRow);
@@ -2053,17 +2053,17 @@ describe("createMobileMessageActionsFeature", () => {
 		expect(within(dialog).queryByLabelText("Swipe: 1")).toBeNull();
 		expect(
 			dialog.querySelector(
-				"#mobile-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__modelDataRow",
+				"#astra-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__modelDataRow",
 			),
 		).toBeNull();
 		expect(
 			dialog.querySelector(
-				"#mobile-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__detailSection",
+				"#astra-message-more-actions-drawer-heading.astra-messageMoreActionsDrawer__detailSection",
 			),
 		).toBeNull();
 		expect(
 			document.getElementById(
-				"mobile-message-more-actions-drawer-heading",
+				"astra-message-more-actions-drawer-heading",
 			),
 		).toHaveClass("sr-only");
 		expect(dialog.querySelector("img")).toHaveAttribute(
@@ -2327,10 +2327,10 @@ describe("createMobileMessageActionsFeature", () => {
 				document.getElementById("astra-message-edit-drawer-host"),
 			).toBeInTheDocument();
 			expect(
-				document.getElementById("mobile-message-edit-drawer"),
+				document.getElementById("astra-message-edit-drawer"),
 			).toHaveAttribute("data-state", "closed");
 			expect(
-				document.getElementById("mobile-message-edit-drawer"),
+				document.getElementById("astra-message-edit-drawer"),
 			).toHaveAttribute("data-state", "closed");
 		} finally {
 			feature?.dispose();
@@ -2497,7 +2497,7 @@ describe("createMobileMessageActionsFeature", () => {
 			);
 			frame.flushFrames();
 			expect(
-				document.getElementById("mobile-message-edit-drawer"),
+				document.getElementById("astra-message-edit-drawer"),
 			).toHaveAttribute("data-state", "closed");
 			const deleteConfirmDialog = await screen.findByRole("dialog", {
 				name: "Delete message",
@@ -2633,7 +2633,7 @@ describe("createMobileMessageActionsFeature", () => {
 					.getAllByRole("button")
 					.map((button) => button.getAttribute("aria-label"));
 			const startGroup = document.getElementById(
-				"mobile-message-edit-drawer-extra-actions-start",
+				"astra-message-edit-drawer-extra-actions-start",
 			) as HTMLElement;
 			const deleteSwipeButton = within(startGroup).getByRole("button", {
 				name: "Delete current swipe",
@@ -2670,7 +2670,7 @@ describe("createMobileMessageActionsFeature", () => {
 				name: "Edit Message",
 			});
 			const stableStartGroup = document.getElementById(
-				"mobile-message-edit-drawer-extra-actions-start",
+				"astra-message-edit-drawer-extra-actions-start",
 			) as HTMLElement;
 			expect(stableDialog).toBe(editDialog);
 			expect(stableStartGroup).toBe(startGroup);
@@ -2706,7 +2706,7 @@ describe("createMobileMessageActionsFeature", () => {
 				name: "Edit Message",
 			});
 			const updatedStartGroup = document.getElementById(
-				"mobile-message-edit-drawer-extra-actions-start",
+				"astra-message-edit-drawer-extra-actions-start",
 			) as HTMLElement;
 			expect(updatedDialog).toBe(editDialog);
 			expect(updatedStartGroup).toBe(startGroup);
@@ -2940,7 +2940,7 @@ describe("createMobileMessageActionsFeature", () => {
 
 			const nativeDialog = await openMoreActionsDrawerForMessage(message);
 			const quickStrip = document.getElementById(
-				"mobile-message-more-actions-drawer-extra-actions-content",
+				"astra-message-more-actions-drawer-extra-actions-content",
 			);
 			expect(
 				within(quickStrip as HTMLElement)
@@ -3083,7 +3083,7 @@ describe("createMobileMessageActionsFeature", () => {
 			) as HTMLElement;
 			await openMoreActionsDrawerForMessage(message);
 			const quickActionContent = document.getElementById(
-				"mobile-message-more-actions-drawer-extra-actions-content",
+				"astra-message-more-actions-drawer-extra-actions-content",
 			);
 			const excludeQuickAction = within(
 				quickActionContent as HTMLElement,
@@ -3360,10 +3360,10 @@ describe("createMobileMessageActionsFeature", () => {
 				name: "More Message Actions",
 			});
 			const extraHeader = document.getElementById(
-				"mobile-message-extra-actions-drawer-header",
+				"astra-message-extra-actions-drawer-header",
 			);
 			const extraHeading = document.getElementById(
-				"mobile-message-extra-actions-drawer-heading",
+				"astra-message-extra-actions-drawer-heading",
 			);
 			const headingPreview = extraHeading?.querySelector(
 				".astra-messageExtraActionsDrawer__messagePreview",
@@ -4157,7 +4157,7 @@ describe("createMobileMessageActionsFeature", () => {
 			});
 			expect(historyDialog).toHaveAttribute(
 				"id",
-				"mobile-message-revision-history-dialog",
+				"astra-message-revision-history-dialog",
 			);
 			expect(
 				within(historyDialog).getByText("Assistant"),
@@ -4387,28 +4387,28 @@ describe("createMobileMessageActionsFeature", () => {
 			name: "Message Revision History",
 		});
 		const title = document.getElementById(
-			"mobile-message-revision-history-dialog-title",
+			"astra-message-revision-history-dialog-title",
 		);
 		const description = document.getElementById(
-			"mobile-message-revision-history-dialog-description",
+			"astra-message-revision-history-dialog-description",
 		);
 
 		expect(dialog).toHaveAttribute(
 			"id",
-			"mobile-message-revision-history-dialog",
+			"astra-message-revision-history-dialog",
 		);
 		const labelledBy = dialog.getAttribute("aria-labelledby");
 		const describedBy = dialog.getAttribute("aria-describedby");
 		expect(labelledBy).toBeTruthy();
 		expect(labelledBy).not.toBe(
-			"mobile-message-revision-history-dialog-title",
+			"astra-message-revision-history-dialog-title",
 		);
 		expect(document.getElementById(labelledBy ?? "")).toHaveClass(
 			"astra-dialog-title",
 		);
 		expect(describedBy).toBeTruthy();
 		expect(describedBy).not.toBe(
-			"mobile-message-revision-history-dialog-description",
+			"astra-message-revision-history-dialog-description",
 		);
 		expect(document.getElementById(describedBy ?? "")).toHaveClass(
 			"astra-dialog-description",
@@ -4465,7 +4465,7 @@ describe("createMobileMessageActionsFeature", () => {
 			}),
 		).toHaveAttribute(
 			"id",
-			"mobile-message-revision-history-dialog-include-unchanged-text-toggle",
+			"astra-message-revision-history-dialog-include-unchanged-text-toggle",
 		);
 		expect(
 			within(dialog).getByRole("checkbox", {
@@ -4473,7 +4473,7 @@ describe("createMobileMessageActionsFeature", () => {
 			}),
 		).toHaveAttribute(
 			"id",
-			"mobile-message-revision-history-dialog-expand-text-toggle",
+			"astra-message-revision-history-dialog-expand-text-toggle",
 		);
 		expect(
 			within(dialog).getByRole("checkbox", {

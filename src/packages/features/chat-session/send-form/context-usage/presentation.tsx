@@ -120,13 +120,13 @@ export function ContextUsageTextRow({
 	valueClassName?: string;
 }): React.ReactElement {
 	return (
-		<div className="mobile-chat-context-usage-shortcut__text-row">
-			<span className="mobile-chat-context-usage-shortcut__text-label">
+		<div className="astra-chat-context-usage-shortcut__text-row">
+			<span className="astra-chat-context-usage-shortcut__text-label">
 				{label}
 			</span>
 			<span
 				className={cn(
-					"mobile-chat-context-usage-shortcut__text-value",
+					"astra-chat-context-usage-shortcut__text-value",
 					valueClassName,
 				)}
 			>
@@ -149,24 +149,24 @@ export function ContextUsageDataPill({
 		<div
 			aria-live="polite"
 			className={cn(
-				"mobile-chat-context-usage-shortcut__data-pill",
+				"astra-chat-context-usage-shortcut__data-pill",
 				className,
 			)}
 		>
 			<span
 				aria-hidden={true}
-				className="mobile-chat-context-usage-shortcut__data-pill-icon"
+				className="astra-chat-context-usage-shortcut__data-pill-icon"
 			>
 				<UiIcon icon={DatabaseZap} size="sm" strokeWidth={2.25} />
 			</span>
-			<span className="mobile-chat-context-usage-shortcut__data-pill-value">
+			<span className="astra-chat-context-usage-shortcut__data-pill-value">
 				{formatContextUsageTokenCount(usedContextTokens)}
 			</span>
-			<span className="mobile-chat-context-usage-shortcut__data-pill-max">
-				<span className="mobile-chat-context-usage-shortcut__data-pill-separator">
+			<span className="astra-chat-context-usage-shortcut__data-pill-max">
+				<span className="astra-chat-context-usage-shortcut__data-pill-separator">
 					/
 				</span>
-				<span className="mobile-chat-context-usage-shortcut__data-pill-max-value">
+				<span className="astra-chat-context-usage-shortcut__data-pill-max-value">
 					{formatContextUsageTokenCount(maxContextTokens)}
 				</span>
 			</span>

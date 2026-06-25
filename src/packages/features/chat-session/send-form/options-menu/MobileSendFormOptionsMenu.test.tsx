@@ -116,7 +116,7 @@ describe("MobileSendFormOptionsMenu", () => {
 
 		const drawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-options-drawer",
+				"astra-send-form-options-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -170,7 +170,7 @@ describe("MobileSendFormOptionsMenu", () => {
 
 		const drawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-options-drawer",
+				"astra-send-form-options-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -180,28 +180,28 @@ describe("MobileSendFormOptionsMenu", () => {
 			".astra-drawer__handle",
 		) as HTMLElement | null;
 		const title = document.getElementById(
-			"mobile-send-form-options-drawer-title",
+			"astra-send-form-options-drawer-title",
 		);
 		const description = document.getElementById(
-			"mobile-send-form-options-drawer-description",
+			"astra-send-form-options-drawer-description",
 		);
 		const drawerBody = drawer.querySelector(
 			'[data-slot="drawer-body"]',
 		) as HTMLElement | null;
 		const scrollableContent = document.getElementById(
-			"mobile-send-form-options-drawer-scrollable-content",
+			"astra-send-form-options-drawer-scrollable-content",
 		);
 		const menu = document.getElementById(
-			"mobile-send-form-options-drawer-menu",
+			"astra-send-form-options-drawer-menu",
 		);
 
 		expect(drawer).toHaveAttribute(
 			"aria-labelledby",
-			"mobile-send-form-options-drawer-title",
+			"astra-send-form-options-drawer-title",
 		);
 		expect(drawer).toHaveAttribute(
 			"aria-describedby",
-			"mobile-send-form-options-drawer-description",
+			"astra-send-form-options-drawer-description",
 		);
 		expect(title).toHaveAttribute("data-slot", "drawer-title");
 		expect(description).toHaveAttribute("data-slot", "drawer-description");
@@ -261,7 +261,7 @@ describe("MobileSendFormOptionsMenu", () => {
 
 		const drawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-options-drawer",
+				"astra-send-form-options-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -331,7 +331,7 @@ describe("MobileSendFormOptionsMenu", () => {
 
 		const drawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-options-drawer",
+				"astra-send-form-options-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
@@ -346,22 +346,22 @@ describe("MobileSendFormOptionsMenu", () => {
 		const visibilityLabel = within(drawer).getByText("Show chat shortcuts");
 		const dangerZoneLabel = within(drawer).getByText("Danger zone");
 		const visibilityToggleRow = document.getElementById(
-			"mobile-send-form-options-drawer-shortcuts-toggle",
+			"astra-send-form-options-drawer-shortcuts-toggle",
 		);
 
 		expect(visibilityToggleRow).toBeInTheDocument();
 		expect(visibilityToggleRow).toContainElement(visibilityToggle);
 		expect(visibilityToggle).toHaveAttribute(
 			"id",
-			"mobile-send-form-options-drawer-shortcuts-toggle-switch",
+			"astra-send-form-options-drawer-shortcuts-toggle-switch",
 		);
 		expect(visibilityToggle).toHaveAttribute("data-size", "default");
 		expect(visibilityLabel).toHaveAttribute(
 			"for",
-			"mobile-send-form-options-drawer-shortcuts-toggle-switch",
+			"astra-send-form-options-drawer-shortcuts-toggle-switch",
 		);
 		expect(closeChatButton).toHaveClass(
-			"mobile-send-form-options-drawer__item",
+			"astra-send-form-options-drawer__item",
 		);
 		expect(closeChatButton.querySelector(".lucide-x")).toBeInTheDocument();
 		expect(visibilityToggle).toHaveAttribute("aria-checked", "true");
@@ -410,7 +410,7 @@ describe("MobileSendFormOptionsMenu", () => {
 
 		const drawer = await waitFor(() => {
 			const element = document.getElementById(
-				"mobile-send-form-options-drawer",
+				"astra-send-form-options-drawer",
 			);
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
