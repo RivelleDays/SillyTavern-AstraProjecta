@@ -15,4 +15,4 @@
 - Use `src/packages/features/astra-main-interface/chat-list` through `CurrentChatListPage` for Favorite chat-list flow. Favorite currently reuses Current row selectors and Current preference keys until a separate Favorite preference contract is added.
 - Use `src/packages/features/astra-main-interface/chat-categories` for category UI and `src/packages/core/st/chat-categories` for category persistence.
 - Favorite category pages must show only owner-scoped categories for the selected favorite character/group, and chat rows inside each category must come only from that favorite's scoped chat catalog snapshot. Global categories remain available through chat row category assignment drawers, not the Favorite category page.
-- Keep this folder free of favorite detection, favorite sorting, avatar resolution, or current-entity exclusion. Those rules belong to `src/packages/core/st/favorite-chat-entities`.
+- Keep this folder free of favorite detection, favorite sorting, avatar resolution, or visible favorite selection. Those rules belong to `src/packages/core/st/favorite-chat-entities`.

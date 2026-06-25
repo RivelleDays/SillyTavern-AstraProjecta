@@ -421,6 +421,7 @@ describe("AstraMainInterface", () => {
 	afterEach(() => {
 		cleanup();
 		vi.restoreAllMocks();
+		vi.unstubAllGlobals();
 		vi.useRealTimers();
 		window.localStorage.clear();
 		Reflect.deleteProperty(globalThis as Record<string, unknown>, "toastr");
@@ -6650,6 +6651,45 @@ describe("AstraMainInterface", () => {
 
 		expect(screen.getAllByRole("button", { name: /^Open / })).toHaveLength(
 			55,
+		);
+	});
+
+	test("prefetches additional global rows before the sentinel reaches the viewport", () => {
+		const observerOptions: IntersectionObserverInit[] = [];
+		class IntersectionObserverMock {
+			disconnect = vi.fn();
+			observe = vi.fn();
+			takeRecords = vi.fn(() => []);
+			unobserve = vi.fn();
+
+			constructor(
+				_callback: IntersectionObserverCallback,
+				options?: IntersectionObserverInit,
+			) {
+				observerOptions.push(options ?? {});
+			}
+		}
+		vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
+		const entries = Array.from({ length: 55 }, (_, index) =>
+			createEntry({
+				chatId: `chat-${index}`,
+				entityId: String(index),
+				entityName: `Hero ${index}`,
+				key: `character:${index}:chat-${index}`,
+			}),
+		);
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries,
+			}),
+		);
+
+		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+		expect(observerOptions).toContainEqual(
+			expect.objectContaining({
+				rootMargin: "400px",
+			}),
 		);
 	});
 

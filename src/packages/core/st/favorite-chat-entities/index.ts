@@ -536,18 +536,12 @@ export function readFavoriteChatEntitiesSnapshot({
 			),
 		)
 		.sort(compareFavoriteChatEntities);
-	const excludedCurrentEntity =
-		sortedFavorites.find(
-			(entity) => entity.scopeValue === currentScopeValue,
-		) ?? null;
-	const visibleEntities = sortedFavorites
-		.filter((entity) => entity.scopeValue !== currentScopeValue)
-		.slice(0, resolvedLimit);
+	const visibleEntities = sortedFavorites.slice(0, resolvedLimit);
 
 	return {
 		currentScopeValue,
 		entities: visibleEntities,
-		excludedCurrentEntity,
+		excludedCurrentEntity: null,
 		limit: resolvedLimit,
 		totalFavoriteCount: sortedFavorites.length,
 		updatedAt: now(),
@@ -560,8 +554,7 @@ export function createFavoriteChatEntitiesStore({
 	now = Date.now,
 }: CreateFavoriteChatEntitiesStoreOptions = {}): FavoriteChatEntitiesStore {
 	const listeners = new Set<Listener>();
-	const initialContext =
-		readContextSafe<StFavoriteChatEntitiesContextLike>();
+	const initialContext = readContextSafe<StFavoriteChatEntitiesContextLike>();
 	const eventSource =
 		initialContext && isRecord(initialContext.eventSource)
 			? (initialContext.eventSource as EventSourceLike)

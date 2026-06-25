@@ -13,8 +13,7 @@ vi.mock("@/packages/core/st/chat-catalog/unstable-st-internals", async () => {
 
 	return {
 		...actual,
-		defaultUnstableChatCatalogInternals:
-			unstableChatCatalogInternalsMock,
+		defaultUnstableChatCatalogInternals: unstableChatCatalogInternalsMock,
 	};
 });
 
@@ -26,6 +25,7 @@ import {
 	deleteChatCatalogEntry,
 	exportChatCatalogEntry,
 	filterChatCatalogEntries,
+	normalizeRecentChatCatalogEntriesAsync,
 	normalizeRecentChatCatalogEntries,
 	openChatCatalogEntry,
 	readChatCatalogCache,
@@ -44,6 +44,18 @@ function createJsonResponse(payload: unknown, ok = true): Response {
 		status: ok ? 200 : 500,
 		statusText: ok ? "OK" : "Server Error",
 	} as unknown as Response;
+}
+
+function createDeferred<T>() {
+	let resolve: (value: T) => void = () => {};
+	const promise = new Promise<T>((nextResolve) => {
+		resolve = nextResolve;
+	});
+
+	return {
+		promise,
+		resolve,
+	};
 }
 
 function createEventSourceStub() {
@@ -70,7 +82,9 @@ function createEventSourceStub() {
 }
 
 function stubFetch(payload: unknown, ok = true) {
-	const fetchMock = vi.fn().mockResolvedValue(createJsonResponse(payload, ok));
+	const fetchMock = vi
+		.fn()
+		.mockResolvedValue(createJsonResponse(payload, ok));
 	vi.stubGlobal("fetch", fetchMock);
 	return fetchMock;
 }
@@ -255,6 +269,49 @@ describe("chat catalog adapter", () => {
 				messageCount: 8,
 			}),
 		]);
+	});
+
+	test("normalizes large recent chat payloads in chunks while keeping small payloads synchronous", async () => {
+		const characters = Array.from({ length: 205 }, (_, index) => ({
+			avatar: `hero-${index}.png`,
+			name: `Hero ${index}`,
+		}));
+		setSillyTavernContext({
+			characters,
+			getThumbnailUrl: (type: string, fileName: string) =>
+				`/thumbs/${type}/${fileName}`,
+			groups: [],
+		});
+		const payload = characters.map((character, index) => ({
+			avatar: character.avatar,
+			chat_items: index + 1,
+			file_name: `chapter-${index}.jsonl`,
+			file_size: `${index + 1} KB`,
+			last_mes: "2026-05-01T10:00:00.000Z",
+			mes: `Preview ${index}`,
+		}));
+		const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
+
+		try {
+			const smallEntries = await normalizeRecentChatCatalogEntriesAsync(
+				payload.slice(0, 2),
+			);
+			expect(smallEntries).toHaveLength(2);
+			expect(setTimeoutSpy).not.toHaveBeenCalled();
+
+			const largeEntries =
+				await normalizeRecentChatCatalogEntriesAsync(payload);
+
+			expect(largeEntries).toHaveLength(205);
+			expect(largeEntries.at(-1)).toMatchObject({
+				chatId: "chapter-204",
+				entityId: "204",
+				key: "character:204:chapter-204",
+			});
+			expect(setTimeoutSpy).toHaveBeenCalled();
+		} finally {
+			setTimeoutSpy.mockRestore();
+		}
 	});
 
 	test("normalizes group avatar collages from up to four resolved members", () => {
@@ -741,7 +798,9 @@ describe("chat catalog adapter", () => {
 		);
 
 		expect(result).toEqual({ ok: true });
-		expect(unstableChatCatalogInternalsMock.renameChat).toHaveBeenCalledWith({
+		expect(
+			unstableChatCatalogInternalsMock.renameChat,
+		).toHaveBeenCalledWith({
 			characterId: 0,
 			entityId: "0",
 			kind: "character",
@@ -766,7 +825,9 @@ describe("chat catalog adapter", () => {
 		);
 
 		expect(result).toEqual({ ok: true });
-		expect(unstableChatCatalogInternalsMock.renameChat).toHaveBeenCalledWith({
+		expect(
+			unstableChatCatalogInternalsMock.renameChat,
+		).toHaveBeenCalledWith({
 			characterId: undefined,
 			entityId: "party",
 			kind: "group",
@@ -783,7 +844,9 @@ describe("chat catalog adapter", () => {
 		const result = await deleteChatCatalogEntry(createEntry());
 
 		expect(result).toEqual({ ok: true });
-		expect(unstableChatCatalogInternalsMock.deleteChat).toHaveBeenCalledWith({
+		expect(
+			unstableChatCatalogInternalsMock.deleteChat,
+		).toHaveBeenCalledWith({
 			chatId: "chapter-1",
 			entityId: "0",
 			kind: "character",
@@ -805,7 +868,9 @@ describe("chat catalog adapter", () => {
 		);
 
 		expect(result).toEqual({ ok: true });
-		expect(unstableChatCatalogInternalsMock.deleteChat).toHaveBeenCalledWith({
+		expect(
+			unstableChatCatalogInternalsMock.deleteChat,
+		).toHaveBeenCalledWith({
 			chatId: "campfire",
 			entityId: "party",
 			kind: "group",
@@ -1022,6 +1087,93 @@ describe("chat catalog adapter", () => {
 		expect(fetchImpl).toHaveBeenCalledTimes(1);
 	});
 
+	test("coalesces chat catalog event bursts into one remote refresh", async () => {
+		vi.useFakeTimers();
+		writeChatCatalogCache({
+			entries: [],
+			now: 1_000,
+			storage: localStorage,
+		});
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			characters: [],
+			eventSource,
+			eventTypes: {
+				CHAT_CHANGED: "chat_changed",
+			},
+			groups: [],
+		});
+		const fetchImpl = vi
+			.fn()
+			.mockResolvedValue(
+				createJsonResponse([]),
+			) as unknown as typeof fetch;
+
+		const store = createChatCatalogStore({
+			fetchImpl,
+			now: () => 1_000,
+			storage: localStorage,
+		});
+
+		expect(fetchImpl).not.toHaveBeenCalled();
+
+		eventSource.emit("chat_changed");
+		eventSource.emit("chat_changed");
+		eventSource.emit("chat_changed");
+
+		expect(fetchImpl).not.toHaveBeenCalled();
+
+		vi.runOnlyPendingTimers();
+		await Promise.resolve();
+
+		expect(fetchImpl).toHaveBeenCalledTimes(1);
+
+		store.dispose();
+	});
+
+	test("keeps one remote refresh in flight and runs one queued follow-up", async () => {
+		vi.useFakeTimers();
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			characters: [],
+			eventSource,
+			eventTypes: {
+				CHAT_CHANGED: "chat_changed",
+			},
+			groups: [],
+		});
+		const firstResponse = createDeferred<Response>();
+		const fetchImpl = vi
+			.fn()
+			.mockReturnValueOnce(firstResponse.promise)
+			.mockResolvedValue(
+				createJsonResponse([]),
+			) as unknown as typeof fetch;
+
+		const store = createChatCatalogStore({
+			fetchImpl,
+			storage: localStorage,
+		});
+
+		expect(fetchImpl).toHaveBeenCalledTimes(1);
+
+		eventSource.emit("chat_changed");
+		eventSource.emit("chat_changed");
+		vi.runOnlyPendingTimers();
+		await Promise.resolve();
+
+		expect(fetchImpl).toHaveBeenCalledTimes(1);
+
+		firstResponse.resolve(createJsonResponse([]));
+		for (let index = 0; index < 5; index += 1) {
+			await Promise.resolve();
+		}
+
+		expect(fetchImpl).toHaveBeenCalledTimes(2);
+
+		store.dispose();
+	});
+
 	test("activates a favorite character through the public go command and persists the reload target", async () => {
 		const characters = [
 			{
@@ -1100,14 +1252,16 @@ describe("chat catalog adapter", () => {
 				saveSettingsDebounced: vi.fn(),
 			},
 		};
-		document.querySelector(".group_select")?.addEventListener("click", () => {
-			contextRef.current = {
-				...contextRef.current,
-				characterId: null,
-				chatId: "campfire",
-				groupId: "party",
-			};
-		});
+		document
+			.querySelector(".group_select")
+			?.addEventListener("click", () => {
+				contextRef.current = {
+					...contextRef.current,
+					characterId: null,
+					chatId: "campfire",
+					groupId: "party",
+				};
+			});
 		setMutableSillyTavernContext(contextRef);
 
 		const result = await activateChatEntity({
@@ -1401,8 +1555,9 @@ describe("chat catalog adapter", () => {
 		];
 		const openCharacterChat = vi.fn().mockResolvedValue(undefined);
 		const saveSettingsDebounced = vi.fn();
-		const executeSlashCommandsWithOptions = vi.fn().mockImplementation(
-			(text: string) => {
+		const executeSlashCommandsWithOptions = vi
+			.fn()
+			.mockImplementation((text: string) => {
 				contextRef.current = {
 					...contextRef.current,
 					characterId: 0,
@@ -1412,8 +1567,7 @@ describe("chat catalog adapter", () => {
 				return Promise.resolve({
 					pipe: text,
 				});
-			},
-		);
+			});
 		const contextRef: { current: Record<string, unknown> } = {
 			current: {
 				characterId: 2,
@@ -1695,13 +1849,15 @@ describe("chat catalog adapter", () => {
 				saveSettingsDebounced: vi.fn(),
 			},
 		};
-		const openGroupChat = vi.fn(async (_groupId: string, chatId: string) => {
-			contextRef.current = {
-				...contextRef.current,
-				chatId,
-				getCurrentChatId: () => chatId,
-			};
-		});
+		const openGroupChat = vi.fn(
+			async (_groupId: string, chatId: string) => {
+				contextRef.current = {
+					...contextRef.current,
+					chatId,
+					getCurrentChatId: () => chatId,
+				};
+			},
+		);
 		contextRef.current.openGroupChat = openGroupChat;
 		setMutableSillyTavernContext(contextRef);
 

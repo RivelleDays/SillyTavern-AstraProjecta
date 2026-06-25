@@ -112,8 +112,17 @@ export const CHAT_CATALOG_CACHE_KEY =
 	"astra_projecta:astra-main-interface:global-chat-catalog:v1";
 export const CHAT_CATALOG_CACHE_STALE_MS = 5 * 60 * 1000;
 
+const CHAT_CATALOG_NORMALIZE_CHUNK_SIZE = 100;
+const CHAT_CATALOG_REFRESH_DEBOUNCE_MS = 100;
 const TARGET_FIRST_CONTEXT_WAIT_ATTEMPTS = 40;
 const TARGET_FIRST_CONTEXT_WAIT_MS = 25;
+
+type GlobalWithIdleCallback = typeof globalThis & {
+	requestIdleCallback?: (
+		callback: () => void,
+		options?: { timeout?: number },
+	) => number;
+};
 
 export type ChatCatalogEntryKind = "character" | "group";
 
@@ -1244,6 +1253,67 @@ export function normalizeRecentChatCatalogEntries(
 	});
 }
 
+function waitForNormalizationYield(): Promise<void> {
+	return new Promise((resolve) => {
+		const idleCallback = (globalThis as GlobalWithIdleCallback)
+			.requestIdleCallback;
+		if (typeof idleCallback === "function") {
+			idleCallback(resolve, { timeout: 50 });
+			return;
+		}
+
+		setTimeout(resolve, 0);
+	});
+}
+
+export async function normalizeRecentChatCatalogEntriesAsync(
+	payload: unknown,
+	context = readContextSafe<StChatCatalogContextLike>(),
+): Promise<ChatCatalogEntry[]> {
+	if (!Array.isArray(payload) || !context) {
+		return [];
+	}
+
+	if (payload.length <= CHAT_CATALOG_NORMALIZE_CHUNK_SIZE) {
+		return normalizeRecentChatCatalogEntries(payload, context);
+	}
+
+	const lookup = buildChatCatalogLookup(context);
+	const entries: ChatCatalogEntry[] = [];
+
+	for (
+		let startIndex = 0;
+		startIndex < payload.length;
+		startIndex += CHAT_CATALOG_NORMALIZE_CHUNK_SIZE
+	) {
+		if (startIndex > 0) {
+			await waitForNormalizationYield();
+		}
+
+		const endIndex = Math.min(
+			startIndex + CHAT_CATALOG_NORMALIZE_CHUNK_SIZE,
+			payload.length,
+		);
+		for (let index = startIndex; index < endIndex; index += 1) {
+			const entry = payload[index];
+			if (!isRecord(entry)) {
+				continue;
+			}
+
+			const normalizedEntry = normalizeRecentChatEntry(
+				entry as RecentChatLike,
+				context,
+				lookup,
+			);
+			if (normalizedEntry) {
+				entries.push(normalizedEntry);
+			}
+		}
+	}
+
+	return entries;
+}
+
 export function filterChatCatalogEntries(
 	entries: ChatCatalogEntry[],
 	query: string,
@@ -1413,7 +1483,7 @@ async function fetchRecentChatCatalogEntries({
 		throw new Error("invalid-payload");
 	}
 
-	return normalizeRecentChatCatalogEntries(payload, context);
+	return normalizeRecentChatCatalogEntriesAsync(payload, context);
 }
 
 export function createChatCatalogStore({
@@ -1429,6 +1499,9 @@ export function createChatCatalogStore({
 	});
 	let disposed = false;
 	let requestToken = 0;
+	let isRemoteRefreshInFlight = false;
+	let queuedRefreshAfterInFlight = false;
+	let scheduledRefreshTimeout: ReturnType<typeof setTimeout> | null = null;
 	let snapshot: ChatCatalogSnapshot = cachedCatalog
 		? {
 				cacheStatus: cachedCatalog.cacheStatus,
@@ -1469,6 +1542,15 @@ export function createChatCatalogStore({
 		activeEventSource = null;
 	}
 
+	function clearScheduledRefresh() {
+		if (scheduledRefreshTimeout === null) {
+			return;
+		}
+
+		clearTimeout(scheduledRefreshTimeout);
+		scheduledRefreshTimeout = null;
+	}
+
 	function syncEventListeners() {
 		const context = readContextSafe<StChatCatalogContextLike>();
 		const nextEventSource =
@@ -1487,7 +1569,7 @@ export function createChatCatalogStore({
 			resolveEventTypes(context),
 		).map((eventName) => {
 			const listener = () => {
-				refresh();
+				scheduleRefresh();
 			};
 			nextEventSource.on(eventName, listener);
 
@@ -1506,11 +1588,6 @@ export function createChatCatalogStore({
 			}
 
 			const updatedAt = now();
-			writeChatCatalogCache({
-				entries,
-				now: updatedAt,
-				storage: resolvedStorage,
-			});
 			publish({
 				cacheStatus: "fresh",
 				entries: markCurrentChatCatalogEntries(entries),
@@ -1518,6 +1595,17 @@ export function createChatCatalogStore({
 				status: "ready",
 				updatedAt,
 			});
+			setTimeout(() => {
+				if (disposed || activeRequestToken !== requestToken) {
+					return;
+				}
+
+				writeChatCatalogCache({
+					entries,
+					now: updatedAt,
+					storage: resolvedStorage,
+				});
+			}, 0);
 		} catch {
 			if (disposed || activeRequestToken !== requestToken) {
 				return;
@@ -1528,6 +1616,16 @@ export function createChatCatalogStore({
 				errorMessage: "Failed to load chats.",
 				status: "error",
 			});
+		} finally {
+			if (activeRequestToken !== requestToken) {
+				return;
+			}
+
+			isRemoteRefreshInFlight = false;
+			if (!disposed && queuedRefreshAfterInFlight) {
+				queuedRefreshAfterInFlight = false;
+				refresh();
+			}
 		}
 	}
 
@@ -1536,8 +1634,15 @@ export function createChatCatalogStore({
 			return;
 		}
 
+		clearScheduledRefresh();
+		if (isRemoteRefreshInFlight) {
+			queuedRefreshAfterInFlight = true;
+			return;
+		}
+
 		requestToken += 1;
 		const activeRequestToken = requestToken;
+		isRemoteRefreshInFlight = true;
 		publish({
 			...snapshot,
 			entries: markCurrentChatCatalogEntries(snapshot.entries),
@@ -1545,6 +1650,26 @@ export function createChatCatalogStore({
 			status: snapshot.entries.length > 0 ? "refreshing" : "loading",
 		});
 		void runRemoteRefresh(activeRequestToken);
+	}
+
+	function scheduleRefresh() {
+		if (disposed) {
+			return;
+		}
+
+		if (isRemoteRefreshInFlight) {
+			queuedRefreshAfterInFlight = true;
+			return;
+		}
+
+		if (scheduledRefreshTimeout !== null) {
+			return;
+		}
+
+		scheduledRefreshTimeout = setTimeout(() => {
+			scheduledRefreshTimeout = null;
+			refresh();
+		}, CHAT_CATALOG_REFRESH_DEBOUNCE_MS);
 	}
 
 	syncEventListeners();
@@ -1561,6 +1686,7 @@ export function createChatCatalogStore({
 
 			disposed = true;
 			requestToken += 1;
+			clearScheduledRefresh();
 			listeners.clear();
 			clearEventListeners();
 		},
@@ -1941,9 +2067,8 @@ async function activateCharacterThroughPublicGoCommand(
 		};
 	}
 
-	const activeContext = await waitForContextMatch(
-		getContext,
-		(nextContext) => isActiveCharacterContext(nextContext, characterId),
+	const activeContext = await waitForContextMatch(getContext, (nextContext) =>
+		isActiveCharacterContext(nextContext, characterId),
 	);
 	if (!activeContext) {
 		return {

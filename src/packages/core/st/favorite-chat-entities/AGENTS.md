@@ -1,13 +1,13 @@
 ## Purpose
 
 - Own the SillyTavern-backed favorite character/group entity list used by the Astra main-interface header selector.
-- Keep favorite detection, avatar resolution, current-entity exclusion, and aggregate chat statistics in one reusable adapter.
+- Keep favorite detection, avatar resolution, stable visible favorite selection, and aggregate chat statistics in one reusable adapter.
 - Prepare data for Astra-owned routing without making this adapter render UI or activate SillyTavern chats.
 
 ## Owned Paths / Responsibilities
 
 - `index.ts` owns favorite entity snapshot reading, scope-value helpers, optional store wiring, and the default visible favorite cap.
-- `index.test.ts` owns behavior coverage for favorite sources, avatar data, aggregate sorting, current-entity exclusion, caps, fallbacks, and scope parsing.
+- `index.test.ts` owns behavior coverage for favorite sources, avatar data, aggregate sorting, current-entity inclusion, caps, fallbacks, and scope parsing.
 - This folder owns only favorite entity metadata. The visible avatar strip, horizontal `ScrollArea`, active styling, and panel body rendering belong to feature/app layers.
 
 ## SillyTavern Touchpoints
@@ -24,7 +24,7 @@
 
 - Default visible favorite limit is `25`, matching SillyTavern HotSwap's hard cap rationale without depending on HotSwap DOM or implementation.
 - The visible cap applies only after fixed header entries: Global remains first, Current Character/Group remains second, and scrollable favorites follow.
-- Exclude the active character/group from the scrollable favorite list because the current context is represented by the fixed second entry.
+- Keep the active character/group in the scrollable favorite list when it qualifies, so the favorite strip content stays stable across current-context changes.
 - Sort visible favorites by total message count descending, then latest message timestamp descending, then entity name, then scope value for stable ties.
 - Missing or null message counts contribute `0`; missing latest-message timestamps sort as older than known timestamps.
 - Favorite body scopes use `favorite:character:<id>` and `favorite:group:<id>` values. These scope values are Astra routing metadata only and must not trigger SillyTavern HotSwap behavior by themselves.

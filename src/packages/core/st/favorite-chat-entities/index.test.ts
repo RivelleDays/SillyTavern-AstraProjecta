@@ -277,7 +277,7 @@ describe("favorite chat entity adapter", () => {
 		]);
 	});
 
-	test("excludes the current entity before applying the visible favorite limit", () => {
+	test("keeps the current entity in the visible favorites before applying the limit", () => {
 		setSillyTavernContext({
 			characterId: 0,
 			characters: [
@@ -327,18 +327,71 @@ describe("favorite chat entity adapter", () => {
 		});
 
 		expect(snapshot.currentScopeValue).toBe("favorite:character:0");
-		expect(snapshot.excludedCurrentEntity).toEqual(
+		expect(snapshot.excludedCurrentEntity).toBeNull();
+		expect(snapshot.totalFavoriteCount).toBe(3);
+		expect(snapshot.entities).toEqual([
 			expect.objectContaining({
 				entityName: "Current",
 				scopeValue: "favorite:character:0",
 			}),
-		);
+		]);
+	});
+
+	test("applies the favorite limit after sorting without removing the current entity", () => {
+		setSillyTavernContext({
+			characterId: 2,
+			characters: [
+				{
+					avatar: "one.png",
+					fav: true,
+					name: "One",
+				},
+				{
+					avatar: "two.png",
+					fav: true,
+					name: "Two",
+				},
+				{
+					avatar: "current.png",
+					fav: true,
+					name: "Current",
+				},
+			],
+			getThumbnailUrl: (type: string, fileName: string) =>
+				`/thumbs/${type}/${fileName}`,
+			groups: [],
+		});
+
+		const snapshot = readFavoriteChatEntitiesSnapshot({
+			chatCatalogEntries: [
+				createEntry({
+					entityId: "0",
+					entityName: "One",
+					key: "character:0:one",
+					messageCount: 20,
+				}),
+				createEntry({
+					entityId: "1",
+					entityName: "Two",
+					key: "character:1:two",
+					messageCount: 10,
+				}),
+				createEntry({
+					entityId: "2",
+					entityName: "Current",
+					key: "character:2:current",
+					messageCount: 15,
+				}),
+			],
+			limit: 2,
+		});
+
+		expect(snapshot.currentScopeValue).toBe("favorite:character:2");
+		expect(snapshot.excludedCurrentEntity).toBeNull();
 		expect(snapshot.totalFavoriteCount).toBe(3);
-		expect(snapshot.entities).toEqual([
-			expect.objectContaining({
-				entityName: "One",
-				scopeValue: "favorite:character:1",
-			}),
+		expect(snapshot.entities.map((entity) => entity.scopeValue)).toEqual([
+			"favorite:character:0",
+			"favorite:character:2",
 		]);
 	});
 

@@ -593,11 +593,7 @@ function ChatCatalogRowBody({
 					className="astra-main-interface-chat-row__stat"
 				>
 					<span className="astra-main-interface-chat-row__stat-icon">
-						<UiIcon
-							aria-hidden={true}
-							icon={Database}
-							size="xs"
-						/>
+						<UiIcon aria-hidden={true} icon={Database} size="xs" />
 					</span>
 					<span className="astra-main-interface-chat-row__stat-value">
 						{fileSize}
@@ -1312,18 +1308,21 @@ export function ChatListExperience<
 			return undefined;
 		}
 
-		const observer = new IntersectionObserver((entries) => {
-			if (!entries.some((entry) => entry.isIntersecting)) {
-				return;
-			}
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (!entries.some((entry) => entry.isIntersecting)) {
+					return;
+				}
 
-			setVisibleCount((currentCount) =>
-				Math.min(
-					currentCount + CHAT_LIST_PAGE_SIZE,
-					filteredEntries.length,
-				),
-			);
-		});
+				setVisibleCount((currentCount) =>
+					Math.min(
+						currentCount + CHAT_LIST_PAGE_SIZE,
+						filteredEntries.length,
+					),
+				);
+			},
+			{ rootMargin: "400px" },
+		);
 
 		observer.observe(sentinel);
 
