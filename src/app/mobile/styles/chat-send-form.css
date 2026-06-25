@@ -1389,7 +1389,7 @@
 		--mobile-chat-main-menu-drawer-tile-padding: 12px;
 		--mobile-chat-main-menu-drawer-tile-padding-bottom: 12px;
 		--mobile-chat-main-menu-drawer-tile-title-size: 13px;
-		--mobile-chat-main-menu-drawer-tile-deco-icon-size: 72px;
+		--mobile-chat-main-menu-drawer-tile-deco-icon-size: 60px;
 		--mobile-chat-main-menu-drawer-tile-deco-icon-top: 12px;
 		--mobile-chat-main-menu-drawer-tile-deco-icon-right: 10px;
 		--mobile-chat-main-menu-drawer-tile-glow-top: clamp(
@@ -1545,8 +1545,8 @@
 		width: 100%;
 		max-width: 100%;
 		min-width: 0;
-		aspect-ratio: 1 / 1;
-		min-height: 100px;
+		aspect-ratio: 1 / 0.8;
+		min-height: 80px;
 		flex-direction: column;
 		justify-content: flex-end;
 		overflow: hidden;
