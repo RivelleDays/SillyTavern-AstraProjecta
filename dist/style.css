@@ -4899,14 +4899,7 @@ body.astra-projecta-mobile-layout {
   }
   .astra-chat-context-usage-shortcut__trigger {
     --context-usage-color: var(--primary);
-    --context-usage-track: var(--muted);
-    @supports (color: color-mix(in lab, red, red)) {
-      --context-usage-track: color-mix(
-			in srgb,
-			var(--muted) 78%,
-			var(--border)
-		);
-    }
+    --context-usage-track: var(--color-base-t20);
     display: inline-flex;
     align-items: center;
     justify-content: flex-end;
@@ -4989,13 +4982,8 @@ body.astra-projecta-mobile-layout {
     height: 16px;
     border-radius: 50%;
     background: conic-gradient(	var(--context-usage-color) calc(var(--context-usage-value) * 1%),	var(--context-usage-track) 0	);
-  }
-  .astra-chat-context-usage-shortcut__ring::after {
-    content: "";
-    position: absolute;
-    inset: 2px;
-    border-radius: inherit;
-    background: var(--background);
+    -webkit-mask-image: radial-gradient(circle, transparent 6px, #000 6px);
+    mask-image: radial-gradient(circle, transparent 6px, #000 6px);
   }
   .astra-chat-context-usage-shortcut__loading-dots {
     display: inline-flex;
