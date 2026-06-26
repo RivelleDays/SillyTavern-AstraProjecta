@@ -21,6 +21,7 @@ import {
 	activateChatEntity,
 	CHAT_CATALOG_CACHE_KEY,
 	CHAT_CATALOG_CACHE_STALE_MS,
+	CHAT_CATALOG_RECENT_FETCH_LIMIT,
 	createChatCatalogStore,
 	deleteChatCatalogEntry,
 	exportChatCatalogEntry,
@@ -1043,15 +1044,162 @@ describe("chat catalog adapter", () => {
 				key: "character:0:chapter-1",
 			});
 		});
+		expect(CHAT_CATALOG_RECENT_FETCH_LIMIT).toBeGreaterThan(0);
 		expect(fetchImpl).toHaveBeenCalledWith(
 			"/api/chats/recent",
 			expect.objectContaining({
-				body: JSON.stringify({}),
+				body: JSON.stringify({ max: CHAT_CATALOG_RECENT_FETCH_LIMIT }),
 				headers: {
 					Authorization: "Bearer token",
 					"Content-Type": "application/json",
 				},
 				method: "POST",
+			}),
+		);
+
+		store.dispose();
+	});
+
+	test("treats the snapshot as likely truncated before any live response arrives", () => {
+		setSillyTavernContext({
+			characters: [],
+			groups: [],
+		});
+		const pendingResponse = createDeferred<Response>();
+		const fetchImpl = vi
+			.fn()
+			.mockReturnValue(pendingResponse.promise) as unknown as typeof fetch;
+
+		const store = createChatCatalogStore({
+			fetchImpl,
+			storage: localStorage,
+		});
+
+		expect(store.getSnapshot().isLikelyTruncated).toBe(true);
+
+		pendingResponse.resolve(createJsonResponse([]));
+		store.dispose();
+	});
+
+	test("marks the snapshot as likely truncated when a capped fetch returns a full page", async () => {
+		setSillyTavernContext({
+			characters: [
+				{
+					avatar: "hero.png",
+					name: "Hero",
+				},
+			],
+			groups: [],
+		});
+		const rawEntries = Array.from(
+			{ length: CHAT_CATALOG_RECENT_FETCH_LIMIT },
+			(_unused, index) => ({
+				avatar: "hero.png",
+				chat_items: 1,
+				file_name: `chat-${index}.jsonl`,
+				file_size: "1 KB",
+				last_mes: "2026-05-01T10:00:00.000Z",
+				mes: "preview",
+			}),
+		);
+		const fetchImpl = vi
+			.fn()
+			.mockResolvedValue(
+				createJsonResponse(rawEntries),
+			) as unknown as typeof fetch;
+
+		const store = createChatCatalogStore({
+			fetchImpl,
+			storage: localStorage,
+		});
+
+		await waitFor(() => {
+			expect(store.getSnapshot().status).toBe("ready");
+		});
+		expect(store.getSnapshot().isLikelyTruncated).toBe(true);
+
+		store.dispose();
+	});
+
+	test("clears the likely-truncated flag when a capped fetch returns fewer entries than the limit", async () => {
+		setSillyTavernContext({
+			characters: [
+				{
+					avatar: "hero.png",
+					name: "Hero",
+				},
+			],
+			groups: [],
+		});
+		const fetchImpl = vi.fn().mockResolvedValue(
+			createJsonResponse([
+				{
+					avatar: "hero.png",
+					chat_items: 1,
+					file_name: "chat-0.jsonl",
+					file_size: "1 KB",
+					last_mes: "2026-05-01T10:00:00.000Z",
+					mes: "preview",
+				},
+			]),
+		) as unknown as typeof fetch;
+
+		const store = createChatCatalogStore({
+			fetchImpl,
+			storage: localStorage,
+		});
+
+		await waitFor(() => {
+			expect(store.getSnapshot().status).toBe("ready");
+		});
+		expect(store.getSnapshot().isLikelyTruncated).toBe(false);
+
+		store.dispose();
+	});
+
+	test("loads the complete recent-chat set once for refresh({ full: true }), then reverts to the capped request", async () => {
+		setSillyTavernContext({
+			characters: [],
+			groups: [],
+		});
+		const fetchImpl = vi
+			.fn()
+			.mockResolvedValue(
+				createJsonResponse([]),
+			) as unknown as typeof fetch;
+
+		const store = createChatCatalogStore({
+			fetchImpl,
+			storage: localStorage,
+		});
+
+		await waitFor(() => {
+			expect(store.getSnapshot().status).toBe("ready");
+		});
+		expect(fetchImpl).toHaveBeenCalledTimes(1);
+
+		store.refresh({ full: true });
+		await waitFor(() => {
+			expect(fetchImpl).toHaveBeenCalledTimes(2);
+		});
+		expect(fetchImpl).toHaveBeenNthCalledWith(
+			2,
+			"/api/chats/recent",
+			expect.objectContaining({ body: JSON.stringify({}) }),
+		);
+		await waitFor(() => {
+			expect(store.getSnapshot().status).toBe("ready");
+		});
+
+		store.refresh();
+		await waitFor(() => {
+			expect(fetchImpl).toHaveBeenCalledTimes(3);
+		});
+		expect(fetchImpl).toHaveBeenNthCalledWith(
+			3,
+			"/api/chats/recent",
+			expect.objectContaining({
+				body: JSON.stringify({ max: CHAT_CATALOG_RECENT_FETCH_LIMIT }),
 			}),
 		);
 

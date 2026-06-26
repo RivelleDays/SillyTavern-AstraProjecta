@@ -118,6 +118,7 @@ type WriteCacheOptions = {
 export const CHAT_CATALOG_CACHE_KEY =
 	"astra_projecta:astra-main-interface:global-chat-catalog:v1";
 export const CHAT_CATALOG_CACHE_STALE_MS = 5 * 60 * 1000;
+export const CHAT_CATALOG_RECENT_FETCH_LIMIT = 300;
 
 const CHAT_CATALOG_NORMALIZE_CHUNK_SIZE = 100;
 const CHAT_CATALOG_REFRESH_DEBOUNCE_MS = 100;
@@ -174,6 +175,7 @@ export interface ChatCatalogSnapshot {
 	cacheStatus: ChatCatalogCacheStatus;
 	entries: ChatCatalogEntry[];
 	errorMessage: string;
+	isLikelyTruncated: boolean;
 	status: ChatCatalogStatus;
 	updatedAt: number | null;
 }
@@ -181,7 +183,7 @@ export interface ChatCatalogSnapshot {
 export interface ChatCatalogStore {
 	dispose(): void;
 	getSnapshot(): ChatCatalogSnapshot;
-	refresh(): void;
+	refresh(options?: { full?: boolean }): void;
 	subscribe(listener: Listener): () => void;
 }
 
@@ -276,6 +278,7 @@ function createEmptySnapshot(): ChatCatalogSnapshot {
 		cacheStatus: "empty",
 		entries: [],
 		errorMessage: "",
+		isLikelyTruncated: true,
 		status: "loading",
 		updatedAt: null,
 	};
@@ -1416,9 +1419,11 @@ export function writeChatCatalogCache({
 
 async function fetchRecentChatCatalogEntries({
 	fetchImpl,
+	full = false,
 }: {
 	fetchImpl: FetchLike;
-}): Promise<ChatCatalogEntry[]> {
+	full?: boolean;
+}): Promise<{ entries: ChatCatalogEntry[]; isLikelyTruncated: boolean }> {
 	const context = readContextSafe<StChatCatalogContextLike>();
 	const client = createStHttpClient({
 		fetchImpl,
@@ -1429,7 +1434,7 @@ async function fetchRecentChatCatalogEntries({
 	try {
 		payload = await client.postJson(
 			ST_ENDPOINTS.recentChats,
-			{},
+			full ? {} : { max: CHAT_CATALOG_RECENT_FETCH_LIMIT },
 			isArrayPayload,
 		);
 	} catch (error) {
@@ -1446,7 +1451,15 @@ async function fetchRecentChatCatalogEntries({
 		throw new Error("network-error");
 	}
 
-	return normalizeRecentChatCatalogEntriesAsync(payload, context);
+	const entries = await normalizeRecentChatCatalogEntriesAsync(
+		payload,
+		context,
+	);
+	return {
+		entries,
+		isLikelyTruncated:
+			!full && payload.length >= CHAT_CATALOG_RECENT_FETCH_LIMIT,
+	};
 }
 
 export function createChatCatalogStore({
@@ -1470,6 +1483,7 @@ export function createChatCatalogStore({
 				cacheStatus: cachedCatalog.cacheStatus,
 				entries: markCurrentChatCatalogEntries(cachedCatalog.entries),
 				errorMessage: "",
+				isLikelyTruncated: true,
 				status:
 					cachedCatalog.cacheStatus === "fresh"
 						? "ready"
@@ -1543,9 +1557,13 @@ export function createChatCatalogStore({
 		});
 	}
 
-	async function runRemoteRefresh(activeRequestToken: number) {
+	async function runRemoteRefresh(
+		activeRequestToken: number,
+		full: boolean,
+	) {
 		try {
-			const entries = await fetchRecentChatCatalogEntries({ fetchImpl });
+			const { entries, isLikelyTruncated } =
+				await fetchRecentChatCatalogEntries({ fetchImpl, full });
 			if (disposed || activeRequestToken !== requestToken) {
 				return;
 			}
@@ -1555,6 +1573,7 @@ export function createChatCatalogStore({
 				cacheStatus: "fresh",
 				entries: markCurrentChatCatalogEntries(entries),
 				errorMessage: "",
+				isLikelyTruncated,
 				status: "ready",
 				updatedAt,
 			});
@@ -1592,7 +1611,7 @@ export function createChatCatalogStore({
 		}
 	}
 
-	function refresh() {
+	function refresh(options?: { full?: boolean }) {
 		if (disposed) {
 			return;
 		}
@@ -1612,7 +1631,7 @@ export function createChatCatalogStore({
 			errorMessage: "",
 			status: snapshot.entries.length > 0 ? "refreshing" : "loading",
 		});
-		void runRemoteRefresh(activeRequestToken);
+		void runRemoteRefresh(activeRequestToken, options?.full ?? false);
 	}
 
 	function scheduleRefresh() {

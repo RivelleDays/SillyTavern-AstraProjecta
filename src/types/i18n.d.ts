@@ -81,6 +81,7 @@ export interface I18nMessages {
 	"astraMainInterface.chatMenu.export.success": string;
 	"astraMainInterface.chatMenu.export.title": string;
 	"astraMainInterface.chatMenu.listLabel": string;
+	"astraMainInterface.chatMenu.loadFullHistory": string;
 	"astraMainInterface.chatMenu.loadMore": string;
 	"astraMainInterface.chatMenu.meta.fileSize": string;
 	"astraMainInterface.chatMenu.meta.lastMessage": string;

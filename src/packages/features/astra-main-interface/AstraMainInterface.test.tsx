@@ -98,6 +98,7 @@ function createSnapshot(
 		cacheStatus: "empty",
 		entries: [],
 		errorMessage: "",
+		isLikelyTruncated: false,
 		status: "ready",
 		updatedAt: null,
 		...overrides,

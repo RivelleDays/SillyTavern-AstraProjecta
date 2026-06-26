@@ -127,6 +127,7 @@ export interface ChatListCopy {
 
 export interface ChatListSnapshotLike {
 	entries: ChatCatalogEntry[];
+	isLikelyTruncated?: boolean;
 	status: string;
 }
 
@@ -151,6 +152,7 @@ export interface ChatListExperienceProps<
 	): ChatCatalogEntry[];
 	listClassName?: string;
 	listItemClassName?: string;
+	onLoadFullHistory?: () => void;
 	onRequestClose?: () => void;
 	openChat: OpenChatCatalogEntry;
 	persistPreviewLineCount(
@@ -646,7 +648,9 @@ export function ChatMenuControlsDrawer({
 	description = translateAstra(
 		"astraMainInterface.chatMenu.controls.description",
 	),
+	isLoadFullHistoryDisabled,
 	isRefreshDisabled,
+	onLoadFullHistory,
 	onPreviewLineCountChange,
 	onRefresh,
 	onShowAvatarsChange,
@@ -654,6 +658,7 @@ export function ChatMenuControlsDrawer({
 	previewLineCount,
 	showAvatarToggle = true,
 	showAvatars,
+	showLoadFullHistory = false,
 	sortMode,
 	title = translateAstra("astraMainInterface.chatMenu.controls.title"),
 	triggerLabel = translateAstra(
@@ -661,7 +666,9 @@ export function ChatMenuControlsDrawer({
 	),
 }: {
 	description?: string;
+	isLoadFullHistoryDisabled?: boolean;
 	isRefreshDisabled: boolean;
+	onLoadFullHistory?: () => void;
 	onPreviewLineCountChange: (
 		previewLineCount: ChatMenuPreviewLineCount,
 	) => void;
@@ -671,6 +678,7 @@ export function ChatMenuControlsDrawer({
 	previewLineCount: ChatMenuPreviewLineCount;
 	showAvatarToggle?: boolean;
 	showAvatars: boolean;
+	showLoadFullHistory?: boolean;
 	sortMode: ChatCatalogSortMode;
 	title?: string;
 	triggerLabel?: string;
@@ -745,6 +753,15 @@ export function ChatMenuControlsDrawer({
 		onRefresh();
 		handleOpenChange(false);
 	}, [handleOpenChange, isRefreshDisabled, onRefresh]);
+
+	const handleLoadFullHistory = React.useCallback(() => {
+		if (isLoadFullHistoryDisabled || !onLoadFullHistory) {
+			return;
+		}
+
+		onLoadFullHistory();
+		handleOpenChange(false);
+	}, [handleOpenChange, isLoadFullHistoryDisabled, onLoadFullHistory]);
 
 	return (
 		<Drawer
@@ -1120,6 +1137,26 @@ export function ChatMenuControlsDrawer({
 										)}
 									</span>
 								</Button>
+								{showLoadFullHistory && onLoadFullHistory ? (
+									<Button
+										className="astra-main-interface-controls-drawer__load-full-history-button"
+										disabled={isLoadFullHistoryDisabled}
+										type="button"
+										variant="outline"
+										onClick={handleLoadFullHistory}
+									>
+										<UiIcon
+											aria-hidden={true}
+											icon={Database}
+											size="sm"
+										/>
+										<span>
+											{translateAstra(
+												"astraMainInterface.chatMenu.loadFullHistory",
+											)}
+										</span>
+									</Button>
+								) : null}
 							</section>
 						</div>
 					</DrawerBody>
@@ -1208,6 +1245,7 @@ export function ChatListExperience<
 	filterEntries,
 	listClassName,
 	listItemClassName,
+	onLoadFullHistory,
 	onRequestClose,
 	openChat,
 	persistPreviewLineCount,
@@ -1333,6 +1371,8 @@ export function ChatListExperience<
 
 	const isLoading = snapshot.status === "loading";
 	const hasEntries = visibleEntries.length > 0;
+	const showLoadFullHistory =
+		Boolean(onLoadFullHistory) && snapshot.isLikelyTruncated === true;
 	const { activeCategoryEntry } = rowOverlayController;
 	const emptyMessage = query
 		? translateAstra(copy.emptySearch)
@@ -1416,13 +1456,16 @@ export function ChatListExperience<
 				</div>
 				<ChatMenuControlsDrawer
 					description={translateAstra(copy.controlsDescription)}
+					isLoadFullHistoryDisabled={snapshot.status === "loading"}
 					isRefreshDisabled={snapshot.status === "loading"}
 					previewLineCount={previewLineCount}
 					showAvatarToggle={showAvatarToggle}
 					showAvatars={showAvatars}
+					showLoadFullHistory={showLoadFullHistory}
 					sortMode={sortMode}
 					title={translateAstra(copy.controlsTitle)}
 					triggerLabel={translateAstra(copy.controlsTrigger)}
+					onLoadFullHistory={onLoadFullHistory}
 					onPreviewLineCountChange={handlePreviewLineCountChange}
 					onRefresh={() => {
 						store.refresh();

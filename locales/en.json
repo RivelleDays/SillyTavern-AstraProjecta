@@ -78,6 +78,7 @@
 	"astraMainInterface.chatMenu.export.success": "Chat exported.",
 	"astraMainInterface.chatMenu.export.title": "Export",
 	"astraMainInterface.chatMenu.listLabel": "Global chats",
+	"astraMainInterface.chatMenu.loadFullHistory": "Load full history",
 	"astraMainInterface.chatMenu.loadMore": "Load more chats",
 	"astraMainInterface.chatMenu.meta.fileSize": "File size",
 	"astraMainInterface.chatMenu.meta.lastMessage": "Last message",
