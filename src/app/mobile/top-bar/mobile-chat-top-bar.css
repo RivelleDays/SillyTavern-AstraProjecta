@@ -144,7 +144,6 @@ body.astra-projecta-mobile-layout {
 	overflow: hidden;
 	border-radius: 50%;
 	background: var(--muted);
-	border: 1px solid var(--border);
 }
 
 .astra-chat-top-bar__avatar {
