@@ -4679,7 +4679,7 @@ body.astra-projecta-mobile-layout {
     flex: 0 0 100%;
     width: 100%;
     min-width: 0;
-    padding-inline: calc(var(--astra-chat-spacing) - 4px);
+    padding-inline: calc(var(--astra-chat-spacing) - 2px);
     background: transparent !important;
   }
   .astra-chat-input__field > #astra-chat-quick-replies-host {
@@ -9434,7 +9434,7 @@ body.astra-projecta-mobile-layout {
     background-color: transparent !important;
     border: none !important;
     backdrop-filter: none !important;
-    padding-inline: var(--astra-chat-scroll-inline-padding);
+    padding-inline: calc(var(--astra-chat-scroll-inline-padding) + 2px);
     padding-block-start: var(	--astra-chat-scroll-glass-clearance-block-start	);
     padding-block-end: var(--astra-chat-scroll-glass-clearance-block-end);
   }
