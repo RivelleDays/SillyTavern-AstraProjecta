@@ -29,7 +29,7 @@
 
 - Mount/unmount must stay idempotent.
 - Missing ST anchors must cleanly no-op.
-- Keep Quick Reply as a restore-safe native bridge attached to the chat input quick-reply slot; the Astra composer wrapper owns the input surface, bottom shortcuts region, rounded group shape, and shortcuts visibility state.
+- Keep Quick Reply as a restore-safe native bridge attached to the chat input quick-reply slot; the Astra composer wrapper owns the input surface, shortcuts region above the input region, rounded group shape, and shortcuts visibility state.
 - Treat `#qr--bar` as a native node owned by SillyTavern Quick Reply; Astra only provides the mobile wrapper host and restore-safe bridge.
 - Keep the semantic mobile chat DOM contract stable for the composer and input hosts while this compatibility slice is active.
 - The current-chat drawer in this folder is presentation-only: it consumes the core current-chat identity store and must not rebuild identity resolution locally.

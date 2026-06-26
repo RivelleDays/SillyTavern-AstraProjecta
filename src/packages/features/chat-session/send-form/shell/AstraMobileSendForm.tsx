@@ -908,20 +908,20 @@ export function AstraMobileSendForm({
 				data-shortcuts-visible={showShortcutsToolbar ? "true" : "false"}
 				data-slot="astra-chat-composer"
 			>
-				<div className="astra-chat-composer__input-region">
-					<div
-						id={ASTRA_CHAT_INPUT_HOST_ID}
-						className="astra-chat-input-host"
-					>
-						{inputRow}
-					</div>
-				</div>
 				<div className="astra-chat-composer__shortcuts-region">
 					<div
 						id={ASTRA_CHAT_SHORTCUTS_HOST_ID}
 						className="astra-chat-shortcuts-host"
 					>
 						{shortcutsToolbar}
+					</div>
+				</div>
+				<div className="astra-chat-composer__input-region">
+					<div
+						id={ASTRA_CHAT_INPUT_HOST_ID}
+						className="astra-chat-input-host"
+					>
+						{inputRow}
 					</div>
 				</div>
 			</div>

@@ -674,14 +674,18 @@ describe("createMobileSendFormFeature", () => {
 		const composer = composerHost.querySelector(".astra-chat-composer");
 		expect(composer).toBeInTheDocument();
 		expect(composer).toHaveAttribute("data-shortcuts-visible", "false");
-		expect(
-			composerHost.querySelector(".astra-chat-composer__input-region"),
-		).toContainElement(inputRowHost);
-		expect(
-			composerHost.querySelector(
-				".astra-chat-composer__shortcuts-region",
-			),
-		).toContainElement(shortcutsHost);
+		const inputRegion = composerHost.querySelector(
+			".astra-chat-composer__input-region",
+		);
+		const shortcutsRegion = composerHost.querySelector(
+			".astra-chat-composer__shortcuts-region",
+		);
+		expect(inputRegion).toContainElement(inputRowHost);
+		expect(shortcutsRegion).toContainElement(shortcutsHost);
+		expect(composer?.children[0]).toBe(shortcutsRegion);
+		expect(composer?.children[1]).toBe(inputRegion);
+		expect(shortcutsRegion?.nextElementSibling).toBe(inputRegion);
+		expect(inputRegion?.nextElementSibling).toBeNull();
 		expect(shortcutsHost.parentElement).toHaveClass(
 			"astra-chat-composer__shortcuts-region",
 		);
@@ -887,14 +891,18 @@ describe("createMobileSendFormFeature", () => {
 		const composer = composerHost.querySelector(".astra-chat-composer");
 		expect(composer).toBeInTheDocument();
 		expect(composer).toHaveAttribute("data-shortcuts-visible", "true");
-		expect(
-			composerHost.querySelector(".astra-chat-composer__input-region"),
-		).toContainElement(inputRowHost);
-		expect(
-			composerHost.querySelector(
-				".astra-chat-composer__shortcuts-region",
-			),
-		).toContainElement(shortcutsHost);
+		const inputRegion = composerHost.querySelector(
+			".astra-chat-composer__input-region",
+		);
+		const shortcutsRegion = composerHost.querySelector(
+			".astra-chat-composer__shortcuts-region",
+		);
+		expect(inputRegion).toContainElement(inputRowHost);
+		expect(shortcutsRegion).toContainElement(shortcutsHost);
+		expect(composer?.children[0]).toBe(shortcutsRegion);
+		expect(composer?.children[1]).toBe(inputRegion);
+		expect(shortcutsRegion?.nextElementSibling).toBe(inputRegion);
+		expect(inputRegion?.nextElementSibling).toBeNull();
 		expect(shortcutsHost).toHaveClass("astra-chat-shortcuts-host");
 		expect(shortcutsHost.parentElement).toHaveClass(
 			"astra-chat-composer__shortcuts-region",
