@@ -8,12 +8,12 @@
 }
 
 .astra-mesHeaderActions {
-    grid-area: actions;
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    height: 32px;
+	grid-area: actions;
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+	height: 32px;
 }
 
 .astra-mesHeaderActions__button {
@@ -1376,11 +1376,13 @@
 	font-size: var(--text-sm);
 }
 
-#chat .swipeRightBlock,
-#chat .swipe_left,
-#chat .swipe_right,
-#chat .swipes-counter {
-	display: none !important;
+body.astra-projecta-mobile-layout {
+	& #chat .swipeRightBlock,
+	& #chat .swipe_left,
+	& #chat .swipe_right,
+	& #chat .swipes-counter {
+		display: none !important;
+	}
 }
 
 .last_mes {

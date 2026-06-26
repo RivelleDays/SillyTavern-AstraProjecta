@@ -1,5 +1,10 @@
 import { THEME_BODY_CLASS } from "@/packages/core/constants";
 import { ensureAstraProjectaUiInfrastructure } from "@/packages/core/runtime/uiScope";
+import {
+	cleanupAstraRuntimeSurface,
+	type RuntimeCleanupErrorHandler,
+} from "@/packages/core/runtime/runtimeCleanup";
+import { configureAstraFatalErrorRecovery } from "@/packages/core/runtime/fatalErrorRecovery";
 
 export interface AstraProjectaRuntimeHost {
 	documentRef?: Document;
@@ -18,6 +23,10 @@ export function initializeAstraProjectaRuntime({
 	createRuntime,
 	documentRef = document,
 	ensureUiInfrastructure = ensureAstraProjectaUiInfrastructure,
+	logger,
+	notify,
+	onCleanupError,
+	restoreNativeUi,
 	windowRef = window,
 }: {
 	createRuntime?: (
@@ -27,20 +36,76 @@ export function initializeAstraProjectaRuntime({
 	ensureUiInfrastructure?: (args?: {
 		documentRef?: Document;
 	}) => HTMLDivElement | null;
+	logger?: Pick<Console, "error">;
+	notify?: (message: string) => void;
+	onCleanupError?: RuntimeCleanupErrorHandler;
+	restoreNativeUi?: (documentRef: Document) => void;
 	windowRef?: object;
 } = {}): AstraProjectaRuntime {
-	documentRef.body?.classList.add(THEME_BODY_CLASS);
-	ensureUiInfrastructure({ documentRef });
+	let runtime: AstraProjectaChildRuntime | undefined;
 
-	const runtime = createRuntime?.({
-		documentRef,
-		windowRef,
-	});
+	try {
+		documentRef.body?.classList.add(THEME_BODY_CLASS);
+		ensureUiInfrastructure({ documentRef });
+
+		runtime = createRuntime?.({
+			documentRef,
+			windowRef,
+		});
+		configureAstraFatalErrorRecovery({
+			documentRef,
+			logger,
+			notify,
+			onCleanupError,
+			restoreNativeUi,
+			runtime,
+		});
+	} catch (error) {
+		cleanupAstraRuntimeSurface({
+			documentRef,
+			onCleanupError,
+			restoreNativeUi,
+		});
+		configureAstraFatalErrorRecovery({
+			documentRef,
+			logger,
+			notify,
+			onCleanupError,
+			restoreNativeUi,
+			runtime: null,
+		});
+		throw error;
+	}
+
+	let disposed = false;
 
 	return {
 		dispose() {
-			runtime?.dispose();
-			documentRef.body?.classList.remove(THEME_BODY_CLASS);
+			if (disposed) {
+				return;
+			}
+
+			disposed = true;
+
+			try {
+				runtime?.dispose();
+			} catch (error) {
+				onCleanupError?.(error);
+			}
+
+			cleanupAstraRuntimeSurface({
+				documentRef,
+				onCleanupError,
+				restoreNativeUi,
+			});
+			configureAstraFatalErrorRecovery({
+				documentRef,
+				logger,
+				notify,
+				onCleanupError,
+				restoreNativeUi,
+				runtime: null,
+			});
 		},
 	};
 }

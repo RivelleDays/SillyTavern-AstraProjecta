@@ -6,7 +6,11 @@ import {
 	ASTRA_PROJECTA_UI_ROOT_ATTR,
 } from "@/packages/core/runtime/uiScope";
 import { initializeAstraProjectaRuntime } from "@/packages/core/runtime/initializeAstraProjectaRuntime";
-import { THEME_BODY_CLASS } from "@/packages/core/constants";
+import {
+	BASE_UI_BODY_CLASS,
+	MOBILE_LAYOUT_CLASS,
+	THEME_BODY_CLASS,
+} from "@/packages/core/constants";
 
 describe("initializeAstraProjectaRuntime", () => {
 	test("applies global runtime infrastructure and disposes an injected child runtime", () => {
@@ -67,5 +71,55 @@ describe("initializeAstraProjectaRuntime", () => {
 		});
 		expect(firstRuntime).not.toHaveProperty("mobile");
 		expect(secondRuntime).not.toHaveProperty("mobile");
+	});
+
+	test("cleans body classes, infrastructure, and native UI when initialization fails", () => {
+		const createError = new Error("runtime failed");
+		const restoreNativeUi = vi.fn();
+		const onCleanupError = vi.fn();
+
+		expect(() =>
+			initializeAstraProjectaRuntime({
+				createRuntime: () => {
+					throw createError;
+				},
+				documentRef: document,
+				onCleanupError,
+				restoreNativeUi,
+			}),
+		).toThrow(createError);
+
+		expect(document.body).not.toHaveClass(THEME_BODY_CLASS);
+		expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
+		expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
+		expect(document.getElementById(ASTRA_PROJECTA_ROOT_ID)).toBeNull();
+		expect(document.getElementById(ASTRA_PROJECTA_PORTAL_ID)).toBeNull();
+		expect(restoreNativeUi).toHaveBeenCalledWith(document);
+		expect(onCleanupError).not.toHaveBeenCalled();
+	});
+
+	test("disposes idempotently and continues cleanup when child disposal fails", () => {
+		const disposeError = new Error("child dispose failed");
+		const childDispose = vi.fn(() => {
+			throw disposeError;
+		});
+		const restoreNativeUi = vi.fn();
+		const onCleanupError = vi.fn();
+		const runtime = initializeAstraProjectaRuntime({
+			createRuntime: () => ({ dispose: childDispose }),
+			documentRef: document,
+			onCleanupError,
+			restoreNativeUi,
+		});
+
+		expect(() => runtime.dispose()).not.toThrow();
+		expect(() => runtime.dispose()).not.toThrow();
+
+		expect(childDispose).toHaveBeenCalledTimes(1);
+		expect(onCleanupError).toHaveBeenCalledWith(disposeError);
+		expect(document.body).not.toHaveClass(THEME_BODY_CLASS);
+		expect(document.getElementById(ASTRA_PROJECTA_ROOT_ID)).toBeNull();
+		expect(document.getElementById(ASTRA_PROJECTA_PORTAL_ID)).toBeNull();
+		expect(restoreNativeUi).toHaveBeenCalledTimes(1);
 	});
 });

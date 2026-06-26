@@ -285,6 +285,7 @@
 	"messageActions.swipe.previous": "Previous swipe",
 	"messageLayout.contextBoundary.tag": "Context",
 	"messageLayout.contextBoundary.title": "Chat history starts here",
+	"runtime.fatalRecovery.notification": "AstraProjecta encountered an error and restored the native SillyTavern UI.",
 	"sendForm.avatar.currentUser": "Current user avatar",
 	"sendForm.contextUsage.breakdownUnavailable": "Detailed token breakdown is unavailable for this snapshot.",
 	"sendForm.contextUsage.field.characterDescription": "Character Description",

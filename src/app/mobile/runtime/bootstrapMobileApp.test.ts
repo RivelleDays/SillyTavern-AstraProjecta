@@ -3,16 +3,19 @@ import { describe, expect, test, vi } from "vitest";
 const runtimeMocks = vi.hoisted(() => ({
 	createMobileChatSessionRuntime: vi.fn(() => ({ dispose: vi.fn() })),
 	initializeAstraProjectaRuntime: vi.fn(() => ({ dispose: vi.fn() })),
+	restoreMobileNativeUi: vi.fn(),
 }));
 
 vi.mock("@/packages/core/runtime/initializeAstraProjectaRuntime", () => ({
-	initializeAstraProjectaRuntime:
-		runtimeMocks.initializeAstraProjectaRuntime,
+	initializeAstraProjectaRuntime: runtimeMocks.initializeAstraProjectaRuntime,
 }));
 
 vi.mock("@/app/mobile/runtime/createMobileChatSessionRuntime", () => ({
-	createMobileChatSessionRuntime:
-		runtimeMocks.createMobileChatSessionRuntime,
+	createMobileChatSessionRuntime: runtimeMocks.createMobileChatSessionRuntime,
+}));
+
+vi.mock("@/app/mobile/runtime/nativeUiRecovery", () => ({
+	restoreMobileNativeUi: runtimeMocks.restoreMobileNativeUi,
 }));
 
 describe("bootstrapMobileApp", () => {
@@ -24,9 +27,8 @@ describe("bootstrapMobileApp", () => {
 		runtimeMocks.initializeAstraProjectaRuntime.mockReturnValueOnce(
 			coreRuntime,
 		);
-		const { bootstrapMobileApp } = await import(
-			"@/app/mobile/runtime/bootstrapMobileApp"
-		);
+		const { bootstrapMobileApp } =
+			await import("@/app/mobile/runtime/bootstrapMobileApp");
 
 		const runtime = bootstrapMobileApp({
 			documentRef: document,
@@ -39,6 +41,7 @@ describe("bootstrapMobileApp", () => {
 		).toHaveBeenCalledWith({
 			createRuntime: runtimeMocks.createMobileChatSessionRuntime,
 			documentRef: document,
+			restoreNativeUi: runtimeMocks.restoreMobileNativeUi,
 			windowRef,
 		});
 	});

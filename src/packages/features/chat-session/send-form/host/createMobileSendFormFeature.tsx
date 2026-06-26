@@ -1,6 +1,7 @@
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 
+import { withAstraErrorBoundary } from "@/packages/core/runtime/AstraErrorBoundary";
 import { markAstraProjectaUiRoot } from "@/packages/core/runtime/uiScope";
 import { createChatContextUsageStore } from "@/packages/core/st/chatContextUsage";
 import { createCurrentConnectionInfoStore } from "@/packages/core/st/currentConnectionInfo";
@@ -353,23 +354,32 @@ export function createMobileSendFormFeature({
 
 		const stores = ensureStores();
 		root.render(
-			<AstraMobileSendForm
-				chatContextUsageStore={stores.chatContextUsageStore}
-				currentConnectionInfoStore={stores.currentConnectionInfoStore}
-				currentChatIdentityStore={stores.currentChatIdentityStore}
-				currentChatInfoStore={stores.currentChatInfoStore}
-				currentPresetProfileControlsStore={
-					stores.currentPresetProfileControlsStore
-				}
-				currentUserAvatarStore={stores.currentUserAvatarStore}
-				documentRef={documentRef}
-				onQuickReplyHostChange={handleQuickReplyHostChange}
-				onTextareaHostChange={moveTextareaIntoHost}
-				primarySendActionStore={stores.primarySendActionStore}
-				quickReplyEnabledStore={stores.quickReplyEnabledStore}
-				quickShortcutStore={stores.quickShortcutStore}
-				sillyTavernInterface={sillyTavernInterface}
-			/>,
+			withAstraErrorBoundary({
+				children: (
+					<AstraMobileSendForm
+						chatContextUsageStore={stores.chatContextUsageStore}
+						currentConnectionInfoStore={
+							stores.currentConnectionInfoStore
+						}
+						currentChatIdentityStore={
+							stores.currentChatIdentityStore
+						}
+						currentChatInfoStore={stores.currentChatInfoStore}
+						currentPresetProfileControlsStore={
+							stores.currentPresetProfileControlsStore
+						}
+						currentUserAvatarStore={stores.currentUserAvatarStore}
+						documentRef={documentRef}
+						onQuickReplyHostChange={handleQuickReplyHostChange}
+						onTextareaHostChange={moveTextareaIntoHost}
+						primarySendActionStore={stores.primarySendActionStore}
+						quickReplyEnabledStore={stores.quickReplyEnabledStore}
+						quickShortcutStore={stores.quickShortcutStore}
+						sillyTavernInterface={sillyTavernInterface}
+					/>
+				),
+				source: "mobile-send-form",
+			}),
 		);
 	}
 

@@ -3,6 +3,22 @@ body.astra-projecta-mobile-layout {
 	& #top-settings-holder {
 		display: none !important;
 	}
+
+	& #astra-chat-session-shell > #sheld {
+		box-sizing: border-box;
+		position: relative !important;
+		top: auto !important;
+		left: auto !important;
+		right: auto !important;
+		margin: 0;
+		flex: 1 1 0;
+		min-height: 0;
+		min-width: 0;
+		width: 100%;
+		max-width: 100%;
+		height: auto;
+		max-height: none;
+	}
 }
 
 #astra-chat-session-shell {
@@ -76,22 +92,6 @@ body.astra-projecta-mobile-layout {
 		saturate(var(--astra-mobile-glass-saturate));
 	backdrop-filter: blur(var(--astra-mobile-glass-blur))
 		saturate(var(--astra-mobile-glass-saturate));
-}
-
-#astra-chat-session-shell > #sheld {
-	box-sizing: border-box;
-	position: relative !important;
-	top: auto !important;
-	left: auto !important;
-	right: auto !important;
-	margin: 0;
-	flex: 1 1 0;
-	min-height: 0;
-	min-width: 0;
-	width: 100%;
-	max-width: 100%;
-	height: auto;
-	max-height: none;
 }
 
 .astra-chat-top-bar {
@@ -189,15 +189,15 @@ body.astra-projecta-mobile-layout {
 }
 
 .astra-chat-top-bar__name {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    color: var(--color-base);
-    font-size: var(--text-lg);
-    font-weight: var(--font-weight-semibold);
-    text-overflow: ellipsis;
-    white-space: nowrap;
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	color: var(--color-base);
+	font-size: var(--text-lg);
+	font-weight: var(--font-weight-semibold);
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }

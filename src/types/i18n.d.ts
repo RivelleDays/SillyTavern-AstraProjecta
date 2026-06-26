@@ -288,6 +288,7 @@ export interface I18nMessages {
 	"messageActions.swipe.previous": string;
 	"messageLayout.contextBoundary.tag": string;
 	"messageLayout.contextBoundary.title": string;
+	"runtime.fatalRecovery.notification": string;
 	"sendForm.avatar.currentUser": string;
 	"sendForm.contextUsage.breakdownUnavailable": string;
 	"sendForm.contextUsage.field.characterDescription": string;

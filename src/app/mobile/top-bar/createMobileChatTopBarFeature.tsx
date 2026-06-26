@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { AstraChatAvatar } from "@/components/ui/shared/chat-avatar";
 import { UiIcon } from "@/components/ui/shared/icon";
 import { Equal } from "@/components/ui/shared/icons";
+import { withAstraErrorBoundary } from "@/packages/core/runtime/AstraErrorBoundary";
 import { markAstraProjectaUiRoot } from "@/packages/core/runtime/uiScope";
 import {
 	AstraMainInterface,
@@ -334,9 +335,14 @@ export function createMobileChatTopBarFeature({
 		currentChatIdentityStore = createIdentityStore({ documentRef });
 		root = createRoot(topBarHost);
 		root.render(
-			<MobileChatTopBarRoot
-				currentChatIdentityStore={currentChatIdentityStore}
-			/>,
+			withAstraErrorBoundary({
+				children: (
+					<MobileChatTopBarRoot
+						currentChatIdentityStore={currentChatIdentityStore}
+					/>
+				),
+				source: "mobile-chat-top-bar",
+			}),
 		);
 	}
 

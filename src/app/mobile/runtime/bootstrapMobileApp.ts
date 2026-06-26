@@ -1,4 +1,5 @@
 import { createMobileChatSessionRuntime } from "@/app/mobile/runtime/createMobileChatSessionRuntime";
+import { restoreMobileNativeUi } from "@/app/mobile/runtime/nativeUiRecovery";
 import {
 	initializeAstraProjectaRuntime,
 	type AstraProjectaRuntime,
@@ -14,6 +15,7 @@ export function bootstrapMobileApp({
 	return initializeAstraProjectaRuntime({
 		createRuntime: createMobileChatSessionRuntime,
 		documentRef,
+		restoreNativeUi: restoreMobileNativeUi,
 		windowRef,
 	});
 }

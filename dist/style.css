@@ -6414,6 +6414,21 @@ body.astra-projecta-mobile-layout {
   & #top-bar,	& #top-settings-holder {
     display: none !important;
   }
+  & #astra-chat-session-shell > #sheld {
+    box-sizing: border-box;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    margin: 0;
+    flex: 1 1 0;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+  }
 }
 #astra-chat-session-shell {
   --astra-chat-top-bar-block-size: 52px;
@@ -6462,21 +6477,6 @@ body.astra-projecta-mobile-layout {
   mask-size: 100% 100%;
   -webkit-backdrop-filter: blur(var(--astra-mobile-glass-blur))	saturate(var(--astra-mobile-glass-saturate));
   backdrop-filter: blur(var(--astra-mobile-glass-blur))	saturate(var(--astra-mobile-glass-saturate));
-}
-#astra-chat-session-shell > #sheld {
-  box-sizing: border-box;
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  margin: 0;
-  flex: 1 1 0;
-  min-height: 0;
-  min-width: 0;
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  max-height: none;
 }
 .astra-chat-top-bar {
   box-sizing: border-box;
@@ -10594,8 +10594,10 @@ body.astra-projecta-mobile-layout {
   cursor: pointer;
   font-size: var(--text-sm);
 }
-#chat .swipeRightBlock, #chat .swipe_left, #chat .swipe_right, #chat .swipes-counter {
-  display: none !important;
+body.astra-projecta-mobile-layout {
+  & #chat .swipeRightBlock,	& #chat .swipe_left,	& #chat .swipe_right,	& #chat .swipes-counter {
+    display: none !important;
+  }
 }
 .last_mes {
   padding-bottom: 8px;

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 
+import { withAstraErrorBoundary } from "@/packages/core/runtime/AstraErrorBoundary";
 import {
 	ASTRA_PROJECTA_PORTAL_ID,
 	markAstraProjectaUiRoot,
@@ -64,7 +65,12 @@ export function createAstraReactPortalRootManager({
 		},
 		render(node) {
 			ensure();
-			root?.render(node);
+			root?.render(
+				withAstraErrorBoundary({
+					children: node,
+					source: id,
+				}),
+			);
 		},
 		unmount,
 	};

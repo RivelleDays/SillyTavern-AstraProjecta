@@ -88,6 +88,7 @@ import { RevisionBar } from "@/packages/features/chat-session/message-actions/Re
 import { RevisionHistoryDrawer } from "@/packages/features/chat-session/message-actions/revision-history/RevisionHistoryDrawer";
 import { SwipePager } from "@/packages/features/chat-session/message-actions/SwipePager";
 import { createAstraReactPortalRootManager } from "@/packages/core/runtime/reactPortalRootManager";
+import { withAstraErrorBoundary } from "@/packages/core/runtime/AstraErrorBoundary";
 import { createChatDomReconciler } from "@/packages/features/chat-session/message-actions/chatDomReconciler";
 import {
 	createEditDrawerController,
@@ -1378,49 +1379,56 @@ export function createMobileMessageActionsFeature({
 		}
 
 		footerActionRoot.render(
-			<MessageFooterActions
-				historyAction={
-					inlineHistoryItem
-						? {
-								disabled:
-									revisionActionsSnapshot?.isBusy === true,
-								onClick: () => {
-									selectedHistoryItem = inlineHistoryItem;
-									renderHistoryDrawer();
-								},
-							}
-						: null
-				}
-				revisionSnapshot={revisionActionsSnapshot}
-				swipeSnapshot={swipeActionsSnapshot}
-				onContinue={() => {
-					runRevisionAction(
-						() =>
-							revisionStore?.continueLastMessage() ??
-							Promise.resolve(false),
-					);
-				}}
-				onRegenerate={() => {
-					runRevisionAction(
-						() =>
-							revisionStore?.regenerateLastRevision() ??
-							Promise.resolve(false),
-					);
-				}}
-				onSwipeNext={() => {
-					void swipeStore?.swipeNext();
-				}}
-				onSwipePrevious={() => {
-					void swipeStore?.swipePrevious();
-				}}
-				onUndo={() => {
-					runRevisionAction(
-						() =>
-							revisionStore?.undoLastRevision() ??
-							Promise.resolve(false),
-					);
-				}}
-			/>,
+			withAstraErrorBoundary({
+				children: (
+					<MessageFooterActions
+						historyAction={
+							inlineHistoryItem
+								? {
+										disabled:
+											revisionActionsSnapshot?.isBusy ===
+											true,
+										onClick: () => {
+											selectedHistoryItem =
+												inlineHistoryItem;
+											renderHistoryDrawer();
+										},
+									}
+								: null
+						}
+						revisionSnapshot={revisionActionsSnapshot}
+						swipeSnapshot={swipeActionsSnapshot}
+						onContinue={() => {
+							runRevisionAction(
+								() =>
+									revisionStore?.continueLastMessage() ??
+									Promise.resolve(false),
+							);
+						}}
+						onRegenerate={() => {
+							runRevisionAction(
+								() =>
+									revisionStore?.regenerateLastRevision() ??
+									Promise.resolve(false),
+							);
+						}}
+						onSwipeNext={() => {
+							void swipeStore?.swipeNext();
+						}}
+						onSwipePrevious={() => {
+							void swipeStore?.swipePrevious();
+						}}
+						onUndo={() => {
+							runRevisionAction(
+								() =>
+									revisionStore?.undoLastRevision() ??
+									Promise.resolve(false),
+							);
+						}}
+					/>
+				),
+				source: "message-footer-actions",
+			}),
 		);
 	}
 

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 
+import { withAstraErrorBoundary } from "@/packages/core/runtime/AstraErrorBoundary";
 import type { LoadedMessageElement } from "@/packages/features/chat-session/message-actions/contracts/dom";
 
 const MESSAGE_HEADER_ACTIONS_CLASS = "astra-mesHeaderActions";
@@ -131,7 +132,12 @@ export function createMessageHeaderActionRoots({
 					roots.set(messageId, state);
 				}
 
-				state.root.render(renderActions(messageId));
+				state.root.render(
+					withAstraErrorBoundary({
+						children: renderActions(messageId),
+						source: "message-header-actions",
+					}),
+				);
 			}
 		},
 		unmountAll,

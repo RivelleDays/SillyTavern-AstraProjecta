@@ -5,12 +5,14 @@ import {
 	BASE_UI_BODY_CLASS,
 	MOBILE_LAYOUT_CLASS,
 } from "@/packages/core/constants";
-import { createMessageHeaderLayoutFeature } from "@/packages/features/chat-session/message-layout/createMessageHeaderLayoutFeature";
-import type {
-	LayoutModeSnapshot,
-	LayoutModeStore,
-	ResolvedLayoutMode,
+import {
+	createLayoutModeStore,
+	type LayoutModePreference,
+	type LayoutModeSnapshot,
+	type LayoutModeStore,
+	type ResolvedLayoutMode,
 } from "@/packages/core/layout-mode";
+import { createMessageHeaderLayoutFeature } from "@/packages/features/chat-session/message-layout/createMessageHeaderLayoutFeature";
 
 function createLayoutModeStoreStub(initialResolvedMode: ResolvedLayoutMode) {
 	let listener: (() => void) | null = null;
@@ -43,6 +45,14 @@ function createLayoutModeStoreStub(initialResolvedMode: ResolvedLayoutMode) {
 			sync: vi.fn(),
 		} satisfies LayoutModeStore,
 		unsubscribe,
+	};
+}
+
+function createStaticMatchMediaWindow(matchesAutoModeMediaQuery: boolean) {
+	return {
+		matchMedia: vi.fn(() => ({
+			matches: matchesAutoModeMediaQuery,
+		})),
 	};
 }
 
@@ -155,6 +165,93 @@ function renderMessageWithTimestamp() {
 	`;
 }
 
+function createLifecycleFeature({
+	events,
+	mountError,
+	name,
+	unmountError,
+}: {
+	events: string[];
+	mountError?: Error;
+	name: string;
+	unmountError?: Error;
+}) {
+	return {
+		dispose: vi.fn(() => {
+			events.push(`${name}.dispose`);
+		}),
+		mount: vi.fn(() => {
+			events.push(`${name}.mount`);
+			if (mountError) {
+				throw mountError;
+			}
+		}),
+		unmount: vi.fn(() => {
+			events.push(`${name}.unmount`);
+			if (unmountError) {
+				throw unmountError;
+			}
+		}),
+	};
+}
+
+function createRuntimeAcceptanceHarness({
+	matchesAutoModeMediaQuery,
+	preference,
+}: {
+	matchesAutoModeMediaQuery: boolean;
+	preference: LayoutModePreference;
+}) {
+	const events: string[] = [];
+	const createFeature = (name: string) =>
+		createLifecycleFeature({ events, name });
+	const keyboardViewportBridge = createFeature("keyboardViewport");
+	const nativePopupBridge = createFeature("nativePopup");
+	const topBarFeature = createFeature("topBar");
+	const messageHeaderLayoutFeature = createFeature("messageHeader");
+	const chatSwitchLoadingFeature = {
+		...createFeature("chatSwitchLoading"),
+		beginAstraChatSwitch: vi.fn(),
+		handleChatChanged: vi.fn(),
+	};
+	const messageActionsFeature = createFeature("messageActions");
+	const sillyTavernInterfacePanelFeature = {
+		...createFeature("sillyTavernInterfacePanel"),
+		getSendFormAdapter: () => ({
+			openCurrentPage: vi.fn(),
+			openRoute: vi.fn(),
+			renderRouteIcon: vi.fn(),
+		}),
+	};
+	const sendFormFeature = createFeature("sendForm");
+	const chatScrollFeature = createFeature("chatScroll");
+	const layoutModeStore = createLayoutModeStore({
+		getPreference: () => preference,
+		windowRef: createStaticMatchMediaWindow(matchesAutoModeMediaQuery),
+	});
+
+	const runtime = createMobileChatSessionRuntime({
+		createChatScrollFeature: () => chatScrollFeature,
+		createChatSwitchLoadingFeature: () => chatSwitchLoadingFeature,
+		createKeyboardViewportBridge: () => keyboardViewportBridge,
+		createMessageActionsFeature: () => messageActionsFeature,
+		createMessageHeaderLayoutFeature: () => messageHeaderLayoutFeature,
+		createNativePopupBridge: () => nativePopupBridge,
+		createSendFormFeature: () => sendFormFeature,
+		createSillyTavernInterfacePanelFeature: () =>
+			sillyTavernInterfacePanelFeature,
+		createTopBarFeature: () => topBarFeature,
+		documentRef: document,
+		getLayoutModeStore: () => layoutModeStore,
+	});
+
+	return {
+		layoutModeStore,
+		runtime,
+		sendFormFeature,
+	};
+}
+
 describe("createMobileChatSessionRuntime", () => {
 	afterEach(() => {
 		document.documentElement.removeAttribute(
@@ -173,6 +270,50 @@ describe("createMobileChatSessionRuntime", () => {
 		document.body.innerHTML = "";
 	});
 
+	test("keeps mobile layout disabled for force-desktop when the narrow viewport media query matches", () => {
+		const { layoutModeStore, runtime, sendFormFeature } =
+			createRuntimeAcceptanceHarness({
+				matchesAutoModeMediaQuery: true,
+				preference: "force-desktop",
+			});
+
+		try {
+			expect(layoutModeStore.getSnapshot()).toMatchObject({
+				matchesAutoModeMediaQuery: true,
+				preference: "force-desktop",
+				resolvedMode: "desktop",
+			});
+			expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
+			expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
+			expect(sendFormFeature.mount).not.toHaveBeenCalled();
+		} finally {
+			runtime.dispose();
+			layoutModeStore.dispose();
+		}
+	});
+
+	test("enables mobile layout for force-mobile when the wide viewport media query does not match", () => {
+		const { layoutModeStore, runtime, sendFormFeature } =
+			createRuntimeAcceptanceHarness({
+				matchesAutoModeMediaQuery: false,
+				preference: "force-mobile",
+			});
+
+		try {
+			expect(layoutModeStore.getSnapshot()).toMatchObject({
+				matchesAutoModeMediaQuery: false,
+				preference: "force-mobile",
+				resolvedMode: "mobile",
+			});
+			expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
+			expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
+			expect(sendFormFeature.mount).toHaveBeenCalledTimes(1);
+		} finally {
+			runtime.dispose();
+			layoutModeStore.dispose();
+		}
+	});
+
 	test("toggles mobile body classes and mobile features with the resolved layout-mode lifecycle", () => {
 		const mount = vi.fn();
 		const unmount = vi.fn();
@@ -186,35 +327,35 @@ describe("createMobileChatSessionRuntime", () => {
 		const chatSwitchLoadingMount = vi.fn();
 		const chatSwitchLoadingUnmount = vi.fn();
 		const chatSwitchLoadingDispose = vi.fn();
-			const topBarMount = vi.fn();
-			const topBarUnmount = vi.fn();
-			const topBarDispose = vi.fn();
-			const sillyTavernInterfacePanelMount = vi.fn();
-			const sillyTavernInterfacePanelUnmount = vi.fn();
-			const sillyTavernInterfacePanelDispose = vi.fn();
-			const messageHeaderMount = vi.fn();
-			const messageHeaderUnmount = vi.fn();
-			const messageHeaderDispose = vi.fn();
-			const sillyTavernInterface = {
-				openCurrentPage: vi.fn(),
-				openRoute: vi.fn(),
-				renderRouteIcon: vi.fn(),
-			};
-			const featureFactory = vi.fn(() => ({
-				dispose,
-				mount,
-				unmount,
-			}));
-			const sillyTavernInterfacePanelFeatureFactory = vi.fn(() => ({
-				dispose: sillyTavernInterfacePanelDispose,
-				getSendFormAdapter: () => sillyTavernInterface,
-				mount: sillyTavernInterfacePanelMount,
-				unmount: sillyTavernInterfacePanelUnmount,
-			}));
-			const messageActionsFeatureFactory = vi.fn(() => ({
-				dispose: messageActionsDispose,
-				mount: messageActionsMount,
-				unmount: messageActionsUnmount,
+		const topBarMount = vi.fn();
+		const topBarUnmount = vi.fn();
+		const topBarDispose = vi.fn();
+		const sillyTavernInterfacePanelMount = vi.fn();
+		const sillyTavernInterfacePanelUnmount = vi.fn();
+		const sillyTavernInterfacePanelDispose = vi.fn();
+		const messageHeaderMount = vi.fn();
+		const messageHeaderUnmount = vi.fn();
+		const messageHeaderDispose = vi.fn();
+		const sillyTavernInterface = {
+			openCurrentPage: vi.fn(),
+			openRoute: vi.fn(),
+			renderRouteIcon: vi.fn(),
+		};
+		const featureFactory = vi.fn(() => ({
+			dispose,
+			mount,
+			unmount,
+		}));
+		const sillyTavernInterfacePanelFeatureFactory = vi.fn(() => ({
+			dispose: sillyTavernInterfacePanelDispose,
+			getSendFormAdapter: () => sillyTavernInterface,
+			mount: sillyTavernInterfacePanelMount,
+			unmount: sillyTavernInterfacePanelUnmount,
+		}));
+		const messageActionsFeatureFactory = vi.fn(() => ({
+			dispose: messageActionsDispose,
+			mount: messageActionsMount,
+			unmount: messageActionsUnmount,
 		}));
 		const chatScrollFeatureFactory = vi.fn(() => ({
 			dispose: chatScrollDispose,
@@ -243,94 +384,195 @@ describe("createMobileChatSessionRuntime", () => {
 		const runtime = createMobileChatSessionRuntime({
 			createChatScrollFeature: chatScrollFeatureFactory,
 			createChatSwitchLoadingFeature: chatSwitchLoadingFeatureFactory,
-				createMessageHeaderLayoutFeature: messageHeaderLayoutFeatureFactory,
-				createMessageActionsFeature: messageActionsFeatureFactory,
-				createSendFormFeature: featureFactory,
-				createSillyTavernInterfacePanelFeature:
-					sillyTavernInterfacePanelFeatureFactory,
-				createTopBarFeature: topBarFeatureFactory,
-				documentRef: document,
-				getLayoutModeStore: () => layoutModeStore.store,
-			});
+			createMessageHeaderLayoutFeature: messageHeaderLayoutFeatureFactory,
+			createMessageActionsFeature: messageActionsFeatureFactory,
+			createSendFormFeature: featureFactory,
+			createSillyTavernInterfacePanelFeature:
+				sillyTavernInterfacePanelFeatureFactory,
+			createTopBarFeature: topBarFeatureFactory,
+			documentRef: document,
+			getLayoutModeStore: () => layoutModeStore.store,
+		});
 
-			expect(featureFactory).toHaveBeenCalledTimes(1);
-			expect(featureFactory).toHaveBeenCalledWith({
-				documentRef: document,
-				sillyTavernInterface,
-			});
-			expect(sillyTavernInterfacePanelFeatureFactory).toHaveBeenCalledTimes(1);
-			expect(sillyTavernInterfacePanelFeatureFactory).toHaveBeenCalledWith({
-				documentRef: document,
-			});
-			expect(messageActionsFeatureFactory).toHaveBeenCalledTimes(1);
-			expect(chatScrollFeatureFactory).toHaveBeenCalledTimes(1);
-			expect(chatSwitchLoadingFeatureFactory).toHaveBeenCalledTimes(1);
-			expect(topBarFeatureFactory).toHaveBeenCalledTimes(1);
-			expect(messageHeaderLayoutFeatureFactory).toHaveBeenCalledTimes(1);
+		expect(featureFactory).toHaveBeenCalledTimes(1);
+		expect(featureFactory).toHaveBeenCalledWith({
+			documentRef: document,
+			sillyTavernInterface,
+		});
+		expect(sillyTavernInterfacePanelFeatureFactory).toHaveBeenCalledTimes(
+			1,
+		);
+		expect(sillyTavernInterfacePanelFeatureFactory).toHaveBeenCalledWith({
+			documentRef: document,
+		});
+		expect(messageActionsFeatureFactory).toHaveBeenCalledTimes(1);
+		expect(chatScrollFeatureFactory).toHaveBeenCalledTimes(1);
+		expect(chatSwitchLoadingFeatureFactory).toHaveBeenCalledTimes(1);
+		expect(topBarFeatureFactory).toHaveBeenCalledTimes(1);
+		expect(messageHeaderLayoutFeatureFactory).toHaveBeenCalledTimes(1);
 		expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
 		expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
-			expect(messageHeaderMount).toHaveBeenCalledTimes(1);
-			expect(sillyTavernInterfacePanelMount).toHaveBeenCalledTimes(1);
-			expect(mount).toHaveBeenCalledTimes(1);
-			expect(messageActionsMount).toHaveBeenCalledTimes(1);
-			expect(chatScrollMount).toHaveBeenCalledTimes(1);
-			expect(chatSwitchLoadingMount).toHaveBeenCalledTimes(1);
-			expect(topBarMount).toHaveBeenCalledTimes(1);
-			expect(sillyTavernInterfacePanelUnmount).not.toHaveBeenCalled();
-			expect(unmount).not.toHaveBeenCalled();
-			expect(messageActionsUnmount).not.toHaveBeenCalled();
-			expect(chatScrollUnmount).not.toHaveBeenCalled();
-			expect(chatSwitchLoadingUnmount).not.toHaveBeenCalled();
+		expect(messageHeaderMount).toHaveBeenCalledTimes(1);
+		expect(sillyTavernInterfacePanelMount).toHaveBeenCalledTimes(1);
+		expect(mount).toHaveBeenCalledTimes(1);
+		expect(messageActionsMount).toHaveBeenCalledTimes(1);
+		expect(chatScrollMount).toHaveBeenCalledTimes(1);
+		expect(chatSwitchLoadingMount).toHaveBeenCalledTimes(1);
+		expect(topBarMount).toHaveBeenCalledTimes(1);
+		expect(sillyTavernInterfacePanelUnmount).not.toHaveBeenCalled();
+		expect(unmount).not.toHaveBeenCalled();
+		expect(messageActionsUnmount).not.toHaveBeenCalled();
+		expect(chatScrollUnmount).not.toHaveBeenCalled();
+		expect(chatSwitchLoadingUnmount).not.toHaveBeenCalled();
 		expect(topBarUnmount).not.toHaveBeenCalled();
 		expect(messageHeaderUnmount).not.toHaveBeenCalled();
 		expect(layoutModeStore.store.subscribe).toHaveBeenCalledTimes(1);
 
 		layoutModeStore.dispatch("desktop");
 
-			expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
-			expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
-			expect(messageHeaderUnmount).toHaveBeenCalledTimes(1);
-			expect(sillyTavernInterfacePanelUnmount).toHaveBeenCalledTimes(1);
-			expect(unmount).toHaveBeenCalledTimes(1);
-			expect(messageActionsUnmount).toHaveBeenCalledTimes(1);
-			expect(chatScrollUnmount).toHaveBeenCalledTimes(1);
-			expect(chatSwitchLoadingUnmount).toHaveBeenCalledTimes(1);
+		expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
+		expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
+		expect(messageHeaderUnmount).toHaveBeenCalledTimes(1);
+		expect(sillyTavernInterfacePanelUnmount).toHaveBeenCalledTimes(1);
+		expect(unmount).toHaveBeenCalledTimes(1);
+		expect(messageActionsUnmount).toHaveBeenCalledTimes(1);
+		expect(chatScrollUnmount).toHaveBeenCalledTimes(1);
+		expect(chatSwitchLoadingUnmount).toHaveBeenCalledTimes(1);
 		expect(topBarUnmount).toHaveBeenCalledTimes(1);
 
 		layoutModeStore.dispatch("mobile");
 
-			expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
-			expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
-			expect(messageHeaderMount).toHaveBeenCalledTimes(2);
-			expect(sillyTavernInterfacePanelMount).toHaveBeenCalledTimes(2);
-			expect(mount).toHaveBeenCalledTimes(2);
-			expect(messageActionsMount).toHaveBeenCalledTimes(2);
-			expect(chatScrollMount).toHaveBeenCalledTimes(2);
-			expect(chatSwitchLoadingMount).toHaveBeenCalledTimes(2);
+		expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
+		expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
+		expect(messageHeaderMount).toHaveBeenCalledTimes(2);
+		expect(sillyTavernInterfacePanelMount).toHaveBeenCalledTimes(2);
+		expect(mount).toHaveBeenCalledTimes(2);
+		expect(messageActionsMount).toHaveBeenCalledTimes(2);
+		expect(chatScrollMount).toHaveBeenCalledTimes(2);
+		expect(chatSwitchLoadingMount).toHaveBeenCalledTimes(2);
 		expect(topBarMount).toHaveBeenCalledTimes(2);
 
 		runtime.dispose();
 
-			expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
-			expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
-			expect(messageHeaderDispose).toHaveBeenCalledTimes(1);
-			expect(sillyTavernInterfacePanelDispose).toHaveBeenCalledTimes(1);
-			expect(dispose).toHaveBeenCalledTimes(1);
-			expect(messageActionsDispose).toHaveBeenCalledTimes(1);
-			expect(chatScrollDispose).toHaveBeenCalledTimes(1);
-			expect(chatSwitchLoadingDispose).toHaveBeenCalledTimes(1);
+		expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
+		expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
+		expect(messageHeaderDispose).toHaveBeenCalledTimes(1);
+		expect(sillyTavernInterfacePanelDispose).toHaveBeenCalledTimes(1);
+		expect(dispose).toHaveBeenCalledTimes(1);
+		expect(messageActionsDispose).toHaveBeenCalledTimes(1);
+		expect(chatScrollDispose).toHaveBeenCalledTimes(1);
+		expect(chatSwitchLoadingDispose).toHaveBeenCalledTimes(1);
 		expect(topBarDispose).toHaveBeenCalledTimes(1);
 		expect(layoutModeStore.unsubscribe).toHaveBeenCalledTimes(1);
 
-			layoutModeStore.dispatch("mobile");
+		layoutModeStore.dispatch("mobile");
 
-			expect(messageHeaderMount).toHaveBeenCalledTimes(2);
-			expect(sillyTavernInterfacePanelMount).toHaveBeenCalledTimes(2);
-			expect(mount).toHaveBeenCalledTimes(2);
-			expect(messageActionsMount).toHaveBeenCalledTimes(2);
-			expect(chatScrollMount).toHaveBeenCalledTimes(2);
+		expect(messageHeaderMount).toHaveBeenCalledTimes(2);
+		expect(sillyTavernInterfacePanelMount).toHaveBeenCalledTimes(2);
+		expect(mount).toHaveBeenCalledTimes(2);
+		expect(messageActionsMount).toHaveBeenCalledTimes(2);
+		expect(chatScrollMount).toHaveBeenCalledTimes(2);
 		expect(chatSwitchLoadingMount).toHaveBeenCalledTimes(2);
 		expect(topBarMount).toHaveBeenCalledTimes(2);
+
+		runtime.dispose();
+
+		expect(messageHeaderDispose).toHaveBeenCalledTimes(1);
+		expect(sillyTavernInterfacePanelDispose).toHaveBeenCalledTimes(1);
+		expect(dispose).toHaveBeenCalledTimes(1);
+		expect(messageActionsDispose).toHaveBeenCalledTimes(1);
+		expect(chatScrollDispose).toHaveBeenCalledTimes(1);
+		expect(chatSwitchLoadingDispose).toHaveBeenCalledTimes(1);
+		expect(topBarDispose).toHaveBeenCalledTimes(1);
+		expect(layoutModeStore.unsubscribe).toHaveBeenCalledTimes(1);
+	});
+
+	test("rolls back mobile feature mounts transactionally when a later feature fails", () => {
+		const events: string[] = [];
+		const mountError = new Error("message header failed");
+		const keyboardViewportBridge = createLifecycleFeature({
+			events,
+			name: "keyboardViewportBridge",
+		});
+		const nativePopupBridge = createLifecycleFeature({
+			events,
+			name: "nativePopupBridge",
+		});
+		const topBarFeature = createLifecycleFeature({
+			events,
+			name: "topBarFeature",
+		});
+		const messageHeaderLayout = createLifecycleFeature({
+			events,
+			mountError,
+			name: "messageHeaderLayout",
+		});
+		const chatSwitchLoadingFeature = {
+			...createLifecycleFeature({
+				events,
+				name: "chatSwitchLoadingFeature",
+			}),
+			beginAstraChatSwitch: vi.fn(),
+			handleChatChanged: vi.fn(),
+		};
+		const messageActionsFeature = createLifecycleFeature({
+			events,
+			name: "messageActionsFeature",
+		});
+		const sillyTavernInterfacePanelFeature = {
+			...createLifecycleFeature({
+				events,
+				name: "sillyTavernInterfacePanelFeature",
+			}),
+			getSendFormAdapter: () => ({
+				openCurrentPage: vi.fn(),
+				openRoute: vi.fn(),
+				renderRouteIcon: vi.fn(),
+			}),
+		};
+		const sendFormFeature = createLifecycleFeature({
+			events,
+			name: "sendFormFeature",
+		});
+		const chatScrollFeature = createLifecycleFeature({
+			events,
+			name: "chatScrollFeature",
+		});
+		const layoutModeStore = createLayoutModeStoreStub("mobile");
+
+		expect(() =>
+			createMobileChatSessionRuntime({
+				createChatScrollFeature: () => chatScrollFeature,
+				createChatSwitchLoadingFeature: () => chatSwitchLoadingFeature,
+				createKeyboardViewportBridge: () => keyboardViewportBridge,
+				createMessageActionsFeature: () => messageActionsFeature,
+				createMessageHeaderLayoutFeature: () => messageHeaderLayout,
+				createNativePopupBridge: () => nativePopupBridge,
+				createSendFormFeature: () => sendFormFeature,
+				createSillyTavernInterfacePanelFeature: () =>
+					sillyTavernInterfacePanelFeature,
+				createTopBarFeature: () => topBarFeature,
+				documentRef: document,
+				getLayoutModeStore: () => layoutModeStore.store,
+			}),
+		).toThrow(mountError);
+
+		expect(events).toEqual([
+			"keyboardViewportBridge.mount",
+			"nativePopupBridge.mount",
+			"topBarFeature.mount",
+			"messageHeaderLayout.mount",
+			"topBarFeature.unmount",
+			"nativePopupBridge.unmount",
+			"keyboardViewportBridge.unmount",
+		]);
+		expect(chatSwitchLoadingFeature.unmount).not.toHaveBeenCalled();
+		expect(messageActionsFeature.unmount).not.toHaveBeenCalled();
+		expect(sillyTavernInterfacePanelFeature.unmount).not.toHaveBeenCalled();
+		expect(sendFormFeature.unmount).not.toHaveBeenCalled();
+		expect(chatScrollFeature.unmount).not.toHaveBeenCalled();
+		expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
+		expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
 	});
 
 	test("keeps the message header bridge inactive on desktop and restores it when layout mode changes", () => {

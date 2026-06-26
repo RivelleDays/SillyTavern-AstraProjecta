@@ -1,5 +1,6 @@
 import {
 	BASE_UI_BODY_CLASS,
+	EXTENSION_LOG_PREFIX,
 	MOBILE_LAYOUT_CLASS,
 } from "@/packages/core/constants";
 import {
@@ -45,6 +46,13 @@ import {
 	createMobileChatTopBarFeature,
 	type MobileChatTopBarFeature,
 } from "@/app/mobile/top-bar/createMobileChatTopBarFeature";
+import {
+	mountFeaturesTransactionally,
+	unmountFeaturesSafely,
+	type MountableRuntimeFeature,
+} from "@/packages/core/runtime/mountFeaturesTransactionally";
+import type { RuntimeCleanupErrorHandler } from "@/packages/core/runtime/runtimeCleanup";
+import { safeRuntimeCallback } from "@/packages/core/runtime/fatalErrorRecovery";
 
 export interface MobileChatSessionRuntime {
 	dispose(): void;
@@ -62,6 +70,9 @@ export function createMobileChatSessionRuntime({
 	createTopBarFeature = createMobileChatTopBarFeature,
 	documentRef = document,
 	getLayoutModeStore = getDefaultLayoutModeStore,
+	onCleanupError = (error) => {
+		console.error(`${EXTENSION_LOG_PREFIX} Runtime cleanup failed.`, error);
+	},
 	windowRef = window,
 }: {
 	createKeyboardViewportBridge?: (args?: {
@@ -99,6 +110,7 @@ export function createMobileChatSessionRuntime({
 		windowRef?: LayoutModeWindowLike;
 	}) => LayoutModeStore;
 	documentRef?: Document;
+	onCleanupError?: RuntimeCleanupErrorHandler;
 	windowRef?: LayoutModeWindowLike & MobileKeyboardViewportBridgeWindowLike;
 } = {}): MobileChatSessionRuntime {
 	const messageActionsFeature = createMessageActionsFeature({ documentRef });
@@ -127,17 +139,32 @@ export function createMobileChatSessionRuntime({
 		windowRef,
 	});
 	const layoutModeStore = getLayoutModeStore({ windowRef });
+	const mobileLayoutFeatures: MountableRuntimeFeature[] = [
+		keyboardViewportBridge,
+		nativePopupBridge,
+		topBarFeature,
+		messageHeaderLayout,
+		chatSwitchLoadingFeature,
+		messageActionsFeature,
+		sillyTavernInterfacePanelFeature,
+		sendFormFeature,
+		chatScrollFeature,
+	];
+	const disposableFeatures = [
+		chatScrollFeature,
+		sendFormFeature,
+		sillyTavernInterfacePanelFeature,
+		messageActionsFeature,
+		chatSwitchLoadingFeature,
+		messageHeaderLayout,
+		topBarFeature,
+		nativePopupBridge,
+		keyboardViewportBridge,
+	];
+	let disposed = false;
 
 	const deactivateMobileLayout = () => {
-		chatScrollFeature.unmount();
-		sendFormFeature.unmount();
-		messageActionsFeature.unmount();
-		chatSwitchLoadingFeature.unmount();
-		messageHeaderLayout.unmount();
-		sillyTavernInterfacePanelFeature.unmount();
-		topBarFeature.unmount();
-		nativePopupBridge.unmount();
-		keyboardViewportBridge.unmount();
+		unmountFeaturesSafely(mobileLayoutFeatures, { onCleanupError });
 		documentRef.body?.classList.remove(BASE_UI_BODY_CLASS);
 		documentRef.body?.classList.remove(MOBILE_LAYOUT_CLASS);
 	};
@@ -146,15 +173,15 @@ export function createMobileChatSessionRuntime({
 		if (matches) {
 			documentRef.body?.classList.add(BASE_UI_BODY_CLASS);
 			documentRef.body?.classList.add(MOBILE_LAYOUT_CLASS);
-			keyboardViewportBridge.mount();
-			nativePopupBridge.mount();
-			topBarFeature.mount();
-			messageHeaderLayout.mount();
-			chatSwitchLoadingFeature.mount();
-			messageActionsFeature.mount();
-			sillyTavernInterfacePanelFeature.mount();
-			sendFormFeature.mount();
-			chatScrollFeature.mount();
+			try {
+				mountFeaturesTransactionally(mobileLayoutFeatures, {
+					onCleanupError,
+				});
+			} catch (error) {
+				documentRef.body?.classList.remove(BASE_UI_BODY_CLASS);
+				documentRef.body?.classList.remove(MOBILE_LAYOUT_CLASS);
+				throw error;
+			}
 			return;
 		}
 
@@ -168,21 +195,26 @@ export function createMobileChatSessionRuntime({
 	};
 
 	syncLayoutMode();
-	const unsubscribe = layoutModeStore.subscribe(syncLayoutMode);
+	const unsubscribe = layoutModeStore.subscribe(
+		safeRuntimeCallback("mobile-layout-mode", syncLayoutMode),
+	);
 
 	return {
 		dispose() {
+			if (disposed) {
+				return;
+			}
+
+			disposed = true;
 			unsubscribe();
 			deactivateMobileLayout();
-			chatScrollFeature.dispose();
-			chatSwitchLoadingFeature.dispose();
-			messageHeaderLayout.dispose();
-			sendFormFeature.dispose();
-			sillyTavernInterfacePanelFeature.dispose();
-			messageActionsFeature.dispose();
-			topBarFeature.dispose();
-			nativePopupBridge.dispose();
-			keyboardViewportBridge.dispose();
+			for (const feature of disposableFeatures) {
+				try {
+					feature.dispose();
+				} catch (error) {
+					onCleanupError(error);
+				}
+			}
 		},
 	};
 }

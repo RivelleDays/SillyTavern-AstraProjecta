@@ -3,6 +3,21 @@ import { resolve } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
+const MOBILE_CSS_SCOPE_PATHS = [
+	"src/app/mobile/styles/chat-send-form.css",
+	"src/app/mobile/top-bar/mobile-chat-top-bar.css",
+	"src/app/mobile/astra-main-interface-panel/astra-main-interface-panel.css",
+	"src/packages/features/sillytavern-interface/sillytavern-interface.css",
+	"src/packages/features/chat-session/message-layout/message-layout.css",
+	"src/packages/features/chat-session/chat-scroll/chat-scroll.css",
+	"src/packages/features/chat-session/chat-switch-loading/chat-switch-loading.css",
+	"src/packages/features/chat-session/message-actions/message-actions.css",
+	"src/styles/shadcn-overrides.css",
+];
+
+const MOBILE_NATIVE_SELECTOR_PATTERN =
+	/(^|[^\w-])#(?:sheld|send_form|chat|top-bar|top-settings-holder)\b/u;
+
 function normalizeStyleSource(source: string): string {
 	return source
 		.replaceAll('"', "'")
@@ -10,6 +25,50 @@ function normalizeStyleSource(source: string): string {
 		.replace(/\s+\)/g, ")")
 		.replace(/\s+/g, " ")
 		.trim();
+}
+
+function countOccurrences(source: string, value: string): number {
+	return source.split(value).length - 1;
+}
+
+function findUnscopedMobileNativeSelectors({
+	css,
+	path,
+}: {
+	css: string;
+	path: string;
+}): string[] {
+	const offenders: string[] = [];
+	const scopedBlockDepths: number[] = [];
+	let depth = 0;
+
+	for (const [index, line] of css.split("\n").entries()) {
+		const opens = countOccurrences(line, "{");
+		const closes = countOccurrences(line, "}");
+		if (
+			line.includes("body.astra-projecta-mobile-layout") &&
+			opens > closes
+		) {
+			scopedBlockDepths.push(depth + opens);
+		}
+
+		const isInsideMobileScope =
+			scopedBlockDepths.length > 0 ||
+			line.includes("body.astra-projecta-mobile-layout");
+		if (!isInsideMobileScope && MOBILE_NATIVE_SELECTOR_PATTERN.test(line)) {
+			offenders.push(`${path}:${index + 1}: ${line.trim()}`);
+		}
+
+		depth += opens - closes;
+		while (
+			scopedBlockDepths.length > 0 &&
+			depth < scopedBlockDepths[scopedBlockDepths.length - 1]
+		) {
+			scopedBlockDepths.pop();
+		}
+	}
+
+	return offenders;
 }
 
 describe("globals.css", () => {
@@ -37,6 +96,27 @@ describe("globals.css", () => {
 		expect(css).toContain(
 			"@import 'tailwindcss/theme.css' layer(theme) theme(static);",
 		);
+	});
+
+	test("keeps mobile native takeover selectors behind the resolved body class", () => {
+		const unscopedSelectors = MOBILE_CSS_SCOPE_PATHS.flatMap((path) =>
+			findUnscopedMobileNativeSelectors({
+				css: readFileSync(resolve(process.cwd(), path), "utf8"),
+				path,
+			}),
+		);
+
+		expect(unscopedSelectors).toEqual([]);
+	});
+
+	test("keeps the 1000px auto-mode media query out of emitted mobile styles", () => {
+		const offenders = MOBILE_CSS_SCOPE_PATHS.filter((path) =>
+			readFileSync(resolve(process.cwd(), path), "utf8").includes(
+				"@media screen and (max-width: 1000px)",
+			),
+		);
+
+		expect(offenders).toEqual([]);
 	});
 
 	test("imports the message-actions stylesheet for the single-message actions contract", () => {
@@ -535,12 +615,8 @@ describe("globals.css", () => {
 		expect(compactMessageLayoutCss).toContain(
 			".mes_reasoning_arrow.fa-solid.fa-chevron-up",
 		);
-		expect(compactMessageLayoutCss).toContain(
-			".astra-mesReasoningChevron",
-		);
-		expect(compactMessageLayoutCss).toContain(
-			".astra-mesReasoningSparkle",
-		);
+		expect(compactMessageLayoutCss).toContain(".astra-mesReasoningChevron");
+		expect(compactMessageLayoutCss).toContain(".astra-mesReasoningSparkle");
 		expect(compactMessageLayoutCss).toContain(
 			".mes_reasoning_details[open] .astra-mesReasoningChevron",
 		);

@@ -42,7 +42,7 @@ describe("mobile chat top-bar CSS contracts", () => {
 
 	test("keeps wrapped #sheld owned by the top-bar shell layout contract", () => {
 		const css = readCss();
-		const block = readBlock(css, "#astra-chat-session-shell > #sheld");
+		const block = readBlock(css, "& #astra-chat-session-shell > #sheld");
 
 		expect(block).not.toBe("");
 		expect(block).toContain("position:");
@@ -63,14 +63,12 @@ describe("mobile chat top-bar CSS contracts", () => {
 		expect(css).toContain("body.astra-projecta-mobile-layout {");
 		expect(css).toContain("& #top-bar");
 		expect(css).toContain("& #top-settings-holder");
+		expect(css).toContain("& #astra-chat-session-shell > #sheld");
 	});
 
 	test("keeps the top glass overlay masked so blur fades out with the surface", () => {
 		const css = readCss();
-		const overlayBlock = readBlock(
-			css,
-			"#astra-chat-top-bar-host::before",
-		);
+		const overlayBlock = readBlock(css, "#astra-chat-top-bar-host::before");
 
 		expect(overlayBlock).not.toBe("");
 		expect(overlayBlock).toContain("-webkit-mask-image:");

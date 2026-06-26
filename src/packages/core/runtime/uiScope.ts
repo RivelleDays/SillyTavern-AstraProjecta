@@ -41,6 +41,14 @@ export function ensureAstraProjectaUiInfrastructure({
 	return portalElement;
 }
 
+export function removeAstraProjectaUiInfrastructure({
+	documentRef = document,
+}: {
+	documentRef?: Document;
+} = {}): void {
+	documentRef.getElementById(ASTRA_PROJECTA_ROOT_ID)?.remove();
+}
+
 export function getAstraProjectaPortalContainer(): HTMLElement | null {
 	if (typeof document === "undefined") {
 		return null;
