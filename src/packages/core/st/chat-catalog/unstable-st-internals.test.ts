@@ -34,9 +34,7 @@ describe("unstable chat catalog SillyTavern internals", () => {
 		});
 
 		expect(warn).toHaveBeenCalledTimes(1);
-		expect(warn.mock.calls[0]?.[0]).toContain(
-			"renameGroupOrCharacterChat",
-		);
+		expect(warn.mock.calls[0]?.[0]).toContain("renameGroupOrCharacterChat");
 	});
 
 	test("returns api-unavailable and includes CLIENT_VERSION when a core capability is missing", async () => {
@@ -61,15 +59,11 @@ describe("unstable chat catalog SillyTavern internals", () => {
 		});
 
 		expect(warn).toHaveBeenCalledTimes(1);
-		expect(warn.mock.calls[0]?.[0]).toContain(
-			"SillyTavern:1.2.3:test",
-		);
+		expect(warn.mock.calls[0]?.[0]).toContain("SillyTavern:1.2.3:test");
 	});
 
 	test("renames character chats and updates the remote character chat pointer", async () => {
-		const renameGroupOrCharacterChat = vi
-			.fn()
-			.mockResolvedValue(undefined);
+		const renameGroupOrCharacterChat = vi.fn().mockResolvedValue(undefined);
 		const updateRemoteChatName = vi.fn().mockResolvedValue(undefined);
 		const internals = createUnstableChatCatalogInternals({
 			loadCoreModule: vi.fn().mockResolvedValue({
@@ -101,9 +95,7 @@ describe("unstable chat catalog SillyTavern internals", () => {
 	});
 
 	test("renames group chats through the core capability wrapper", async () => {
-		const renameGroupOrCharacterChat = vi
-			.fn()
-			.mockResolvedValue(undefined);
+		const renameGroupOrCharacterChat = vi.fn().mockResolvedValue(undefined);
 		const internals = createUnstableChatCatalogInternals({
 			loadCoreModule: vi.fn().mockResolvedValue({
 				renameGroupOrCharacterChat,

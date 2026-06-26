@@ -75,7 +75,9 @@ describe("MobileChatContextUsageShortcut", () => {
 		expect(trigger).toHaveClass("is-idle");
 		expect(trigger).not.toBeDisabled();
 		expect(
-			trigger.querySelector(".astra-chat-context-usage-shortcut__idle-icon"),
+			trigger.querySelector(
+				".astra-chat-context-usage-shortcut__idle-icon",
+			),
 		).toBeInTheDocument();
 	});
 
@@ -132,34 +134,34 @@ describe("MobileChatContextUsageShortcut", () => {
 	test.each(["generating", "refreshing"] as const)(
 		"keeps the percent trigger while a ready snapshot is %s",
 		(activityStatus) => {
-		setSillyTavernContext({
-			translate: (text: string, key: string) => `${key}::${text}`,
-		});
+			setSillyTavernContext({
+				translate: (text: string, key: string) => `${key}::${text}`,
+			});
 
-		render(
-			<MobileChatContextUsageShortcut
-				snapshot={createSnapshot({
-					activityStatus,
-					status: "ready",
-					usagePercent: 42,
-					usedContextTokens: 3424,
-					usedPromptTokens: 2400,
-				})}
-			/>,
-		);
+			render(
+				<MobileChatContextUsageShortcut
+					snapshot={createSnapshot({
+						activityStatus,
+						status: "ready",
+						usagePercent: 42,
+						usedContextTokens: 3424,
+						usedPromptTokens: 2400,
+					})}
+				/>,
+			);
 
-		const trigger = screen.getByRole("button", {
-			name: "sendForm.contextUsage.trigger.open::Open context usage details",
-		});
+			const trigger = screen.getByRole("button", {
+				name: "sendForm.contextUsage.trigger.open::Open context usage details",
+			});
 
-		expect(trigger).not.toBeDisabled();
-		expect(trigger).toHaveClass("is-normal");
-		expect(trigger).toHaveTextContent("42%");
-		expect(
-			trigger.querySelector(
-				".astra-chat-context-usage-shortcut__loading-dots",
-			),
-		).not.toBeInTheDocument();
+			expect(trigger).not.toBeDisabled();
+			expect(trigger).toHaveClass("is-normal");
+			expect(trigger).toHaveTextContent("42%");
+			expect(
+				trigger.querySelector(
+					".astra-chat-context-usage-shortcut__loading-dots",
+				),
+			).not.toBeInTheDocument();
 		},
 	);
 
@@ -200,7 +202,9 @@ describe("MobileChatContextUsageShortcut", () => {
 		expect(trigger).toHaveClass("is-idle");
 		expect(trigger).not.toBeDisabled();
 		expect(
-			trigger.querySelector(".astra-chat-context-usage-shortcut__idle-icon"),
+			trigger.querySelector(
+				".astra-chat-context-usage-shortcut__idle-icon",
+			),
 		).toBeInTheDocument();
 
 		fireEvent.click(trigger);
@@ -253,9 +257,7 @@ describe("MobileChatContextUsageShortcut", () => {
 			),
 		).not.toBeInTheDocument();
 		expect(
-			screen.queryByText(
-				"sendForm.contextUsage.title::Context Usage",
-			),
+			screen.queryByText("sendForm.contextUsage.title::Context Usage"),
 		).not.toBeInTheDocument();
 		expect(
 			screen.getByText(

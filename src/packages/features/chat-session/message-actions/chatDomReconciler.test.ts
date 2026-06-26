@@ -116,12 +116,8 @@ describe("createChatDomReconciler", () => {
 			const secondMessage = document.createElement("div");
 			secondMessage.className = "mes";
 			secondMessage.setAttribute("mesid", "1");
-			document
-				.getElementById("chat")!
-				.append(firstMessage);
-			document
-				.getElementById("chat")!
-				.append(secondMessage);
+			document.getElementById("chat")!.append(firstMessage);
+			document.getElementById("chat")!.append(secondMessage);
 			await Promise.resolve();
 
 			expect(frame.requestAnimationFrame).toHaveBeenCalledTimes(1);
@@ -149,9 +145,7 @@ describe("createChatDomReconciler", () => {
 			const message = document.createElement("div");
 			message.className = "mes";
 			message.setAttribute("mesid", "0");
-			document
-				.getElementById("chat")!
-				.append(message);
+			document.getElementById("chat")!.append(message);
 			await Promise.resolve();
 			reconciler.stop();
 			frame.flushFrames();

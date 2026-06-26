@@ -221,66 +221,76 @@ export function ChatCatalogRowActionDialog({
 		event.preventDefault();
 	}, []);
 
-	const handleConfirmRename = React.useCallback(async (close: CloseDialog) => {
-		if (!entry || !canRename || isBusy) return;
+	const handleConfirmRename = React.useCallback(
+		async (close: CloseDialog) => {
+			if (!entry || !canRename || isBusy) return;
 
-		setIsBusy(true);
-		try {
-			const result = await onConfirmRename(entry, normalizedNextName);
-			if (isFailedRenameResult(result)) {
+			setIsBusy(true);
+			try {
+				const result = await onConfirmRename(entry, normalizedNextName);
+				if (isFailedRenameResult(result)) {
+					showToast(
+						"error",
+						translateAstra(
+							"astraMainInterface.chatMenu.rename.failure",
+						),
+					);
+					return;
+				}
+
+				onSuccess();
 				showToast(
-					"error",
+					"success",
 					translateAstra(
-						"astraMainInterface.chatMenu.rename.failure",
+						"astraMainInterface.chatMenu.rename.success",
 					),
 				);
-				return;
+				close();
+			} finally {
+				setIsBusy(false);
 			}
+		},
+		[
+			canRename,
+			entry,
+			isBusy,
+			normalizedNextName,
+			onConfirmRename,
+			onSuccess,
+		],
+	);
 
-			onSuccess();
-			showToast(
-				"success",
-				translateAstra("astraMainInterface.chatMenu.rename.success"),
-			);
-			close();
-		} finally {
-			setIsBusy(false);
-		}
-	}, [
-		canRename,
-		entry,
-		isBusy,
-		normalizedNextName,
-		onConfirmRename,
-		onSuccess,
-	]);
+	const handleConfirmDelete = React.useCallback(
+		async (close: CloseDialog) => {
+			if (!entry || !canDelete || isBusy) return;
 
-	const handleConfirmDelete = React.useCallback(async (close: CloseDialog) => {
-		if (!entry || !canDelete || isBusy) return;
+			setIsBusy(true);
+			try {
+				const result = await onConfirmDelete(entry);
+				if (isFailedDeleteResult(result)) {
+					showToast(
+						"error",
+						translateAstra(
+							"astraMainInterface.chatMenu.delete.failure",
+						),
+					);
+					return;
+				}
 
-		setIsBusy(true);
-		try {
-			const result = await onConfirmDelete(entry);
-			if (isFailedDeleteResult(result)) {
+				onSuccess();
 				showToast(
-					"error",
+					"success",
 					translateAstra(
-						"astraMainInterface.chatMenu.delete.failure",
+						"astraMainInterface.chatMenu.delete.success",
 					),
 				);
-				return;
+				close();
+			} finally {
+				setIsBusy(false);
 			}
-
-			onSuccess();
-			showToast(
-				"success",
-				translateAstra("astraMainInterface.chatMenu.delete.success"),
-			);
-			close();
-		} finally {
-			setIsBusy(false);
-		}
-	}, [canDelete, entry, isBusy, onConfirmDelete, onSuccess]);
+		},
+		[canDelete, entry, isBusy, onConfirmDelete, onSuccess],
+	);
 
 	const headerContent = entry ? (
 		<ChatCatalogRowDialogIdentityHeader entry={entry} />

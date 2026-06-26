@@ -884,8 +884,7 @@ function createEntityChatCatalogStore({
 		listener: Listener;
 	}> = [];
 
-	const initialContext =
-		readContextSafe<StCurrentChatCatalogContextLike>();
+	const initialContext = readContextSafe<StCurrentChatCatalogContextLike>();
 	const initialEntity = resolveEntity(initialContext);
 	const initialCache = initialEntity
 		? readCache({
@@ -980,9 +979,10 @@ function createEntityChatCatalogStore({
 				entity,
 				fetchImpl,
 			});
-			const currentEntity = resolveEntity(
-				readContextSafe<StCurrentChatCatalogContextLike>(),
-			);
+			const currentEntity =
+				resolveEntity(
+					readContextSafe<StCurrentChatCatalogContextLike>(),
+				);
 			if (
 				disposed ||
 				activeRequestToken !== requestToken ||

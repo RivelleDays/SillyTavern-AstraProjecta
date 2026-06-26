@@ -276,8 +276,8 @@ function hasNativeOption(nativeOptionId: string, documentRef: Document) {
 }
 
 function hasVisibleNativeOption(nativeOptionId: string, documentRef: Document) {
-	return getNativeOptionElements(nativeOptionId, documentRef).some((element) =>
-		isElementVisible(element),
+	return getNativeOptionElements(nativeOptionId, documentRef).some(
+		(element) => isElementVisible(element),
 	);
 }
 

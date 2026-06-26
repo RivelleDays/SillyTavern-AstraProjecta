@@ -1,10 +1,7 @@
 import * as React from "react";
 
 import { UiIcon } from "@/components/ui/shared/icon";
-import {
-	Braces,
-	MessageCircleMore,
-} from "@/components/ui/shared/icons";
+import { Braces, MessageCircleMore } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 
 export interface MessageActionsIdentityHeaderTarget {

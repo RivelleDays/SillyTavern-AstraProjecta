@@ -186,9 +186,7 @@ describe("buildMobileSendFormMenuGroups", () => {
 		);
 
 		expect(
-			noNativeReloadChatSessionGroup?.actions.map(
-				(action) => action.key,
-			),
+			noNativeReloadChatSessionGroup?.actions.map((action) => action.key),
 		).toEqual(["reload_page"]);
 	});
 

@@ -65,9 +65,7 @@ describe("nativeExtraMessageActions", () => {
 			messageId: 8,
 		});
 
-		expect(actions.map((action) => action.label)).toEqual([
-			"Ready action",
-		]);
+		expect(actions.map((action) => action.label)).toEqual(["Ready action"]);
 		expect(actions[0].iconClassName).toBe(
 			"fa-solid fa-wand-magic-sparkles",
 		);

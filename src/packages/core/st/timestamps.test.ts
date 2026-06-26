@@ -64,9 +64,9 @@ describe("SillyTavern timestamps", () => {
 		expect(formatStTimestampTimeOnly("June 4, 2026 11:34 AM")).toBe(
 			"上午 11:34",
 		);
-		expect(
-			formatStTimestampDateDivider("June 4, 2026 11:34 AM"),
-		).toBe("2026年6月4日");
+		expect(formatStTimestampDateDivider("June 4, 2026 11:34 AM")).toBe(
+			"2026年6月4日",
+		);
 		expect(calls).toEqual(["LT", "LL"]);
 	});
 

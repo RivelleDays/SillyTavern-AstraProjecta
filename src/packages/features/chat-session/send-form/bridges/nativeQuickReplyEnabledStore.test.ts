@@ -224,7 +224,8 @@ describe("createNativeQuickReplyEnabledStore", () => {
 		childrenSpy.mockClear();
 
 		const popup = document.createElement("dialog");
-		popup.className = "popup large_dialogue_popup vertical_scrolling_dialogue_popup";
+		popup.className =
+			"popup large_dialogue_popup vertical_scrolling_dialogue_popup";
 		popup.setAttribute("open", "");
 		let parent: HTMLElement = popup;
 		for (let index = 0; index < 50; index += 1) {
@@ -241,12 +242,7 @@ describe("createNativeQuickReplyEnabledStore", () => {
 		shadowPopup.id = "shadow_popup";
 		shadowPopup.style.display = "block";
 
-		document.body.append(
-			popup,
-			quickReplyPopout,
-			contextMenu,
-			shadowPopup,
-		);
+		document.body.append(popup, quickReplyPopout, contextMenu, shadowPopup);
 		childrenSpy.mockClear();
 		await flushMutationObservers();
 
@@ -305,9 +301,7 @@ describe("createNativeQuickReplyEnabledStore", () => {
 		});
 
 		replacementToggle.checked = true;
-		replacementToggle.dispatchEvent(
-			new Event("input", { bubbles: true }),
-		);
+		replacementToggle.dispatchEvent(new Event("input", { bubbles: true }));
 
 		await waitFor(() => {
 			expect(store.getSnapshot()).toEqual({

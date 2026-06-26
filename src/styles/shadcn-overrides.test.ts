@@ -323,9 +323,7 @@ describe("shadcn-overrides.css", () => {
 		expect(identityBlock).toContain("max-width: 100%;");
 		expect(identityBlock).toContain("min-width: 0;");
 		expect(avatarBlock).not.toBe("");
-		expect(avatarBlock).toContain(
-			"--astra-dialog-identity-avatar-size:",
-		);
+		expect(avatarBlock).toContain("--astra-dialog-identity-avatar-size:");
 		expect(avatarBlock).toContain("var(--astra-avatar-size-min)");
 		expect(avatarBlock).toContain(
 			"var(--astra-avatar-size-dialog-identity)",

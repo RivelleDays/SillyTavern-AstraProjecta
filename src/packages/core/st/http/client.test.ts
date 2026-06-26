@@ -32,7 +32,10 @@ function createAbortAwareFetch() {
 			new Promise<Response>((_resolve, reject) => {
 				init?.signal?.addEventListener("abort", () => {
 					reject(
-						new DOMException("The operation was aborted.", "AbortError"),
+						new DOMException(
+							"The operation was aborted.",
+							"AbortError",
+						),
 					);
 				});
 			}),

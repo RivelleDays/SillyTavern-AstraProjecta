@@ -140,27 +140,25 @@ export function CurrentChatDeleteDialog({
 		event.preventDefault();
 	}, []);
 
-	const handleConfirm = React.useCallback(async (requestClose: () => void) => {
-		if (!canDelete || isBusy) {
-			return;
-		}
-
-		setIsBusy(true);
-		try {
-			const result = await onConfirmDelete(snapshot.chatFileName);
-
-			if (!isFailedDeleteResult(result)) {
-				requestClose();
+	const handleConfirm = React.useCallback(
+		async (requestClose: () => void) => {
+			if (!canDelete || isBusy) {
+				return;
 			}
-		} finally {
-			setIsBusy(false);
-		}
-	}, [
-		canDelete,
-		isBusy,
-		onConfirmDelete,
-		snapshot.chatFileName,
-	]);
+
+			setIsBusy(true);
+			try {
+				const result = await onConfirmDelete(snapshot.chatFileName);
+
+				if (!isFailedDeleteResult(result)) {
+					requestClose();
+				}
+			} finally {
+				setIsBusy(false);
+			}
+		},
+		[canDelete, isBusy, onConfirmDelete, snapshot.chatFileName],
+	);
 
 	const headerContent = (
 		<div className="astra-dialog-identity">

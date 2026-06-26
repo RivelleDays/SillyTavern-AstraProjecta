@@ -286,9 +286,7 @@ export function MobileSendFormOptionsMenu({
 				<UiIcon aria-hidden={true} icon={Menu} size="sm" />
 			</button>
 			<DrawerContent
-				aria-describedby={
-					ASTRA_SEND_FORM_OPTIONS_DRAWER_DESCRIPTION_ID
-				}
+				aria-describedby={ASTRA_SEND_FORM_OPTIONS_DRAWER_DESCRIPTION_ID}
 				aria-labelledby={ASTRA_SEND_FORM_OPTIONS_DRAWER_TITLE_ID}
 				id={ASTRA_SEND_FORM_OPTIONS_DRAWER_ID}
 				className="astra-send-form-options-drawer"

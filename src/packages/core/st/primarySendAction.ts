@@ -67,9 +67,7 @@ function getElementConstructor(node: Node): typeof Element | null {
 	const ElementConstructor =
 		node.ownerDocument?.defaultView?.Element ??
 		(typeof Element === "function" ? Element : null);
-	return typeof ElementConstructor === "function"
-		? ElementConstructor
-		: null;
+	return typeof ElementConstructor === "function" ? ElementConstructor : null;
 }
 
 function resolveContextSafe(): StContextLike | null {
@@ -348,10 +346,7 @@ function readPrimarySendActionState({
 			snapshot: createSnapshot({
 				disabled: readIsDisabled(stopButton),
 				kind: "stop",
-				label: readNativeActionLabel(
-					stopButton,
-					STOP_ACTION_LABEL_KEY,
-				),
+				label: readNativeActionLabel(stopButton, STOP_ACTION_LABEL_KEY),
 				visible: true,
 			}),
 		};
@@ -616,10 +611,7 @@ export function createPrimarySendActionStore({
 	}
 
 	if (eventSource) {
-		const eventBindingMap = new Map<
-			string,
-			(...args: unknown[]) => void
-		>();
+		const eventBindingMap = new Map<string, (...args: unknown[]) => void>();
 		const addEventBinding = (
 			eventName: string | undefined,
 			listener: (...args: unknown[]) => void,
@@ -648,10 +640,7 @@ export function createPrimarySendActionStore({
 			eventTypes.GENERATION_STOPPED,
 			generationSettledHandler,
 		);
-		addEventBinding(
-			eventTypes.GENERATION_ENDED,
-			generationSettledHandler,
-		);
+		addEventBinding(eventTypes.GENERATION_ENDED, generationSettledHandler);
 		addEventBinding(eventTypes.MESSAGE_EDITED, messageEditedHandler);
 
 		activeEventBindings = Array.from(
@@ -687,10 +676,7 @@ export function createPrimarySendActionStore({
 			bodyObserver?.disconnect();
 
 			if (eventSource) {
-				for (const {
-					eventName,
-					listener,
-				} of activeEventBindings) {
+				for (const { eventName, listener } of activeEventBindings) {
 					eventSource.removeListener(eventName, listener);
 				}
 			}

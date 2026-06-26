@@ -21,9 +21,7 @@ function getElementConstructor(node: Node): typeof Element | null {
 	const ElementConstructor =
 		node.ownerDocument?.defaultView?.Element ??
 		(typeof Element === "function" ? Element : null);
-	return typeof ElementConstructor === "function"
-		? ElementConstructor
-		: null;
+	return typeof ElementConstructor === "function" ? ElementConstructor : null;
 }
 
 function getHTMLElementConstructor(
@@ -42,9 +40,7 @@ function getHTMLInputElementConstructor(
 ): typeof HTMLInputElement | null {
 	const HTMLInputElementConstructor =
 		documentRef.defaultView?.HTMLInputElement ??
-		(typeof HTMLInputElement === "function"
-			? HTMLInputElement
-			: null);
+		(typeof HTMLInputElement === "function" ? HTMLInputElement : null);
 	return typeof HTMLInputElementConstructor === "function"
 		? HTMLInputElementConstructor
 		: null;
@@ -68,7 +64,7 @@ function isHTMLInputElementForDocument(
 		getHTMLInputElementConstructor(documentRef);
 	return Boolean(
 		HTMLInputElementConstructor &&
-			value instanceof HTMLInputElementConstructor,
+		value instanceof HTMLInputElementConstructor,
 	);
 }
 
@@ -76,15 +72,11 @@ function readNativeToggle(documentRef: Document): HTMLInputElement | null {
 	const element = documentRef.getElementById(
 		NATIVE_QUICK_REPLY_ENABLED_TOGGLE_ID,
 	);
-	return isHTMLInputElementForDocument(documentRef, element)
-		? element
-		: null;
+	return isHTMLInputElementForDocument(documentRef, element) ? element : null;
 }
 
 function readQuickReplyContainer(documentRef: Document): HTMLElement | null {
-	const element = documentRef.getElementById(
-		NATIVE_QUICK_REPLY_CONTAINER_ID,
-	);
+	const element = documentRef.getElementById(NATIVE_QUICK_REPLY_CONTAINER_ID);
 	return isHTMLElementForDocument(documentRef, element) ? element : null;
 }
 
@@ -113,8 +105,8 @@ function isElementWithId(node: Node, id: string): boolean {
 	const ElementConstructor = getElementConstructor(node);
 	return Boolean(
 		ElementConstructor &&
-			node instanceof ElementConstructor &&
-			node.id === id,
+		node instanceof ElementConstructor &&
+		node.id === id,
 	);
 }
 
@@ -165,7 +157,8 @@ export function createNativeQuickReplyEnabledStore({
 } = {}): NativeQuickReplyEnabledStore {
 	const listeners = new Set<Listener>();
 	const MutationObserverConstructor =
-		documentRef.defaultView?.MutationObserver ?? globalThis.MutationObserver;
+		documentRef.defaultView?.MutationObserver ??
+		globalThis.MutationObserver;
 	let activeContainer: HTMLElement | null = null;
 	let activeToggle: HTMLInputElement | null = null;
 	let bodyObserver: MutationObserver | null = null;
@@ -196,9 +189,7 @@ export function createNativeQuickReplyEnabledStore({
 		) {
 			containerObserver = new MutationObserverConstructor((records) => {
 				if (
-					!shouldRefreshNativeQuickReplyEnabledForMutations(
-						records,
-					)
+					!shouldRefreshNativeQuickReplyEnabledForMutations(records)
 				) {
 					return;
 				}
@@ -268,7 +259,7 @@ export function createNativeQuickReplyEnabledStore({
 					: null);
 			return Boolean(
 				HTMLBodyElementConstructor &&
-					body instanceof HTMLBodyElementConstructor,
+				body instanceof HTMLBodyElementConstructor,
 			);
 		})() &&
 		typeof MutationObserverConstructor === "function"

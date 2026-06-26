@@ -383,8 +383,9 @@ describe("chat category store", () => {
 				"missing",
 			]),
 		).toEqual(["cat_global_b", "cat_global_a"]);
-		expect(store.getVisibleCategories().global.map((entry) => entry.id))
-			.toEqual(["cat_global_b", "cat_global_a"]);
+		expect(
+			store.getVisibleCategories().global.map((entry) => entry.id),
+		).toEqual(["cat_global_b", "cat_global_a"]);
 
 		expect(
 			store.setCategoryOrder(
@@ -421,7 +422,8 @@ describe("chat category store", () => {
 			createId: vi.fn().mockReturnValueOnce("cat_global"),
 		});
 		store.createCategory({ name: "Global", scope: "global" });
-		const savesAfterCreate = context.saveSettingsDebounced.mock.calls.length;
+		const savesAfterCreate =
+			context.saveSettingsDebounced.mock.calls.length;
 
 		expect(
 			store.setCategoryOrder(

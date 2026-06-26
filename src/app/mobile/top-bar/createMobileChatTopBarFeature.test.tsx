@@ -118,9 +118,7 @@ describe("createMobileChatTopBarFeature", () => {
 			feature.unmount();
 		});
 
-		expect(
-			document.getElementById(ASTRA_CHAT_SESSION_SHELL_ID),
-		).toBeNull();
+		expect(document.getElementById(ASTRA_CHAT_SESSION_SHELL_ID)).toBeNull();
 		expect([...document.body.children].map((child) => child.id)).toEqual([
 			"before",
 			"sheld",
@@ -152,9 +150,7 @@ describe("createMobileChatTopBarFeature", () => {
 			feature.unmount();
 		});
 
-		expect(
-			document.getElementById(ASTRA_CHAT_SESSION_SHELL_ID),
-		).toBeNull();
+		expect(document.getElementById(ASTRA_CHAT_SESSION_SHELL_ID)).toBeNull();
 		expect(store.store.dispose).toHaveBeenCalledTimes(1);
 	});
 
@@ -169,9 +165,7 @@ describe("createMobileChatTopBarFeature", () => {
 			feature.mount();
 		});
 
-		expect(
-			document.getElementById(ASTRA_CHAT_SESSION_SHELL_ID),
-		).toBeNull();
+		expect(document.getElementById(ASTRA_CHAT_SESSION_SHELL_ID)).toBeNull();
 		expect(store.factory).not.toHaveBeenCalled();
 
 		act(() => {
@@ -225,7 +219,8 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 		const saveSettingsDebounced = vi.fn();
 		const selectCharacterById = vi.fn();
-		context.executeSlashCommandsWithOptions = executeSlashCommandsWithOptions;
+		context.executeSlashCommandsWithOptions =
+			executeSlashCommandsWithOptions;
 		context.saveSettingsDebounced = saveSettingsDebounced;
 		context.selectCharacterById = selectCharacterById;
 		setSillyTavernContext(context);
@@ -299,9 +294,10 @@ describe("createMobileChatTopBarFeature", () => {
 		expect(
 			document.getElementById("astra-main-interface-title"),
 		).toHaveTextContent("Mage");
-		expect(
-			document.querySelector(".astra-main-interface"),
-		).toHaveAttribute("data-route", "current-context-chats");
+		expect(document.querySelector(".astra-main-interface")).toHaveAttribute(
+			"data-route",
+			"current-context-chats",
+		);
 		expect(context.chatId).toBe("mage-home");
 
 		act(() => {
@@ -420,9 +416,7 @@ describe("createMobileChatTopBarFeature", () => {
 			expect(element).toBeInTheDocument();
 			return element as HTMLElement;
 		});
-		const content = document.getElementById(
-			"astra-main-interface-content",
-		);
+		const content = document.getElementById("astra-main-interface-content");
 
 		expect(mainInterfaceTrigger).toHaveAttribute("aria-expanded", "true");
 		expect(mainInterfacePanel).toHaveAttribute("data-side", "left");

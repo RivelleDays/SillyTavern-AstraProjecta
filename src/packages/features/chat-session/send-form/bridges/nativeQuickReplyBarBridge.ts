@@ -35,9 +35,7 @@ function getElementConstructor(node: Node): typeof Element | null {
 	const ElementConstructor =
 		node.ownerDocument?.defaultView?.Element ??
 		(typeof Element === "function" ? Element : null);
-	return typeof ElementConstructor === "function"
-		? ElementConstructor
-		: null;
+	return typeof ElementConstructor === "function" ? ElementConstructor : null;
 }
 
 function getHTMLElementConstructor(

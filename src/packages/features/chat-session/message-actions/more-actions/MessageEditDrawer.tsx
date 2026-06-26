@@ -48,9 +48,7 @@ export interface MessageEditDrawerSubmitDraft {
 
 export interface MessageEditDrawerActionConfig {
 	disabled?: boolean;
-	onClick?: (
-		draft: MessageEditDrawerSubmitDraft,
-	) => void | Promise<void>;
+	onClick?: (draft: MessageEditDrawerSubmitDraft) => void | Promise<void>;
 }
 
 export interface MessageEditDrawerAddReasoningActionConfig {
@@ -149,9 +147,7 @@ export function MessageEditDrawer({
 	container?: HTMLElement | null;
 	draft: MessageEditDrawerDraft | null;
 	isMutationPending?: boolean;
-	onConfirm(
-		draft: MessageEditDrawerSubmitDraft,
-	): void | Promise<void>;
+	onConfirm(draft: MessageEditDrawerSubmitDraft): void | Promise<void>;
 	onOpenChange(nextValue: boolean): void;
 	open: boolean;
 	target: MessageActionsTarget | null;
@@ -186,9 +182,7 @@ export function MessageEditDrawer({
 	const messagePlaceholder = translateAstra(
 		"messageActions.edit.field.message.placeholder",
 	);
-	const moveDownLabel = translateAstra(
-		"messageActions.edit.action.moveDown",
-	);
+	const moveDownLabel = translateAstra("messageActions.edit.action.moveDown");
 	const moveUpLabel = translateAstra("messageActions.edit.action.moveUp");
 	const reasoningLabel = translateAstra(
 		"messageActions.edit.field.reasoning.label",
@@ -227,8 +221,8 @@ export function MessageEditDrawer({
 		open,
 	]);
 
-	const readSubmitDraft = React.useCallback(
-		(): MessageEditDrawerSubmitDraft | null => {
+	const readSubmitDraft =
+		React.useCallback((): MessageEditDrawerSubmitDraft | null => {
 			if (!draft) {
 				return null;
 			}
@@ -239,9 +233,7 @@ export function MessageEditDrawer({
 				messageText,
 				reasoningText,
 			};
-		},
-		[draft, hasReasoning, messageText, reasoningText],
-	);
+		}, [draft, hasReasoning, messageText, reasoningText]);
 
 	const hasEffectiveDraftChanges = React.useMemo(() => {
 		if (!draft) {
@@ -361,8 +353,7 @@ export function MessageEditDrawer({
 							) : null}
 							<MessageEditExtraActionButton
 								disabled={
-									isMutationPending ||
-									isDeleteMessageDisabled
+									isMutationPending || isDeleteMessageDisabled
 								}
 								icon={MessageCircleX}
 								label={resolvedDeleteMessageLabel}
@@ -376,10 +367,7 @@ export function MessageEditDrawer({
 								variant="danger"
 							/>
 							<MessageEditExtraActionButton
-								disabled={
-									isMutationPending ||
-									isCopyDisabled
-								}
+								disabled={isMutationPending || isCopyDisabled}
 								icon={Copy}
 								label={copyLabel}
 								onClick={() => {
@@ -392,7 +380,9 @@ export function MessageEditDrawer({
 							/>
 							<MessageEditExtraActionButton
 								ariaPressed={hasReasoning}
-								disabled={actions?.addReasoning?.disabled === true}
+								disabled={
+									actions?.addReasoning?.disabled === true
+								}
 								icon={hasReasoning ? LayersMinus : LayersPlus}
 								label={
 									hasReasoning
@@ -400,10 +390,14 @@ export function MessageEditDrawer({
 										: addReasoningLabel
 								}
 								onClick={() => {
-									if (actions?.addReasoning?.disabled === true) {
+									if (
+										actions?.addReasoning?.disabled === true
+									) {
 										return;
 									}
-									setHasReasoning((currentValue) => !currentValue);
+									setHasReasoning(
+										(currentValue) => !currentValue,
+									);
 								}}
 								variant="native"
 							/>
@@ -413,10 +407,7 @@ export function MessageEditDrawer({
 							id={EDIT_DRAWER_EXTRA_ACTIONS_END_ID}
 						>
 							<MessageEditExtraActionButton
-								disabled={
-									isMutationPending ||
-									isMoveUpDisabled
-								}
+								disabled={isMutationPending || isMoveUpDisabled}
 								icon={ChevronUp}
 								label={moveUpLabel}
 								onClick={() => {
@@ -429,8 +420,7 @@ export function MessageEditDrawer({
 							/>
 							<MessageEditExtraActionButton
 								disabled={
-									isMutationPending ||
-									isMoveDownDisabled
+									isMutationPending || isMoveDownDisabled
 								}
 								icon={ChevronDown}
 								label={moveDownLabel}
@@ -460,7 +450,9 @@ export function MessageEditDrawer({
 					<FieldGroup className="astra-messageEditDrawer__fieldGroup">
 						{hasReasoning ? (
 							<Field className="astra-messageEditDrawer__field">
-								<FieldLabel htmlFor={EDIT_DRAWER_REASONING_TEXTAREA_ID}>
+								<FieldLabel
+									htmlFor={EDIT_DRAWER_REASONING_TEXTAREA_ID}
+								>
 									{reasoningLabel}
 								</FieldLabel>
 								<Textarea
@@ -475,7 +467,9 @@ export function MessageEditDrawer({
 							</Field>
 						) : null}
 						<Field className="astra-messageEditDrawer__field">
-							<FieldLabel htmlFor={EDIT_DRAWER_MESSAGE_TEXTAREA_ID}>
+							<FieldLabel
+								htmlFor={EDIT_DRAWER_MESSAGE_TEXTAREA_ID}
+							>
 								{messageLabel}
 							</FieldLabel>
 							<Textarea
@@ -525,7 +519,11 @@ export function MessageEditDrawer({
 							void onConfirm(submitDraft);
 						}}
 					>
-						<UiIcon aria-hidden={true} icon={PencilLine} size="sm" />
+						<UiIcon
+							aria-hidden={true}
+							icon={PencilLine}
+							size="sm"
+						/>
 						{confirmLabel}
 					</Button>
 				</div>

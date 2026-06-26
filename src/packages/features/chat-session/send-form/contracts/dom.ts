@@ -20,8 +20,7 @@ export const NATIVE_QUICK_REPLY_ENABLED_TOGGLE_ID = "qr--isEnabled";
 export const ASTRA_CHAT_COMPOSER_SHELL_ID = "astra-chat-composer-shell";
 export const ASTRA_CHAT_SHORTCUTS_HOST_ID = "astra-chat-shortcuts-host";
 export const ASTRA_CHAT_COMPOSER_HOST_ID = "astra-chat-composer-host";
-export const ASTRA_CHAT_QUICK_REPLIES_HOST_ID =
-	"astra-chat-quick-replies-host";
+export const ASTRA_CHAT_QUICK_REPLIES_HOST_ID = "astra-chat-quick-replies-host";
 export const ASTRA_CHAT_INPUT_HOST_ID = "astra-chat-input-host";
 export const ASTRA_SEND_FORM_QUICK_REPLY_TOGGLE_ID =
 	"astra-send-form-quick-reply-toggle";

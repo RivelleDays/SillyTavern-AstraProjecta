@@ -168,9 +168,7 @@ function countCodePoints(value: string): number {
 	return Array.from(value).length;
 }
 
-function validateCategoryName(
-	value: unknown,
-):
+function validateCategoryName(value: unknown):
 	| {
 			name: string;
 			ok: true;
@@ -1037,7 +1035,10 @@ export function createChatCategoryStore({
 				return normalized;
 			}
 
-			const ownerKey = getOwnerKey(inputScope.ownerType, inputScope.ownerId);
+			const ownerKey = getOwnerKey(
+				inputScope.ownerType,
+				inputScope.ownerId,
+			);
 			if (!ownerKey) {
 				return [];
 			}

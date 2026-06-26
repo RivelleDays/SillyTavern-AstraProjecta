@@ -1068,7 +1068,9 @@ describe("chat catalog adapter", () => {
 		const pendingResponse = createDeferred<Response>();
 		const fetchImpl = vi
 			.fn()
-			.mockReturnValue(pendingResponse.promise) as unknown as typeof fetch;
+			.mockReturnValue(
+				pendingResponse.promise,
+			) as unknown as typeof fetch;
 
 		const store = createChatCatalogStore({
 			fetchImpl,

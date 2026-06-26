@@ -1,4 +1,7 @@
-import { StHttpError, type StHttpErrorReason } from "@/packages/core/st/http/errors";
+import {
+	StHttpError,
+	type StHttpErrorReason,
+} from "@/packages/core/st/http/errors";
 import type { StResponseGuard } from "@/packages/core/st/http/responseGuards";
 import { isRecord } from "@/packages/core/st/shared";
 
@@ -58,7 +61,8 @@ function normalizeHeaders(value: unknown): Record<string, string> {
 				}
 
 				const [key, headerValue] = entry;
-				return typeof key === "string" && typeof headerValue === "string"
+				return typeof key === "string" &&
+					typeof headerValue === "string"
 					? [[key, headerValue] as const]
 					: [];
 			}),
@@ -121,11 +125,15 @@ function resolveRequestHeaders({
 
 function isAbortError(error: unknown): boolean {
 	return (
-		error instanceof DOMException && error.name === "AbortError"
-	) || (error instanceof Error && error.name === "AbortError");
+		(error instanceof DOMException && error.name === "AbortError") ||
+		(error instanceof Error && error.name === "AbortError")
+	);
 }
 
-function logHttpError(logger: StHttpLogger | null | undefined, error: StHttpError) {
+function logHttpError(
+	logger: StHttpLogger | null | undefined,
+	error: StHttpError,
+) {
 	logger?.warn?.("[AstraProjecta] SillyTavern HTTP request failed", {
 		endpoint: error.endpoint,
 		reason: error.reason,

@@ -11,15 +11,15 @@ describe("ASTRA_CHAT_MAIN_MENU_TILES", () => {
 	test("maps every tile iconKey to a centralized SVG source entry", () => {
 		expect(ASTRA_CHAT_MAIN_MENU_TILES).toHaveLength(6);
 
-			for (const tile of ASTRA_CHAT_MAIN_MENU_TILES) {
-				expect(tile.iconKey).toBeTruthy();
-				expect(
-					SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES[tile.iconKey],
-				).toContain("<svg");
-				expect(
-					SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES[tile.iconKey],
-				).toContain("viewBox=");
-			}
+		for (const tile of ASTRA_CHAT_MAIN_MENU_TILES) {
+			expect(tile.iconKey).toBeTruthy();
+			expect(
+				SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES[tile.iconKey],
+			).toContain("<svg");
+			expect(
+				SILLYTAVERN_INTERFACE_ROUTE_ICON_SOURCES[tile.iconKey],
+			).toContain("viewBox=");
+		}
 	});
 
 	test("defines unique stable wrapper ids for every tile", () => {

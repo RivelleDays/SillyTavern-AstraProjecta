@@ -374,7 +374,9 @@ describe("MobileSillyTavernInterfacePanel", () => {
 			configTab.querySelector(".lucide-sliders-horizontal"),
 		).not.toBeInTheDocument();
 		expect(apiTab.querySelector(".lucide-plug-2")).not.toBeInTheDocument();
-		expect(advancedTab.querySelector(".lucide-type")).not.toBeInTheDocument();
+		expect(
+			advancedTab.querySelector(".lucide-type"),
+		).not.toBeInTheDocument();
 		expect(
 			mainNavigation.querySelector(
 				".sillytavern-interface__main-nav-item-label",
@@ -832,11 +834,15 @@ describe("MobileSillyTavernInterfacePanel", () => {
 		expect(editTab).toHaveAttribute("data-state", "inactive");
 		expect(galleryTab).toHaveAttribute("data-state", "inactive");
 		expect(advancedTab).toHaveAttribute("data-state", "inactive");
-		expect(cardsTab.querySelector(".lucide-sparkles")).not.toBeInTheDocument();
+		expect(
+			cardsTab.querySelector(".lucide-sparkles"),
+		).not.toBeInTheDocument();
 		expect(
 			editTab.querySelector(".lucide-user-round-pen"),
 		).not.toBeInTheDocument();
-		expect(galleryTab.querySelector(".lucide-images")).not.toBeInTheDocument();
+		expect(
+			galleryTab.querySelector(".lucide-images"),
+		).not.toBeInTheDocument();
 		expect(
 			advancedTab.querySelector(".lucide-file-cog"),
 		).not.toBeInTheDocument();

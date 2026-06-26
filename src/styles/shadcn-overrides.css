@@ -414,16 +414,16 @@
 }
 
 .astra-dialog-identityName {
-    display: block;
-    flex: 1 1 auto;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    overflow: hidden;
-    font-size: var(--text-sm);
-    font-weight: var(--font-weight-semibold);
-    text-overflow: ellipsis;
-    white-space: nowrap;
+	display: block;
+	flex: 1 1 auto;
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
+	overflow: hidden;
+	font-size: var(--text-sm);
+	font-weight: var(--font-weight-semibold);
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .astra-dialog-identityMesBadge {
@@ -454,12 +454,12 @@
 }
 
 .astra-dialog-headingContent {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    min-width: 0;
-    text-align: left;
-    gap: 2px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	min-width: 0;
+	text-align: left;
+	gap: 2px;
 }
 
 .astra-dialog-headingContent > * {
@@ -716,11 +716,11 @@
 }
 
 .astra-sliding-tabs__trigger-label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: var(--text-sm);
-    font-weight: var(--font-weight-semibold);
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: var(--text-sm);
+	font-weight: var(--font-weight-semibold);
 }
 
 .astra-sliding-tabs__indicator {
@@ -1659,46 +1659,46 @@
 	border-radius: 14px;
 }
 
-	html[data-astra-projecta-native-popup-active="true"],
-	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"] {
-		pointer-events: auto !important;
-		overflow: hidden !important;
-		overscroll-behavior: none;
-	}
+html[data-astra-projecta-native-popup-active="true"],
+body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"] {
+	pointer-events: auto !important;
+	overflow: hidden !important;
+	overscroll-behavior: none;
+}
 
-	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		dialog.popup
-		.popup-content {
-		overscroll-behavior: contain;
-		touch-action: pan-y;
-		-webkit-overflow-scrolling: touch;
-	}
+body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
+	dialog.popup
+	.popup-content {
+	overscroll-behavior: contain;
+	touch-action: pan-y;
+	-webkit-overflow-scrolling: touch;
+}
 
-	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__viewport {
-		overflow: hidden !important;
-		overscroll-behavior: contain;
-		touch-action: none;
-		-webkit-overflow-scrolling: auto;
-	}
+body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
+	[data-astra-scroll-affordance="surface"]
+	.astra-scroll-area__viewport {
+	overflow: hidden !important;
+	overscroll-behavior: contain;
+	touch-action: none;
+	-webkit-overflow-scrolling: auto;
+}
 
-	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		[data-astra-scroll-affordance="surface"]
-		.astra-scroll-area__scrollbar {
-		opacity: 0 !important;
-		pointer-events: none !important;
-	}
+body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
+	[data-astra-scroll-affordance="surface"]
+	.astra-scroll-area__scrollbar {
+	opacity: 0 !important;
+	pointer-events: none !important;
+}
 
-	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		[data-vaul-overlay],
-	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		[data-vaul-drawer],
-	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		.astra-drawer__overlay,
-	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		.astra-drawer,
-	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
-		.astra-mobile-page-panel {
-		pointer-events: none !important;
-	}
+body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
+	[data-vaul-overlay],
+body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
+	[data-vaul-drawer],
+body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
+	.astra-drawer__overlay,
+body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
+	.astra-drawer,
+body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]
+	.astra-mobile-page-panel {
+	pointer-events: none !important;
+}

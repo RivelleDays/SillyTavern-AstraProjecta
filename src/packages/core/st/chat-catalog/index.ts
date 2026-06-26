@@ -1557,10 +1557,7 @@ export function createChatCatalogStore({
 		});
 	}
 
-	async function runRemoteRefresh(
-		activeRequestToken: number,
-		full: boolean,
-	) {
+	async function runRemoteRefresh(activeRequestToken: number, full: boolean) {
 		try {
 			const { entries, isLikelyTruncated } =
 				await fetchRecentChatCatalogEntries({ fetchImpl, full });

@@ -138,7 +138,9 @@ describe("MessageEditDrawer", () => {
 		);
 
 		expect(header).toHaveClass("astra-messageEditDrawer__header");
-		expect(within(header as HTMLElement).getByText("Assistant")).toBeInTheDocument();
+		expect(
+			within(header as HTMLElement).getByText("Assistant"),
+		).toBeInTheDocument();
 		expect(actionContent).toHaveClass(
 			"astra-messageEditDrawer__extraActionsContent",
 		);
@@ -162,7 +164,9 @@ describe("MessageEditDrawer", () => {
 		const actionButtons = within(actionContent as HTMLElement).getAllByRole(
 			"button",
 		);
-		expect(actionButtons.map((button) => button.getAttribute("aria-label"))).toEqual([
+		expect(
+			actionButtons.map((button) => button.getAttribute("aria-label")),
+		).toEqual([
 			"Delete current swipe",
 			"Delete message and all swipes",
 			"Copy this message",
@@ -184,17 +188,20 @@ describe("MessageEditDrawer", () => {
 		expect(actionButtons[2]).toHaveClass(
 			"astra-messageEditDrawer__extraActionButton--native",
 		);
-		expect(actionContent?.querySelector(".lucide-delete")).toBeInTheDocument();
+		expect(
+			actionContent?.querySelector(".lucide-delete"),
+		).toBeInTheDocument();
 		expect(
 			actionContent?.querySelector(".lucide-message-circle-x"),
 		).toBeInTheDocument();
-		expect(actionContent?.querySelector(".lucide-copy")).toBeInTheDocument();
-		const reasoningToggleButton = within(actionContent as HTMLElement).getByRole(
-			"button",
-			{
-				name: "Hide reasoning block",
-			},
-		);
+		expect(
+			actionContent?.querySelector(".lucide-copy"),
+		).toBeInTheDocument();
+		const reasoningToggleButton = within(
+			actionContent as HTMLElement,
+		).getByRole("button", {
+			name: "Hide reasoning block",
+		});
 		expect(reasoningToggleButton).toBeEnabled();
 		expect(reasoningToggleButton).toHaveAttribute("aria-pressed", "true");
 		expect(
@@ -221,13 +228,18 @@ describe("MessageEditDrawer", () => {
 		expect(dialog.querySelector(".reasoning_edit_textarea")).toBeNull();
 		expect(dialog.querySelector("#curEditTextarea")).toBeNull();
 
-		const confirmButton = within(footer as HTMLElement).getByRole("button", {
-			name: "Confirm edit",
-		});
+		const confirmButton = within(footer as HTMLElement).getByRole(
+			"button",
+			{
+				name: "Confirm edit",
+			},
+		);
 		expect(confirmButton).toBeDisabled();
 
 		fireEvent.click(reasoningToggleButton);
-		expect(within(content as HTMLElement).queryByLabelText("Reasoning")).toBeNull();
+		expect(
+			within(content as HTMLElement).queryByLabelText("Reasoning"),
+		).toBeNull();
 		expect(confirmButton).toBeEnabled();
 
 		fireEvent.click(confirmButton);
@@ -264,7 +276,9 @@ describe("MessageEditDrawer", () => {
 			messageText: "Updated message",
 			reasoningText: "Updated reasoning",
 		});
-		expect(footer?.querySelector(".lucide-pencil-line")).toBeInTheDocument();
+		expect(
+			footer?.querySelector(".lucide-pencil-line"),
+		).toBeInTheDocument();
 		expect(footer?.querySelector(".lucide-x")).toBeNull();
 	});
 
@@ -309,12 +323,11 @@ describe("MessageEditDrawer", () => {
 			within(dialog).queryByLabelText("Reasoning"),
 		).not.toBeInTheDocument();
 
-		const reasoningToggleButton = within(actionContent as HTMLElement).getByRole(
-			"button",
-			{
-				name: "Add reasoning block",
-			},
-		);
+		const reasoningToggleButton = within(
+			actionContent as HTMLElement,
+		).getByRole("button", {
+			name: "Add reasoning block",
+		});
 		expect(reasoningToggleButton).toHaveAttribute("aria-pressed", "false");
 		expect(
 			actionContent?.querySelector(".lucide-layers-plus"),
@@ -338,12 +351,11 @@ describe("MessageEditDrawer", () => {
 		});
 		expect(confirmButton).toBeEnabled();
 
-		const hideReasoningButton = within(actionContent as HTMLElement).getByRole(
-			"button",
-			{
-				name: "Hide reasoning block",
-			},
-		);
+		const hideReasoningButton = within(
+			actionContent as HTMLElement,
+		).getByRole("button", {
+			name: "Hide reasoning block",
+		});
 		expect(hideReasoningButton).toHaveAttribute("aria-pressed", "true");
 		expect(
 			actionContent?.querySelector(".lucide-layers-minus"),

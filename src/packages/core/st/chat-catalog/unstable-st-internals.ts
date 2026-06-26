@@ -94,10 +94,7 @@ function resolveClientVersion(module: ChatCatalogCoreModule | null): string {
 function createWarnUnavailable(warn: WarnLike) {
 	const warnedCapabilities = new Set<string>();
 
-	return (
-		capability: string,
-		module: ChatCatalogCoreModule | null,
-	) => {
+	return (capability: string, module: ChatCatalogCoreModule | null) => {
 		if (warnedCapabilities.has(capability)) {
 			return;
 		}
@@ -130,9 +127,7 @@ export function createUnstableChatCatalogInternals({
 }: CreateUnstableChatCatalogInternalsOptions = {}): ChatCatalogUnstableStInternals {
 	const warnUnavailable = createWarnUnavailable(warn);
 
-	async function loadCoreCapability(
-		capability: string,
-	): Promise<
+	async function loadCoreCapability(capability: string): Promise<
 		| {
 				fn: (...args: unknown[]) => unknown;
 				module: ChatCatalogCoreModule;
@@ -167,9 +162,7 @@ export function createUnstableChatCatalogInternals({
 		};
 	}
 
-	async function loadGroupCapability(
-		capability: string,
-	): Promise<
+	async function loadGroupCapability(capability: string): Promise<
 		| {
 				fn: (...args: unknown[]) => unknown;
 				ok: true;

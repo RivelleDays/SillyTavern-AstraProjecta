@@ -19,9 +19,7 @@ function getElementConstructor(node: Node): typeof Element | null {
 	const ElementConstructor =
 		node.ownerDocument?.defaultView?.Element ??
 		(typeof Element === "function" ? Element : null);
-	return typeof ElementConstructor === "function"
-		? ElementConstructor
-		: null;
+	return typeof ElementConstructor === "function" ? ElementConstructor : null;
 }
 
 function getHTMLElementConstructor(
@@ -68,10 +66,7 @@ function setNativePopupActiveContract(documentRef: Document, active: boolean) {
 }
 
 function isElementVisible(element: Element | null): boolean {
-	if (
-		!element ||
-		!isHTMLElementForDocument(element.ownerDocument, element)
-	) {
+	if (!element || !isHTMLElementForDocument(element.ownerDocument, element)) {
 		return false;
 	}
 

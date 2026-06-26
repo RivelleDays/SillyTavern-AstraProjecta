@@ -45,13 +45,13 @@ describe("mobile chat input tool drawer contract", () => {
 		expect(inputRowSource).not.toContain("interactionBlocked={");
 		expect(inputRowSource).toContain("documentRef={documentRef}");
 		expect(inputRowSource).toContain("ASTRA_CHAT_MAIN_MENU_DRAWER_ID");
-			expect(sendFormSource).not.toContain("MobileSillyTavernInterfacePanel");
-			expect(shortcutsToolbarSource).toContain("BrainCircuit");
-			expect(shortcutsToolbarSource).toContain("ChevronDown");
-			expect(sendFormSource).not.toContain("SILLYTAVERN_INTERFACE_ID");
-			expect(shortcutsToolbarSource).toContain(
-				"SILLYTAVERN_INTERFACE_TRIGGER_ID",
-			);
+		expect(sendFormSource).not.toContain("MobileSillyTavernInterfacePanel");
+		expect(shortcutsToolbarSource).toContain("BrainCircuit");
+		expect(shortcutsToolbarSource).toContain("ChevronDown");
+		expect(sendFormSource).not.toContain("SILLYTAVERN_INTERFACE_ID");
+		expect(shortcutsToolbarSource).toContain(
+			"SILLYTAVERN_INTERFACE_TRIGGER_ID",
+		);
 		expect(sendFormSource).not.toContain("MOBILE_SEND_FORM_PAGE_PANEL_ID");
 		expect(sendFormSource).not.toContain(
 			"MOBILE_SEND_FORM_PAGE_PANEL_TRIGGER_ID",

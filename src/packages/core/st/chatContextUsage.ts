@@ -332,8 +332,7 @@ function areSnapshotsSemanticallyEqual(
 			nextSnapshot.reservedResponseTokens &&
 		currentSnapshot.status === nextSnapshot.status &&
 		currentSnapshot.usagePercent === nextSnapshot.usagePercent &&
-		currentSnapshot.usedContextTokens ===
-			nextSnapshot.usedContextTokens &&
+		currentSnapshot.usedContextTokens === nextSnapshot.usedContextTokens &&
 		currentSnapshot.usedPromptTokens === nextSnapshot.usedPromptTokens &&
 		currentSnapshot.worldInfoTokens === nextSnapshot.worldInfoTokens
 	);
@@ -1408,9 +1407,7 @@ export function createChatContextUsageStore(
 
 		try {
 			const resolvedPromptManagerUsage =
-				await readResolvedPromptManagerUsageSnapshot(
-					"post-generation",
-				);
+				await readResolvedPromptManagerUsageSnapshot("post-generation");
 
 			if (disposed || requestRevision !== revision) {
 				return;
@@ -1713,10 +1710,7 @@ export function createChatContextUsageStore(
 			}
 
 			if (eventSource && typeof chatLoadedEvent === "string") {
-				eventSource.removeListener(
-					chatLoadedEvent,
-					handleContextReset,
-				);
+				eventSource.removeListener(chatLoadedEvent, handleContextReset);
 			}
 
 			if (eventSource && typeof promptReadyEvent === "string") {

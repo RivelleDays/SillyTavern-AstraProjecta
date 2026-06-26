@@ -276,12 +276,36 @@ body.astra-projecta-base-ui-body {
      * status-tinted fills. Prefer border-color status ramps for outlines.
      */
 	--color-theme: var(--SmartThemeQuoteColor);
-	--color-theme-t5: color-mix(in srgb, var(--SmartThemeQuoteColor) 5%, transparent);
-	--color-theme-t10: color-mix(in srgb, var(--SmartThemeQuoteColor) 10%, transparent);
-	--color-theme-t20: color-mix(in srgb, var(--SmartThemeQuoteColor) 20%, transparent);
-	--color-theme-t30: color-mix(in srgb, var(--SmartThemeQuoteColor) 30%, transparent);
-	--color-theme-t40: color-mix(in srgb, var(--SmartThemeQuoteColor) 40%, transparent);
-	--color-theme-t50: color-mix(in srgb, var(--SmartThemeQuoteColor) 50%, transparent);
+	--color-theme-t5: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 5%,
+		transparent
+	);
+	--color-theme-t10: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 10%,
+		transparent
+	);
+	--color-theme-t20: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 20%,
+		transparent
+	);
+	--color-theme-t30: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 30%,
+		transparent
+	);
+	--color-theme-t40: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 40%,
+		transparent
+	);
+	--color-theme-t50: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 50%,
+		transparent
+	);
 	--color-danger-t60: color-mix(in srgb, var(--destructive) 60%, transparent);
 	--color-danger-t70: color-mix(in srgb, var(--destructive) 70%, transparent);
 	--color-danger-t80: color-mix(in srgb, var(--destructive) 80%, transparent);
@@ -618,17 +642,17 @@ body.astra-projecta-base-ui-body {
 }
 
 textarea {
-    width: 100%;
-    resize: vertical;
-    display: block;
-    background-color: var(--color-base-t5);
-    outline: none;
-    border: 1px solid var(--color-base-t20);
-    border-radius: var(--radius);
-    color: var(--color-base);
-    font-size: var(--mainFontSize);
-    font-family: var(--mainFontFamily);
-    padding: 8px 10px;
-    max-height: 90vh;
-    max-height: 90dvh;
+	width: 100%;
+	resize: vertical;
+	display: block;
+	background-color: var(--color-base-t5);
+	outline: none;
+	border: 1px solid var(--color-base-t20);
+	border-radius: var(--radius);
+	color: var(--color-base);
+	font-size: var(--mainFontSize);
+	font-family: var(--mainFontFamily);
+	padding: 8px 10px;
+	max-height: 90vh;
+	max-height: 90dvh;
 }

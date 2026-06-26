@@ -77,7 +77,9 @@ describe("RevisionBar", () => {
 		fireEvent.click(historyButton);
 
 		expect(historyButton.closest(".astra-revisionBar")).toBeInTheDocument();
-		expect(historyButton.querySelector(".lucide-history")).toBeInTheDocument();
+		expect(
+			historyButton.querySelector(".lucide-history"),
+		).toBeInTheDocument();
 		expect(onHistoryOpen).toHaveBeenCalledTimes(1);
 	});
 

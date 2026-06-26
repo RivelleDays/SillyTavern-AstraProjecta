@@ -72,18 +72,18 @@ function DrawerSelectControl({
 					);
 				}}
 			>
-					<SelectTrigger
-						aria-label={label}
-						className="astra-chat-main-menu-drawer__control-trigger"
-						disabled={disabled}
-						id={id}
-						size="sm"
-						title={triggerTitle}
-					>
-						<span className="astra-chat-main-menu-drawer__control-value">
-							<SelectValue placeholder={placeholder} />
-						</span>
-					</SelectTrigger>
+				<SelectTrigger
+					aria-label={label}
+					className="astra-chat-main-menu-drawer__control-trigger"
+					disabled={disabled}
+					id={id}
+					size="sm"
+					title={triggerTitle}
+				>
+					<span className="astra-chat-main-menu-drawer__control-value">
+						<SelectValue placeholder={placeholder} />
+					</span>
+				</SelectTrigger>
 				<SelectContent
 					align="start"
 					className="astra-chat-main-menu-drawer__control-content"

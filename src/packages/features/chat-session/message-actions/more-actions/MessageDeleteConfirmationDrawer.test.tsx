@@ -184,23 +184,33 @@ describe("MessageDeleteConfirmationDrawer", () => {
 		expect(meta).toBeInTheDocument();
 		expect(rows).toHaveLength(3);
 		expect(separators).toHaveLength(2);
-		expect(within(swipeRow as HTMLElement).getByText("Swipe")).toBeInTheDocument();
-		expect(within(swipeRow as HTMLElement).getByText("2 / 3")).toBeInTheDocument();
+		expect(
+			within(swipeRow as HTMLElement).getByText("Swipe"),
+		).toBeInTheDocument();
+		expect(
+			within(swipeRow as HTMLElement).getByText("2 / 3"),
+		).toBeInTheDocument();
 		expect(
 			swipeRow?.querySelector(
 				".astra-messageDeleteConfirmationDrawer__detailIcon--swipe",
 			),
 		).toBeInTheDocument();
-		expect(within(sentRow as HTMLElement).getByText("Sent")).toBeInTheDocument();
 		expect(
-			within(sentRow as HTMLElement).getByText("January 14, 2026 9:03 PM"),
+			within(sentRow as HTMLElement).getByText("Sent"),
+		).toBeInTheDocument();
+		expect(
+			within(sentRow as HTMLElement).getByText(
+				"January 14, 2026 9:03 PM",
+			),
 		).toBeInTheDocument();
 		expect(
 			sentRow?.querySelector(
 				".astra-messageDeleteConfirmationDrawer__detailIcon--sent",
 			),
 		).toBeInTheDocument();
-		expect(within(modelRow as HTMLElement).getByText("Model")).toBeInTheDocument();
+		expect(
+			within(modelRow as HTMLElement).getByText("Model"),
+		).toBeInTheDocument();
 		expect(
 			within(modelRow as HTMLElement).getByText("gemini-2.0-flash"),
 		).toBeInTheDocument();
@@ -212,14 +222,15 @@ describe("MessageDeleteConfirmationDrawer", () => {
 		expect(
 			modelRow?.querySelector(".timestamp-icon.custom-model-icon"),
 		).toBeInTheDocument();
-		expect(within(meta as HTMLElement).queryByText("Generation")).toBeNull();
+		expect(
+			within(meta as HTMLElement).queryByText("Generation"),
+		).toBeNull();
 		expect(within(meta as HTMLElement).queryByText("4.2s")).toBeNull();
 		expect(
 			within(meta as HTMLElement).queryByText(
 				"Rendered delete target full body",
 			),
 		).toBeNull();
-
 	});
 
 	test("renders the full message in its own drawer body outside the footer", async () => {
@@ -302,12 +313,18 @@ describe("MessageDeleteConfirmationDrawer", () => {
 		);
 
 		expect(meta).toBeInTheDocument();
-		expect(within(meta as HTMLElement).getByText("Swipe")).toBeInTheDocument();
-		expect(within(meta as HTMLElement).getByText("1 / 1")).toBeInTheDocument();
+		expect(
+			within(meta as HTMLElement).getByText("Swipe"),
+		).toBeInTheDocument();
+		expect(
+			within(meta as HTMLElement).getByText("1 / 1"),
+		).toBeInTheDocument();
 		expect(separators).toHaveLength(0);
 		expect(within(meta as HTMLElement).queryByText("Sent")).toBeNull();
 		expect(within(meta as HTMLElement).queryByText("Model")).toBeNull();
-		expect(within(meta as HTMLElement).queryByText("Generation")).toBeNull();
+		expect(
+			within(meta as HTMLElement).queryByText("Generation"),
+		).toBeNull();
 	});
 
 	test("confirms current-swipe deletion with the frozen target swipe index", async () => {
@@ -474,10 +491,11 @@ describe("MessageDeleteConfirmationDrawer", () => {
 		const onDeleted = vi.fn();
 		const onOpenChange = vi.fn();
 		const error = vi.fn();
-		(globalThis as unknown as { toastr?: { error?: typeof error } }).toastr =
-			{
-				error,
-			};
+		(
+			globalThis as unknown as { toastr?: { error?: typeof error } }
+		).toastr = {
+			error,
+		};
 		setSillyTavernContext({ deleteMessage });
 
 		render(

@@ -288,8 +288,8 @@ async function deleteCharacterChat({
 
 	try {
 		await client.postJsonForStatus(ST_ENDPOINTS.chatDelete, {
-				avatar_url: avatarUrl,
-				chatfile: `${activeChatId}.jsonl`,
+			avatar_url: avatarUrl,
+			chatfile: `${activeChatId}.jsonl`,
 		});
 	} catch {
 		return {
@@ -305,7 +305,7 @@ async function deleteCharacterChat({
 			await client.postJson(
 				ST_ENDPOINTS.characterChats,
 				{
-				avatar_url: avatarUrl,
+					avatar_url: avatarUrl,
 				},
 				isArrayPayload,
 			),
@@ -398,7 +398,7 @@ async function deleteGroupChat({
 
 	try {
 		await client.postJsonForStatus(ST_ENDPOINTS.groupDelete, {
-				id: activeChatId,
+			id: activeChatId,
 		});
 	} catch {
 		return {

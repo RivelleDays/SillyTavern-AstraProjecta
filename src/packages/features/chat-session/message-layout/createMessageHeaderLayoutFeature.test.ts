@@ -381,9 +381,7 @@ describe("createMessageHeaderLayoutFeature", () => {
 		const reasoningDetails = document.querySelector(
 			".mes_reasoning_details",
 		);
-		const reasoningHeader = document.querySelector(
-			".mes_reasoning_header",
-		);
+		const reasoningHeader = document.querySelector(".mes_reasoning_header");
 		const nativeReasoningArrow = document.querySelector(
 			".mes_reasoning_arrow",
 		);
@@ -414,9 +412,7 @@ describe("createMessageHeaderLayoutFeature", () => {
 			expect(astraChevron?.previousElementSibling).toHaveClass(
 				"mes_reasoning_header_title",
 			);
-			expect(astraChevron?.nextElementSibling).toBe(
-				nativeReasoningArrow,
-			);
+			expect(astraChevron?.nextElementSibling).toBe(nativeReasoningArrow);
 			expect(astraSparkleIcons).toHaveLength(1);
 			expect(astraSparkleIcon).toBeInstanceOf(SVGSVGElement);
 			expect(astraSparkleIcon).toHaveClass("lucide-sparkle");
@@ -432,9 +428,7 @@ describe("createMessageHeaderLayoutFeature", () => {
 		}
 
 		expect(document.querySelector(".astra-mesReasoningChevron")).toBeNull();
-		expect(
-			document.querySelector(".astra-mesReasoningSparkle"),
-		).toBeNull();
+		expect(document.querySelector(".astra-mesReasoningSparkle")).toBeNull();
 		expect(document.querySelector(".mes_reasoning_details")).toBe(
 			reasoningDetails,
 		);
@@ -1861,7 +1855,9 @@ describe("createMessageHeaderLayoutFeature", () => {
 			expect(modelMeta?.children[0]).toBe(modelIcon);
 			expect(modelMeta?.children[1]).toBe(modelLabel);
 			expect(modelIcon?.localName).toBe("span");
-			expect(modelIcon?.querySelector(".model-glyph")).toBeInTheDocument();
+			expect(
+				modelIcon?.querySelector(".model-glyph"),
+			).toBeInTheDocument();
 			expect(modelLabel).toHaveTextContent("gemini-2.5-pro");
 			expect(
 				document.querySelector(".astra-mesMeta__time .timestamp-icon"),

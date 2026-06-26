@@ -73,29 +73,31 @@
 }
 
 .astra-smooth-tabs__trigger-label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: var(--text-sm);
-    font-weight: var(--font-weight-semibold);
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: var(--text-sm);
+	font-weight: var(--font-weight-semibold);
 }
 
 .astra-smooth-tabs__indicator {
-    --astra-smooth-tabs-motion-ease: var(
+	--astra-smooth-tabs-motion-ease: var(
 		--motion-ease-emphasized,
 		var(--overlay-ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1))
 	);
-    position: absolute;
-    left: 0;
-    bottom: -4px;
-    width: 1px;
-    height: 2px;
-    background: var(--foreground);
-    pointer-events: none;
-    transform-origin: left center;
-    transition: transform 320ms var(--astra-smooth-tabs-motion-ease),	opacity 160ms ease-out;
-    will-change: transform, opacity;
+	position: absolute;
+	left: 0;
+	bottom: -4px;
+	width: 1px;
+	height: 2px;
+	background: var(--foreground);
+	pointer-events: none;
+	transform-origin: left center;
+	transition:
+		transform 320ms var(--astra-smooth-tabs-motion-ease),
+		opacity 160ms ease-out;
+	will-change: transform, opacity;
 }
 
 .astra-smooth-tabs__indicator[data-state="hidden"] {

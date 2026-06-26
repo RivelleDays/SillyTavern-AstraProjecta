@@ -55,9 +55,7 @@ function getElementConstructor(node: Node): typeof Element | null {
 	const ElementConstructor =
 		node.ownerDocument?.defaultView?.Element ??
 		(typeof Element === "function" ? Element : null);
-	return typeof ElementConstructor === "function"
-		? ElementConstructor
-		: null;
+	return typeof ElementConstructor === "function" ? ElementConstructor : null;
 }
 
 function getHTMLElementConstructor(
@@ -254,9 +252,7 @@ function nodeTouchesPersonaAvatar(node: Node): boolean {
 		return true;
 	}
 
-	return Boolean(
-		node.querySelector("#user_avatar_block, .avatar-container"),
-	);
+	return Boolean(node.querySelector("#user_avatar_block, .avatar-container"));
 }
 
 export function shouldRefreshCurrentUserAvatarForMutations(

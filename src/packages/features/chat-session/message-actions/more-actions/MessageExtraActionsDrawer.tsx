@@ -116,7 +116,9 @@ export function MessageExtraActionsDrawer({
 	const title = translateAstra("messageActions.extra.title");
 	const description = translateAstra("messageActions.extra.description");
 	const dangerLabel = translateAstra("messageActions.extra.group.danger");
-	const nativeActionsLabel = translateAstra("messageActions.extra.group.native");
+	const nativeActionsLabel = translateAstra(
+		"messageActions.extra.group.native",
+	);
 	const deleteMessageLabel = translateAstra(
 		"messageActions.extra.action.deleteMessage.label",
 	);
@@ -227,7 +229,8 @@ export function MessageExtraActionsDrawer({
 									icon: Delete,
 									id: "delete-swipe",
 									label: deleteSwipeLabel,
-									onClick: dangerActions?.deleteSwipe?.onClick,
+									onClick:
+										dangerActions?.deleteSwipe?.onClick,
 									variant: "danger",
 								}}
 							/>

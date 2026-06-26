@@ -72,7 +72,9 @@ function getSelectedStUiLanguage(): string | undefined {
 			return undefined;
 		}
 
-		const languageSelect = document.getElementById(ST_UI_LANGUAGE_SELECT_ID);
+		const languageSelect = document.getElementById(
+			ST_UI_LANGUAGE_SELECT_ID,
+		);
 		const isLanguageInput =
 			(typeof HTMLSelectElement !== "undefined" &&
 				languageSelect instanceof HTMLSelectElement) ||

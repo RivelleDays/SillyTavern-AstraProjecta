@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-	cleanup,
-	render,
-	screen,
-	waitFor,
-} from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import {
@@ -109,24 +104,26 @@ describe("createMobileSillyTavernInterfacePanelFeature", () => {
 		feature.mount();
 
 		await waitFor(() => {
-			expect(screen.getByTestId("sillytavern-interface-panel")).toHaveAttribute(
+			expect(
+				screen.getByTestId("sillytavern-interface-panel"),
+			).toHaveAttribute(
 				"data-active-page-key",
 				SILLYTAVERN_INTERFACE_ROUTES.userSettings,
 			);
-			expect(screen.getByTestId("sillytavern-interface-panel")).toHaveAttribute(
-				"data-open",
-				"false",
-			);
+			expect(
+				screen.getByTestId("sillytavern-interface-panel"),
+			).toHaveAttribute("data-open", "false");
 		});
 
 		adapter.openCurrentPage();
 
 		await waitFor(() => {
-			expect(screen.getByTestId("sillytavern-interface-panel")).toHaveAttribute(
-				"data-open",
-				"true",
-			);
-			expect(screen.getByTestId("sillytavern-interface-panel")).toHaveAttribute(
+			expect(
+				screen.getByTestId("sillytavern-interface-panel"),
+			).toHaveAttribute("data-open", "true");
+			expect(
+				screen.getByTestId("sillytavern-interface-panel"),
+			).toHaveAttribute(
 				"data-active-page-key",
 				SILLYTAVERN_INTERFACE_ROUTES.userSettings,
 			);
@@ -135,26 +132,25 @@ describe("createMobileSillyTavernInterfacePanelFeature", () => {
 		panelState.lastProps?.onOpenChange(false);
 
 		await waitFor(() => {
-			expect(screen.getByTestId("sillytavern-interface-panel")).toHaveAttribute(
-				"data-open",
-				"false",
-			);
+			expect(
+				screen.getByTestId("sillytavern-interface-panel"),
+			).toHaveAttribute("data-open", "false");
 		});
 
 		adapter.openRoute(SILLYTAVERN_INTERFACE_ROUTES.aiSettings);
 
 		await waitFor(() => {
-			expect(screen.getByTestId("sillytavern-interface-panel")).toHaveAttribute(
-				"data-open",
-				"true",
-			);
-			expect(screen.getByTestId("sillytavern-interface-panel")).toHaveAttribute(
-				"data-active-page-key",
-				"advanced-formatting",
-			);
-			expect(window.localStorage.getItem(
-				SILLYTAVERN_INTERFACE_ACTIVE_PAGE_KEY_STORAGE_KEY,
-			)).toBe("advanced-formatting");
+			expect(
+				screen.getByTestId("sillytavern-interface-panel"),
+			).toHaveAttribute("data-open", "true");
+			expect(
+				screen.getByTestId("sillytavern-interface-panel"),
+			).toHaveAttribute("data-active-page-key", "advanced-formatting");
+			expect(
+				window.localStorage.getItem(
+					SILLYTAVERN_INTERFACE_ACTIVE_PAGE_KEY_STORAGE_KEY,
+				),
+			).toBe("advanced-formatting");
 		});
 
 		const iconRender = render(

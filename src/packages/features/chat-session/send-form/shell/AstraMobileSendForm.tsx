@@ -455,8 +455,7 @@ export function AstraMobileSendForm({
 				scheduleSyncManagedTextarea();
 			}
 		});
-		const observerRoot =
-			documentRef.getElementById("send_form") ?? body;
+		const observerRoot = documentRef.getElementById("send_form") ?? body;
 		observer.observe(observerRoot, { childList: true, subtree: true });
 
 		return () => {

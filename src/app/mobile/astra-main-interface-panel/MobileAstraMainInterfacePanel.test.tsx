@@ -49,10 +49,7 @@ describe("MobileAstraMainInterfacePanel", () => {
 
 		const panel = await screen.findByRole("dialog", { name: "Main UI" });
 
-		expect(panel).toHaveAttribute(
-			"id",
-			ASTRA_MAIN_INTERFACE_PANEL_ID,
-		);
+		expect(panel).toHaveAttribute("id", ASTRA_MAIN_INTERFACE_PANEL_ID);
 		expect(panel).toHaveAttribute("data-side", "left");
 		expect(panel).toHaveClass("astra-main-interface-panel");
 		expect(

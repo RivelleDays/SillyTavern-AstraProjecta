@@ -301,7 +301,9 @@ export function ResponsiveDialog({
 	});
 	const forceMount = forceMountContent ? true : undefined;
 	const desktopForceMount =
-		forceMountContent || desktopDialogState.isExitPending ? true : undefined;
+		forceMountContent || desktopDialogState.isExitPending
+			? true
+			: undefined;
 	const contentElementId = id ?? contentId;
 	const titleId = contentElementId ? `${contentElementId}-title` : undefined;
 	const descriptionId = contentElementId
@@ -316,7 +318,10 @@ export function ResponsiveDialog({
 	);
 	const stableDescriptionNode = descriptionId ? (
 		<div
-			className={cn("astra-dialog-description", !description && "sr-only")}
+			className={cn(
+				"astra-dialog-description",
+				!description && "sr-only",
+			)}
 			id={descriptionId}
 		>
 			{description ?? "Dialog details"}

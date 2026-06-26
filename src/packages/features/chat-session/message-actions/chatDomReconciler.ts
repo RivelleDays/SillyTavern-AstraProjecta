@@ -16,8 +16,7 @@ function isMessageElement(node: Node): boolean {
 function nodeContainsMessage(node: Node): boolean {
 	return (
 		isMessageElement(node) ||
-		(node instanceof Element &&
-			Boolean(node.querySelector(".mes[mesid]")))
+		(node instanceof Element && Boolean(node.querySelector(".mes[mesid]")))
 	);
 }
 

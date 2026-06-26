@@ -134,9 +134,7 @@ function CurrentChatRenameDialogBody({
 						)}
 					</p>
 					<p className="astra-chat-library-dialog-alert-text">
-						{translateAstra(
-							"sendForm.mainMenu.rename.warningText",
-						)}
+						{translateAstra("sendForm.mainMenu.rename.warningText")}
 					</p>
 				</div>
 			</div>
@@ -217,31 +215,28 @@ export function CurrentChatRenameDialog({
 		event.preventDefault();
 	}, []);
 
-	const handleConfirm = React.useCallback(async (requestClose: () => void) => {
-		if (!canRename || isBusy) {
-			return;
-		}
-
-		setIsBusy(true);
-		try {
-			const result = await onConfirmRename({
-				newFileName: normalizedNextName,
-				oldFileName: currentName,
-			});
-
-			if (!isFailedRenameResult(result)) {
-				requestClose();
+	const handleConfirm = React.useCallback(
+		async (requestClose: () => void) => {
+			if (!canRename || isBusy) {
+				return;
 			}
-		} finally {
-			setIsBusy(false);
-		}
-	}, [
-		canRename,
-		currentName,
-		isBusy,
-		normalizedNextName,
-		onConfirmRename,
-	]);
+
+			setIsBusy(true);
+			try {
+				const result = await onConfirmRename({
+					newFileName: normalizedNextName,
+					oldFileName: currentName,
+				});
+
+				if (!isFailedRenameResult(result)) {
+					requestClose();
+				}
+			} finally {
+				setIsBusy(false);
+			}
+		},
+		[canRename, currentName, isBusy, normalizedNextName, onConfirmRename],
+	);
 
 	const headerContent = (
 		<div className="astra-dialog-identity">

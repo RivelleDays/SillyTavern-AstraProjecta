@@ -107,8 +107,9 @@ describe("MessageExtraActionsDrawer", () => {
 			"astra-message-extra-actions-drawer-content",
 		);
 		const groups = Array.from(
-			content?.querySelectorAll(".astra-messageExtraActionsDrawer__group") ??
-				[],
+			content?.querySelectorAll(
+				".astra-messageExtraActionsDrawer__group",
+			) ?? [],
 		);
 
 		expect(dialog).toHaveAttribute(
@@ -116,7 +117,9 @@ describe("MessageExtraActionsDrawer", () => {
 			"astra-message-extra-actions-drawer",
 		);
 		expect(groups).toHaveLength(2);
-		expect(within(groups[0] as HTMLElement).getByText("Danger zone")).toBeInTheDocument();
+		expect(
+			within(groups[0] as HTMLElement).getByText("Danger zone"),
+		).toBeInTheDocument();
 		expect(
 			within(groups[1] as HTMLElement).getByText("Message actions"),
 		).toBeInTheDocument();
@@ -124,10 +127,9 @@ describe("MessageExtraActionsDrawer", () => {
 		const dangerButtons = within(groups[0] as HTMLElement).getAllByRole(
 			"button",
 		);
-		expect(dangerButtons.map((button) => button.getAttribute("aria-label"))).toEqual([
-			"Delete current swipe",
-			"Delete message and all swipes",
-		]);
+		expect(
+			dangerButtons.map((button) => button.getAttribute("aria-label")),
+		).toEqual(["Delete current swipe", "Delete message and all swipes"]);
 		const deleteSwipeButton = dangerButtons[0] as HTMLElement;
 		const deleteMessageButton = dangerButtons[1] as HTMLElement;
 		expect(
@@ -159,7 +161,9 @@ describe("MessageExtraActionsDrawer", () => {
 			}),
 		).toBeInTheDocument();
 		expect(nativeGroup.querySelector(".fa-language")).toBeInTheDocument();
-		expect(nativeGroup.querySelector(".fa-code-branch")).toBeInTheDocument();
+		expect(
+			nativeGroup.querySelector(".fa-code-branch"),
+		).toBeInTheDocument();
 
 		deleteMessageButton.click();
 		deleteSwipeButton.click();
@@ -211,7 +215,9 @@ describe("MessageExtraActionsDrawer", () => {
 			}),
 		).toBeNull();
 		expect(
-			within(dialog).getByText("No additional message actions available."),
+			within(dialog).getByText(
+				"No additional message actions available.",
+			),
 		).toBeInTheDocument();
 	});
 
@@ -269,9 +275,13 @@ describe("MessageExtraActionsDrawer", () => {
 			"src",
 			"/assistant-avatar.png",
 		);
-		expect(within(header as HTMLElement).getByText("Assistant")).toBeInTheDocument();
 		expect(
-			within(header as HTMLElement).queryByText("January 14, 2026 9:03 PM"),
+			within(header as HTMLElement).getByText("Assistant"),
+		).toBeInTheDocument();
+		expect(
+			within(header as HTMLElement).queryByText(
+				"January 14, 2026 9:03 PM",
+			),
 		).toBeNull();
 		expect(
 			header?.querySelector(
@@ -299,9 +309,7 @@ describe("MessageExtraActionsDrawer", () => {
 			"First rendered line Second rendered line Third rendered line Fourth rendered line",
 		);
 		expect(heading?.querySelector(".mes_text")).toBeNull();
-		expect(
-			within(heading as HTMLElement).queryByRole("button"),
-		).toBeNull();
+		expect(within(heading as HTMLElement).queryByRole("button")).toBeNull();
 		expect(header?.nextElementSibling).toBe(heading);
 		expect(heading?.nextElementSibling).toBe(body);
 		expect(

@@ -2192,16 +2192,13 @@ export function ChatCategoryManagerPage({
 	const categorySnapshot = useCategorySnapshot(chatCategoryStore);
 	const inputId = React.useId();
 	const isGlobal = variant === "global";
-	const categories = React.useMemo(
-		() => {
-			const visible = chatCategoryStore.getVisibleCategories(
-				ownerScope ? createOwnerScope(ownerScope) : undefined,
-			);
+	const categories = React.useMemo(() => {
+		const visible = chatCategoryStore.getVisibleCategories(
+			ownerScope ? createOwnerScope(ownerScope) : undefined,
+		);
 
-			return isGlobal ? visible.global : visible.owner;
-		},
-		[categorySnapshot, chatCategoryStore, isGlobal, ownerScope],
-	);
+		return isGlobal ? visible.global : visible.owner;
+	}, [categorySnapshot, chatCategoryStore, isGlobal, ownerScope]);
 	const categoryIds = React.useMemo(
 		() => categories.map((category) => category.id),
 		[categories],
@@ -2316,10 +2313,7 @@ export function ChatCategoryManagerPage({
 					inputLabelKey={
 						isGlobal
 							? "astraMainInterface.global.categories.create.inputLabel"
-							: getCategoryPageCreateKey(
-									ownerScope,
-									"inputLabel",
-								)
+							: getCategoryPageCreateKey(ownerScope, "inputLabel")
 					}
 					placeholderKey={
 						isGlobal

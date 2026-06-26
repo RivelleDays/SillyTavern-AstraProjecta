@@ -696,7 +696,9 @@ describe("createMobileSendFormFeature", () => {
 		});
 		expect(quickReplyHost).toHaveAttribute("hidden");
 		expect(document.getElementById("qr--bar")).toBeInTheDocument();
-		expect(quickReplyHost.querySelector("#qr--bar")).not.toBeInTheDocument();
+		expect(
+			quickReplyHost.querySelector("#qr--bar"),
+		).not.toBeInTheDocument();
 		expect(inputRowHost.parentElement).toHaveClass(
 			"astra-chat-composer__input-region",
 		);
@@ -915,7 +917,9 @@ describe("createMobileSendFormFeature", () => {
 		});
 		expect(quickReplyHost).toHaveAttribute("hidden");
 		expect(document.getElementById("qr--bar")).toBeInTheDocument();
-		expect(quickReplyHost.querySelector("#qr--bar")).not.toBeInTheDocument();
+		expect(
+			quickReplyHost.querySelector("#qr--bar"),
+		).not.toBeInTheDocument();
 		expect(inputRowHost).toHaveClass("astra-chat-input-host");
 		expect(inputRowHost.parentElement).toHaveClass(
 			"astra-chat-composer__input-region",
@@ -3060,9 +3064,7 @@ describe("createMobileSendFormFeature", () => {
 			const textarea = within(host).getByRole(
 				"textbox",
 			) as HTMLTextAreaElement;
-			const leftControls = host.querySelector(
-				".astra-chat-input__tools",
-			);
+			const leftControls = host.querySelector(".astra-chat-input__tools");
 
 			Object.defineProperty(textarea, "scrollHeight", {
 				configurable: true,
@@ -3163,9 +3165,7 @@ describe("createMobileSendFormFeature", () => {
 			const textarea = within(host).getByRole(
 				"textbox",
 			) as HTMLTextAreaElement;
-			const leftControls = host.querySelector(
-				".astra-chat-input__tools",
-			);
+			const leftControls = host.querySelector(".astra-chat-input__tools");
 
 			Object.defineProperty(textarea, "scrollHeight", {
 				configurable: true,

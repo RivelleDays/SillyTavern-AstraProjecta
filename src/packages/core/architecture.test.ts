@@ -35,8 +35,8 @@ describe("core architecture boundaries", () => {
 			(path) => APP_LAYER_IMPORT_PATTERN.test(readFileSync(path, "utf8")),
 		);
 
-		expect(
-			offenders.map((path) => relative(process.cwd(), path)),
-		).toEqual([]);
+		expect(offenders.map((path) => relative(process.cwd(), path))).toEqual(
+			[],
+		);
 	});
 });

@@ -39,8 +39,7 @@ body.astra-projecta-mobile-layout {
 
 	#sheld {
 		height: calc(
-			100vh -
-				var(--astra-chat-top-bar-block-size, var(--topBarBlockSize))
+			100vh - var(--astra-chat-top-bar-block-size, var(--topBarBlockSize))
 		);
 		height: calc(
 			var(--astra-mobile-visual-viewport-bottom, 100dvh) -
@@ -276,9 +275,7 @@ body.astra-projecta-mobile-layout {
 		cursor: pointer;
 	}
 
-	#astra-chat-quick-replies-host
-		> #qr--bar
-		.qr--button:hover:not(:disabled) {
+	#astra-chat-quick-replies-host > #qr--bar .qr--button:hover:not(:disabled) {
 		background: var(--surface-muted-t50);
 		border-color: var(--border-color-base);
 	}
@@ -337,10 +334,7 @@ body.astra-projecta-mobile-layout {
 		background: transparent;
 	}
 
-	&
-		#qr--popout
-		> .qr--body
-		> .qr--buttons.qr--color {
+	& #qr--popout > .qr--body > .qr--buttons.qr--color {
 		gap: var(--astra-send-form-quick-reply-gap);
 		background: transparent;
 	}
@@ -836,8 +830,7 @@ body.astra-projecta-mobile-layout {
 		flex: 1 1 auto;
 		min-width: 0;
 		width: 100%;
-		padding: var(--astra-chat-spacing)
-			calc(var(--astra-chat-spacing) - 4px);
+		padding: var(--astra-chat-spacing) calc(var(--astra-chat-spacing) - 4px);
 		padding-bottom: 0;
 	}
 

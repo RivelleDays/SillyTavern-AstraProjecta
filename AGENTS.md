@@ -173,7 +173,7 @@ SillyTavern-AstraProjecta/
 - Prefer shorter feature-local names for feature internals when the scope is already obvious from the owning folder.
 - Component- and feature-level id/class selectors use the `astra-` prefix as the BEM block name, e.g. `.astra-chat-top-bar__avatar`, `#astra-chat-composer-shell`. Reserve the longer `astra-projecta-*` prefix for repository-wide runtime contracts only.
 - Do not encode device form factor (`mobile`, `desktop`) into component- or feature-level CSS id/class names. Responsive scope is controlled exclusively through the `body.astra-projecta-mobile-layout` contract; a selector names what the element is, not which layout mode renders it.
-  - Exception: names that describe an actual platform/device behavior contract rather than a styling hook may keep `mobile`, e.g. `body.astra-projecta-mobile-layout` itself or `data-astra-mobile-keyboard` (virtual keyboard viewport bridging).
+    - Exception: names that describe an actual platform/device behavior contract rather than a styling hook may keep `mobile`, e.g. `body.astra-projecta-mobile-layout` itself or `data-astra-mobile-keyboard` (virtual keyboard viewport bridging).
 - BEM convention: block is `.astra-<feature>`, element is `__<part>`, modifier is `--<variant>`.
 - When an element needs both `id` and `class`, keep the `id` first in the markup for fast inspection and diagnostics.
 - Favor concise semantic names over long descriptive chains.

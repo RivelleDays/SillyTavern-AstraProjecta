@@ -113,9 +113,7 @@ function asChatMessage(value: unknown): ChatMessageEditLike | null {
 
 function isValidMessageId(chat: unknown[], messageId: number): boolean {
 	return (
-		Number.isInteger(messageId) &&
-		messageId >= 0 &&
-		messageId < chat.length
+		Number.isInteger(messageId) && messageId >= 0 && messageId < chat.length
 	);
 }
 
@@ -326,10 +324,12 @@ function updateMessageBlock({
 	messageId: number;
 }): void {
 	if (typeof context.updateMessageBlock === "function") {
-		(context.updateMessageBlock as (
-			messageId: number,
-			message: ChatMessageEditLike,
-		) => void)(messageId, message);
+		(
+			context.updateMessageBlock as (
+				messageId: number,
+				message: ChatMessageEditLike,
+			) => void
+		)(messageId, message);
 		return;
 	}
 
@@ -396,7 +396,9 @@ export function readChatMessageEditDraft({
 			hasReasoning: reasoningText.length > 0,
 			messageId: target.messageId,
 			messageText:
-				typeof target.message.mes === "string" ? target.message.mes : "",
+				typeof target.message.mes === "string"
+					? target.message.mes
+					: "",
 			reasoningText,
 		},
 		ok: true,
@@ -424,7 +426,11 @@ export async function saveChatMessageEdit({
 			reasoningText,
 		});
 
-		await emitContextEvent(target.context, "MESSAGE_EDITED", target.messageId);
+		await emitContextEvent(
+			target.context,
+			"MESSAGE_EDITED",
+			target.messageId,
+		);
 		updateMessageBlock({
 			context: target.context,
 			message: target.message,
@@ -445,7 +451,11 @@ export async function saveChatMessageEdit({
 			);
 		}
 
-		await emitContextEvent(target.context, "MESSAGE_UPDATED", target.messageId);
+		await emitContextEvent(
+			target.context,
+			"MESSAGE_UPDATED",
+			target.messageId,
+		);
 		await saveChat(target.context);
 
 		return {

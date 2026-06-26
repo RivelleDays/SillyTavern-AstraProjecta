@@ -180,14 +180,14 @@ function ControlledMainMenuDrawer(
 	const [open, setOpen] = React.useState(true);
 
 	return (
-			<MobileChatMainMenuDrawer
-				{...props}
-				onOpenChange={setOpen}
-				open={open}
-				renderSillyTavernInterfaceRouteIcon={
-					props.renderSillyTavernInterfaceRouteIcon ?? renderTestRouteIcon
-				}
-			/>
+		<MobileChatMainMenuDrawer
+			{...props}
+			onOpenChange={setOpen}
+			open={open}
+			renderSillyTavernInterfaceRouteIcon={
+				props.renderSillyTavernInterfaceRouteIcon ?? renderTestRouteIcon
+			}
+		/>
 	);
 }
 
@@ -484,13 +484,13 @@ describe("MobileChatMainMenuDrawer", () => {
 		render(
 			<MobileChatMainMenuDrawer
 				chatContextUsageSnapshot={createContextUsageSnapshot()}
-					chatInfoSnapshot={createInfoSnapshot()}
-					onOpenChange={() => {}}
-					open={true}
-					renderSillyTavernInterfaceRouteIcon={renderTestRouteIcon}
-					snapshot={createIdentitySnapshot()}
-				/>,
-			);
+				chatInfoSnapshot={createInfoSnapshot()}
+				onOpenChange={() => {}}
+				open={true}
+				renderSillyTavernInterfaceRouteIcon={renderTestRouteIcon}
+				snapshot={createIdentitySnapshot()}
+			/>,
+		);
 
 		const userSettingsButton = await screen.findByRole("button", {
 			name: "User Settings",
@@ -803,9 +803,7 @@ describe("MobileChatMainMenuDrawer", () => {
 		const activeRow = await screen.findByText("Hero");
 		const activeRoot = activeRow.closest(".astra-chat-main-menu-drawer");
 		expect(
-			activeRoot?.querySelector(
-				".astra-chat-main-menu-drawer__meta-row",
-			),
+			activeRoot?.querySelector(".astra-chat-main-menu-drawer__meta-row"),
 		).not.toBeInTheDocument();
 		expect(
 			activeRoot?.querySelector(

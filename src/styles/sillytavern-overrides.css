@@ -2,4 +2,3 @@
 	components) to align with the shadcn visual language. Applies globally
 	(mobile and desktop) by default; nest mobile-only rules inside
    	body.astra-projecta-mobile-layout instead of adding a second file. */
-

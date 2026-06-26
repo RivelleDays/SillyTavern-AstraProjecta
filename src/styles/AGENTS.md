@@ -7,7 +7,7 @@
 
 - `globals.css` as the single emitted stylesheet entry imported by `src/index.js`.
 - `shadcn-overrides.css` as the only supported home for shadcn-specific CSS fixes (Astra-owned shadcn components only).
-- `sillytavern-overrides.css` as the only supported home for restyling SillyTavern *native* elements (e.g. `.menu_button`, `.menu_button_icon`) to align with the shadcn visual language. Keep this strictly separate from `shadcn-overrides.css`, which only covers Astra-owned shadcn components.
+- `sillytavern-overrides.css` as the only supported home for restyling SillyTavern _native_ elements (e.g. `.menu_button`, `.menu_button_icon`) to align with the shadcn visual language. Keep this strictly separate from `shadcn-overrides.css`, which only covers Astra-owned shadcn components.
 - Tailwind layer assembly order and generated preflight inclusion.
 - Product-wide theme tokens, body-class contracts, and shared CSS runtime variables.
 - CSS imports for mobile top-bar, Astra main-interface panel shell, and SillyTavern interface feature styles.

@@ -180,7 +180,10 @@ describe("chat menu display preferences", () => {
 			CURRENT_CHAT_MENU_SORT_MODE_STORAGE_KEY,
 			"entity-desc",
 		);
-		window.localStorage.setItem(CHAT_MENU_SHOW_AVATARS_STORAGE_KEY, "false");
+		window.localStorage.setItem(
+			CHAT_MENU_SHOW_AVATARS_STORAGE_KEY,
+			"false",
+		);
 		window.localStorage.setItem(
 			CURRENT_CHAT_MENU_SHOW_AVATARS_STORAGE_KEY,
 			"true",

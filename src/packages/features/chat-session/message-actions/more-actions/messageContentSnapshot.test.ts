@@ -68,8 +68,9 @@ describe("createMessageContentSnapshot", () => {
 		expect(clone).not.toHaveAttribute("onmouseover");
 		expect(clone?.querySelector("script")).toBeNull();
 		for (const element of Array.from(
-			clone?.querySelectorAll("[id], [onclick], [autofocus], [autoplay]") ??
-				[],
+			clone?.querySelectorAll(
+				"[id], [onclick], [autofocus], [autoplay]",
+			) ?? [],
 		)) {
 			expect(element).not.toBeInTheDocument();
 		}
@@ -78,14 +79,8 @@ describe("createMessageContentSnapshot", () => {
 			"tabindex",
 			"-1",
 		);
-		expect(clone?.querySelector("input")).toHaveAttribute(
-			"tabindex",
-			"-1",
-		);
-		expect(clone?.querySelector("video")).toHaveAttribute(
-			"tabindex",
-			"-1",
-		);
+		expect(clone?.querySelector("input")).toHaveAttribute("tabindex", "-1");
+		expect(clone?.querySelector("video")).toHaveAttribute("tabindex", "-1");
 		expect(clone?.querySelector("input")).not.toHaveAttribute(
 			"contenteditable",
 		);

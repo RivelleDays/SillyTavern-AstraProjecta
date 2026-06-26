@@ -1,9 +1,6 @@
 import { getStContext } from "@/packages/core/st/context";
 import { translateAstra } from "@/packages/core/i18n";
-import {
-	asTrimmedString,
-	isRecord,
-} from "@/packages/core/st/shared";
+import { asTrimmedString, isRecord } from "@/packages/core/st/shared";
 import {
 	formatStAbsoluteTimestamp,
 	formatStTimestampDateDivider,
@@ -1774,9 +1771,7 @@ export function createMessageHeaderLayoutFeature({
 			observer = new documentRef.defaultView.MutationObserver(
 				(mutations) => {
 					if (
-						shouldScheduleMessageLayoutSyncForMutations(
-							mutations,
-						)
+						shouldScheduleMessageLayoutSyncForMutations(mutations)
 					) {
 						scheduleSyncMessages();
 					}

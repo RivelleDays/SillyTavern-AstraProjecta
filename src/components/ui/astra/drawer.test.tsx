@@ -1,7 +1,13 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+	act,
+	fireEvent,
+	render,
+	screen,
+	waitFor,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { Button } from "@/components/ui/shadcn/button";
@@ -263,7 +269,9 @@ describe("astra Drawer close lifecycle", () => {
 
 		const dialog = screen.getByRole("dialog", { name: "Hook drawer" });
 
-		fireEvent.click(screen.getByRole("button", { name: "Close with hook" }));
+		fireEvent.click(
+			screen.getByRole("button", { name: "Close with hook" }),
+		);
 
 		expect(dialog).toHaveAttribute("data-state", "closed");
 		expect(onOpenChange).not.toHaveBeenCalled();

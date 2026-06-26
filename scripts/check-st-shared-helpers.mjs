@@ -150,7 +150,9 @@ export function run({ logger = console, repoRoot = process.cwd() } = {}) {
 			logger.error(`- ${violation}`);
 		}
 
-		fail(`Local ST shared helper definitions found: ${violations.join(", ")}`);
+		fail(
+			`Local ST shared helper definitions found: ${violations.join(", ")}`,
+		);
 	}
 
 	return { violations };

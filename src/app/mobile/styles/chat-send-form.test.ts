@@ -154,9 +154,7 @@ describe("chat-send-form.css", () => {
 			"#astra-chat-quick-replies-host > #qr--bar .qr--button",
 			"#astra-chat-quick-replies-host > #qr--bar .qr--button-expander",
 		]);
-		expect(quickReplySlice).toContain(
-			"--astra-send-form-quick-reply-gap:",
-		);
+		expect(quickReplySlice).toContain("--astra-send-form-quick-reply-gap:");
 		expect(quickReplySlice).toContain(
 			"--astra-send-form-quick-reply-button-padding-x:",
 		);
@@ -494,9 +492,7 @@ describe("chat-send-form.css", () => {
 		expect(css).not.toContain(
 			".astra-chat-main-menu-drawer__detail-accordion",
 		);
-		expect(css).not.toContain(
-			".astra-chat-main-menu-drawer__detail-table",
-		);
+		expect(css).not.toContain(".astra-chat-main-menu-drawer__detail-table");
 		expect(css).not.toContain(
 			".astra-chat-main-menu-drawer__detail-usage-fallback",
 		);

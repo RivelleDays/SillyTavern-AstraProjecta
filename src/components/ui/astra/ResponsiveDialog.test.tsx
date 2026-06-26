@@ -1,4 +1,10 @@
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+	act,
+	cleanup,
+	fireEvent,
+	render,
+	screen,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import {
@@ -106,10 +112,7 @@ describe("ResponsiveDialog", () => {
 		const labelledBy = dialog.getAttribute("aria-labelledby");
 		const describedBy = dialog.getAttribute("aria-describedby");
 		const radixTitle = getAriaReference(dialog, "aria-labelledby");
-		const radixDescription = getAriaReference(
-			dialog,
-			"aria-describedby",
-		);
+		const radixDescription = getAriaReference(dialog, "aria-describedby");
 		const stableTitle = document.getElementById(
 			"semantic-test-dialog-title",
 		);
@@ -122,10 +125,7 @@ describe("ResponsiveDialog", () => {
 		expect(describedBy).not.toBe("semantic-test-dialog-description");
 		expect(radixTitle).toHaveClass("astra-dialog-title");
 		expect(radixDescription).toHaveClass("astra-dialog-description");
-		expect(stableTitle).toHaveAttribute(
-			"id",
-			"semantic-test-dialog-title",
-		);
+		expect(stableTitle).toHaveAttribute("id", "semantic-test-dialog-title");
 		expect(stableDescription).toHaveAttribute(
 			"id",
 			"semantic-test-dialog-description",
@@ -279,10 +279,7 @@ describe("ResponsiveDialog", () => {
 		const labelledBy = dialog.getAttribute("aria-labelledby");
 		const describedBy = dialog.getAttribute("aria-describedby");
 		const radixTitle = getAriaReference(dialog, "aria-labelledby");
-		const radixDescription = getAriaReference(
-			dialog,
-			"aria-describedby",
-		);
+		const radixDescription = getAriaReference(dialog, "aria-describedby");
 		const stableTitle = document.getElementById(
 			"semantic-mobile-dialog-title",
 		);
@@ -388,10 +385,7 @@ describe("ResponsiveDialog", () => {
 		const labelledBy = dialog.getAttribute("aria-labelledby");
 		const describedBy = dialog.getAttribute("aria-describedby");
 		const radixTitle = getAriaReference(dialog, "aria-labelledby");
-		const radixDescription = getAriaReference(
-			dialog,
-			"aria-describedby",
-		);
+		const radixDescription = getAriaReference(dialog, "aria-describedby");
 		const stableTitle = document.getElementById(
 			"semantic-custom-heading-dialog-title",
 		);
@@ -399,9 +393,7 @@ describe("ResponsiveDialog", () => {
 			"semantic-custom-heading-dialog-description",
 		);
 
-		expect(labelledBy).not.toBe(
-			"semantic-custom-heading-dialog-title",
-		);
+		expect(labelledBy).not.toBe("semantic-custom-heading-dialog-title");
 		expect(describedBy).not.toBe(
 			"semantic-custom-heading-dialog-description",
 		);
@@ -445,10 +437,7 @@ describe("ResponsiveDialog", () => {
 			name: "Hidden heading title",
 		});
 		const radixTitle = getAriaReference(dialog, "aria-labelledby");
-		const radixDescription = getAriaReference(
-			dialog,
-			"aria-describedby",
-		);
+		const radixDescription = getAriaReference(dialog, "aria-describedby");
 
 		expect(dialog.querySelector(".astra-dialog-heading")).toBeNull();
 		expect(radixTitle.closest(".sr-only")).toBeInTheDocument();
