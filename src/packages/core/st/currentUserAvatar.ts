@@ -202,7 +202,7 @@ function resolveContextSafe(): StContextLike | null {
 	}
 }
 
-function isPersonaMutationTarget(node: Node): boolean {
+function nodeTouchesPersonaAvatar(node: Node): boolean {
 	if (!(node instanceof Element)) {
 		return false;
 	}
@@ -219,7 +219,41 @@ function isPersonaMutationTarget(node: Node): boolean {
 		return true;
 	}
 
-	return node.closest("#user_avatar_block") != null;
+	if (node.closest("#user_avatar_block") != null) {
+		return true;
+	}
+
+	return Boolean(
+		node.querySelector("#user_avatar_block, .avatar-container"),
+	);
+}
+
+export function shouldRefreshCurrentUserAvatarForMutations(
+	mutations: MutationRecord[],
+): boolean {
+	return mutations.some((mutation) => {
+		if (nodeTouchesPersonaAvatar(mutation.target)) {
+			return true;
+		}
+
+		if (mutation.type !== "childList") {
+			return false;
+		}
+
+		for (const node of mutation.addedNodes) {
+			if (nodeTouchesPersonaAvatar(node)) {
+				return true;
+			}
+		}
+
+		for (const node of mutation.removedNodes) {
+			if (nodeTouchesPersonaAvatar(node)) {
+				return true;
+			}
+		}
+
+		return false;
+	});
 }
 
 function appendAvatarRevision(url: string, avatarRevision: number): string {
@@ -373,6 +407,7 @@ export function createCurrentUserAvatarStore({
 		documentRef,
 	});
 	let disposed = false;
+	let refreshFrameId: number | null = null;
 	let isRefreshQueued = false;
 	let bodyObserver: MutationObserver | null = null;
 	let personaListObserver: MutationObserver | null = null;
@@ -405,7 +440,16 @@ export function createCurrentUserAvatarStore({
 	}
 
 	function scheduleRefresh() {
-		if (disposed || isRefreshQueued) {
+		if (disposed || refreshFrameId !== null || isRefreshQueued) {
+			return;
+		}
+
+		const view = documentRef.defaultView;
+		if (typeof view?.requestAnimationFrame === "function") {
+			refreshFrameId = view.requestAnimationFrame(() => {
+				refreshFrameId = null;
+				refresh();
+			});
 			return;
 		}
 
@@ -463,31 +507,7 @@ export function createCurrentUserAvatarStore({
 		}
 
 		personaListObserver = new MutationObserver((mutations) => {
-			if (
-				!mutations.some((mutation) => {
-					if (isPersonaMutationTarget(mutation.target)) {
-						return true;
-					}
-
-					if (mutation.type !== "childList") {
-						return false;
-					}
-
-					for (const node of mutation.addedNodes) {
-						if (isPersonaMutationTarget(node)) {
-							return true;
-						}
-					}
-
-					for (const node of mutation.removedNodes) {
-						if (isPersonaMutationTarget(node)) {
-							return true;
-						}
-					}
-
-					return false;
-				})
-			) {
+			if (!shouldRefreshCurrentUserAvatarForMutations(mutations)) {
 				return;
 			}
 
@@ -511,23 +531,7 @@ export function createCurrentUserAvatarStore({
 				return;
 			}
 
-			if (
-				!mutations.some((mutation) => {
-					for (const node of mutation.addedNodes) {
-						if (isPersonaMutationTarget(node)) {
-							return true;
-						}
-					}
-
-					for (const node of mutation.removedNodes) {
-						if (isPersonaMutationTarget(node)) {
-							return true;
-						}
-					}
-
-					return false;
-				})
-			) {
+			if (!shouldRefreshCurrentUserAvatarForMutations(mutations)) {
 				return;
 			}
 
@@ -554,6 +558,13 @@ export function createCurrentUserAvatarStore({
 			bodyObserver = null;
 			personaListObserver?.disconnect();
 			personaListObserver = null;
+			if (refreshFrameId !== null) {
+				const view = documentRef.defaultView;
+				if (typeof view?.cancelAnimationFrame === "function") {
+					view.cancelAnimationFrame(refreshFrameId);
+				}
+				refreshFrameId = null;
+			}
 
 			if (!eventSource) {
 				return;

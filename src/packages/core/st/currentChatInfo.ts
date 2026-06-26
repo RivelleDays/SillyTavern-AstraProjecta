@@ -1,5 +1,12 @@
 import { EXTENSION_LOG_PREFIX } from "@/packages/core/constants";
 import { getStContext } from "@/packages/core/st/context";
+import { createStHttpClient } from "@/packages/core/st/http/client";
+import { ST_ENDPOINTS } from "@/packages/core/st/http/endpoints";
+import { StHttpError } from "@/packages/core/st/http/errors";
+import {
+	isArrayPayload,
+	isRecordPayload,
+} from "@/packages/core/st/http/responseGuards";
 import {
 	asTrimmedIdentifier,
 	asTrimmedString,
@@ -492,60 +499,6 @@ function resolveCurrentChatInfoState(): ResolvedCurrentChatInfoState {
 	};
 }
 
-function normalizeHeaders(value: unknown): Record<string, string> {
-	if (typeof Headers !== "undefined" && value instanceof Headers) {
-		return Object.fromEntries(value.entries());
-	}
-
-	if (!isRecord(value)) {
-		return {};
-	}
-
-	return Object.fromEntries(
-		Object.entries(value).flatMap(([key, headerValue]) => {
-			if (typeof headerValue === "string") {
-				return [[key, headerValue] as const];
-			}
-
-			if (
-				typeof headerValue === "number" ||
-				typeof headerValue === "boolean"
-			) {
-				return [[key, String(headerValue)] as const];
-			}
-
-			return [];
-		}),
-	);
-}
-
-function resolveRequestHeaders(context: StContextLike | null) {
-	if (!context || typeof context.getRequestHeaders !== "function") {
-		return {
-			"Content-Type": "application/json",
-		};
-	}
-
-	try {
-		return {
-			...normalizeHeaders(context.getRequestHeaders()),
-			"Content-Type": "application/json",
-		};
-	} catch {
-		return {
-			"Content-Type": "application/json",
-		};
-	}
-}
-
-async function readResponseJson(response: Response): Promise<unknown> {
-	try {
-		return await response.json();
-	} catch {
-		return null;
-	}
-}
-
 type RemoteChatInfoFailure = {
 	endpoint: string;
 	ok: false;
@@ -561,6 +514,38 @@ type RemoteChatInfoSuccess<TData = CachedRemoteChatInfo> = {
 };
 
 type RemoteChatInfoResult = RemoteChatInfoFailure | RemoteChatInfoSuccess;
+
+function toRemoteChatInfoFailure(
+	error: unknown,
+	fallbackEndpoint: string,
+): RemoteChatInfoFailure {
+	if (error instanceof StHttpError) {
+		if (error.reason === "http-error") {
+			return {
+				endpoint: error.endpoint,
+				ok: false,
+				reason: "http-error",
+				status: error.status,
+				statusText: error.statusText,
+			};
+		}
+
+		return {
+			endpoint: error.endpoint,
+			ok: false,
+			reason:
+				error.reason === "invalid-payload"
+					? "invalid-payload"
+					: "network-error",
+		};
+	}
+
+	return {
+		endpoint: fallbackEndpoint,
+		ok: false,
+		reason: "network-error",
+	};
+}
 
 function matchCharacterChatInfo(
 	chatInfo: CharacterChatInfoLike,
@@ -587,40 +572,21 @@ async function fetchCharacterChatInfo({
 }): Promise<
 	RemoteChatInfoSuccess<CharacterChatInfoLike> | RemoteChatInfoFailure
 > {
-	const endpoint = "/api/characters/chats";
-	let response: Response;
-
+	const endpoint = ST_ENDPOINTS.characterChats;
+	const client = createStHttpClient({
+		fetchImpl,
+		getContext: () => context,
+		logger: null,
+	});
+	let payload: unknown[];
 	try {
-		response = await fetchImpl(endpoint, {
-			body: JSON.stringify({ avatar_url: avatarUrl }),
-			headers: resolveRequestHeaders(context),
-			method: "POST",
-		});
-	} catch {
-		return {
+		payload = await client.postJson(
 			endpoint,
-			ok: false,
-			reason: "network-error",
-		};
-	}
-
-	if (!response.ok) {
-		return {
-			endpoint,
-			ok: false,
-			reason: "http-error",
-			status: response.status,
-			statusText: response.statusText,
-		};
-	}
-
-	const payload = await readResponseJson(response);
-	if (!Array.isArray(payload)) {
-		return {
-			endpoint,
-			ok: false,
-			reason: "invalid-payload",
-		};
+			{ avatar_url: avatarUrl },
+			isArrayPayload,
+		);
+	} catch (error) {
+		return toRemoteChatInfoFailure(error, endpoint);
 	}
 
 	const match = payload.find(
@@ -656,40 +622,21 @@ async function fetchGroupChatInfo({
 	context: StContextLike | null;
 	fetchImpl: FetchLike;
 }): Promise<RemoteChatInfoSuccess<GroupChatInfoLike> | RemoteChatInfoFailure> {
-	const endpoint = "/api/chats/group/info";
-	let response: Response;
-
+	const endpoint = ST_ENDPOINTS.groupInfo;
+	const client = createStHttpClient({
+		fetchImpl,
+		getContext: () => context,
+		logger: null,
+	});
+	let payload: Record<string, unknown>;
 	try {
-		response = await fetchImpl(endpoint, {
-			body: JSON.stringify({ id: activeChatId }),
-			headers: resolveRequestHeaders(context),
-			method: "POST",
-		});
-	} catch {
-		return {
+		payload = await client.postJson(
 			endpoint,
-			ok: false,
-			reason: "network-error",
-		};
-	}
-
-	if (!response.ok) {
-		return {
-			endpoint,
-			ok: false,
-			reason: "http-error",
-			status: response.status,
-			statusText: response.statusText,
-		};
-	}
-
-	const payload = await readResponseJson(response);
-	if (!isRecord(payload)) {
-		return {
-			endpoint,
-			ok: false,
-			reason: "invalid-payload",
-		};
+			{ id: activeChatId },
+			isRecordPayload,
+		);
+	} catch (error) {
+		return toRemoteChatInfoFailure(error, endpoint);
 	}
 
 	return {

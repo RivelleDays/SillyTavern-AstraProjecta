@@ -151,6 +151,80 @@ const CHAT_OBSERVER_OPTIONS: MutationObserverInit = {
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
+function isDirectMessageElement(element: Element): boolean {
+	return element.classList.contains("mes") && element.hasAttribute("mesid");
+}
+
+function nodeTouchesMessageLayout(node: Node): boolean {
+	if (!(node instanceof Element)) {
+		return false;
+	}
+
+	return (
+		isDirectMessageElement(node) ||
+		Boolean(node.closest(".mes[mesid]")) ||
+		Boolean(node.querySelector(".mes[mesid]"))
+	);
+}
+
+function didLastInContextClassChange(mutation: MutationRecord): boolean {
+	const target = mutation.target;
+	if (!(target instanceof Element) || !isDirectMessageElement(target)) {
+		return false;
+	}
+
+	const oldClassNames = new Set(
+		(mutation.oldValue ?? "").split(/\s+/).filter(Boolean),
+	);
+	return (
+		oldClassNames.has("lastInContext") !==
+		target.classList.contains("lastInContext")
+	);
+}
+
+export function shouldScheduleMessageLayoutSyncForMutations(
+	mutations: MutationRecord[],
+): boolean {
+	for (const mutation of mutations) {
+		if (mutation.type === "childList") {
+			if (nodeTouchesMessageLayout(mutation.target)) {
+				return true;
+			}
+			for (const node of Array.from(mutation.addedNodes)) {
+				if (nodeTouchesMessageLayout(node)) {
+					return true;
+				}
+			}
+			for (const node of Array.from(mutation.removedNodes)) {
+				if (nodeTouchesMessageLayout(node)) {
+					return true;
+				}
+			}
+			continue;
+		}
+
+		if (mutation.type !== "attributes") {
+			continue;
+		}
+
+		if (mutation.attributeName === "is_system") {
+			const target = mutation.target;
+			if (target instanceof Element && isDirectMessageElement(target)) {
+				return true;
+			}
+		}
+
+		if (
+			mutation.attributeName === "class" &&
+			didLastInContextClassChange(mutation)
+		) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 function findDirectChildByClass(
 	parent: Element | null,
 	className: string,
@@ -1636,60 +1710,6 @@ export function createMessageHeaderLayoutFeature({
 		syncMessages();
 	}
 
-	function isDirectMessageElement(element: Element): boolean {
-		return (
-			element.classList.contains("mes") && element.hasAttribute("mesid")
-		);
-	}
-
-	function didLastInContextClassChange(mutation: MutationRecord): boolean {
-		const target = mutation.target;
-		if (!(target instanceof Element) || !isDirectMessageElement(target)) {
-			return false;
-		}
-
-		const oldClassNames = new Set(
-			(mutation.oldValue ?? "").split(/\s+/).filter(Boolean),
-		);
-		return (
-			oldClassNames.has("lastInContext") !==
-			target.classList.contains("lastInContext")
-		);
-	}
-
-	function shouldScheduleSyncForMutations(
-		mutations: MutationRecord[],
-	): boolean {
-		for (const mutation of mutations) {
-			if (mutation.type === "childList") {
-				return true;
-			}
-
-			if (mutation.type !== "attributes") {
-				continue;
-			}
-
-			if (mutation.attributeName === "is_system") {
-				const target = mutation.target;
-				if (
-					target instanceof Element &&
-					isDirectMessageElement(target)
-				) {
-					return true;
-				}
-			}
-
-			if (
-				mutation.attributeName === "class" &&
-				didLastInContextClassChange(mutation)
-			) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	function unbindEventListeners() {
 		if (eventSource) {
 			for (const { eventName, listener } of eventListeners) {
@@ -1753,7 +1773,11 @@ export function createMessageHeaderLayoutFeature({
 
 			observer = new documentRef.defaultView.MutationObserver(
 				(mutations) => {
-					if (shouldScheduleSyncForMutations(mutations)) {
+					if (
+						shouldScheduleMessageLayoutSyncForMutations(
+							mutations,
+						)
+					) {
 						scheduleSyncMessages();
 					}
 				},

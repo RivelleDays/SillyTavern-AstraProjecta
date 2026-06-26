@@ -682,21 +682,24 @@ describe("chat catalog adapter", () => {
 			fileName: "chapter-1.jsonl",
 			ok: true,
 		});
-		expect(fetchMock).toHaveBeenCalledWith("/api/chats/export", {
-			body: JSON.stringify({
-				avatar_url: "hero.png",
-				exportfilename: "chapter-1.jsonl",
-				file: "chapter-1.jsonl",
-				format: "jsonl",
-				is_group: false,
+		expect(fetchMock).toHaveBeenCalledWith(
+			"/api/chats/export",
+			expect.objectContaining({
+				body: JSON.stringify({
+					avatar_url: "hero.png",
+					exportfilename: "chapter-1.jsonl",
+					file: "chapter-1.jsonl",
+					format: "jsonl",
+					is_group: false,
+				}),
+				headers: {
+					Accept: "application/json",
+					"Content-Type": "application/json",
+					"X-CSRF-Token": "token",
+				},
+				method: "POST",
 			}),
-			headers: {
-				Accept: "application/json",
-				"Content-Type": "application/json",
-				"X-CSRF-Token": "token",
-			},
-			method: "POST",
-		});
+		);
 		expect(clickSpy).toHaveBeenCalledTimes(1);
 	});
 
@@ -1040,14 +1043,17 @@ describe("chat catalog adapter", () => {
 				key: "character:0:chapter-1",
 			});
 		});
-		expect(fetchImpl).toHaveBeenCalledWith("/api/chats/recent", {
-			body: JSON.stringify({}),
-			headers: {
-				Authorization: "Bearer token",
-				"Content-Type": "application/json",
-			},
-			method: "POST",
-		});
+		expect(fetchImpl).toHaveBeenCalledWith(
+			"/api/chats/recent",
+			expect.objectContaining({
+				body: JSON.stringify({}),
+				headers: {
+					Authorization: "Bearer token",
+					"Content-Type": "application/json",
+				},
+				method: "POST",
+			}),
+		);
 
 		store.dispose();
 	});
@@ -1165,7 +1171,7 @@ describe("chat catalog adapter", () => {
 		expect(fetchImpl).toHaveBeenCalledTimes(1);
 
 		firstResponse.resolve(createJsonResponse([]));
-		for (let index = 0; index < 5; index += 1) {
+		for (let index = 0; index < 8; index += 1) {
 			await Promise.resolve();
 		}
 
@@ -1994,5 +2000,140 @@ describe("chat catalog adapter", () => {
 			ok: false,
 			reason: "open-failed",
 		});
+	});
+
+	test("restores the inactive character chat pointer when the second-stage open rejects", async () => {
+		document.body.innerHTML =
+			'<button class="character_select" data-chid="0"></button>';
+		const characters = [
+			{
+				avatar: "hero.png",
+				chat: "chapter-old",
+				name: "Hero",
+			},
+		];
+		const openCharacterChat = vi
+			.fn()
+			.mockRejectedValue(new Error("open failed"));
+		const saveSettingsDebounced = vi.fn();
+		const contextRef: { current: Record<string, unknown> } = {
+			current: {
+				characterId: 2,
+				characters,
+				chatId: "other-chat",
+				groupId: null,
+				openCharacterChat,
+				saveSettingsDebounced,
+			},
+		};
+		document
+			.querySelector(".character_select")
+			?.addEventListener("click", () => {
+				contextRef.current = {
+					...contextRef.current,
+					characterId: 0,
+					chatId: "chapter-intermediate",
+					groupId: null,
+				};
+			});
+		setMutableSillyTavernContext(contextRef);
+
+		const result = await openChatCatalogEntry(createEntry());
+
+		expect(result).toEqual({
+			ok: false,
+			reason: "open-failed",
+		});
+		expect(openCharacterChat).toHaveBeenCalledWith("chapter-1");
+		expect(characters[0].chat).toBe("chapter-old");
+		expect(saveSettingsDebounced).not.toHaveBeenCalled();
+	});
+
+	test("serializes concurrent inactive character activations", async () => {
+		vi.useFakeTimers();
+		document.body.innerHTML = `
+			<button class="character_select" data-chid="0"></button>
+			<button class="character_select" data-chid="1"></button>
+		`;
+		const characters = [
+			{
+				avatar: "hero.png",
+				chat: "hero-old",
+				name: "Hero",
+			},
+			{
+				avatar: "mage.png",
+				chat: "mage-old",
+				name: "Mage",
+			},
+		];
+		const firstActivation = createDeferred<void>();
+		const secondActivation = createDeferred<void>();
+		const activatedChats: string[] = [];
+		const saveSettingsDebounced = vi.fn();
+		const contextRef: { current: Record<string, unknown> } = {
+			current: {
+				characterId: 2,
+				characters,
+				chatId: "other-chat",
+				groupId: null,
+				openCharacterChat: vi.fn(),
+				saveSettingsDebounced,
+			},
+		};
+		document
+			.querySelector('[data-chid="0"]')
+			?.addEventListener("click", () => {
+				activatedChats.push(`hero:${characters[0].chat}`);
+				void firstActivation.promise.then(() => {
+					contextRef.current = {
+						...contextRef.current,
+						characterId: 0,
+						chatId: characters[0].chat,
+						groupId: null,
+					};
+				});
+			});
+		document
+			.querySelector('[data-chid="1"]')
+			?.addEventListener("click", () => {
+				activatedChats.push(`mage:${characters[1].chat}`);
+				void secondActivation.promise.then(() => {
+					contextRef.current = {
+						...contextRef.current,
+						characterId: 1,
+						chatId: characters[1].chat,
+						groupId: null,
+					};
+				});
+			});
+		setMutableSillyTavernContext(contextRef);
+
+		const firstResult = openChatCatalogEntry(createEntry());
+		await Promise.resolve();
+		const secondResult = openChatCatalogEntry(
+			createEntry({
+				avatarUrl: "/thumbs/avatar/mage.png",
+				chatId: "mage-target",
+				entityId: "1",
+				entityName: "Mage",
+				fileName: "mage-target.jsonl",
+				key: "character:1:mage-target",
+			}),
+		);
+		await Promise.resolve();
+
+		expect(activatedChats).toEqual(["hero:chapter-1"]);
+
+		firstActivation.resolve();
+		await vi.advanceTimersByTimeAsync(25);
+		await expect(firstResult).resolves.toEqual({ ok: true });
+		await Promise.resolve();
+		expect(activatedChats).toEqual(["hero:chapter-1", "mage:mage-target"]);
+
+		secondActivation.resolve();
+		await vi.advanceTimersByTimeAsync(25);
+		await expect(secondResult).resolves.toEqual({ ok: true });
+		expect(saveSettingsDebounced).toHaveBeenCalledTimes(2);
 	});
 });

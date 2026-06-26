@@ -1,6 +1,31 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { createChatDomReconciler } from "@/packages/features/chat-session/message-actions/chatDomReconciler";
+import {
+	createChatDomReconciler,
+	shouldReconcileChatDomForMutations,
+} from "@/packages/features/chat-session/message-actions/chatDomReconciler";
+
+function createMutation({
+	addedNodes = [],
+	removedNodes = [],
+	target = document.body,
+}: {
+	addedNodes?: Node[];
+	removedNodes?: Node[];
+	target?: Node;
+}): MutationRecord {
+	return {
+		addedNodes: addedNodes as unknown as NodeList,
+		attributeName: null,
+		attributeNamespace: null,
+		nextSibling: null,
+		oldValue: null,
+		previousSibling: null,
+		removedNodes: removedNodes as unknown as NodeList,
+		target,
+		type: "childList",
+	} as MutationRecord;
+}
 
 function installAnimationFrameQueue() {
 	const callbacks: FrameRequestCallback[] = [];
@@ -50,6 +75,29 @@ function installAnimationFrameQueue() {
 }
 
 describe("createChatDomReconciler", () => {
+	test("filters chat mutations to message additions and removals", () => {
+		const unrelated = document.createElement("div");
+		const message = document.createElement("div");
+		message.className = "mes";
+		message.setAttribute("mesid", "0");
+
+		expect(
+			shouldReconcileChatDomForMutations([
+				createMutation({ addedNodes: [unrelated] }),
+			]),
+		).toBe(false);
+		expect(
+			shouldReconcileChatDomForMutations([
+				createMutation({ addedNodes: [message] }),
+			]),
+		).toBe(true);
+		expect(
+			shouldReconcileChatDomForMutations([
+				createMutation({ removedNodes: [message] }),
+			]),
+		).toBe(true);
+	});
+
 	test("coalesces chat child mutations into one reconcile frame", async () => {
 		const frame = installAnimationFrameQueue();
 		const onReconcile = vi.fn();
@@ -62,12 +110,18 @@ describe("createChatDomReconciler", () => {
 			});
 			reconciler.start();
 
+			const firstMessage = document.createElement("div");
+			firstMessage.className = "mes";
+			firstMessage.setAttribute("mesid", "0");
+			const secondMessage = document.createElement("div");
+			secondMessage.className = "mes";
+			secondMessage.setAttribute("mesid", "1");
 			document
 				.getElementById("chat")!
-				.append(document.createElement("div"));
+				.append(firstMessage);
 			document
 				.getElementById("chat")!
-				.append(document.createElement("div"));
+				.append(secondMessage);
 			await Promise.resolve();
 
 			expect(frame.requestAnimationFrame).toHaveBeenCalledTimes(1);
@@ -92,9 +146,12 @@ describe("createChatDomReconciler", () => {
 			});
 			reconciler.start();
 
+			const message = document.createElement("div");
+			message.className = "mes";
+			message.setAttribute("mesid", "0");
 			document
 				.getElementById("chat")!
-				.append(document.createElement("div"));
+				.append(message);
 			await Promise.resolve();
 			reconciler.stop();
 			frame.flushFrames();

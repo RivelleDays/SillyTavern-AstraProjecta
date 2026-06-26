@@ -5,6 +5,36 @@ export interface ChatDomReconciler {
 	stop(): void;
 }
 
+function isMessageElement(node: Node): boolean {
+	return (
+		node instanceof Element &&
+		node.classList.contains("mes") &&
+		node.hasAttribute("mesid")
+	);
+}
+
+function nodeContainsMessage(node: Node): boolean {
+	return (
+		isMessageElement(node) ||
+		(node instanceof Element &&
+			Boolean(node.querySelector(".mes[mesid]")))
+	);
+}
+
+export function shouldReconcileChatDomForMutations(
+	mutations: MutationRecord[],
+): boolean {
+	return mutations.some((mutation) => {
+		if (mutation.type !== "childList") {
+			return false;
+		}
+
+		return [...mutation.addedNodes, ...mutation.removedNodes].some(
+			nodeContainsMessage,
+		);
+	});
+}
+
 export function createChatDomReconciler({
 	documentRef = document,
 	onReconcile,
@@ -29,8 +59,10 @@ export function createChatDomReconciler({
 			return;
 		}
 
-		observer = new view.MutationObserver(() => {
-			scheduler.schedule();
+		observer = new view.MutationObserver((mutations) => {
+			if (shouldReconcileChatDomForMutations(mutations)) {
+				scheduler.schedule();
+			}
 		});
 		observer.observe(chatRoot, {
 			childList: true,

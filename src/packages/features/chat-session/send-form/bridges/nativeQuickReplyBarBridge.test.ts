@@ -1,9 +1,56 @@
 import { waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { createNativeQuickReplyBarBridge } from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyBarBridge";
+import {
+	createNativeQuickReplyBarBridge,
+	shouldSyncQuickReplyBarForMutations,
+} from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyBarBridge";
+
+function createChildListMutation({
+	addedNodes = [],
+	removedNodes = [],
+	target = document.body,
+}: {
+	addedNodes?: Node[];
+	removedNodes?: Node[];
+	target?: Node;
+}): MutationRecord {
+	return {
+		addedNodes: addedNodes as unknown as NodeList,
+		attributeName: null,
+		attributeNamespace: null,
+		nextSibling: null,
+		oldValue: null,
+		previousSibling: null,
+		removedNodes: removedNodes as unknown as NodeList,
+		target,
+		type: "childList",
+	} as MutationRecord;
+}
 
 describe("createNativeQuickReplyBarBridge", () => {
+	test("filters body mutations to quick reply bar additions and removals", () => {
+		const unrelated = document.createElement("div");
+		const quickReplyBar = document.createElement("div");
+		quickReplyBar.id = "qr--bar";
+
+		expect(
+			shouldSyncQuickReplyBarForMutations([
+				createChildListMutation({ addedNodes: [unrelated] }),
+			]),
+		).toBe(false);
+		expect(
+			shouldSyncQuickReplyBarForMutations([
+				createChildListMutation({ addedNodes: [quickReplyBar] }),
+			]),
+		).toBe(true);
+		expect(
+			shouldSyncQuickReplyBarForMutations([
+				createChildListMutation({ removedNodes: [quickReplyBar] }),
+			]),
+		).toBe(true);
+	});
+
 	test("attaches an existing quick reply bar to the provided host and restores it on dispose", async () => {
 		document.body.innerHTML = `
       <div id="form_sheld">

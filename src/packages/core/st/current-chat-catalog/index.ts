@@ -3,6 +3,10 @@ import {
 	resolveThumbnailUrl,
 } from "@/packages/core/st/chat-avatar";
 import { getStContext } from "@/packages/core/st/context";
+import { createStHttpClient } from "@/packages/core/st/http/client";
+import { ST_ENDPOINTS } from "@/packages/core/st/http/endpoints";
+import { StHttpError } from "@/packages/core/st/http/errors";
+import { isArrayPayload } from "@/packages/core/st/http/responseGuards";
 import type {
 	ChatCatalogCacheStatus,
 	ChatCatalogEntry,
@@ -165,49 +169,6 @@ function resolveStorage(storage?: Storage | null): Storage | null {
 		return typeof localStorage === "undefined" ? null : localStorage;
 	} catch {
 		return null;
-	}
-}
-
-function resolveRequestHeaders(
-	context: StCurrentChatCatalogContextLike | null,
-): Record<string, string> {
-	if (!context || typeof context.getRequestHeaders !== "function") {
-		return {
-			"Content-Type": "application/json",
-		};
-	}
-
-	try {
-		const headers = context.getRequestHeaders();
-		if (!isRecord(headers)) {
-			return {
-				"Content-Type": "application/json",
-			};
-		}
-
-		return {
-			...Object.fromEntries(
-				Object.entries(headers).flatMap(([key, value]) => {
-					if (typeof value === "string") {
-						return [[key, value] as const];
-					}
-
-					if (
-						typeof value === "number" ||
-						typeof value === "boolean"
-					) {
-						return [[key, String(value)] as const];
-					}
-
-					return [];
-				}),
-			),
-			"Content-Type": "application/json",
-		};
-	} catch {
-		return {
-			"Content-Type": "application/json",
-		};
 	}
 }
 
@@ -853,31 +814,34 @@ async function fetchCurrentChatCatalogEntries({
 	entity: CurrentChatCatalogActiveEntity;
 	fetchImpl: FetchLike;
 }): Promise<ChatCatalogEntry[]> {
-	let response: Response;
-
+	const client = createStHttpClient({
+		fetchImpl,
+		getContext: () => context,
+		logger: null,
+	});
+	let payload: unknown[];
 	try {
-		response = await fetchImpl("/api/chats/search", {
-			body: JSON.stringify({
+		payload = await client.postJson(
+			ST_ENDPOINTS.chatSearch,
+			{
 				avatar_url: entity.requestAvatarUrl,
 				group_id: entity.requestGroupId,
 				query: "",
-			}),
-			headers: resolveRequestHeaders(context),
-			method: "POST",
-		});
-	} catch {
+			},
+			isArrayPayload,
+		);
+	} catch (error) {
+		if (error instanceof StHttpError) {
+			throw new Error(
+				error.reason === "http-error"
+					? "http-error"
+					: error.reason === "invalid-payload"
+						? "invalid-payload"
+						: "network-error",
+			);
+		}
+
 		throw new Error("network-error");
-	}
-
-	if (!response.ok) {
-		throw new Error("http-error");
-	}
-
-	let payload: unknown;
-	try {
-		payload = await response.json();
-	} catch {
-		throw new Error("invalid-payload");
 	}
 
 	return normalizeEntriesForEntity(payload, entity);

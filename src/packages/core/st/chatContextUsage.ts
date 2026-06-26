@@ -1,5 +1,8 @@
 import { EXTENSION_LOG_PREFIX } from "@/packages/core/constants";
 import { getStContext } from "@/packages/core/st/context";
+import { createStHttpClient } from "@/packages/core/st/http/client";
+import { ST_ENDPOINTS } from "@/packages/core/st/http/endpoints";
+import { isRecordPayload } from "@/packages/core/st/http/responseGuards";
 import {
 	type EventSourceLike,
 	type EventTypesLike,
@@ -124,7 +127,6 @@ export interface ChatContextUsageStoreDependencies {
 
 const OPENAI_MAIN_API = "openai";
 const OPENAI_MODULE_SPECIFIER = "/scripts/openai.js";
-const OPENAI_TOKENIZER_COUNT_ENDPOINT = "/api/tokenizers/openai/count";
 const ASSISTANT_PRIMER_TOKENS = 3;
 const PROMPT_READY_SETTLE_MS = 120;
 const POST_GENERATION_REFRESH_MS = 1300;
@@ -604,46 +606,16 @@ function resolveTokenizerModel(context: StContextLike): string {
 	return model;
 }
 
-function resolveRequestHeaders(context: StContextLike): Record<string, string> {
-	const headers: Record<string, string> = {
-		"Content-Type": "application/json",
-	};
-
-	if (typeof context.getRequestHeaders !== "function") {
-		return headers;
-	}
-
-	const rawHeaders = context.getRequestHeaders();
-	if (rawHeaders instanceof Headers) {
-		rawHeaders.forEach((value, key) => {
-			headers[key] = value;
-		});
-		return headers;
-	}
-
-	if (!isRecord(rawHeaders)) {
-		return headers;
-	}
-
-	for (const [key, value] of Object.entries(rawHeaders)) {
-		if (typeof value === "string") {
-			headers[key] = value;
-		}
-	}
-
-	return headers;
-}
-
 async function countTokensForMessage({
 	cache,
+	context,
 	fetchImpl,
-	headers,
 	message,
 	tokenizerModel,
 }: {
 	cache: Map<string, number>;
+	context: StContextLike;
 	fetchImpl: typeof fetch;
-	headers: Record<string, string>;
 	message: Record<string, unknown>;
 	tokenizerModel: string;
 }): Promise<number> {
@@ -653,20 +625,19 @@ async function countTokensForMessage({
 		return cached;
 	}
 
-	const endpoint = `${OPENAI_TOKENIZER_COUNT_ENDPOINT}?model=${encodeURIComponent(
+	const endpoint = `${ST_ENDPOINTS.tokenizerOpenAiCount}?model=${encodeURIComponent(
 		tokenizerModel,
 	)}`;
-	const response = await fetchImpl(endpoint, {
-		body: JSON.stringify([message]),
-		headers,
-		method: "POST",
+	const client = createStHttpClient({
+		fetchImpl,
+		getContext: () => context,
+		logger: null,
 	});
-
-	if (!response.ok) {
-		throw new Error(`Tokenizer endpoint failed with ${response.status}.`);
-	}
-
-	const data = (await response.json()) as TokenizerCountResponse;
+	const data = (await client.postJson(
+		endpoint,
+		[message],
+		isRecordPayload,
+	)) as TokenizerCountResponse;
 	const rawCount = data.token_count ?? data.count;
 	const numericCount = typeof rawCount === "number" ? rawCount : Number.NaN;
 
@@ -687,14 +658,14 @@ async function countTokensForMessage({
 async function countTokensForChatMessages({
 	cache,
 	chatMessages,
+	context,
 	fetchImpl,
-	headers,
 	tokenizerModel,
 }: {
 	cache: Map<string, number>;
 	chatMessages: unknown[];
+	context: StContextLike;
 	fetchImpl: typeof fetch;
-	headers: Record<string, string>;
 	tokenizerModel: string;
 }): Promise<number> {
 	let total = 0;
@@ -702,8 +673,8 @@ async function countTokensForChatMessages({
 	for (const message of chatMessages) {
 		total += await countTokensForMessage({
 			cache,
+			context,
 			fetchImpl,
-			headers,
 			message: normalizeChatMessage(message),
 			tokenizerModel,
 		});
@@ -759,13 +730,11 @@ async function countToolReserveTokens({
 	cache,
 	context,
 	fetchImpl,
-	headers,
 	tokenizerModel,
 }: {
 	cache: Map<string, number>;
 	context: StContextLike;
 	fetchImpl: typeof fetch;
-	headers: Record<string, string>;
 	tokenizerModel: string;
 }): Promise<number> {
 	const toolPayload = await buildToolPayload(context);
@@ -775,8 +744,8 @@ async function countToolReserveTokens({
 
 	return countTokensForMessage({
 		cache,
+		context,
 		fetchImpl,
-		headers,
 		message: {
 			content: JSON.stringify(toolPayload),
 			role: "user",
@@ -801,19 +770,17 @@ async function createFallbackReadySnapshot({
 	tokenCountCache: Map<string, number>;
 }): Promise<ChatContextUsageSnapshot> {
 	const tokenizerModel = resolveTokenizerModel(context);
-	const headers = resolveRequestHeaders(context);
 	const countedChatTokens = await countTokensForChatMessages({
 		cache: tokenCountCache,
 		chatMessages,
+		context,
 		fetchImpl,
-		headers,
 		tokenizerModel,
 	});
 	const toolReserveTokens = await countToolReserveTokens({
 		cache: tokenCountCache,
 		context,
 		fetchImpl,
-		headers,
 		tokenizerModel,
 	});
 
