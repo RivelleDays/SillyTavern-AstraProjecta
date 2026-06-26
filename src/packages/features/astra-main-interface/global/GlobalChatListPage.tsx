@@ -91,6 +91,7 @@ export function GlobalChatListPage({
 			deleteChat={deleteChat}
 			exportChat={exportChat}
 			filterEntries={filterChatCatalogEntries}
+			onLoadFullHistory={() => store.refresh({ full: true })}
 			openChat={openChat}
 			persistPreviewLineCount={persistStoredChatMenuPreviewLineCount}
 			persistShowAvatars={persistStoredChatMenuShowAvatars}

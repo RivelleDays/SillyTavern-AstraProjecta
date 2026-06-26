@@ -7,7 +7,7 @@
 
 - Consumes `SillyTavern.getContext()` for `characters`, `groups`, `getRequestHeaders`, `getThumbnailUrl`, `eventSource`, `eventTypes`, `executeSlashCommandsWithOptions`, `openCharacterChat`, `openGroupChat`, `saveSettingsDebounced`, `characterId`, `groupId`, `chatId`, and `getCurrentChatId`.
 - `contracts/dom.ts` is the single audit point for native character/group row selectors and their jQuery/native click activation fallback.
-- Fetches `/api/chats/recent` with SillyTavern request headers and an empty JSON body to load the complete recent-chat set.
+- Fetches `/api/chats/recent` with SillyTavern request headers and a `{ max: CHAT_CATALOG_RECENT_FETCH_LIMIT }` body by default, capping the server-side scan to the most recent N chats across all characters and groups (the server enumerates every chat file otherwise, which scales with the user's entire chat history). Call `refresh({ full: true })` to send an empty JSON body instead and load the complete recent-chat set for that one request; full-history mode does not persist, so the next automatic or manual refresh reverts to the capped request.
 - Uses the public event bus to refresh on chat, message, and group changes when event names are exposed.
 - Uses a CharacterLibrary-inspired target-first jump pattern for inactive character/group chat opens: set the target `character.chat` or `group.chat_id` before native activation so SillyTavern does not first load the entity's previous chat.
 - Exposes an activation-only character/group action for Favorite scope buttons. Activation-only calls must not set a target chat id: they activate the entity and allow SillyTavern to load its remembered `character.chat` or `group.chat_id`, then verify the resulting context and call `saveSettingsDebounced()` before reporting success.
@@ -30,3 +30,4 @@
 - Keep raw native character/group list selectors out of `index.ts`; target-first activation must resolve and trigger rows through `contracts/dom.ts`.
 - Keep arbitrary chat rename/delete operations lazy and action-scoped; do not add per-row module imports, subscriptions, or metadata hydration for the full catalog. Public SillyTavern extension surfaces do not currently expose arbitrary inactive-chat rename/delete, so this unstable bridge is a narrow exception rather than a general precedent.
 - Keep cache payloads versioned and safe to discard.
+- Do not persist the recent-fetch cap/truncation state in the cache payload; derive `isLikelyTruncated` fresh from each live response's length against `CHAT_CATALOG_RECENT_FETCH_LIMIT`. A snapshot restored from cache should conservatively assume "may be truncated" until the next live refresh confirms otherwise.
