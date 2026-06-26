@@ -15,6 +15,36 @@ const POPUP_OBSERVER_CONFIG: MutationObserverInit = {
 	subtree: true,
 };
 
+function getElementConstructor(node: Node): typeof Element | null {
+	const ElementConstructor =
+		node.ownerDocument?.defaultView?.Element ??
+		(typeof Element === "function" ? Element : null);
+	return typeof ElementConstructor === "function"
+		? ElementConstructor
+		: null;
+}
+
+function getHTMLElementConstructor(
+	documentRef: Document,
+): typeof HTMLElement | null {
+	const HTMLElementConstructor =
+		documentRef.defaultView?.HTMLElement ??
+		(typeof HTMLElement === "function" ? HTMLElement : null);
+	return typeof HTMLElementConstructor === "function"
+		? HTMLElementConstructor
+		: null;
+}
+
+function isHTMLElementForDocument(
+	documentRef: Document,
+	value: unknown,
+): value is HTMLElement {
+	const HTMLElementConstructor = getHTMLElementConstructor(documentRef);
+	return Boolean(
+		HTMLElementConstructor && value instanceof HTMLElementConstructor,
+	);
+}
+
 export interface MobileNativePopupBridge {
 	dispose(): void;
 	mount(): void;
@@ -23,7 +53,8 @@ export interface MobileNativePopupBridge {
 
 function setNativePopupActiveContract(documentRef: Document, active: boolean) {
 	const targets = [documentRef.documentElement, documentRef.body].filter(
-		(element): element is HTMLElement => element instanceof HTMLElement,
+		(element): element is HTMLElement =>
+			isHTMLElementForDocument(documentRef, element),
 	);
 
 	for (const target of targets) {
@@ -37,7 +68,10 @@ function setNativePopupActiveContract(documentRef: Document, active: boolean) {
 }
 
 function isElementVisible(element: Element | null): boolean {
-	if (!(element instanceof HTMLElement)) {
+	if (
+		!element ||
+		!isHTMLElementForDocument(element.ownerDocument, element)
+	) {
 		return false;
 	}
 
@@ -69,7 +103,8 @@ function isNativePopupActive(documentRef: Document): boolean {
 }
 
 function isNativePopupMutationTarget(node: Node): boolean {
-	if (!(node instanceof Element)) {
+	const ElementConstructor = getElementConstructor(node);
+	if (!ElementConstructor || !(node instanceof ElementConstructor)) {
 		return false;
 	}
 

@@ -51,6 +51,36 @@ const RECENT_USER_MESSAGE_AVATAR_KEYS = [
 	"ch_avatar",
 ] as const;
 
+function getElementConstructor(node: Node): typeof Element | null {
+	const ElementConstructor =
+		node.ownerDocument?.defaultView?.Element ??
+		(typeof Element === "function" ? Element : null);
+	return typeof ElementConstructor === "function"
+		? ElementConstructor
+		: null;
+}
+
+function getHTMLElementConstructor(
+	documentRef: Document,
+): typeof HTMLElement | null {
+	const HTMLElementConstructor =
+		documentRef.defaultView?.HTMLElement ??
+		(typeof HTMLElement === "function" ? HTMLElement : null);
+	return typeof HTMLElementConstructor === "function"
+		? HTMLElementConstructor
+		: null;
+}
+
+function isHTMLElementForDocument(
+	documentRef: Document,
+	value: unknown,
+): value is HTMLElement {
+	const HTMLElementConstructor = getHTMLElementConstructor(documentRef);
+	return Boolean(
+		HTMLElementConstructor && value instanceof HTMLElementConstructor,
+	);
+}
+
 export type CurrentUserAvatarSource =
 	| "selected-persona"
 	| "chat-metadata-persona"
@@ -78,7 +108,7 @@ export interface CurrentUserAvatarStore {
 function readSelectedPersonaId(documentRef: Document): string {
 	for (const selector of PERSONA_LIST_SELECTOR_CANDIDATES) {
 		const match = documentRef.querySelector(selector);
-		if (!(match instanceof HTMLElement)) {
+		if (!isHTMLElementForDocument(documentRef, match)) {
 			continue;
 		}
 
@@ -203,7 +233,8 @@ function resolveContextSafe(): StContextLike | null {
 }
 
 function nodeTouchesPersonaAvatar(node: Node): boolean {
-	if (!(node instanceof Element)) {
+	const ElementConstructor = getElementConstructor(node);
+	if (!ElementConstructor || !(node instanceof ElementConstructor)) {
 		return false;
 	}
 
@@ -502,7 +533,7 @@ export function createCurrentUserAvatarStore({
 		personaListObserver = null;
 
 		const personaList = documentRef.getElementById("user_avatar_block");
-		if (!(personaList instanceof HTMLElement)) {
+		if (!isHTMLElementForDocument(documentRef, personaList)) {
 			return;
 		}
 

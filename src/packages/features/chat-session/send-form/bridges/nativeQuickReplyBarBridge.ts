@@ -31,13 +31,44 @@ function areSnapshotsEqual(
 	);
 }
 
+function getElementConstructor(node: Node): typeof Element | null {
+	const ElementConstructor =
+		node.ownerDocument?.defaultView?.Element ??
+		(typeof Element === "function" ? Element : null);
+	return typeof ElementConstructor === "function"
+		? ElementConstructor
+		: null;
+}
+
+function getHTMLElementConstructor(
+	documentRef: Document,
+): typeof HTMLElement | null {
+	const HTMLElementConstructor =
+		documentRef.defaultView?.HTMLElement ??
+		(typeof HTMLElement === "function" ? HTMLElement : null);
+	return typeof HTMLElementConstructor === "function"
+		? HTMLElementConstructor
+		: null;
+}
+
+function isHTMLElementForDocument(
+	documentRef: Document,
+	value: unknown,
+): value is HTMLElement {
+	const HTMLElementConstructor = getHTMLElementConstructor(documentRef);
+	return Boolean(
+		HTMLElementConstructor && value instanceof HTMLElementConstructor,
+	);
+}
+
 function resolveQuickReplyBar(documentRef: Document): HTMLElement | null {
 	const bar = documentRef.getElementById(NATIVE_QUICK_REPLY_BAR_ID);
-	return bar instanceof HTMLElement ? bar : null;
+	return isHTMLElementForDocument(documentRef, bar) ? bar : null;
 }
 
 function nodeContainsQuickReplyBar(node: Node): boolean {
-	if (!(node instanceof Element)) {
+	const ElementConstructor = getElementConstructor(node);
+	if (!ElementConstructor || !(node instanceof ElementConstructor)) {
 		return false;
 	}
 
@@ -113,10 +144,10 @@ export function createNativeQuickReplyBarBridge({
 		const nextSnapshot: NativeQuickReplyBarBridgeSnapshot = {
 			barNode: activeBar,
 			isAttachedToHost:
-				activeBar instanceof HTMLElement &&
-				attachedHost instanceof HTMLElement &&
+				isHTMLElementForDocument(documentRef, activeBar) &&
+				isHTMLElementForDocument(documentRef, attachedHost) &&
 				activeBar.parentElement === attachedHost,
-			isAvailable: activeBar instanceof HTMLElement,
+			isAvailable: isHTMLElementForDocument(documentRef, activeBar),
 		};
 
 		if (areSnapshotsEqual(snapshot, nextSnapshot)) {
@@ -132,7 +163,7 @@ export function createNativeQuickReplyBarBridge({
 		}
 
 		const parentElement = bar.parentElement;
-		if (!(parentElement instanceof HTMLElement)) {
+		if (!isHTMLElementForDocument(documentRef, parentElement)) {
 			originSnapshot = null;
 			return;
 		}
@@ -155,7 +186,7 @@ export function createNativeQuickReplyBarBridge({
 			attachedHost = null;
 		}
 
-		if (!(bar instanceof HTMLElement)) {
+		if (!isHTMLElementForDocument(documentRef, bar)) {
 			emitSnapshot();
 			return;
 		}
@@ -207,7 +238,7 @@ export function createNativeQuickReplyBarBridge({
 
 		activeBar = nextBar;
 
-		if (!(activeBar instanceof HTMLElement)) {
+		if (!isHTMLElementForDocument(documentRef, activeBar)) {
 			emitSnapshot();
 			return;
 		}
@@ -215,7 +246,7 @@ export function createNativeQuickReplyBarBridge({
 		captureOrigin(activeBar);
 
 		if (
-			attachedHost instanceof HTMLElement &&
+			isHTMLElementForDocument(documentRef, attachedHost) &&
 			activeBar.parentElement !== attachedHost
 		) {
 			attachedHost.appendChild(activeBar);
@@ -225,7 +256,13 @@ export function createNativeQuickReplyBarBridge({
 	}
 
 	const body = documentRef.body;
-	if (body instanceof HTMLBodyElement) {
+	const HTMLBodyElementConstructor =
+		documentRef.defaultView?.HTMLBodyElement ??
+		(typeof HTMLBodyElement === "function" ? HTMLBodyElement : null);
+	if (
+		HTMLBodyElementConstructor &&
+		body instanceof HTMLBodyElementConstructor
+	) {
 		bodyObserver = new MutationObserver((mutations) => {
 			if (shouldSyncQuickReplyBarForMutations(mutations)) {
 				scheduleSync();

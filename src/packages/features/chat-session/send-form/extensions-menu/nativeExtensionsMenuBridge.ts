@@ -118,6 +118,25 @@ export function createNativeExtensionsMenuBridge({
 
 	const view = documentRef.defaultView ?? window;
 
+	function cancelFrame(id: number) {
+		if (typeof view.cancelAnimationFrame === "function") {
+			view.cancelAnimationFrame(id);
+			return;
+		}
+
+		view.clearTimeout(id);
+	}
+
+	function requestFrame(callback: FrameRequestCallback): number {
+		if (typeof view.requestAnimationFrame === "function") {
+			return view.requestAnimationFrame(callback);
+		}
+
+		return view.setTimeout(() => {
+			callback(view.performance?.now() ?? Date.now());
+		}, 0);
+	}
+
 	function emitSnapshot() {
 		const nextSnapshot: NativeExtensionsMenuBridgeSnapshot = {
 			hasItems:
@@ -276,10 +295,10 @@ export function createNativeExtensionsMenuBridge({
 
 	function scheduleSync() {
 		if (frameId !== null) {
-			view.cancelAnimationFrame(frameId);
+			cancelFrame(frameId);
 		}
 
-		frameId = view.requestAnimationFrame(() => {
+		frameId = requestFrame(() => {
 			frameId = null;
 			sync();
 		});
@@ -309,7 +328,7 @@ export function createNativeExtensionsMenuBridge({
 			disconnectMenuObserver();
 
 			if (frameId !== null) {
-				view.cancelAnimationFrame(frameId);
+				cancelFrame(frameId);
 				frameId = null;
 			}
 

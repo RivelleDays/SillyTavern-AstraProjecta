@@ -63,6 +63,15 @@ const RELEVANT_BODY_TARGET_SELECTOR = [
 	`#${CONTINUE_OPTION_ID}`,
 ].join(", ");
 
+function getElementConstructor(node: Node): typeof Element | null {
+	const ElementConstructor =
+		node.ownerDocument?.defaultView?.Element ??
+		(typeof Element === "function" ? Element : null);
+	return typeof ElementConstructor === "function"
+		? ElementConstructor
+		: null;
+}
+
 function resolveContextSafe(): StContextLike | null {
 	try {
 		return getStContext() as StContextLike;
@@ -227,7 +236,8 @@ function createHiddenSendSnapshot(
 }
 
 function nodeContainsRelevantTarget(node: Node): boolean {
-	if (!(node instanceof Element)) {
+	const ElementConstructor = getElementConstructor(node);
+	if (!ElementConstructor || !(node instanceof ElementConstructor)) {
 		return false;
 	}
 

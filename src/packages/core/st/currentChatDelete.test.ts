@@ -12,6 +12,7 @@ describe("deleteCurrentChat", () => {
 			globalThis as Record<string, unknown>,
 			"SillyTavern",
 		);
+		vi.unstubAllGlobals();
 		vi.useRealTimers();
 	});
 
@@ -106,6 +107,68 @@ describe("deleteCurrentChat", () => {
 		);
 		expect(openCharacterChat).toHaveBeenCalledWith("chapter-3");
 		expect(emit).toHaveBeenCalledWith("chat_deleted", "chapter-2");
+	});
+
+	test("uses runtime global fetch when fetchImpl is omitted", async () => {
+		const openCharacterChat = vi.fn().mockResolvedValue(undefined);
+		const { deleteCurrentChat } =
+			await import("@/packages/core/st/currentChatDelete");
+		const fetchMock = vi
+			.fn()
+			.mockResolvedValueOnce({
+				ok: true,
+			})
+			.mockResolvedValueOnce({
+				json: async () => [
+					{
+						file_name: "chapter-1.jsonl",
+						last_mes: "2026-04-22T09:00:00.000Z",
+					},
+				],
+				ok: true,
+			});
+		vi.stubGlobal("fetch", fetchMock);
+
+		setSillyTavernContext({
+			characterId: 0,
+			characters: [
+				{
+					avatar: "hero.png",
+					chat: "chapter-2",
+					name: "Hero",
+				},
+			],
+			chatId: "chapter-2",
+			getRequestHeaders: () => ({
+				Authorization: "Bearer test-token",
+			}),
+			groupId: null,
+			openCharacterChat,
+		});
+
+		await expect(
+			deleteCurrentChat({
+				expectedFileName: "chapter-2",
+			}),
+		).resolves.toEqual({
+			deletedFileName: "chapter-2",
+			ok: true,
+			replacementFileName: "chapter-1",
+			scope: "character",
+		});
+
+		expect(fetchMock).toHaveBeenNthCalledWith(
+			1,
+			"/api/chats/delete",
+			expect.objectContaining({
+				body: JSON.stringify({
+					avatar_url: "hero.png",
+					chatfile: "chapter-2.jsonl",
+				}),
+				method: "POST",
+			}),
+		);
+		expect(openCharacterChat).toHaveBeenCalledWith("chapter-1");
 	});
 
 	test("deletes the last active character chat and opens a generated replacement chat", async () => {

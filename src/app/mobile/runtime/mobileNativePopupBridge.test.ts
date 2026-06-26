@@ -1,6 +1,10 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
-import { shouldSyncNativePopupForMutations } from "@/app/mobile/runtime/mobileNativePopupBridge";
+import {
+	createMobileNativePopupBridge,
+	NATIVE_POPUP_ACTIVE_ATTRIBUTE,
+	shouldSyncNativePopupForMutations,
+} from "@/app/mobile/runtime/mobileNativePopupBridge";
 
 function createMutation({
 	addedNodes = [],
@@ -64,5 +68,50 @@ describe("mobile native popup bridge observer", () => {
 				}),
 			]),
 		).toBe(true);
+	});
+
+	test("sets the native popup active contract after the scheduled frame", async () => {
+		const frameCallbacks: FrameRequestCallback[] = [];
+		vi.spyOn(window, "requestAnimationFrame").mockImplementation(
+			(callback: FrameRequestCallback) => {
+				frameCallbacks.push(callback);
+				return frameCallbacks.length;
+			},
+		);
+		vi.spyOn(window, "cancelAnimationFrame").mockImplementation(vi.fn());
+		const bridge = createMobileNativePopupBridge({
+			documentRef: document,
+		});
+
+		try {
+			bridge.mount();
+			const popup = document.createElement("dialog");
+			popup.className = "popup";
+			popup.setAttribute("open", "");
+			document.body.append(popup);
+
+			await Promise.resolve();
+			await Promise.resolve();
+
+			expect(document.body).not.toHaveAttribute(
+				NATIVE_POPUP_ACTIVE_ATTRIBUTE,
+			);
+
+			const callbacks = frameCallbacks.splice(0);
+			for (const callback of callbacks) {
+				callback(0);
+			}
+
+			expect(document.body).toHaveAttribute(
+				NATIVE_POPUP_ACTIVE_ATTRIBUTE,
+				"true",
+			);
+			expect(document.documentElement).toHaveAttribute(
+				NATIVE_POPUP_ACTIVE_ATTRIBUTE,
+				"true",
+			);
+		} finally {
+			bridge.dispose();
+		}
 	});
 });

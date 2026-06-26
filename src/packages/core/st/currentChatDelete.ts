@@ -109,6 +109,16 @@ function resolveContextSafe(): StDeleteContextLike | null {
 	}
 }
 
+function resolveFetchImpl(fetchImpl?: FetchLike): FetchLike | null {
+	if (typeof fetchImpl === "function") {
+		return fetchImpl;
+	}
+
+	return typeof globalThis.fetch === "function"
+		? globalThis.fetch.bind(globalThis)
+		: null;
+}
+
 function resolveCharacter(
 	context: StDeleteContextLike,
 	characterId: number,
@@ -261,7 +271,7 @@ async function deleteCharacterChat({
 	activeChatId: string;
 	character: CharacterLike;
 	context: StDeleteContextLike;
-	fetchImpl: FetchLike;
+	fetchImpl: FetchLike | null;
 }): Promise<DeleteCurrentChatResult> {
 	const avatarUrl = resolveCharacterAvatar(character);
 	if (!avatarUrl || typeof context.openCharacterChat !== "function") {
@@ -359,7 +369,7 @@ async function deleteGroupChat({
 }: {
 	activeChatId: string;
 	context: StDeleteContextLike;
-	fetchImpl: FetchLike;
+	fetchImpl: FetchLike | null;
 	group: GroupLike;
 	groupId: string;
 }): Promise<DeleteCurrentChatResult> {
@@ -446,7 +456,7 @@ async function deleteGroupChat({
 
 export async function deleteCurrentChat({
 	expectedFileName,
-	fetchImpl = fetch,
+	fetchImpl,
 }: DeleteCurrentChatInput): Promise<DeleteCurrentChatResult> {
 	const context = resolveContextSafe();
 	if (!context) {
@@ -470,6 +480,7 @@ export async function deleteCurrentChat({
 			reason: "api-unavailable",
 		};
 	}
+	const resolvedFetchImpl = resolveFetchImpl(fetchImpl);
 
 	const groupId = asTrimmedIdentifier(context.groupId);
 	if (groupId) {
@@ -499,7 +510,7 @@ export async function deleteCurrentChat({
 		return deleteGroupChat({
 			activeChatId,
 			context,
-			fetchImpl,
+			fetchImpl: resolvedFetchImpl,
 			group,
 			groupId,
 		});
@@ -540,6 +551,6 @@ export async function deleteCurrentChat({
 		activeChatId,
 		character,
 		context,
-		fetchImpl,
+		fetchImpl: resolvedFetchImpl,
 	});
 }

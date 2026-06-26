@@ -691,7 +691,8 @@ describe("createMobileSendFormFeature", () => {
 			quickReplyHost,
 		});
 		expect(quickReplyHost).toHaveAttribute("hidden");
-		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
+		expect(document.getElementById("qr--bar")).toBeInTheDocument();
+		expect(quickReplyHost.querySelector("#qr--bar")).not.toBeInTheDocument();
 		expect(inputRowHost.parentElement).toHaveClass(
 			"astra-chat-composer__input-region",
 		);
@@ -905,7 +906,8 @@ describe("createMobileSendFormFeature", () => {
 			quickReplyHost,
 		});
 		expect(quickReplyHost).toHaveAttribute("hidden");
-		expect(quickReplyHost.querySelector("#qr--bar")).toBeInTheDocument();
+		expect(document.getElementById("qr--bar")).toBeInTheDocument();
+		expect(quickReplyHost.querySelector("#qr--bar")).not.toBeInTheDocument();
 		expect(inputRowHost).toHaveClass("astra-chat-input-host");
 		expect(inputRowHost.parentElement).toHaveClass(
 			"astra-chat-composer__input-region",
@@ -1198,7 +1200,9 @@ describe("createMobileSendFormFeature", () => {
 		).toHaveAttribute("aria-hidden", "false");
 
 		const avatarImage = within(host).getByAltText("Current user avatar");
-		expect(avatarImage).toHaveAttribute("src", "/thumbs/hero-persona.png");
+		expect(avatarImage.getAttribute("src")).toMatch(
+			/^\/thumbs\/hero-persona\.png(?:\?astra_avatar_revision=\d+)?$/,
+		);
 		expect(avatarImage).toHaveClass("astra-chat-input__avatar-image");
 		expect(within(host).getByLabelText("Current user avatar")).toHaveClass(
 			"astra-chat-input__avatar-button",
@@ -1866,9 +1870,8 @@ describe("createMobileSendFormFeature", () => {
 
 		let { drawer, triggerAvatar } = await openDrawer();
 
-		expect(triggerAvatar).toHaveAttribute(
-			"src",
-			"/thumbs/persona/hero-persona",
+		expect(triggerAvatar.getAttribute("src")).toMatch(
+			/^\/thumbs\/persona\/hero-persona(?:\?astra_avatar_revision=\d+)?$/,
 		);
 		expect(drawer).toHaveAttribute("data-vaul-drawer-direction", "bottom");
 		expect(
@@ -1994,9 +1997,8 @@ describe("createMobileSendFormFeature", () => {
 
 		({ drawer, triggerAvatar } = await openDrawer());
 
-		expect(triggerAvatar).toHaveAttribute(
-			"src",
-			"/thumbs/persona/hero-persona",
+		expect(triggerAvatar.getAttribute("src")).toMatch(
+			/^\/thumbs\/persona\/hero-persona(?:\?astra_avatar_revision=\d+)?$/,
 		);
 		detailSection = await waitFor(() => {
 			const element = drawer.querySelector(
@@ -2643,17 +2645,20 @@ describe("createMobileSendFormFeature", () => {
 		);
 
 		await waitFor(() => {
-			expect(fetchMock).toHaveBeenCalledWith("/api/chats/delete", {
-				body: JSON.stringify({
-					avatar_url: "hero.png",
-					chatfile: "chapter-1.jsonl",
+			expect(fetchMock).toHaveBeenCalledWith(
+				"/api/chats/delete",
+				expect.objectContaining({
+					body: JSON.stringify({
+						avatar_url: "hero.png",
+						chatfile: "chapter-1.jsonl",
+					}),
+					headers: {
+						Authorization: "Bearer test-token",
+						"Content-Type": "application/json",
+					},
+					method: "POST",
 				}),
-				headers: {
-					Authorization: "Bearer test-token",
-					"Content-Type": "application/json",
-				},
-				method: "POST",
-			});
+			);
 		});
 		await waitFor(() => {
 			expect(openCharacterChat).toHaveBeenCalledWith("chapter-3");

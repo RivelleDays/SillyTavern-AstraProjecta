@@ -602,6 +602,9 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 	test("reparents a quick reply bar created after mount into the mobile quick reply host", async () => {
 		document.body.innerHTML = `
+      <div id="qr_container">
+        <input id="qr--isEnabled" type="checkbox" checked>
+      </div>
       <div id="form_sheld">
       <form id="send_form">
         <div id="nonQRFormItems">
@@ -644,6 +647,9 @@ describe("createMobileSendFormFeature lifecycle", () => {
 
 	test("re-attaches replacement quick reply bars and restores the active bar on dispose", async () => {
 		document.body.innerHTML = `
+      <div id="qr_container">
+        <input id="qr--isEnabled" type="checkbox" checked>
+      </div>
       <div id="form_sheld">
       <form id="send_form">
         <div id="qr--bar">Initial quick reply</div>

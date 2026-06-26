@@ -63,6 +63,15 @@ export function MobileChatInput({
 	showShortcutsToolbar,
 	userAvatarSnapshot,
 }: MobileChatInputProps) {
+	const handleQuickReplyHostRef = React.useCallback(
+		(host: HTMLDivElement | null) => {
+			onQuickReplyHostChange(
+				showQuickReplyVisibilityToggle ? host : null,
+			);
+		},
+		[onQuickReplyHostChange, showQuickReplyVisibilityToggle],
+	);
+
 	return (
 		<div
 			aria-label={inputRowLabel}
@@ -90,7 +99,7 @@ export function MobileChatInput({
 						id={ASTRA_CHAT_QUICK_REPLIES_HOST_ID}
 						className="astra-chat-quick-replies-host"
 						hidden={!isQuickReplyHostVisible}
-						ref={onQuickReplyHostChange}
+						ref={handleQuickReplyHostRef}
 					/>
 					<div
 						className="astra-chat-input__toolbar"

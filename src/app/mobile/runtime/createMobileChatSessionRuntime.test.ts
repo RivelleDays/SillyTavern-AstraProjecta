@@ -143,6 +143,22 @@ async function flushMutationObservers() {
 	await Promise.resolve();
 }
 
+async function flushAnimationFrame() {
+	await new Promise<void>((resolve) => {
+		if (typeof window.requestAnimationFrame === "function") {
+			window.requestAnimationFrame(() => resolve());
+			return;
+		}
+
+		setTimeout(resolve, 0);
+	});
+}
+
+async function flushMutationObserversAndAnimationFrame() {
+	await flushMutationObservers();
+	await flushAnimationFrame();
+}
+
 function renderMessageWithTimestamp() {
 	document.body.innerHTML = `
 		<div id="chat">
@@ -647,7 +663,7 @@ describe("createMobileChatSessionRuntime", () => {
 			popup.className = "popup popup--animation-fast";
 			popup.setAttribute("open", "");
 			document.body.append(popup);
-			await flushMutationObservers();
+			await flushMutationObserversAndAnimationFrame();
 
 			expect(document.body).toHaveAttribute(
 				"data-astra-projecta-native-popup-active",
@@ -669,7 +685,7 @@ describe("createMobileChatSessionRuntime", () => {
 
 			popup.removeAttribute("open");
 			layoutModeStore.dispatch("mobile");
-			await flushMutationObservers();
+			await flushMutationObserversAndAnimationFrame();
 
 			expect(document.body).not.toHaveAttribute(
 				"data-astra-projecta-native-popup-active",
@@ -701,7 +717,7 @@ describe("createMobileChatSessionRuntime", () => {
 			}
 
 			shadowPopup.style.display = "block";
-			await flushMutationObservers();
+			await flushMutationObserversAndAnimationFrame();
 
 			expect(document.body).toHaveAttribute(
 				"data-astra-projecta-native-popup-active",
@@ -709,7 +725,7 @@ describe("createMobileChatSessionRuntime", () => {
 			);
 
 			shadowPopup.style.display = "none";
-			await flushMutationObservers();
+			await flushMutationObserversAndAnimationFrame();
 
 			expect(document.body).not.toHaveAttribute(
 				"data-astra-projecta-native-popup-active",

@@ -17,24 +17,84 @@ export interface NativeQuickReplyEnabledStore {
 	subscribe(listener: Listener): () => void;
 }
 
+function getElementConstructor(node: Node): typeof Element | null {
+	const ElementConstructor =
+		node.ownerDocument?.defaultView?.Element ??
+		(typeof Element === "function" ? Element : null);
+	return typeof ElementConstructor === "function"
+		? ElementConstructor
+		: null;
+}
+
+function getHTMLElementConstructor(
+	documentRef: Document,
+): typeof HTMLElement | null {
+	const HTMLElementConstructor =
+		documentRef.defaultView?.HTMLElement ??
+		(typeof HTMLElement === "function" ? HTMLElement : null);
+	return typeof HTMLElementConstructor === "function"
+		? HTMLElementConstructor
+		: null;
+}
+
+function getHTMLInputElementConstructor(
+	documentRef: Document,
+): typeof HTMLInputElement | null {
+	const HTMLInputElementConstructor =
+		documentRef.defaultView?.HTMLInputElement ??
+		(typeof HTMLInputElement === "function"
+			? HTMLInputElement
+			: null);
+	return typeof HTMLInputElementConstructor === "function"
+		? HTMLInputElementConstructor
+		: null;
+}
+
+function isHTMLElementForDocument(
+	documentRef: Document,
+	value: unknown,
+): value is HTMLElement {
+	const HTMLElementConstructor = getHTMLElementConstructor(documentRef);
+	return Boolean(
+		HTMLElementConstructor && value instanceof HTMLElementConstructor,
+	);
+}
+
+function isHTMLInputElementForDocument(
+	documentRef: Document,
+	value: unknown,
+): value is HTMLInputElement {
+	const HTMLInputElementConstructor =
+		getHTMLInputElementConstructor(documentRef);
+	return Boolean(
+		HTMLInputElementConstructor &&
+			value instanceof HTMLInputElementConstructor,
+	);
+}
+
 function readNativeToggle(documentRef: Document): HTMLInputElement | null {
 	const element = documentRef.getElementById(
 		NATIVE_QUICK_REPLY_ENABLED_TOGGLE_ID,
 	);
-	return element instanceof HTMLInputElement ? element : null;
+	return isHTMLInputElementForDocument(documentRef, element)
+		? element
+		: null;
 }
 
 function readQuickReplyContainer(documentRef: Document): HTMLElement | null {
 	const element = documentRef.getElementById(
 		NATIVE_QUICK_REPLY_CONTAINER_ID,
 	);
-	return element instanceof HTMLElement ? element : null;
+	return isHTMLElementForDocument(documentRef, element) ? element : null;
 }
 
 function readSnapshot(documentRef: Document): NativeQuickReplyEnabledSnapshot {
 	const nativeToggle = readNativeToggle(documentRef);
 	return {
-		hasNativeToggle: nativeToggle instanceof HTMLInputElement,
+		hasNativeToggle: isHTMLInputElementForDocument(
+			documentRef,
+			nativeToggle,
+		),
 		isEnabled: nativeToggle?.checked === true,
 	};
 }
@@ -50,11 +110,17 @@ function areSnapshotsEqual(
 }
 
 function isElementWithId(node: Node, id: string): boolean {
-	return node instanceof Element && node.id === id;
+	const ElementConstructor = getElementConstructor(node);
+	return Boolean(
+		ElementConstructor &&
+			node instanceof ElementConstructor &&
+			node.id === id,
+	);
 }
 
 function nodeContainsElementWithId(node: Node, id: string): boolean {
-	if (!(node instanceof Element)) {
+	const ElementConstructor = getElementConstructor(node);
+	if (!ElementConstructor || !(node instanceof ElementConstructor)) {
 		return false;
 	}
 
@@ -125,7 +191,7 @@ export function createNativeQuickReplyEnabledStore({
 		activeContainer = nextContainer;
 
 		if (
-			activeContainer instanceof HTMLElement &&
+			isHTMLElementForDocument(documentRef, activeContainer) &&
 			typeof MutationObserverConstructor === "function"
 		) {
 			containerObserver = new MutationObserverConstructor((records) => {
@@ -194,15 +260,25 @@ export function createNativeQuickReplyEnabledStore({
 
 	const body = documentRef.body;
 	if (
-		body instanceof HTMLBodyElement &&
+		(() => {
+			const HTMLBodyElementConstructor =
+				documentRef.defaultView?.HTMLBodyElement ??
+				(typeof HTMLBodyElement === "function"
+					? HTMLBodyElement
+					: null);
+			return Boolean(
+				HTMLBodyElementConstructor &&
+					body instanceof HTMLBodyElementConstructor,
+			);
+		})() &&
 		typeof MutationObserverConstructor === "function"
 	) {
 		bodyObserver = new MutationObserverConstructor((records) => {
 			const containerDisconnected =
-				activeContainer instanceof HTMLElement &&
+				isHTMLElementForDocument(documentRef, activeContainer) &&
 				!activeContainer.isConnected;
 			const toggleDisconnected =
-				activeToggle instanceof HTMLInputElement &&
+				isHTMLInputElementForDocument(documentRef, activeToggle) &&
 				!activeToggle.isConnected;
 			if (
 				!containerDisconnected &&
