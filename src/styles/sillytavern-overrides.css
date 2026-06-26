@@ -2,3 +2,121 @@
 	components) to align with the shadcn visual language. Applies globally
 	(mobile and desktop) by default; nest mobile-only rules inside
    	body.astra-projecta-mobile-layout instead of adding a second file. */
+
+/* Shared native SillyTavern element polish. */
+
+.text_muted {
+	font-size: var(--text-xs);
+	color: var(--color-base);
+	opacity: 0.7;
+}
+
+.gap3px {
+	gap: 4px !important;
+}
+
+textarea,
+select,
+.menu_button,
+.menu_button.fa-fw,
+.text_pole,
+.range-block-counter input {
+	margin: 4px 0;
+	min-width: 36px;
+	min-height: 36px;
+	border-radius: calc(var(--radius) * 0.8);
+	box-sizing: border-box;
+	color: var(--color-base);
+	background-color: color-mix(in oklab, var(--input) 30%, transparent);
+	border: 1px solid var(--border);
+}
+
+textarea:focus-visible,
+select:focus-visible,
+.text_pole:focus-visible,
+.range-block-counter input:focus-visible {
+	outline: 2px solid var(--color-ring-t60);
+	outline-offset: 2px;
+}
+
+.menu_button,
+.menu_button_icon {
+	display: flex;
+	align-items: center;
+	font-size: 16px;
+	gap: 8px;
+}
+
+select,
+textarea,
+.text_pole {
+	padding: 4px 12px;
+	width: 100%;
+}
+
+.textarea_compact {
+	border-radius: calc(var(--radius) * 0.8);
+	border: 1px solid var(--border);
+	box-sizing: border-box;
+}
+
+#extensions_settings .inline-drawer-toggle.inline-drawer-header,
+#extensions_settings2 .inline-drawer-toggle.inline-drawer-header,
+#user-settings-block h4,
+.standoutHeader,
+.openai_restorable,
+.title_restorable,
+.inline-drawer-header {
+	display: flex;
+	background-image: none;
+	margin-bottom: 0;
+	border-radius: 0;
+	padding: 0;
+	border: none;
+	transition: 0;
+}
+
+.range-block-range-and-counter {
+	flex: 1;
+	flex-wrap: wrap;
+	display: flex;
+	align-content: center;
+	align-items: center;
+}
+
+.toggle-description {
+	margin-right: 0;
+}
+
+/* AI settings. */
+
+#completion_prompt_manager .completion_prompt_manager_footer a {
+	font-size: 16px;
+}
+
+#completion_prompt_manager .completion_prompt_manager_footer {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	gap: 4px;
+	padding: 0;
+	width: 100%;
+	flex-wrap: wrap;
+}
+
+/* Hide noisy native status affordances. */
+.editable-slider-notification,
+.topRightInset {
+	display: none !important;
+}
+
+/* Chat messages. */
+
+.mes {
+	padding: 12px 0 0 0;
+}
+
+.mes_text,
+.mes_reasoning {
+	line-height: calc(var(--mainFontSize) + 0.6rem);
+}

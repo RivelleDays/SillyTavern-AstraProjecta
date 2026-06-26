@@ -195,8 +195,8 @@ body.astra-projecta-mobile-layout {
 	min-width: 0;
 	overflow: hidden;
 	color: var(--color-base);
-	font-size: var(--text-lg);
-	font-weight: var(--font-weight-semibold);
+	font-size: var(--text-base);
+	font-weight: var(--font-weight-bold);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }

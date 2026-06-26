@@ -53,7 +53,7 @@
 	overflow: hidden;
 	color: var(--foreground);
 	font-size: var(--text-lg);
-	font-weight: var(--font-weight-semibold);
+	font-weight: var(--font-weight-bold);
 	line-height: 1.2;
 	text-overflow: ellipsis;
 	white-space: nowrap;

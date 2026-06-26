@@ -3786,14 +3786,6 @@
 #sillytavern-interface-panel-user-settings-host	> .astra-projecta-native-drawer-ported	> .flex-container.flexFlowColumn	> [name="userSettingsRowOne"]	.flex-container.flexnowrap.alignItemsBaseline {
   display: none;
 }
-#sillytavern-interface-panel-user-settings-host	> .astra-projecta-native-drawer-ported	> .flex-container.flexFlowColumn, #sillytavern-interface-panel-user-settings-host #user-settings-block-content {
-  gap: 12px;
-}
-#sillytavern-interface-panel-user-settings-host	> .astra-projecta-native-drawer-ported	> .flex-container.flexFlowColumn	> [name="userSettingsRowOne"], #sillytavern-interface-panel-user-settings-host	> .astra-projecta-native-drawer-ported	> .flex-container.flexFlowColumn	> [name="UserSettingsRowTwo"], #sillytavern-interface-panel-user-settings-host #user-settings-block-content {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
 #sillytavern-interface-panel-user-settings-host #UI-language-block {
   min-width: 0;
   gap: 8px;
@@ -4318,7 +4310,7 @@
   min-height: 44px;
   border-radius: 14px;
 }
-html[data-astra-projecta-native-popup-active="true"],	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"] {
+html[data-astra-projecta-native-popup-active="true"], body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"] {
   pointer-events: auto !important;
   overflow: hidden !important;
   overscroll-behavior: none;
@@ -4338,8 +4330,88 @@ body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"
   opacity: 0 !important;
   pointer-events: none !important;
 }
-body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]	[data-vaul-overlay],	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]	[data-vaul-drawer],	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]	.astra-drawer__overlay,	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]	.astra-drawer,	body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]	.astra-mobile-page-panel {
+body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]	[data-vaul-overlay], body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]	[data-vaul-drawer], body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]	.astra-drawer__overlay, body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]	.astra-drawer, body.astra-projecta-mobile-layout[data-astra-projecta-native-popup-active="true"]	.astra-mobile-page-panel {
   pointer-events: none !important;
+}
+.text_muted {
+  font-size: var(--text-xs);
+  color: var(--color-base);
+  opacity: 0.7;
+}
+.gap3px {
+  gap: 4px !important;
+}
+textarea, select, .menu_button, .menu_button.fa-fw, .text_pole, .range-block-counter input {
+  margin: 4px 0;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: calc(var(--radius) * 0.8);
+  box-sizing: border-box;
+  color: var(--color-base);
+  background-color: var(--input);
+  @supports (color: color-mix(in lab, red, red)) {
+    background-color: color-mix(in oklab, var(--input) 30%, transparent);
+  }
+  border: 1px solid var(--border);
+}
+textarea:focus-visible, select:focus-visible, .text_pole:focus-visible, .range-block-counter input:focus-visible {
+  outline: 2px solid var(--color-ring-t60);
+  outline-offset: 2px;
+}
+.menu_button, .menu_button_icon {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  gap: 8px;
+}
+select, textarea, .text_pole {
+  padding: 4px 12px;
+  width: 100%;
+}
+.textarea_compact {
+  border-radius: calc(var(--radius) * 0.8);
+  border: 1px solid var(--border);
+  box-sizing: border-box;
+}
+#extensions_settings .inline-drawer-toggle.inline-drawer-header, #extensions_settings2 .inline-drawer-toggle.inline-drawer-header, #user-settings-block h4, .standoutHeader, .openai_restorable, .title_restorable, .inline-drawer-header {
+  display: flex;
+  background-image: none;
+  margin-bottom: 0;
+  border-radius: 0;
+  padding: 0;
+  border: none;
+  transition: 0;
+}
+.range-block-range-and-counter {
+  flex: 1;
+  flex-wrap: wrap;
+  display: flex;
+  align-content: center;
+  align-items: center;
+}
+.toggle-description {
+  margin-right: 0;
+}
+#completion_prompt_manager .completion_prompt_manager_footer a {
+  font-size: 16px;
+}
+#completion_prompt_manager .completion_prompt_manager_footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
+  width: 100%;
+  flex-wrap: wrap;
+}
+.editable-slider-notification, .topRightInset {
+  display: none !important;
+}
+.mes {
+  padding: 12px 0 0 0;
+}
+.mes_text, .mes_reasoning {
+  line-height: calc(var(--mainFontSize) + 0.6rem);
 }
 .astra-smooth-tabs {
   --astra-smooth-tabs-motion-ease: var(
@@ -4504,7 +4576,7 @@ body.astra-projecta-mobile-layout {
     background-color: transparent !important;
   }
   #sheld {
-    height: calc(	100vh -	var(--astra-chat-top-bar-block-size, var(--topBarBlockSize))	);
+    height: calc(	100vh - var(--astra-chat-top-bar-block-size, var(--topBarBlockSize))	);
     height: calc(	var(--astra-mobile-visual-viewport-bottom, 100dvh) -	var(--astra-chat-top-bar-block-size, var(--topBarBlockSize))	);
     max-height: calc(	var(--astra-mobile-visual-viewport-bottom, 100dvh) -	var(--astra-chat-top-bar-block-size, var(--topBarBlockSize))	);
     overflow: hidden;
@@ -4679,7 +4751,7 @@ body.astra-projecta-mobile-layout {
   #astra-chat-quick-replies-host > #qr--bar .qr--button:not(:disabled) {
     cursor: pointer;
   }
-  #astra-chat-quick-replies-host	> #qr--bar	.qr--button:hover:not(:disabled) {
+  #astra-chat-quick-replies-host > #qr--bar .qr--button:hover:not(:disabled) {
     background: var(--surface-muted-t50);
     border-color: var(--border-color-base);
   }
@@ -4729,7 +4801,7 @@ body.astra-projecta-mobile-layout {
     gap: var(--astra-send-form-quick-reply-gap);
     background: transparent;
   }
-  &	#qr--popout	> .qr--body	> .qr--buttons.qr--color {
+  & #qr--popout > .qr--body > .qr--buttons.qr--color {
     gap: var(--astra-send-form-quick-reply-gap);
     background: transparent;
   }
@@ -5166,7 +5238,7 @@ body.astra-projecta-mobile-layout {
     flex: 1 1 auto;
     min-width: 0;
     width: 100%;
-    padding: var(--astra-chat-spacing)	calc(var(--astra-chat-spacing) - 4px);
+    padding: var(--astra-chat-spacing) calc(var(--astra-chat-spacing) - 4px);
     padding-bottom: 0;
   }
   .astra-chat-composer__input-region .astra-chat-input__content {
@@ -6555,8 +6627,8 @@ body.astra-projecta-mobile-layout {
   min-width: 0;
   overflow: hidden;
   color: var(--color-base);
-  font-size: var(--text-lg);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-bold);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -6607,7 +6679,7 @@ body.astra-projecta-mobile-layout {
   overflow: hidden;
   color: var(--foreground);
   font-size: var(--text-lg);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
   line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -8690,8 +8762,8 @@ body.astra-projecta-mobile-layout {
   }
   .sillytavern-interface__title-svg-icon,	.sillytavern-interface__title-svg-icon svg {
     display: block;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
   }
   .sillytavern-interface__title-lucide-icon {
     width: 28px;
@@ -8756,7 +8828,7 @@ body.astra-projecta-mobile-layout {
     overflow: hidden;
     color: var(--foreground);
     font-size: var(--text-base);
-    font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-bold);
     line-height: 1.2;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -9031,7 +9103,7 @@ body.astra-projecta-mobile-layout {
   & #chat .mes {
     flex-direction: column;
     align-items: stretch;
-    --avatar-base-width: 44px;
+    --avatar-base-width: 40px;
   }
   & #chat .mes .avatar img {
     width: var(--avatar-base-width);
@@ -9039,7 +9111,6 @@ body.astra-projecta-mobile-layout {
     object-fit: cover;
     object-position: center center;
     border-radius: var(--radius-full);
-    border: 1px solid var(--border);
     box-shadow: none;
   }
   & #chat .mes > .mes_block.astra-mesBody {
@@ -9364,7 +9435,7 @@ body.astra-projecta-mobile-layout {
     border: none !important;
     backdrop-filter: none !important;
     padding-inline: var(--astra-chat-scroll-inline-padding);
-    padding-block-start: var(--astra-chat-scroll-glass-clearance-block-start);
+    padding-block-start: var(	--astra-chat-scroll-glass-clearance-block-start	);
     padding-block-end: var(--astra-chat-scroll-glass-clearance-block-end);
   }
   & #chat[data-astra-projecta-chat-scroll="native"] {
@@ -10750,12 +10821,36 @@ body.astra-projecta-base-ui-body {
 		transparent
 	);
   --color-theme: var(--SmartThemeQuoteColor);
-  --color-theme-t5: color-mix(in srgb, var(--SmartThemeQuoteColor) 5%, transparent);
-  --color-theme-t10: color-mix(in srgb, var(--SmartThemeQuoteColor) 10%, transparent);
-  --color-theme-t20: color-mix(in srgb, var(--SmartThemeQuoteColor) 20%, transparent);
-  --color-theme-t30: color-mix(in srgb, var(--SmartThemeQuoteColor) 30%, transparent);
-  --color-theme-t40: color-mix(in srgb, var(--SmartThemeQuoteColor) 40%, transparent);
-  --color-theme-t50: color-mix(in srgb, var(--SmartThemeQuoteColor) 50%, transparent);
+  --color-theme-t5: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 5%,
+		transparent
+	);
+  --color-theme-t10: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 10%,
+		transparent
+	);
+  --color-theme-t20: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 20%,
+		transparent
+	);
+  --color-theme-t30: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 30%,
+		transparent
+	);
+  --color-theme-t40: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 40%,
+		transparent
+	);
+  --color-theme-t50: color-mix(
+		in srgb,
+		var(--SmartThemeQuoteColor) 50%,
+		transparent
+	);
   --color-danger: var(--destructive);
   --color-danger-t5: color-mix(in srgb, var(--destructive) 5%, transparent);
   --color-danger-t10: color-mix(in srgb, var(--destructive) 10%, transparent);

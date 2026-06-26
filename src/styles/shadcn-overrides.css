@@ -886,27 +886,6 @@
 	display: none;
 }
 
-#sillytavern-interface-panel-user-settings-host
-	> .astra-projecta-native-drawer-ported
-	> .flex-container.flexFlowColumn,
-#sillytavern-interface-panel-user-settings-host #user-settings-block-content {
-	gap: 12px;
-}
-
-#sillytavern-interface-panel-user-settings-host
-	> .astra-projecta-native-drawer-ported
-	> .flex-container.flexFlowColumn
-	> [name="userSettingsRowOne"],
-#sillytavern-interface-panel-user-settings-host
-	> .astra-projecta-native-drawer-ported
-	> .flex-container.flexFlowColumn
-	> [name="UserSettingsRowTwo"],
-#sillytavern-interface-panel-user-settings-host #user-settings-block-content {
-	display: flex;
-	flex-direction: column;
-	min-width: 0;
-}
-
 #sillytavern-interface-panel-user-settings-host #UI-language-block {
 	min-width: 0;
 	gap: 8px;

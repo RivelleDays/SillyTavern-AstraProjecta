@@ -239,8 +239,8 @@ body.astra-projecta-mobile-layout {
 	.sillytavern-interface__title-svg-icon,
 	.sillytavern-interface__title-svg-icon svg {
 		display: block;
-		width: 20px;
-		height: 20px;
+		width: 16px;
+		height: 16px;
 	}
 
 	.sillytavern-interface__title-lucide-icon {
@@ -317,7 +317,7 @@ body.astra-projecta-mobile-layout {
 		overflow: hidden;
 		color: var(--foreground);
 		font-size: var(--text-base);
-		font-weight: var(--font-weight-semibold);
+		font-weight: var(--font-weight-bold);
 		line-height: 1.2;
 		text-overflow: ellipsis;
 		white-space: nowrap;
