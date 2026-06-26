@@ -446,6 +446,7 @@ body.astra-projecta-mobile-layout {
 		border-radius: var(--radius-4xl);
 		background: var(--surface-background-t60);
 		overflow: hidden;
+		border: 1px solid var(--border);
 	}
 
 	.astra-chat-composer[data-shortcuts-visible="false"] {

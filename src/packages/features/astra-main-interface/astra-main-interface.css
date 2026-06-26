@@ -534,7 +534,7 @@
 .astra-main-interface-controls-drawer__group {
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: 8px;
 	padding-top: 0;
 }
 

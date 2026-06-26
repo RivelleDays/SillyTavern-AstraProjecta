@@ -4821,6 +4821,7 @@ body.astra-projecta-mobile-layout {
     border-radius: var(--radius-4xl);
     background: var(--surface-background-t60);
     overflow: hidden;
+    border: 1px solid var(--border);
   }
   .astra-chat-composer[data-shortcuts-visible="false"] {
     padding-bottom: 0;
@@ -7068,7 +7069,7 @@ body.astra-projecta-mobile-layout {
 .astra-main-interface-controls-drawer__group {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
   padding-top: 0;
 }
 .astra-main-interface-controls-drawer__group	+ .astra-main-interface-controls-drawer__group {
