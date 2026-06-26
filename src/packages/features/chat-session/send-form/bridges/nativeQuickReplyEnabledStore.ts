@@ -53,15 +53,41 @@ function isElementWithId(node: Node, id: string): boolean {
 	return node instanceof Element && node.id === id;
 }
 
-function mutationTouchesQuickReplyRoot(records: MutationRecord[]): boolean {
+function nodeContainsElementWithId(node: Node, id: string): boolean {
+	if (!(node instanceof Element)) {
+		return false;
+	}
+
+	let child = node.firstElementChild;
+	while (child) {
+		if (child.id === id || nodeContainsElementWithId(child, id)) {
+			return true;
+		}
+		child = child.nextElementSibling;
+	}
+
+	return false;
+}
+
+function nodeTouchesQuickReplyEnabledRoot(node: Node): boolean {
+	return (
+		isElementWithId(node, NATIVE_QUICK_REPLY_CONTAINER_ID) ||
+		isElementWithId(node, NATIVE_QUICK_REPLY_ENABLED_TOGGLE_ID) ||
+		nodeContainsElementWithId(node, NATIVE_QUICK_REPLY_CONTAINER_ID) ||
+		nodeContainsElementWithId(node, NATIVE_QUICK_REPLY_ENABLED_TOGGLE_ID)
+	);
+}
+
+export function shouldRefreshNativeQuickReplyEnabledForMutations(
+	records: MutationRecord[],
+): boolean {
 	return records.some((record) => {
 		if (record.type !== "childList") {
 			return false;
 		}
 
-		return [...record.addedNodes, ...record.removedNodes].some((node) =>
-			isElementWithId(node, NATIVE_QUICK_REPLY_CONTAINER_ID) ||
-			isElementWithId(node, NATIVE_QUICK_REPLY_ENABLED_TOGGLE_ID),
+		return [...record.addedNodes, ...record.removedNodes].some(
+			nodeTouchesQuickReplyEnabledRoot,
 		);
 	});
 }
@@ -79,6 +105,7 @@ export function createNativeQuickReplyEnabledStore({
 	let bodyObserver: MutationObserver | null = null;
 	let containerObserver: MutationObserver | null = null;
 	let disposed = false;
+	let refreshFrameId: number | null = null;
 	let snapshot = readSnapshot(documentRef);
 
 	function notifyListeners() {
@@ -101,8 +128,16 @@ export function createNativeQuickReplyEnabledStore({
 			activeContainer instanceof HTMLElement &&
 			typeof MutationObserverConstructor === "function"
 		) {
-			containerObserver = new MutationObserverConstructor(() => {
-				refresh();
+			containerObserver = new MutationObserverConstructor((records) => {
+				if (
+					!shouldRefreshNativeQuickReplyEnabledForMutations(
+						records,
+					)
+				) {
+					return;
+				}
+
+				scheduleRefresh();
 			});
 			containerObserver.observe(activeContainer, {
 				childList: true,
@@ -140,6 +175,23 @@ export function createNativeQuickReplyEnabledStore({
 		notifyListeners();
 	}
 
+	function scheduleRefresh() {
+		if (disposed || refreshFrameId !== null) {
+			return;
+		}
+
+		const view = documentRef.defaultView;
+		if (typeof view?.requestAnimationFrame === "function") {
+			refreshFrameId = view.requestAnimationFrame(() => {
+				refreshFrameId = null;
+				refresh();
+			});
+			return;
+		}
+
+		refresh();
+	}
+
 	const body = documentRef.body;
 	if (
 		body instanceof HTMLBodyElement &&
@@ -155,12 +207,12 @@ export function createNativeQuickReplyEnabledStore({
 			if (
 				!containerDisconnected &&
 				!toggleDisconnected &&
-				!mutationTouchesQuickReplyRoot(records)
+				!shouldRefreshNativeQuickReplyEnabledForMutations(records)
 			) {
 				return;
 			}
 
-			refresh();
+			scheduleRefresh();
 		});
 		bodyObserver.observe(body, {
 			childList: true,
@@ -179,6 +231,13 @@ export function createNativeQuickReplyEnabledStore({
 			bodyObserver = null;
 			containerObserver?.disconnect();
 			containerObserver = null;
+			if (refreshFrameId !== null) {
+				const view = documentRef.defaultView;
+				if (typeof view?.cancelAnimationFrame === "function") {
+					view.cancelAnimationFrame(refreshFrameId);
+				}
+				refreshFrameId = null;
+			}
 			activeContainer = null;
 			activeToggle?.removeEventListener("change", refresh);
 			activeToggle?.removeEventListener("input", refresh);

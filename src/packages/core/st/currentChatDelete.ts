@@ -1,5 +1,9 @@
 import { getStContext } from "@/packages/core/st/context";
 import { normalizeChatFileName } from "@/packages/core/st/currentChatRename";
+import { createStHttpClient } from "@/packages/core/st/http/client";
+import { ST_ENDPOINTS } from "@/packages/core/st/http/endpoints";
+import { StHttpError } from "@/packages/core/st/http/errors";
+import { isArrayPayload } from "@/packages/core/st/http/responseGuards";
 import {
 	asTrimmedIdentifier,
 	asTrimmedString,
@@ -42,8 +46,6 @@ type CharacterChatDescriptor = Record<string, unknown> & {
 	file_name?: unknown;
 	last_mes?: unknown;
 };
-
-type DeleteContextHeaders = Record<string, string>;
 
 export interface DeleteCurrentChatInput {
 	expectedFileName: string;
@@ -205,58 +207,6 @@ function resolveCharacterAvatar(character: CharacterLike | null): string {
 	return asTrimmedString(character?.avatar_url);
 }
 
-function resolveJsonHeaders(
-	context: StDeleteContextLike,
-): DeleteContextHeaders | null {
-	if (typeof context.getRequestHeaders !== "function") {
-		return null;
-	}
-
-	let rawHeaders: unknown;
-	try {
-		rawHeaders = context.getRequestHeaders();
-	} catch {
-		return null;
-	}
-
-	const headers: DeleteContextHeaders = {
-		"Content-Type": "application/json",
-	};
-
-	if (typeof Headers !== "undefined" && rawHeaders instanceof Headers) {
-		rawHeaders.forEach((value, key) => {
-			headers[key] = value;
-		});
-		return headers;
-	}
-
-	if (Array.isArray(rawHeaders)) {
-		for (const entry of rawHeaders) {
-			if (!Array.isArray(entry) || entry.length < 2) {
-				continue;
-			}
-
-			const [key, value] = entry;
-			if (typeof key === "string" && typeof value === "string") {
-				headers[key] = value;
-			}
-		}
-		return headers;
-	}
-
-	if (!isRecord(rawHeaders)) {
-		return null;
-	}
-
-	for (const [key, value] of Object.entries(rawHeaders)) {
-		if (typeof value === "string") {
-			headers[key] = value;
-		}
-	}
-
-	return headers;
-}
-
 function isCharacterChatDescriptor(
 	value: unknown,
 ): value is CharacterChatDescriptor {
@@ -307,13 +257,11 @@ async function deleteCharacterChat({
 	character,
 	context,
 	fetchImpl,
-	headers,
 }: {
 	activeChatId: string;
 	character: CharacterLike;
 	context: StDeleteContextLike;
 	fetchImpl: FetchLike;
-	headers: DeleteContextHeaders;
 }): Promise<DeleteCurrentChatResult> {
 	const avatarUrl = resolveCharacterAvatar(character);
 	if (!avatarUrl || typeof context.openCharacterChat !== "function") {
@@ -322,23 +270,17 @@ async function deleteCharacterChat({
 			reason: !avatarUrl ? "invalid-payload" : "api-unavailable",
 		};
 	}
+	const client = createStHttpClient({
+		fetchImpl,
+		getContext: () => context,
+		logger: null,
+	});
 
 	try {
-		const response = await fetchImpl("/api/chats/delete", {
-			body: JSON.stringify({
+		await client.postJsonForStatus(ST_ENDPOINTS.chatDelete, {
 				avatar_url: avatarUrl,
 				chatfile: `${activeChatId}.jsonl`,
-			}),
-			headers,
-			method: "POST",
 		});
-
-		if (!response.ok) {
-			return {
-				ok: false,
-				reason: "delete-failed",
-			};
-		}
 	} catch {
 		return {
 			ok: false,
@@ -349,23 +291,14 @@ async function deleteCharacterChat({
 	let replacementFileName = createHumanizedChatId();
 
 	try {
-		const chatsResponse = await fetchImpl("/api/characters/chats", {
-			body: JSON.stringify({
-				avatar_url: avatarUrl,
-			}),
-			headers,
-			method: "POST",
-		});
-
-		if (!chatsResponse.ok) {
-			return {
-				ok: false,
-				reason: "replacement-failed",
-			};
-		}
-
 		const chatsPayload = resolveCharacterChatsPayload(
-			await chatsResponse.json(),
+			await client.postJson(
+				ST_ENDPOINTS.characterChats,
+				{
+				avatar_url: avatarUrl,
+				},
+				isArrayPayload,
+			),
 		);
 		if (chatsPayload === null) {
 			return {
@@ -387,10 +320,14 @@ async function deleteCharacterChat({
 		if (remainingChats.length > 0) {
 			replacementFileName = remainingChats[0].fileName;
 		}
-	} catch {
+	} catch (error) {
 		return {
 			ok: false,
-			reason: "replacement-failed",
+			reason:
+				error instanceof StHttpError &&
+				error.reason === "invalid-payload"
+					? "invalid-payload"
+					: "replacement-failed",
 		};
 	}
 
@@ -419,14 +356,12 @@ async function deleteGroupChat({
 	fetchImpl,
 	group,
 	groupId,
-	headers,
 }: {
 	activeChatId: string;
 	context: StDeleteContextLike;
 	fetchImpl: FetchLike;
 	group: GroupLike;
 	groupId: string;
-	headers: DeleteContextHeaders;
 }): Promise<DeleteCurrentChatResult> {
 	if (typeof context.openGroupChat !== "function") {
 		return {
@@ -445,22 +380,16 @@ async function deleteGroupChat({
 	const remainingChats = group.chats
 		.map((chat) => normalizeChatFileName(asTrimmedString(chat)))
 		.filter((chatId) => chatId && chatId !== activeChatId);
+	const client = createStHttpClient({
+		fetchImpl,
+		getContext: () => context,
+		logger: null,
+	});
 
 	try {
-		const response = await fetchImpl("/api/chats/group/delete", {
-			body: JSON.stringify({
+		await client.postJsonForStatus(ST_ENDPOINTS.groupDelete, {
 				id: activeChatId,
-			}),
-			headers,
-			method: "POST",
 		});
-
-		if (!response.ok) {
-			return {
-				ok: false,
-				reason: "delete-failed",
-			};
-		}
 	} catch {
 		return {
 			ok: false,
@@ -481,18 +410,10 @@ async function deleteGroupChat({
 		};
 
 		try {
-			const saveResponse = await fetchImpl("/api/groups/edit", {
-				body: JSON.stringify(nextGroupPayload),
-				headers,
-				method: "POST",
-			});
-
-			if (!saveResponse.ok) {
-				return {
-					ok: false,
-					reason: "replacement-failed",
-				};
-			}
+			await client.postJsonForStatus(
+				ST_ENDPOINTS.groupEdit,
+				nextGroupPayload,
+			);
 		} catch {
 			return {
 				ok: false,
@@ -543,8 +464,7 @@ export async function deleteCurrentChat({
 		};
 	}
 
-	const headers = resolveJsonHeaders(context);
-	if (!headers) {
+	if (typeof context.getRequestHeaders !== "function") {
 		return {
 			ok: false,
 			reason: "api-unavailable",
@@ -582,7 +502,6 @@ export async function deleteCurrentChat({
 			fetchImpl,
 			group,
 			groupId,
-			headers,
 		});
 	}
 
@@ -622,6 +541,5 @@ export async function deleteCurrentChat({
 		character,
 		context,
 		fetchImpl,
-		headers,
 	});
 }

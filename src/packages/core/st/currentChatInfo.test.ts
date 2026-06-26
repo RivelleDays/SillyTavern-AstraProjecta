@@ -187,14 +187,17 @@ describe("current chat info", () => {
 			"openai/gpt-4.1": 1,
 			"openrouter/anthropic/claude-3.7-sonnet": 2,
 		});
-		expect(fetchImpl).toHaveBeenCalledWith("/api/characters/chats", {
-			body: JSON.stringify({ avatar_url: "hero.png" }),
-			headers: {
-				Authorization: "Bearer test-token",
-				"Content-Type": "application/json",
-			},
-			method: "POST",
-		});
+		expect(fetchImpl).toHaveBeenCalledWith(
+			"/api/characters/chats",
+			expect.objectContaining({
+				body: JSON.stringify({ avatar_url: "hero.png" }),
+				headers: {
+					Authorization: "Bearer test-token",
+					"Content-Type": "application/json",
+				},
+				method: "POST",
+			}),
+		);
 
 		store.dispose();
 	});
@@ -397,14 +400,17 @@ describe("current chat info", () => {
 			});
 		});
 
-		expect(fetchImpl).toHaveBeenCalledWith("/api/chats/group/info", {
-			body: JSON.stringify({ id: "raid-night" }),
-			headers: {
-				Authorization: "Bearer test-token",
-				"Content-Type": "application/json",
-			},
-			method: "POST",
-		});
+		expect(fetchImpl).toHaveBeenCalledWith(
+			"/api/chats/group/info",
+			expect.objectContaining({
+				body: JSON.stringify({ id: "raid-night" }),
+				headers: {
+					Authorization: "Bearer test-token",
+					"Content-Type": "application/json",
+				},
+				method: "POST",
+			}),
+		);
 
 		expect(history).toEqual(
 			expect.arrayContaining([
@@ -659,14 +665,17 @@ describe("current chat info", () => {
 			});
 		});
 
-		expect(fetchImpl).toHaveBeenCalledWith("/api/chats/group/info", {
-			body: JSON.stringify({ id: "上乘握壽司盛合" }),
-			headers: {
-				Authorization: "Bearer test-token",
-				"Content-Type": "application/json",
-			},
-			method: "POST",
-		});
+		expect(fetchImpl).toHaveBeenCalledWith(
+			"/api/chats/group/info",
+			expect.objectContaining({
+				body: JSON.stringify({ id: "上乘握壽司盛合" }),
+				headers: {
+					Authorization: "Bearer test-token",
+					"Content-Type": "application/json",
+				},
+				method: "POST",
+			}),
+		);
 
 		store.dispose();
 	});

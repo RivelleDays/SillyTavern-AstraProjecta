@@ -7,6 +7,7 @@
 
 - `context.ts` for safe `SillyTavern.getContext()` access.
 - `shared.ts` for reusable SillyTavern adapter helpers, including event-like shapes, safe context reads, record guards, string/id normalization, chat id normalization, and microtask scheduling.
+- `http/` owns browser-side SillyTavern REST endpoint constants, request execution, response guards, and typed error mapping for Astra-owned `/api/*` calls.
 - Snapshot readers and stores for current-user avatar, current chat identity, shared chat avatar resolution, primary send action, quick shortcuts, message actions, and future chat-session adapters.
 - `current-chat-catalog/` owns the scoped chat catalog for the currently active character/group and explicit Astra-selected character/group scopes, including per-entity cache and `/api/chats/search` normalization.
 - `chat-categories/` owns extension-settings backed global and owner-scoped chat category persistence, membership maps, and chat key maintenance.
@@ -50,6 +51,7 @@
 - Canonical persisted data should use documented SillyTavern extension surfaces where practical: `extensionSettings` plus `saveSettingsDebounced()` for global extension state, and `chatMetadata` plus `saveMetadata()` only for state truly bound to the active chat.
 - Message Revision History reads only the currently loaded `SillyTavern.getContext().chat`; it must not scan chat files, index disk data, perform whole-chat migrations, add server endpoints, or import SillyTavern core modules directly.
 - Current chat catalog may call `/api/chats/search` only for the resolved active character/group or an explicit Astra-selected character/group scope. It must not bridge `select_chat_popup`, scan the global `/api/chats/recent` catalog for Current/Favorite views, or introduce a server plugin dependency.
+- Astra-owned REST calls to SillyTavern `/api/*` endpoints should go through `http/`; feature and store modules should not duplicate headers, timeout handling, JSON parsing, or response payload guards.
 - Chat categories may read and write only `extensionSettings.astra_projecta.chatCategories` through `SillyTavern.getContext()` and `saveSettingsDebounced()`. They must not fetch chat lists, add server endpoints, or introduce a server plugin dependency.
 - Favorite chat entities must not call chat APIs, import SillyTavern browser modules, scrape `#HotSwapWrapper`, or reuse `favsToHotswap()`. It may reuse only the stable HotSwap ideas of favorite filtering and the `25`-item cap.
 - SillyTavern native swipe data is canonical for candidate rows: `message.swipes`, `message.swipe_id`, and optional `message.swipe_info`. Astra revision data is additive and namespaced under `message.astra_projecta.revisionHistory.roots`.

@@ -75,27 +75,35 @@ describe("deleteCurrentChat", () => {
 			scope: "character",
 		});
 
-		expect(fetchImpl).toHaveBeenNthCalledWith(1, "/api/chats/delete", {
-			body: JSON.stringify({
-				avatar_url: "hero.png",
-				chatfile: "chapter-2.jsonl",
+		expect(fetchImpl).toHaveBeenNthCalledWith(
+			1,
+			"/api/chats/delete",
+			expect.objectContaining({
+				body: JSON.stringify({
+					avatar_url: "hero.png",
+					chatfile: "chapter-2.jsonl",
+				}),
+				headers: {
+					Authorization: "Bearer test-token",
+					"Content-Type": "application/json",
+				},
+				method: "POST",
 			}),
-			headers: {
-				Authorization: "Bearer test-token",
-				"Content-Type": "application/json",
-			},
-			method: "POST",
-		});
-		expect(fetchImpl).toHaveBeenNthCalledWith(2, "/api/characters/chats", {
-			body: JSON.stringify({
-				avatar_url: "hero.png",
+		);
+		expect(fetchImpl).toHaveBeenNthCalledWith(
+			2,
+			"/api/characters/chats",
+			expect.objectContaining({
+				body: JSON.stringify({
+					avatar_url: "hero.png",
+				}),
+				headers: {
+					Authorization: "Bearer test-token",
+					"Content-Type": "application/json",
+				},
+				method: "POST",
 			}),
-			headers: {
-				Authorization: "Bearer test-token",
-				"Content-Type": "application/json",
-			},
-			method: "POST",
-		});
+		);
 		expect(openCharacterChat).toHaveBeenCalledWith("chapter-3");
 		expect(emit).toHaveBeenCalledWith("chat_deleted", "chapter-2");
 	});
@@ -197,16 +205,19 @@ describe("deleteCurrentChat", () => {
 		});
 
 		expect(fetchImpl).toHaveBeenCalledTimes(1);
-		expect(fetchImpl).toHaveBeenCalledWith("/api/chats/group/delete", {
-			body: JSON.stringify({
-				id: "raid-2",
+		expect(fetchImpl).toHaveBeenCalledWith(
+			"/api/chats/group/delete",
+			expect.objectContaining({
+				body: JSON.stringify({
+					id: "raid-2",
+				}),
+				headers: {
+					Authorization: "Bearer test-token",
+					"Content-Type": "application/json",
+				},
+				method: "POST",
 			}),
-			headers: {
-				Authorization: "Bearer test-token",
-				"Content-Type": "application/json",
-			},
-			method: "POST",
-		});
+		);
 		expect(openGroupChat).toHaveBeenCalledWith("group-1", "raid-1");
 		expect(emit).toHaveBeenCalledWith("group_chat_deleted", "raid-2");
 	});
@@ -256,19 +267,23 @@ describe("deleteCurrentChat", () => {
 		expect(result.replacementFileName).toMatch(
 			/^\d{4}-\d{2}-\d{2}@\d{2}h\d{2}m\d{2}s\d{3}ms$/,
 		);
-		expect(fetchImpl).toHaveBeenNthCalledWith(2, "/api/groups/edit", {
-			body: JSON.stringify({
-				chat_id: result.replacementFileName,
-				chats: [result.replacementFileName],
-				id: "group-1",
-				name: "Raid Night",
+		expect(fetchImpl).toHaveBeenNthCalledWith(
+			2,
+			"/api/groups/edit",
+			expect.objectContaining({
+				body: JSON.stringify({
+					chat_id: result.replacementFileName,
+					chats: [result.replacementFileName],
+					id: "group-1",
+					name: "Raid Night",
+				}),
+				headers: {
+					Authorization: "Bearer test-token",
+					"Content-Type": "application/json",
+				},
+				method: "POST",
 			}),
-			headers: {
-				Authorization: "Bearer test-token",
-				"Content-Type": "application/json",
-			},
-			method: "POST",
-		});
+		);
 		expect(openGroupChat).toHaveBeenCalledWith(
 			"group-1",
 			result.replacementFileName,

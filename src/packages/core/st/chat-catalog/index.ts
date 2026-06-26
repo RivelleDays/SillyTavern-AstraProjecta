@@ -3,6 +3,13 @@ import {
 	resolveThumbnailUrl,
 } from "@/packages/core/st/chat-avatar";
 import { getStContext } from "@/packages/core/st/context";
+import { createStHttpClient } from "@/packages/core/st/http/client";
+import { ST_ENDPOINTS } from "@/packages/core/st/http/endpoints";
+import { StHttpError } from "@/packages/core/st/http/errors";
+import {
+	isArrayPayload,
+	isRecordPayload,
+} from "@/packages/core/st/http/responseGuards";
 import {
 	asTrimmedIdentifier,
 	asTrimmedString,
@@ -116,6 +123,7 @@ const CHAT_CATALOG_NORMALIZE_CHUNK_SIZE = 100;
 const CHAT_CATALOG_REFRESH_DEBOUNCE_MS = 100;
 const TARGET_FIRST_CONTEXT_WAIT_ATTEMPTS = 40;
 const TARGET_FIRST_CONTEXT_WAIT_MS = 25;
+let activationQueue: Promise<void> = Promise.resolve();
 
 type GlobalWithIdleCallback = typeof globalThis & {
 	requestIdleCallback?: (
@@ -301,6 +309,15 @@ function waitForNextContextProbe(): Promise<void> {
 	});
 }
 
+function runActivationExclusive<T>(operation: () => Promise<T>): Promise<T> {
+	const run = activationQueue.then(operation, operation);
+	activationQueue = run.then(
+		() => {},
+		() => {},
+	);
+	return run;
+}
+
 async function waitForContextMatch(
 	getContext: () => unknown,
 	isMatch: (context: StChatCatalogContextLike) => boolean,
@@ -333,63 +350,6 @@ function resolveStorage(storage?: Storage | null): Storage | null {
 	} catch {
 		return null;
 	}
-}
-
-function normalizeHeaders(value: unknown): Record<string, string> {
-	if (typeof Headers !== "undefined" && value instanceof Headers) {
-		return Object.fromEntries(value.entries());
-	}
-
-	if (!isRecord(value)) {
-		return {};
-	}
-
-	return Object.fromEntries(
-		Object.entries(value).flatMap(([key, headerValue]) => {
-			if (typeof headerValue === "string") {
-				return [[key, headerValue] as const];
-			}
-
-			if (
-				typeof headerValue === "number" ||
-				typeof headerValue === "boolean"
-			) {
-				return [[key, String(headerValue)] as const];
-			}
-
-			return [];
-		}),
-	);
-}
-
-function resolveRequestHeaders(
-	context: StChatCatalogContextLike | null,
-): Record<string, string> {
-	if (!context || typeof context.getRequestHeaders !== "function") {
-		return {
-			"Content-Type": "application/json",
-		};
-	}
-
-	try {
-		return {
-			...normalizeHeaders(context.getRequestHeaders()),
-			"Content-Type": "application/json",
-		};
-	} catch {
-		return {
-			"Content-Type": "application/json",
-		};
-	}
-}
-
-function resolveExportRequestHeaders(
-	context: StChatCatalogContextLike | null,
-): Record<string, string> {
-	return {
-		...resolveRequestHeaders(context),
-		Accept: "application/json",
-	};
 }
 
 function resolveCharacterExportAvatar(
@@ -1460,27 +1420,30 @@ async function fetchRecentChatCatalogEntries({
 	fetchImpl: FetchLike;
 }): Promise<ChatCatalogEntry[]> {
 	const context = readContextSafe<StChatCatalogContextLike>();
-	let response: Response;
-
+	const client = createStHttpClient({
+		fetchImpl,
+		getContext: () => context,
+		logger: null,
+	});
+	let payload: unknown[];
 	try {
-		response = await fetchImpl("/api/chats/recent", {
-			body: JSON.stringify({}),
-			headers: resolveRequestHeaders(context),
-			method: "POST",
-		});
-	} catch {
+		payload = await client.postJson(
+			ST_ENDPOINTS.recentChats,
+			{},
+			isArrayPayload,
+		);
+	} catch (error) {
+		if (error instanceof StHttpError) {
+			throw new Error(
+				error.reason === "http-error"
+					? "http-error"
+					: error.reason === "invalid-payload"
+						? "invalid-payload"
+						: "network-error",
+			);
+		}
+
 		throw new Error("network-error");
-	}
-
-	if (!response.ok) {
-		throw new Error("http-error");
-	}
-
-	let payload: unknown;
-	try {
-		payload = await response.json();
-	} catch {
-		throw new Error("invalid-payload");
 	}
 
 	return normalizeRecentChatCatalogEntriesAsync(payload, context);
@@ -1737,36 +1700,41 @@ export async function exportChatCatalogEntry(
 		is_group: entry.kind === "group",
 	};
 
-	let response: Response;
+	const client = createStHttpClient({
+		fetchImpl: fetch,
+		getContext: () => context,
+		logger: null,
+	});
+	let data: Record<string, unknown>;
 	try {
-		response = await fetch("/api/chats/export", {
-			body: JSON.stringify(payload),
-			headers: resolveExportRequestHeaders(context),
-			method: "POST",
-		});
-	} catch {
+		data = await client.postJson(
+			ST_ENDPOINTS.chatExport,
+			payload,
+			isRecordPayload,
+			{
+				headers: {
+					Accept: "application/json",
+				},
+			},
+		);
+	} catch (error) {
+		if (error instanceof StHttpError && error.reason === "http-error") {
+			return {
+				message: isRecord(error.payload)
+					? asTrimmedString(error.payload.message)
+					: "",
+				ok: false,
+				reason: "export-failed",
+			};
+		}
+
 		return {
 			ok: false,
 			reason: "network-error",
 		};
 	}
 
-	let data: unknown = {};
-	try {
-		data = await response.json();
-	} catch {
-		data = {};
-	}
-
-	if (!response.ok) {
-		return {
-			message: isRecord(data) ? asTrimmedString(data.message) : "",
-			ok: false,
-			reason: "export-failed",
-		};
-	}
-
-	const content = isRecord(data) ? String(data.result ?? "") : "";
+	const content = String(data.result ?? "");
 	const mimeType =
 		exportFormat === "txt" ? "text/plain" : "application/octet-stream";
 
@@ -1980,7 +1948,6 @@ async function activateCharacterThroughPublicApi(
 		}
 
 		activatedCharacter = true;
-		persistActiveChatSelection(activeContext);
 
 		return {
 			context: activeContext,
@@ -2183,7 +2150,7 @@ async function openGroupChatInActiveContext(
 	};
 }
 
-export async function activateChatEntity(
+async function activateChatEntityUnlocked(
 	target: ChatEntityActivationTarget,
 ): Promise<ChatEntityActivationResult> {
 	const context = readContextSafe<StChatCatalogContextLike>();
@@ -2324,7 +2291,13 @@ export async function activateChatEntity(
 	return { ok: true };
 }
 
-export async function openChatCatalogEntry(
+export async function activateChatEntity(
+	target: ChatEntityActivationTarget,
+): Promise<ChatEntityActivationResult> {
+	return runActivationExclusive(() => activateChatEntityUnlocked(target));
+}
+
+async function openChatCatalogEntryUnlocked(
 	entry: ChatCatalogEntry,
 ): Promise<OpenChatCatalogResult> {
 	const context = readContextSafe<StChatCatalogContextLike>();
@@ -2434,6 +2407,8 @@ export async function openChatCatalogEntry(
 	}
 
 	if (!isTargetCharacterActive) {
+		const character = resolveCharacterById(context, characterId);
+		const previousChatId = character?.chat;
 		let activeCharacterResult:
 			| { context: StChatCatalogContextLike; ok: true }
 			| {
@@ -2463,18 +2438,25 @@ export async function openChatCatalogEntry(
 		}
 
 		if (!activeCharacterResult.ok) {
+			if (character) {
+				character.chat = previousChatId;
+			}
 			return {
 				ok: false,
 				reason: activeCharacterResult.reason,
 			};
 		}
 
-		return openCharacterChatInActiveContext(
+		const openResult = await openCharacterChatInActiveContext(
 			activeCharacterResult.context,
 			characterId,
 			entry.chatId,
 			getStContext,
 		);
+		if (!openResult.ok && character) {
+			character.chat = previousChatId;
+		}
+		return openResult;
 	}
 
 	return openCharacterChatInActiveContext(
@@ -2483,4 +2465,10 @@ export async function openChatCatalogEntry(
 		entry.chatId,
 		getStContext,
 	);
+}
+
+export async function openChatCatalogEntry(
+	entry: ChatCatalogEntry,
+): Promise<OpenChatCatalogResult> {
+	return runActivationExclusive(() => openChatCatalogEntryUnlocked(entry));
 }

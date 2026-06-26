@@ -1,12 +1,109 @@
 import { waitFor } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
-import { createNativeQuickReplyEnabledStore } from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyEnabledStore";
+import {
+	createNativeQuickReplyEnabledStore,
+	shouldRefreshNativeQuickReplyEnabledForMutations,
+} from "@/packages/features/chat-session/send-form/bridges/nativeQuickReplyEnabledStore";
 
 describe("createNativeQuickReplyEnabledStore", () => {
 	async function flushMutationObservers() {
 		await new Promise((resolve) => setTimeout(resolve, 0));
 	}
+
+	function createMutation({
+		addedNodes = [],
+		removedNodes = [],
+		target = document.body,
+	}: {
+		addedNodes?: Node[];
+		removedNodes?: Node[];
+		target?: Node;
+	}): MutationRecord {
+		return {
+			addedNodes: addedNodes as unknown as NodeList,
+			attributeName: null,
+			attributeNamespace: null,
+			nextSibling: null,
+			oldValue: null,
+			previousSibling: null,
+			removedNodes: removedNodes as unknown as NodeList,
+			target,
+			type: "childList",
+		} as MutationRecord;
+	}
+
+	function installAnimationFrameQueue() {
+		const callbacks: FrameRequestCallback[] = [];
+		const originalRequestAnimationFrame = window.requestAnimationFrame;
+		const originalCancelAnimationFrame = window.cancelAnimationFrame;
+		const requestAnimationFrame = vi.fn(
+			(callback: FrameRequestCallback) => {
+				callbacks.push(callback);
+				return callbacks.length;
+			},
+		);
+		const cancelAnimationFrame = vi.fn((handle: number) => {
+			callbacks[handle - 1] = () => {};
+		});
+
+		Object.defineProperty(window, "requestAnimationFrame", {
+			configurable: true,
+			value: requestAnimationFrame,
+			writable: true,
+		});
+		Object.defineProperty(window, "cancelAnimationFrame", {
+			configurable: true,
+			value: cancelAnimationFrame,
+			writable: true,
+		});
+
+		return {
+			cancelAnimationFrame,
+			flushFrames() {
+				const scheduledCallbacks = callbacks.splice(0);
+				for (const callback of scheduledCallbacks) {
+					callback(0);
+				}
+			},
+			requestAnimationFrame,
+			restore() {
+				Object.defineProperty(window, "requestAnimationFrame", {
+					configurable: true,
+					value: originalRequestAnimationFrame,
+					writable: true,
+				});
+				Object.defineProperty(window, "cancelAnimationFrame", {
+					configurable: true,
+					value: originalCancelAnimationFrame,
+					writable: true,
+				});
+			},
+		};
+	}
+
+	test("filters quick reply enabled mutations to the native root or toggle", () => {
+		const unrelated = document.createElement("div");
+		const wrapper = document.createElement("div");
+		wrapper.innerHTML = `
+			<section>
+				<div id="qr_container">
+					<input id="qr--isEnabled" type="checkbox">
+				</div>
+			</section>
+		`;
+
+		expect(
+			shouldRefreshNativeQuickReplyEnabledForMutations([
+				createMutation({ addedNodes: [unrelated] }),
+			]),
+		).toBe(false);
+		expect(
+			shouldRefreshNativeQuickReplyEnabledForMutations([
+				createMutation({ addedNodes: [wrapper] }),
+			]),
+		).toBe(true);
+	});
 
 	test("reports unavailable and disabled when the native quick reply toggle is missing", () => {
 		document.body.innerHTML = `<div id="qr_container"></div>`;
@@ -221,5 +318,54 @@ describe("createNativeQuickReplyEnabledStore", () => {
 		expect(listener).toHaveBeenCalledTimes(2);
 
 		store.dispose();
+	});
+
+	test("coalesces native quick reply DOM refreshes through one animation frame", async () => {
+		const frame = installAnimationFrameQueue();
+		document.body.innerHTML = `
+      <div id="qr_container">
+        <input id="qr--isEnabled" type="checkbox" checked>
+      </div>
+    `;
+
+		try {
+			const originalToggle = document.getElementById("qr--isEnabled");
+			if (!(originalToggle instanceof HTMLInputElement)) {
+				throw new Error("expected original quick reply toggle fixture");
+			}
+			const store = createNativeQuickReplyEnabledStore({
+				documentRef: document,
+			});
+			const listener = vi.fn();
+			store.subscribe(listener);
+
+			const replacementToggle = document.createElement("input");
+			replacementToggle.id = "qr--isEnabled";
+			replacementToggle.type = "checkbox";
+			replacementToggle.checked = false;
+			originalToggle.replaceWith(replacementToggle);
+			const unrelatedButton = document.createElement("button");
+			unrelatedButton.type = "button";
+			unrelatedButton.textContent = "Quick reply";
+			document.getElementById("qr_container")?.append(unrelatedButton);
+			await flushMutationObservers();
+
+			expect(frame.requestAnimationFrame).toHaveBeenCalledTimes(1);
+			expect(listener).not.toHaveBeenCalled();
+
+			frame.flushFrames();
+
+			await waitFor(() => {
+				expect(store.getSnapshot()).toEqual({
+					hasNativeToggle: true,
+					isEnabled: false,
+				});
+			});
+			expect(listener).toHaveBeenCalledTimes(1);
+
+			store.dispose();
+		} finally {
+			frame.restore();
+		}
 	});
 });

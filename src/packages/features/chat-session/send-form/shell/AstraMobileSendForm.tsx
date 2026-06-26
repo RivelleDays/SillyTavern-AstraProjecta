@@ -81,6 +81,42 @@ function readIsTextareaMultiline(textarea: HTMLTextAreaElement): boolean {
 	return hasExplicitLineBreak || exceedsSingleLineHeight;
 }
 
+function nodeContainsManagedTextarea(node: Node): boolean {
+	if (!(node instanceof Element)) {
+		return false;
+	}
+
+	if (node.id === "send_textarea") {
+		return true;
+	}
+
+	return node.querySelector("#send_textarea") != null;
+}
+
+export function shouldSyncManagedTextareaForMutations(
+	mutations: MutationRecord[],
+): boolean {
+	return mutations.some((mutation) => {
+		if (mutation.type !== "childList") {
+			return false;
+		}
+
+		for (const node of mutation.addedNodes) {
+			if (nodeContainsManagedTextarea(node)) {
+				return true;
+			}
+		}
+
+		for (const node of mutation.removedNodes) {
+			if (nodeContainsManagedTextarea(node)) {
+				return true;
+			}
+		}
+
+		return false;
+	});
+}
+
 function resolvePrimarySendActionIcon(kind: PrimarySendActionKind) {
 	switch (kind) {
 		case "continue":
@@ -396,11 +432,42 @@ export function AstraMobileSendForm({
 			return;
 		}
 
-		const observer = new MutationObserver(syncManagedTextarea);
-		observer.observe(body, { childList: true, subtree: true });
+		let frameId: number | null = null;
+		const scheduleSyncManagedTextarea = () => {
+			if (frameId !== null) {
+				return;
+			}
+
+			const view = documentRef.defaultView;
+			if (typeof view?.requestAnimationFrame === "function") {
+				frameId = view.requestAnimationFrame(() => {
+					frameId = null;
+					syncManagedTextarea();
+				});
+				return;
+			}
+
+			syncManagedTextarea();
+		};
+
+		const observer = new MutationObserver((mutations) => {
+			if (shouldSyncManagedTextareaForMutations(mutations)) {
+				scheduleSyncManagedTextarea();
+			}
+		});
+		const observerRoot =
+			documentRef.getElementById("send_form") ?? body;
+		observer.observe(observerRoot, { childList: true, subtree: true });
 
 		return () => {
 			observer.disconnect();
+			if (
+				frameId !== null &&
+				typeof documentRef.defaultView?.cancelAnimationFrame ===
+					"function"
+			) {
+				documentRef.defaultView.cancelAnimationFrame(frameId);
+			}
 		};
 	}, [documentRef]);
 

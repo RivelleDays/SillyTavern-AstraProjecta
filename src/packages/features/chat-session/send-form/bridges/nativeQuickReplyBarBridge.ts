@@ -36,6 +36,42 @@ function resolveQuickReplyBar(documentRef: Document): HTMLElement | null {
 	return bar instanceof HTMLElement ? bar : null;
 }
 
+function nodeContainsQuickReplyBar(node: Node): boolean {
+	if (!(node instanceof Element)) {
+		return false;
+	}
+
+	if (node.id === NATIVE_QUICK_REPLY_BAR_ID) {
+		return true;
+	}
+
+	return node.querySelector(`#${NATIVE_QUICK_REPLY_BAR_ID}`) != null;
+}
+
+export function shouldSyncQuickReplyBarForMutations(
+	mutations: MutationRecord[],
+): boolean {
+	return mutations.some((mutation) => {
+		if (mutation.type !== "childList") {
+			return false;
+		}
+
+		for (const node of mutation.addedNodes) {
+			if (nodeContainsQuickReplyBar(node)) {
+				return true;
+			}
+		}
+
+		for (const node of mutation.removedNodes) {
+			if (nodeContainsQuickReplyBar(node)) {
+				return true;
+			}
+		}
+
+		return false;
+	});
+}
+
 export function createNativeQuickReplyBarBridge({
 	documentRef = document,
 }: {
@@ -190,8 +226,10 @@ export function createNativeQuickReplyBarBridge({
 
 	const body = documentRef.body;
 	if (body instanceof HTMLBodyElement) {
-		bodyObserver = new MutationObserver(() => {
-			scheduleSync();
+		bodyObserver = new MutationObserver((mutations) => {
+			if (shouldSyncQuickReplyBarForMutations(mutations)) {
+				scheduleSync();
+			}
 		});
 		bodyObserver.observe(body, {
 			childList: true,

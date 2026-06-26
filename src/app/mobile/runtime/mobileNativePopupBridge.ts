@@ -68,6 +68,57 @@ function isNativePopupActive(documentRef: Document): boolean {
 	);
 }
 
+function isNativePopupMutationTarget(node: Node): boolean {
+	if (!(node instanceof Element)) {
+		return false;
+	}
+
+	if (node.matches("dialog.popup")) {
+		return true;
+	}
+
+	if (LEGACY_POPUP_IDS.includes(node.id)) {
+		return true;
+	}
+
+	if (node.querySelector("dialog.popup")) {
+		return true;
+	}
+
+	return LEGACY_POPUP_IDS.some((id) => node.querySelector(`#${id}`));
+}
+
+export function shouldSyncNativePopupForMutations(
+	mutations: MutationRecord[],
+): boolean {
+	return mutations.some((mutation) => {
+		if (
+			mutation.type === "attributes" &&
+			isNativePopupMutationTarget(mutation.target)
+		) {
+			return true;
+		}
+
+		if (mutation.type !== "childList") {
+			return false;
+		}
+
+		for (const node of mutation.addedNodes) {
+			if (isNativePopupMutationTarget(node)) {
+				return true;
+			}
+		}
+
+		for (const node of mutation.removedNodes) {
+			if (isNativePopupMutationTarget(node)) {
+				return true;
+			}
+		}
+
+		return false;
+	});
+}
+
 export function createMobileNativePopupBridge({
 	documentRef = document,
 }: {
@@ -75,6 +126,7 @@ export function createMobileNativePopupBridge({
 } = {}): MobileNativePopupBridge {
 	let mounted = false;
 	let observer: MutationObserver | null = null;
+	let frameId: number | null = null;
 
 	const syncNow = () => {
 		if (!mounted) {
@@ -85,6 +137,22 @@ export function createMobileNativePopupBridge({
 			documentRef,
 			isNativePopupActive(documentRef),
 		);
+	};
+	const scheduleSync = () => {
+		if (frameId !== null) {
+			return;
+		}
+
+		const view = documentRef.defaultView;
+		if (typeof view?.requestAnimationFrame === "function") {
+			frameId = view.requestAnimationFrame(() => {
+				frameId = null;
+				syncNow();
+			});
+			return;
+		}
+
+		syncNow();
 	};
 
 	function mount() {
@@ -100,7 +168,11 @@ export function createMobileNativePopupBridge({
 		const root = documentRef.documentElement ?? documentRef.body;
 
 		if (root && typeof MutationObserverConstructor === "function") {
-			observer = new MutationObserverConstructor(syncNow);
+			observer = new MutationObserverConstructor((mutations) => {
+				if (shouldSyncNativePopupForMutations(mutations)) {
+					scheduleSync();
+				}
+			});
 			observer.observe(root, POPUP_OBSERVER_CONFIG);
 		}
 
@@ -118,6 +190,13 @@ export function createMobileNativePopupBridge({
 		mounted = false;
 		observer?.disconnect();
 		observer = null;
+		if (
+			frameId !== null &&
+			typeof documentRef.defaultView?.cancelAnimationFrame === "function"
+		) {
+			documentRef.defaultView.cancelAnimationFrame(frameId);
+		}
+		frameId = null;
 		documentRef.removeEventListener("close", syncNow, true);
 		documentRef.removeEventListener("cancel", syncNow, true);
 		setNativePopupActiveContract(documentRef, false);

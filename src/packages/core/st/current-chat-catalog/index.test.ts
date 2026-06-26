@@ -528,18 +528,21 @@ describe("current chat catalog adapter", () => {
 				},
 			]);
 		});
-		expect(fetchImpl).toHaveBeenCalledWith("/api/chats/search", {
-			body: JSON.stringify({
-				avatar_url: "hero.png",
-				group_id: null,
-				query: "",
+		expect(fetchImpl).toHaveBeenCalledWith(
+			"/api/chats/search",
+			expect.objectContaining({
+				body: JSON.stringify({
+					avatar_url: "hero.png",
+					group_id: null,
+					query: "",
+				}),
+				headers: {
+					Authorization: "Bearer token",
+					"Content-Type": "application/json",
+				},
+				method: "POST",
 			}),
-			headers: {
-				Authorization: "Bearer token",
-				"Content-Type": "application/json",
-			},
-			method: "POST",
-		});
+		);
 
 		store.dispose();
 	});
@@ -575,18 +578,21 @@ describe("current chat catalog adapter", () => {
 				status: "ready",
 			});
 		});
-		expect(fetchImpl).toHaveBeenCalledWith("/api/chats/search", {
-			body: JSON.stringify({
-				avatar_url: null,
-				group_id: "party",
-				query: "",
+		expect(fetchImpl).toHaveBeenCalledWith(
+			"/api/chats/search",
+			expect.objectContaining({
+				body: JSON.stringify({
+					avatar_url: null,
+					group_id: "party",
+					query: "",
+				}),
+				headers: {
+					"Content-Type": "application/json",
+					"X-CSRF-Token": "token",
+				},
+				method: "POST",
 			}),
-			headers: {
-				"Content-Type": "application/json",
-				"X-CSRF-Token": "token",
-			},
-			method: "POST",
-		});
+		);
 
 		store.dispose();
 	});
