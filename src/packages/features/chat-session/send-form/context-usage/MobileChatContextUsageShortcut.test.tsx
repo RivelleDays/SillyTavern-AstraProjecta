@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { ensureAstraProjectaUiInfrastructure } from "@/packages/core/runtime/uiScope";
@@ -216,7 +216,7 @@ describe("MobileChatContextUsageShortcut", () => {
 		).toBeInTheDocument();
 	});
 
-	test("renders warning details without stale visual state", async () => {
+	test("renders ready details with the v2 visual summary", async () => {
 		setSillyTavernContext({
 			translate: (text: string, key: string) => `${key}::${text}`,
 		});
@@ -225,15 +225,16 @@ describe("MobileChatContextUsageShortcut", () => {
 		render(
 			<MobileChatContextUsageShortcut
 				snapshot={createSnapshot({
-					characterTokens: 750,
-					chatHistoryTokens: 2000,
+					characterTokens: 560,
+					chatHistoryTokens: 2880,
 					hasDetailedBreakdown: false,
-					personaTokens: 500,
+					otherPromptTokens: null,
+					personaTokens: 320,
 					status: "stale",
-					usagePercent: 97,
-					usedContextTokens: 7946,
-					usedPromptTokens: 6922,
-					worldInfoTokens: 500,
+					usagePercent: 63.28,
+					usedContextTokens: 5184,
+					usedPromptTokens: 4160,
+					worldInfoTokens: 720,
 				})}
 			/>,
 		);
@@ -242,12 +243,29 @@ describe("MobileChatContextUsageShortcut", () => {
 			name: "sendForm.contextUsage.trigger.open::Open context usage details",
 		});
 
-		expect(trigger).toHaveClass("is-warning");
+		expect(trigger).toHaveClass("is-normal");
 		expect(trigger).not.toHaveClass("is-stale");
-		expect(trigger).toHaveTextContent("97%");
+		expect(trigger).toHaveTextContent("63%");
 
 		fireEvent.click(trigger);
 
+		const popover = document.querySelector(
+			".astra-chat-context-usage-shortcut__popover",
+		) as HTMLElement | null;
+		const headerTotal = document.querySelector(
+			".astra-chat-context-usage-shortcut__header-total",
+		);
+		const metricTiles = document.querySelectorAll(
+			".astra-chat-context-usage-shortcut__metric-tile",
+		);
+		const breakdownRows = document.querySelectorAll(
+			".astra-chat-context-usage-shortcut__breakdown-row",
+		);
+		const worldInfoRow = screen
+			.getByText("sendForm.contextUsage.breakdown.worldInfo::World info")
+			.closest(".astra-chat-context-usage-shortcut__breakdown-row");
+
+		expect(popover).toBeInTheDocument();
 		expect(
 			screen.queryByText("sendForm.contextUsage.state.stale::stale"),
 		).not.toBeInTheDocument();
@@ -255,18 +273,66 @@ describe("MobileChatContextUsageShortcut", () => {
 			document.querySelector(
 				".astra-chat-context-usage-shortcut__popover-header",
 			),
-		).not.toBeInTheDocument();
+		).toBeInTheDocument();
 		expect(
-			screen.queryByText("sendForm.contextUsage.title::Context Usage"),
+			screen.getByText("sendForm.contextUsage.title::Context Usage"),
+		).toBeInTheDocument();
+		expect(headerTotal).toHaveTextContent("5,184 / 8,192");
+		expect(headerTotal).toHaveTextContent(
+			"sendForm.contextUsage.unit.tokens::tokens",
+		);
+		expect(within(popover!).getAllByText("63%")).toHaveLength(1);
+		expect(
+			document.querySelector(
+				".astra-chat-context-usage-shortcut__summary",
+			),
 		).not.toBeInTheDocument();
+		expect(metricTiles).toHaveLength(4);
+		expect(
+			screen.getByText("sendForm.contextUsage.metric.usage::Usage"),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText("sendForm.contextUsage.remaining::Remaining"),
+		).toBeInTheDocument();
+		expect(screen.getByText("3,008")).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				"sendForm.contextUsage.field.chatHistory::Chat History",
+				"sendForm.contextUsage.metric.prompt::Prompt",
+			),
+		).toBeInTheDocument();
+		expect(screen.getByText("4,160 / 7,168")).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				"sendForm.contextUsage.metric.reserve::Reserve",
+			),
+		).toBeInTheDocument();
+		expect(screen.getByText("1,024")).toBeInTheDocument();
+		expect(breakdownRows).toHaveLength(5);
+		expect(
+			worldInfoRow?.querySelector(".lucide-book-marked"),
+		).toBeInTheDocument();
+		for (const label of [
+			"sendForm.contextUsage.breakdown.chatHistory::Chat history",
+			"sendForm.contextUsage.breakdown.worldInfo::World info",
+			"sendForm.contextUsage.breakdown.character::Character",
+			"sendForm.contextUsage.breakdown.persona::Persona",
+			"sendForm.contextUsage.breakdown.other::Other",
+		]) {
+			expect(screen.getByText(label)).toBeInTheDocument();
+		}
+		expect(screen.getByText("2,880")).toBeInTheDocument();
+		expect(screen.getByText("720")).toBeInTheDocument();
+		expect(screen.getByText("560")).toBeInTheDocument();
+		expect(screen.getByText("320")).toBeInTheDocument();
+		expect(screen.getByText("—")).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				"sendForm.contextUsage.explainer::Prompt + reserve / max context.",
 			),
 		).toBeInTheDocument();
 		expect(
-			screen.getByText(
-				"sendForm.contextUsage.field.promptUsed::Prompt Manager Total",
+			document.querySelector(
+				".astra-chat-context-usage-shortcut__explainer-icon .lucide-info",
 			),
 		).toBeInTheDocument();
 		expect(
@@ -274,18 +340,6 @@ describe("MobileChatContextUsageShortcut", () => {
 				"sendForm.contextUsage.breakdownUnavailable::Detailed token breakdown is unavailable for this snapshot.",
 			),
 		).toBeInTheDocument();
-
-		const responseReserve = screen.getByText(
-			"sendForm.contextUsage.field.responseReserve::Response Reserve",
-		);
-		const promptUsed = screen.getByText(
-			"sendForm.contextUsage.field.promptUsed::Prompt Manager Total",
-		);
-
-		expect(
-			responseReserve.compareDocumentPosition(promptUsed) &
-				Node.DOCUMENT_POSITION_FOLLOWING,
-		).toBeTruthy();
 	});
 
 	test("renders the full state when the context budget is exhausted", () => {
@@ -343,13 +397,13 @@ describe("MobileChatContextUsageShortcut", () => {
 
 		expect(
 			await screen.findByText(
-				"sendForm.contextUsage.field.otherPrompt::Other Prompt",
+				"sendForm.contextUsage.breakdown.other::Other",
 			),
 		).toBeInTheDocument();
 		expect(screen.getByText("373")).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				"sendForm.contextUsage.field.promptUsed::Prompt Manager Total",
+				"sendForm.contextUsage.metric.prompt::Prompt",
 			),
 		).toBeInTheDocument();
 		expect(screen.getByText("2,928 / 7,168")).toBeInTheDocument();

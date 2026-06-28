@@ -339,6 +339,26 @@ describe("chat-send-form.css", () => {
 			".astra-send-form-surface-label",
 			".astra-chat-context-usage-shortcut__trigger:not(:disabled)",
 			".astra-chat-context-usage-shortcut__trigger:disabled",
+			".astra-chat-context-usage-shortcut__popover-header",
+			".astra-chat-context-usage-shortcut__header-title",
+			".astra-chat-context-usage-shortcut__header-icon",
+			".astra-chat-context-usage-shortcut__header-copy",
+			".astra-chat-context-usage-shortcut__header-kicker",
+			".astra-chat-context-usage-shortcut__header-total",
+			".astra-chat-context-usage-shortcut__metric-grid",
+			".astra-chat-context-usage-shortcut__metric-tile",
+			".astra-chat-context-usage-shortcut__metric-label",
+			".astra-chat-context-usage-shortcut__metric-icon",
+			".astra-chat-context-usage-shortcut__metric-value",
+			".astra-chat-context-usage-shortcut__breakdown",
+			".astra-chat-context-usage-shortcut__breakdown-row",
+			".astra-chat-context-usage-shortcut__breakdown-name",
+			".astra-chat-context-usage-shortcut__breakdown-icon",
+			".astra-chat-context-usage-shortcut__breakdown-track",
+			".astra-chat-context-usage-shortcut__breakdown-fill",
+			".astra-chat-context-usage-shortcut__breakdown-value",
+			".astra-chat-context-usage-shortcut__explainer",
+			".astra-chat-context-usage-shortcut__explainer-icon",
 			".astra-chat-context-usage-shortcut__helper.is-alert",
 			".astra-chat-library-dialog-action--confirm:disabled",
 			".astra-chat-library-dialog-action--confirm[disabled]",
@@ -346,6 +366,9 @@ describe("chat-send-form.css", () => {
 			".astra-chat-library-dialog-action--delete",
 		]);
 		expect(css).not.toContain("var(--SmartThemeBodyColor)");
+		expect(css).not.toContain(
+			".astra-chat-context-usage-shortcut__summary",
+		);
 	});
 
 	test("keeps current chat main-menu drawer selector contracts addressable", () => {
