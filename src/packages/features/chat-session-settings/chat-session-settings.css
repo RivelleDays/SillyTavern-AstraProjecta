@@ -85,12 +85,17 @@
 	gap: 8px;
 }
 
+.chat-session-settings__section-marker-icon {
+	display: flex;
+	color: var(--color-muted-t80);
+}
+
 .chat-session-settings__section-marker-label {
-    flex: 0 0 auto;
-    font-size: var(--text-xs);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-muted-t80);
-    text-transform: uppercase;
+	flex: 0 0 auto;
+	font-size: var(--text-xs);
+	font-weight: var(--font-weight-medium);
+	color: var(--color-muted-t80);
+	text-transform: uppercase;
 }
 
 .chat-session-settings__section-marker-line {
@@ -111,9 +116,9 @@
 }
 
 .chat-session-settings__button-row {
-    display: flex;
-    gap: 8px;
-    justify-content: space-between;
+	display: flex;
+	gap: 8px;
+	justify-content: space-between;
 }
 
 .chat-session-settings__button-row-title {
@@ -128,10 +133,10 @@
 }
 
 .chat-session-settings__button-group-item {
-    flex: 1 1 auto;
-    border-radius: 0;
-    font-size: var(--text-xs);
-    font-weight: var(--font-weight-medium);
+	flex: 1 1 auto;
+	border-radius: 0;
+	font-size: var(--text-xs);
+	font-weight: var(--font-weight-medium);
 }
 
 .chat-session-settings__button-group-item:not(:disabled) {

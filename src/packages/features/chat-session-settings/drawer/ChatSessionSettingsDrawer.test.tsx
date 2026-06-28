@@ -33,12 +33,24 @@ function readAppearance(context: Record<string, unknown>) {
 		| undefined;
 }
 
+function readMessageAppearance(context: Record<string, unknown>) {
+	return (
+		context.extensionSettings as Record<string, Record<string, unknown>>
+	).astra_projecta.chatMessageAppearance as
+		| { lineHeight: string; textAlign: string }
+		| undefined;
+}
+
 function setupContextWithAppearance({
 	blurPx = 2,
+	lineHeight = "md",
 	opacityPercent = 80,
+	textAlign = "start",
 }: {
 	blurPx?: number;
+	lineHeight?: string;
 	opacityPercent?: number;
+	textAlign?: string;
 } = {}) {
 	const context = createContext({
 		extensionSettings: {
@@ -46,6 +58,11 @@ function setupContextWithAppearance({
 				chatBackgroundAppearance: {
 					blurPx,
 					opacityPercent,
+					version: 1,
+				},
+				chatMessageAppearance: {
+					lineHeight,
+					textAlign,
 					version: 1,
 				},
 			},
@@ -56,6 +73,7 @@ function setupContextWithAppearance({
 }
 
 beforeEach(() => {
+	document.body.removeAttribute("style");
 	ensureAstraProjectaUiInfrastructure({ documentRef: document });
 });
 
@@ -114,6 +132,22 @@ describe("ChatSessionSettingsDrawer", () => {
 		);
 		expect(screen.getByText("Background Blur")).toBeInTheDocument();
 		expect(screen.getByText("Background Opacity")).toBeInTheDocument();
+		const chatMessagesMarker = screen
+			.getByText("Chat Messages")
+			.closest(".chat-session-settings__section-marker");
+		expect(
+			chatMessagesMarker?.querySelector(
+				".chat-session-settings__section-marker-icon .lucide-message-circle-more",
+			),
+		).toBeInTheDocument();
+		const chatBackgroundMarker = screen
+			.getByText("Chat Background")
+			.closest(".chat-session-settings__section-marker");
+		expect(
+			chatBackgroundMarker?.querySelector(
+				".chat-session-settings__section-marker-icon .lucide-image",
+			),
+		).toBeInTheDocument();
 		const footer = dialog.querySelector(".astra-dialog-footer");
 		expect(footer).toBeInTheDocument();
 		expect(
@@ -123,12 +157,12 @@ describe("ChatSessionSettingsDrawer", () => {
 		).toBeInTheDocument();
 		expect(
 			within(footer as HTMLElement).getByRole("button", {
-				name: "Save changes",
+				name: "Save",
 			}),
 		).toBeDisabled();
 		expect(
 			within(footer as HTMLElement)
-				.getByRole("button", { name: "Save changes" })
+				.getByRole("button", { name: "Save" })
 				.querySelector("[data-slot='ui-icon']"),
 		).toBeInTheDocument();
 		expect(
@@ -139,7 +173,7 @@ describe("ChatSessionSettingsDrawer", () => {
 		consoleError.mockRestore();
 	});
 
-	test("keeps slider edits local until Save changes is clicked", () => {
+	test("previews slider edits immediately but persists only when Save is clicked", () => {
 		const context = setupContextWithAppearance();
 		render(
 			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={true} />,
@@ -153,13 +187,47 @@ describe("ChatSessionSettingsDrawer", () => {
 			expect.objectContaining({ blurPx: 2, opacityPercent: 80 }),
 		);
 		expect(context.saveSettingsDebounced).not.toHaveBeenCalled();
+		expect(
+			document.body.style.getPropertyValue("--astra-chat-bg-blur"),
+		).toBe("3px");
+		expect(
+			document.body.style.getPropertyValue("--astra-chat-bg-opacity"),
+		).toBe("0.8");
 
-		const saveButton = screen.getByRole("button", { name: "Save changes" });
+		const saveButton = screen.getByRole("button", { name: "Save" });
 		expect(saveButton).toBeEnabled();
 		fireEvent.click(saveButton);
 
 		expect(readAppearance(context)).toEqual(
 			expect.objectContaining({ blurPx: 3, opacityPercent: 80 }),
+		);
+		expect(context.saveSettingsDebounced).toHaveBeenCalledTimes(1);
+	});
+
+	test("previews message appearance immediately but persists only when Save is clicked", () => {
+		const context = setupContextWithAppearance();
+		render(
+			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={true} />,
+		);
+
+		fireEvent.click(screen.getByRole("button", { name: "Large" }));
+		fireEvent.click(screen.getByRole("button", { name: "Align center" }));
+
+		expect(readMessageAppearance(context)).toEqual(
+			expect.objectContaining({ lineHeight: "md", textAlign: "start" }),
+		);
+		expect(context.saveSettingsDebounced).not.toHaveBeenCalled();
+		expect(
+			document.body.style.getPropertyValue("--astra-mes-line-height"),
+		).toBe("calc(var(--mainFontSize) + 0.8rem)");
+		expect(
+			document.body.style.getPropertyValue("--astra-mes-text-align"),
+		).toBe("center");
+
+		fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+		expect(readMessageAppearance(context)).toEqual(
+			expect.objectContaining({ lineHeight: "lg", textAlign: "center" }),
 		);
 		expect(context.saveSettingsDebounced).toHaveBeenCalledTimes(1);
 	});
@@ -182,6 +250,12 @@ describe("ChatSessionSettingsDrawer", () => {
 			expect.objectContaining({ blurPx: 1, opacityPercent: 60 }),
 		);
 		expect(context.saveSettingsDebounced).not.toHaveBeenCalled();
+		expect(
+			document.body.style.getPropertyValue("--astra-chat-bg-blur"),
+		).toBe("1px");
+		expect(
+			document.body.style.getPropertyValue("--astra-chat-bg-opacity"),
+		).toBe("0.6");
 
 		rerender(
 			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={false} />,
@@ -193,5 +267,44 @@ describe("ChatSessionSettingsDrawer", () => {
 		const textboxes = screen.getAllByRole("textbox");
 		expect(textboxes[0]).toHaveValue("1");
 		expect(textboxes[1]).toHaveValue("60");
+	});
+
+	test("closing without Save restores the persisted preview", () => {
+		const context = setupContextWithAppearance({
+			blurPx: 1,
+			lineHeight: "sm",
+			opacityPercent: 60,
+			textAlign: "end",
+		});
+		const { rerender } = render(
+			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={true} />,
+		);
+
+		const sliders = screen.getAllByRole("slider");
+		sliders[0].focus();
+		fireEvent.keyDown(sliders[0], { key: "ArrowRight" });
+		fireEvent.click(screen.getByRole("button", { name: "Large" }));
+		fireEvent.click(screen.getByRole("button", { name: "Align center" }));
+
+		rerender(
+			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={false} />,
+		);
+
+		expect(readAppearance(context)).toEqual(
+			expect.objectContaining({ blurPx: 1, opacityPercent: 60 }),
+		);
+		expect(readMessageAppearance(context)).toEqual(
+			expect.objectContaining({ lineHeight: "sm", textAlign: "end" }),
+		);
+		expect(context.saveSettingsDebounced).not.toHaveBeenCalled();
+		expect(
+			document.body.style.getPropertyValue("--astra-chat-bg-blur"),
+		).toBe("1px");
+		expect(
+			document.body.style.getPropertyValue("--astra-mes-line-height"),
+		).toBe("calc(var(--mainFontSize) + 0.4rem)");
+		expect(
+			document.body.style.getPropertyValue("--astra-mes-text-align"),
+		).toBe("end");
 	});
 });

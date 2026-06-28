@@ -9408,6 +9408,10 @@ body.astra-projecta-mobile-layout {
   align-items: center;
   gap: 8px;
 }
+.chat-session-settings__section-marker-icon {
+  display: flex;
+  color: var(--color-muted-t80);
+}
 .chat-session-settings__section-marker-label {
   flex: 0 0 auto;
   font-size: var(--text-xs);

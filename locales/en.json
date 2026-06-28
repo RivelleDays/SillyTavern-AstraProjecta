@@ -210,7 +210,7 @@
 	"chatSessionSettings.chatMessages.textAlign.title": "Message Text Alignment",
 	"chatSessionSettings.drawer.cancel": "Cancel",
 	"chatSessionSettings.drawer.description": "Adjust the current chat background appearance.",
-	"chatSessionSettings.drawer.save": "Save changes",
+	"chatSessionSettings.drawer.save": "Save",
 	"chatSessionSettings.panel.title": "Chat Settings",
 	"chatSessionSettings.section.chatBackground": "Chat Background",
 	"chatSessionSettings.section.chatMessages": "Chat Messages",
