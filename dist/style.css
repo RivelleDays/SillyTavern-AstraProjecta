@@ -9407,7 +9407,7 @@ body.astra-projecta-mobile-layout {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 .chat-session-settings__slider-row-reset {
   transition: opacity 140ms ease-out;
