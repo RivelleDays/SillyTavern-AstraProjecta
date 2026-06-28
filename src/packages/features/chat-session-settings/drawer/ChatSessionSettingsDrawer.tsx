@@ -11,13 +11,28 @@ import {
 } from "@/components/ui/astra/drawer";
 import { Button } from "@/components/ui/shadcn/button";
 import { UiIcon } from "@/components/ui/shared/icon";
-import { MessageCircleMore, Save } from "@/components/ui/shared/icons";
+import {
+	Image,
+	MessageCircleMore,
+	Save,
+	Send,
+} from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import { ChatBackgroundSettingsTab } from "@/packages/features/chat-session-settings/chat-background/ChatBackgroundSettingsTab";
+import { ChatMessageSettingsTab } from "@/packages/features/chat-session-settings/chat-message/ChatMessageSettingsTab";
+import { MessageInputSettingsTab } from "@/packages/features/chat-session-settings/message-input/MessageInputSettingsTab";
+import { SettingsSectionMarker } from "@/packages/features/chat-session-settings/SettingsSectionMarker";
+import { shortcutsToolbarVisibilityStore } from "@/packages/features/chat-session/send-form/shell/shortcutsToolbarVisibilityStore";
 import {
 	createChatBackgroundAppearanceStore,
 	type ChatBackgroundAppearanceInput,
 } from "@/packages/core/st/chat-background-appearance";
+import { applyChatBackgroundAppearanceVariables } from "@/packages/core/st/chat-background-appearance/applyChatBackgroundAppearance";
+import {
+	createChatMessageAppearanceStore,
+	type ChatMessageAppearanceInput,
+} from "@/packages/core/st/chat-message-appearance";
+import { applyChatMessageAppearanceVariables } from "@/packages/core/st/chat-message-appearance/applyChatMessageAppearance";
 import {
 	CHAT_SESSION_SETTINGS_DRAWER_BODY_ID,
 	CHAT_SESSION_SETTINGS_DRAWER_CONTENT_ID,
@@ -40,6 +55,45 @@ function isSameAppearance(
 		left.blurPx === right.blurPx &&
 		left.opacityPercent === right.opacityPercent
 	);
+}
+
+function isSameMessageAppearance(
+	left: ChatMessageAppearanceInput,
+	right: ChatMessageAppearanceInput,
+) {
+	return (
+		left.lineHeight === right.lineHeight &&
+		left.textAlign === right.textAlign
+	);
+}
+
+function applyBackgroundAppearancePreview(
+	appearance: ChatBackgroundAppearanceInput,
+) {
+	applyChatBackgroundAppearanceVariables({
+		store: {
+			getSnapshot: () => appearance,
+		},
+	});
+}
+
+function applyMessageAppearancePreview(appearance: ChatMessageAppearanceInput) {
+	applyChatMessageAppearanceVariables({
+		store: {
+			getSnapshot: () => appearance,
+		},
+	});
+}
+
+function applySettingsPreview({
+	backgroundAppearance,
+	messageAppearance,
+}: {
+	backgroundAppearance: ChatBackgroundAppearanceInput;
+	messageAppearance: ChatMessageAppearanceInput;
+}) {
+	applyBackgroundAppearancePreview(backgroundAppearance);
+	applyMessageAppearancePreview(messageAppearance);
 }
 
 function ChatSessionSettingsDrawerFooter({
@@ -89,14 +143,28 @@ export function ChatSessionSettingsDrawer({
 	onOpenChange,
 	open,
 }: ChatSessionSettingsDrawerProps) {
-	const store = React.useMemo(() => createChatBackgroundAppearanceStore(), []);
+	const store = React.useMemo(
+		() => createChatBackgroundAppearanceStore(),
+		[],
+	);
 	const snapshot = React.useSyncExternalStore(
 		store.subscribe,
 		store.getSnapshot,
 		store.getSnapshot,
 	);
+	const messageStore = React.useMemo(
+		() => createChatMessageAppearanceStore(),
+		[],
+	);
+	const messageSnapshot = React.useSyncExternalStore(
+		messageStore.subscribe,
+		messageStore.getSnapshot,
+		messageStore.getSnapshot,
+	);
 	const title = translateAstra("chatSessionSettings.panel.title");
-	const description = translateAstra("chatSessionSettings.drawer.description");
+	const description = translateAstra(
+		"chatSessionSettings.drawer.description",
+	);
 	const persistedAppearance = React.useMemo<ChatBackgroundAppearanceInput>(
 		() => ({
 			blurPx: snapshot.blurPx,
@@ -104,36 +172,152 @@ export function ChatSessionSettingsDrawer({
 		}),
 		[snapshot.blurPx, snapshot.opacityPercent],
 	);
+	const persistedMessageAppearance =
+		React.useMemo<ChatMessageAppearanceInput>(
+			() => ({
+				lineHeight: messageSnapshot.lineHeight,
+				textAlign: messageSnapshot.textAlign,
+			}),
+			[messageSnapshot.lineHeight, messageSnapshot.textAlign],
+		);
+	const persistedShortcutsVisible = React.useSyncExternalStore(
+		shortcutsToolbarVisibilityStore.subscribe,
+		shortcutsToolbarVisibilityStore.getPersisted,
+		shortcutsToolbarVisibilityStore.getPersisted,
+	);
 	const [draftAppearance, setDraftAppearance] =
 		React.useState<ChatBackgroundAppearanceInput>(persistedAppearance);
-	const canSave = !isSameAppearance(draftAppearance, persistedAppearance);
+	const [draftMessageAppearance, setDraftMessageAppearance] =
+		React.useState<ChatMessageAppearanceInput>(persistedMessageAppearance);
+	const [draftShortcutsVisible, setDraftShortcutsVisible] = React.useState(
+		persistedShortcutsVisible,
+	);
+	const savedCloseRef = React.useRef(false);
+	const canSave =
+		!isSameAppearance(draftAppearance, persistedAppearance) ||
+		!isSameMessageAppearance(
+			draftMessageAppearance,
+			persistedMessageAppearance,
+		) ||
+		draftShortcutsVisible !== persistedShortcutsVisible;
 
 	React.useEffect(() => () => store.dispose(), [store]);
+	React.useEffect(() => () => messageStore.dispose(), [messageStore]);
+	React.useEffect(
+		() => () => shortcutsToolbarVisibilityStore.clearPreview(),
+		[],
+	);
 
 	React.useEffect(() => {
 		if (!open) {
 			return;
 		}
 
+		savedCloseRef.current = false;
 		setDraftAppearance(persistedAppearance);
-	}, [open, persistedAppearance]);
+		setDraftMessageAppearance(persistedMessageAppearance);
+		setDraftShortcutsVisible(persistedShortcutsVisible);
+		applySettingsPreview({
+			backgroundAppearance: persistedAppearance,
+			messageAppearance: persistedMessageAppearance,
+		});
+		shortcutsToolbarVisibilityStore.setPreview(persistedShortcutsVisible);
+	}, [
+		open,
+		persistedAppearance,
+		persistedMessageAppearance,
+		persistedShortcutsVisible,
+	]);
 
-	const handleCancel = React.useCallback(() => {
-		setDraftAppearance(persistedAppearance);
-	}, [persistedAppearance]);
-
-	const handleSave = React.useCallback(() => {
-		if (!canSave) {
+	React.useEffect(() => {
+		if (!open) {
 			return;
 		}
 
-		store.setAppearance(draftAppearance);
-	}, [canSave, draftAppearance, store]);
+		applySettingsPreview({
+			backgroundAppearance: draftAppearance,
+			messageAppearance: draftMessageAppearance,
+		});
+		shortcutsToolbarVisibilityStore.setPreview(draftShortcutsVisible);
+	}, [draftAppearance, draftMessageAppearance, draftShortcutsVisible, open]);
+
+	const restorePersistedPreview = React.useCallback(() => {
+		setDraftAppearance(persistedAppearance);
+		setDraftMessageAppearance(persistedMessageAppearance);
+		setDraftShortcutsVisible(persistedShortcutsVisible);
+		applySettingsPreview({
+			backgroundAppearance: persistedAppearance,
+			messageAppearance: persistedMessageAppearance,
+		});
+		shortcutsToolbarVisibilityStore.clearPreview();
+	}, [
+		persistedAppearance,
+		persistedMessageAppearance,
+		persistedShortcutsVisible,
+	]);
+
+	const handleCancel = React.useCallback(() => {
+		savedCloseRef.current = false;
+		restorePersistedPreview();
+	}, [restorePersistedPreview]);
+
+	const handleSave = React.useCallback(() => {
+		savedCloseRef.current = true;
+
+		if (!isSameAppearance(draftAppearance, persistedAppearance)) {
+			store.setAppearance(draftAppearance);
+		}
+
+		if (
+			!isSameMessageAppearance(
+				draftMessageAppearance,
+				persistedMessageAppearance,
+			)
+		) {
+			messageStore.setAppearance(draftMessageAppearance);
+		}
+
+		if (draftShortcutsVisible !== persistedShortcutsVisible) {
+			shortcutsToolbarVisibilityStore.commit(draftShortcutsVisible);
+		}
+		applySettingsPreview({
+			backgroundAppearance: draftAppearance,
+			messageAppearance: draftMessageAppearance,
+		});
+	}, [
+		draftAppearance,
+		draftMessageAppearance,
+		draftShortcutsVisible,
+		messageStore,
+		persistedAppearance,
+		persistedMessageAppearance,
+		persistedShortcutsVisible,
+		store,
+	]);
+
+	const handleDrawerOpenChange = React.useCallback(
+		(nextOpen: boolean) => {
+			if (!nextOpen && !savedCloseRef.current) {
+				restorePersistedPreview();
+			}
+
+			onOpenChange(nextOpen);
+		},
+		[onOpenChange, restorePersistedPreview],
+	);
+
+	React.useEffect(() => {
+		if (open || savedCloseRef.current || !canSave) {
+			return;
+		}
+
+		restorePersistedPreview();
+	}, [canSave, open, restorePersistedPreview]);
 
 	return (
 		<Drawer
 			direction="bottom"
-			onOpenChange={onOpenChange}
+			onOpenChange={handleDrawerOpenChange}
 			open={open}
 			repositionInputs={false}
 		>
@@ -194,10 +378,44 @@ export function ChatSessionSettingsDrawer({
 						className: "chat-session-settings-drawer__viewport",
 					}}
 				>
-					<ChatBackgroundSettingsTab
-						appearance={draftAppearance}
-						onAppearanceChange={setDraftAppearance}
-					/>
+					<div className="chat-session-settings__section">
+						<SettingsSectionMarker
+							icon={Send}
+							label={translateAstra(
+								"chatSessionSettings.section.messageInput",
+							)}
+						/>
+						<MessageInputSettingsTab
+							showShortcutsToolbar={draftShortcutsVisible}
+							onShowShortcutsToolbarChange={
+								setDraftShortcutsVisible
+							}
+						/>
+					</div>
+					<div className="chat-session-settings__section">
+						<SettingsSectionMarker
+							icon={MessageCircleMore}
+							label={translateAstra(
+								"chatSessionSettings.section.chatMessages",
+							)}
+						/>
+						<ChatMessageSettingsTab
+							appearance={draftMessageAppearance}
+							onAppearanceChange={setDraftMessageAppearance}
+						/>
+					</div>
+					<div className="chat-session-settings__section">
+						<SettingsSectionMarker
+							icon={Image}
+							label={translateAstra(
+								"chatSessionSettings.section.chatBackground",
+							)}
+						/>
+						<ChatBackgroundSettingsTab
+							appearance={draftAppearance}
+							onAppearanceChange={setDraftAppearance}
+						/>
+					</div>
 				</DrawerBody>
 				<ChatSessionSettingsDrawerFooter
 					canSave={canSave}

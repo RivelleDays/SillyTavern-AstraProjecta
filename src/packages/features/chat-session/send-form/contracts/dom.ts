@@ -66,10 +66,6 @@ export const ASTRA_SEND_FORM_OPTIONS_DRAWER_SCROLLABLE_CONTENT_ID =
 	"astra-send-form-options-drawer-scrollable-content";
 export const ASTRA_SEND_FORM_OPTIONS_DRAWER_MENU_ID =
 	"astra-send-form-options-drawer-menu";
-export const ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_ID =
-	"astra-send-form-options-drawer-shortcuts-toggle";
-export const ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID =
-	"astra-send-form-options-drawer-shortcuts-toggle-switch";
 export const ASTRA_SEND_FORM_EXTENSION_SHORTCUTS_BUTTON_ID =
 	"astra-send-form-extension-shortcuts-button";
 export const ASTRA_SEND_FORM_EXTENSIONS_DRAWER_ID =

@@ -111,7 +111,9 @@ describe("initializeAstraProjectaRuntime", () => {
 			documentRef: document,
 		});
 
-		expect(createChatBackgroundAppearanceRuntimeBridge).toHaveBeenCalledTimes(1);
+		expect(
+			createChatBackgroundAppearanceRuntimeBridge,
+		).toHaveBeenCalledTimes(1);
 		expect(bridgeDispose).not.toHaveBeenCalled();
 
 		runtime.dispose();

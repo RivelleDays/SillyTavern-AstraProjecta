@@ -11,7 +11,10 @@ export interface UseSliderWithInputOptions {
 export interface UseSliderWithInputResult {
 	handleInputBlur(): void;
 	handleInputChange(nextValue: string): void;
-	handleInputKeyDown(event: { currentTarget: { blur(): void }; key: string }): void;
+	handleInputKeyDown(event: {
+		currentTarget: { blur(): void };
+		key: string;
+	}): void;
 	handleSliderChange(nextValue: number[]): void;
 	inputValue: string;
 	resetToDefault(): void;
@@ -52,7 +55,10 @@ export function useSliderWithInput({
 		handleInputChange(nextValue: string) {
 			setInputValue(nextValue);
 		},
-		handleInputKeyDown(event: { currentTarget: { blur(): void }; key: string }) {
+		handleInputKeyDown(event: {
+			currentTarget: { blur(): void };
+			key: string;
+		}) {
 			if (event.key === "Enter") {
 				event.currentTarget.blur();
 			}

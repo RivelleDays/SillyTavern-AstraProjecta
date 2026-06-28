@@ -507,9 +507,9 @@ export function MobileChatMainMenuDrawer({
 												? onRequestDelete
 												: key === "categories"
 													? onRequestCategories
-												: key === "rename"
-													? onRequestRename
-													: undefined
+													: key === "rename"
+														? onRequestRename
+														: undefined
 										}
 									>
 										<Icon aria-hidden={true} size={16} />

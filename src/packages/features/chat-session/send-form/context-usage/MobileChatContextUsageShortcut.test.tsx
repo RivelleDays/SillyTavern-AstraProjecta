@@ -296,15 +296,11 @@ describe("MobileChatContextUsageShortcut", () => {
 		).toBeInTheDocument();
 		expect(screen.getByText("3,008")).toBeInTheDocument();
 		expect(
-			screen.getByText(
-				"sendForm.contextUsage.metric.prompt::Prompt",
-			),
+			screen.getByText("sendForm.contextUsage.metric.prompt::Prompt"),
 		).toBeInTheDocument();
 		expect(screen.getByText("4,160 / 7,168")).toBeInTheDocument();
 		expect(
-			screen.getByText(
-				"sendForm.contextUsage.metric.reserve::Reserve",
-			),
+			screen.getByText("sendForm.contextUsage.metric.reserve::Reserve"),
 		).toBeInTheDocument();
 		expect(screen.getByText("1,024")).toBeInTheDocument();
 		expect(breakdownRows).toHaveLength(5);
@@ -402,9 +398,7 @@ describe("MobileChatContextUsageShortcut", () => {
 		).toBeInTheDocument();
 		expect(screen.getByText("373")).toBeInTheDocument();
 		expect(
-			screen.getByText(
-				"sendForm.contextUsage.metric.prompt::Prompt",
-			),
+			screen.getByText("sendForm.contextUsage.metric.prompt::Prompt"),
 		).toBeInTheDocument();
 		expect(screen.getByText("2,928 / 7,168")).toBeInTheDocument();
 	});

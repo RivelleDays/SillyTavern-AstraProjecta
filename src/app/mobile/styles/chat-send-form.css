@@ -108,7 +108,10 @@ body.astra-projecta-mobile-layout {
 		overflow: visible;
 		background: transparent;
 		border-top: none;
-		padding-bottom: calc(calc(var(--astra-chat-spacing)) + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)));
+		padding-bottom: calc(
+			calc(var(--astra-chat-spacing)) +
+				var(--astra-mobile-safe-bottom-effective, var(--safe-bottom))
+		);
 	}
 
 	#astra-chat-composer-shell::before {
@@ -888,7 +891,7 @@ body.astra-projecta-mobile-layout {
 		align-items: center;
 		justify-content: center;
 		flex: 0 0 auto;
-		color: var(--color-muted)
+		color: var(--color-muted);
 	}
 
 	.astra-chat-context-usage-shortcut__breakdown-track {

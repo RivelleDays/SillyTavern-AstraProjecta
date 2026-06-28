@@ -1,17 +1,19 @@
 ## Purpose
 
-- Own the Chat Settings bottom drawer and its settings content (currently: Chat Background).
+- Own the Chat Settings bottom drawer and its settings content (sections: Chat Messages, Chat Background).
 - Keep this independent from `sillytavern-interface`: it uses shared Astra UI primitives, but has its own DOM id/class namespace and settings storage.
 
 ## Owned Paths / Responsibilities
 
 - `contracts/dom.ts` owns this drawer's stable DOM ids (`astra-chat-session-settings-drawer*`).
 - `drawer/` owns `ChatSessionSettingsDrawer`, built on the shared Astra `Drawer` primitive.
+- `SettingsSectionMarker.tsx` owns the feature-local labeled section divider (label + right-side line) shared across settings sections.
 - `chat-background/` owns the Chat Background settings tab content (blur/opacity sliders) and reads/writes `packages/core/st/chat-background-appearance`.
+- `chat-message/` owns the Chat Messages settings tab content (line-height / text-align button groups) and reads/writes `packages/core/st/chat-message-appearance`.
 
 ## SillyTavern Touchpoints
 
-- This feature does not touch SillyTavern DOM directly. Background appearance persistence and the `#bg1` CSS variable bridge live in `packages/core/st/chat-background-appearance`; this feature only renders controls bound to that store.
+- This feature does not touch SillyTavern DOM directly. Appearance persistence and the CSS-variable bridges live in `packages/core/st`: the `#bg1` blur/opacity bridge in `chat-background-appearance`, and the `.mes_text`/`.mes_reasoning` `--astra-mes-line-height` / `--astra-mes-text-align` bridge in `chat-message-appearance`. This feature only renders controls bound to those stores.
 
 ## Rules
 

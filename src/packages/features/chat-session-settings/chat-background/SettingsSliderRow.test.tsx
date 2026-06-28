@@ -10,7 +10,9 @@ afterEach(() => {
 
 describe("SettingsSliderRow", () => {
 	test("renders title and current value without helper description text", () => {
-		const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+		const consoleError = vi
+			.spyOn(console, "error")
+			.mockImplementation(() => {});
 
 		render(
 			<SettingsSliderRow
@@ -28,10 +30,15 @@ describe("SettingsSliderRow", () => {
 		expect(screen.getByText("Background Blur")).toBeInTheDocument();
 		expect(screen.queryByText("Adjust the blur.")).not.toBeInTheDocument();
 		expect(
-			document.querySelector(".chat-session-settings__slider-row-description"),
+			document.querySelector(
+				".chat-session-settings__slider-row-description",
+			),
 		).not.toBeInTheDocument();
 		expect(screen.getByRole("textbox")).toHaveValue("3");
-		expect(screen.getByRole("slider")).toHaveAttribute("aria-valuenow", "3");
+		expect(screen.getByRole("slider")).toHaveAttribute(
+			"aria-valuenow",
+			"3",
+		);
 		expect(consoleError).not.toHaveBeenCalled();
 
 		consoleError.mockRestore();
@@ -51,7 +58,9 @@ describe("SettingsSliderRow", () => {
 			/>,
 		);
 
-		expect(screen.getByRole("button", { name: "Reset blur to default" })).toBeDisabled();
+		expect(
+			screen.getByRole("button", { name: "Reset blur to default" }),
+		).toBeDisabled();
 
 		rerender(
 			<SettingsSliderRow
@@ -66,7 +75,9 @@ describe("SettingsSliderRow", () => {
 			/>,
 		);
 
-		expect(screen.getByRole("button", { name: "Reset blur to default" })).toBeEnabled();
+		expect(
+			screen.getByRole("button", { name: "Reset blur to default" }),
+		).toBeEnabled();
 	});
 
 	test("clicking reset calls onValueChange with the default value", () => {
@@ -84,7 +95,9 @@ describe("SettingsSliderRow", () => {
 			/>,
 		);
 
-		fireEvent.click(screen.getByRole("button", { name: "Reset blur to default" }));
+		fireEvent.click(
+			screen.getByRole("button", { name: "Reset blur to default" }),
+		);
 
 		expect(onValueChange).toHaveBeenCalledWith(2);
 	});

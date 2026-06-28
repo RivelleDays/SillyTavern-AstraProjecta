@@ -2543,9 +2543,7 @@ describe("createMobileSendFormFeature", () => {
 			saveSettingsDebounced: vi.fn(),
 			timestampToMoment: vi.fn(() => ({
 				format: vi.fn(() => "2026/04/23 06:30 PM"),
-				valueOf: vi.fn(() =>
-					Date.parse("2026-04-23T10:20:00.000Z"),
-				),
+				valueOf: vi.fn(() => Date.parse("2026-04-23T10:20:00.000Z")),
 			})),
 			translate: (text: string) => text,
 		};
@@ -3049,128 +3047,6 @@ describe("createMobileSendFormFeature", () => {
 		).toHaveAttribute("src", "/img/five.png");
 
 		feature.dispose();
-	});
-
-	test("persists shortcuts toolbar visibility when toggled from the options drawer", async () => {
-		document.body.innerHTML = `
-      <div id="options_button" title="Menu"></div>
-      <div id="extensionsMenuButton" title="Extensions"></div>
-      <div id="extensionsMenu" class="options-content" style="display: none;"></div>
-      <div id="options">
-        <button id="option_toggle_AN" type="button"></button>
-        <button id="option_close_chat" type="button"></button>
-        <button id="option_delete_mes" type="button"></button>
-      </div>
-      <div id="user_avatar_block">
-        <div class="avatar-container selected" data-avatar-id="hero-persona"></div>
-      </div>
-      <div id="form_sheld">
-      <form id="send_form">
-        <div id="nonQRFormItems">
-          <textarea id="send_textarea"></textarea>
-          <div id="rightSendForm">
-            <button id="mes_impersonate" title="Impersonate" type="button"></button>
-            <button id="mes_continue" title="Continue" type="button"></button>
-            <button id="send_but" title="Send message" type="button"></button>
-          </div>
-        </div>
-      </form>
-      </div>
-    `;
-
-		window.matchMedia = vi.fn().mockImplementation(() => ({
-			addEventListener: vi.fn(),
-			matches: true,
-			removeEventListener: vi.fn(),
-		}));
-
-		window.localStorage.removeItem(
-			MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
-		);
-
-		setSillyTavernContext({
-			chat: [{ is_system: false, is_user: true }],
-			chatId: "chat-1",
-			chatMetadata: {},
-			characterId: 0,
-			characters: [{ chat: "chat-1" }],
-			Popup: {
-				show: {
-					confirm: vi.fn().mockResolvedValue(true),
-				},
-			},
-			executeSlashCommandsWithOptions: vi.fn(),
-			getThumbnailUrl: vi.fn(() => "/thumbs/hero-persona.png"),
-			powerUserSettings: { continue_on_send: false },
-		});
-
-		ensureAstraProjectaUiInfrastructure({ documentRef: document });
-
-		const feature = createTestMobileSendFormFeature({
-			documentRef: document,
-		});
-		feature.mount();
-
-		const { composerHost, inputRowHost, shortcutsHost } =
-			await waitForSendFormHosts();
-		const composer = composerHost.querySelector(".astra-chat-composer");
-
-		expect(
-			shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
-		).toBeInTheDocument();
-		expect(composer).toHaveAttribute("data-shortcuts-visible", "true");
-
-		const menuButton = within(inputRowHost).getByRole("button", {
-			name: "Menu",
-		});
-		fireEvent.pointerDown(menuButton);
-		fireEvent.click(menuButton);
-
-		const drawer = await waitFor(() => {
-			const element = document.getElementById(
-				"astra-send-form-options-drawer",
-			);
-			expect(element).toBeInTheDocument();
-			return element as HTMLElement;
-		});
-
-		const visibilityToggle = within(drawer).getByRole("switch", {
-			name: "Show chat shortcuts",
-		});
-
-		fireEvent.click(visibilityToggle);
-
-		await waitFor(() => {
-			expect(
-				shortcutsHost.querySelector(".mobile-send-form-shortcuts"),
-			).not.toBeInTheDocument();
-			expect(composer).toHaveAttribute("data-shortcuts-visible", "false");
-		});
-		expect(
-			window.localStorage.getItem(
-				MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
-			),
-		).toBe("false");
-
-		feature.unmount();
-		feature.mount();
-
-		const {
-			composerHost: remountedComposerHost,
-			shortcutsHost: remountedHost,
-		} = await waitForSendFormHosts();
-
-		expect(
-			remountedHost.querySelector(".mobile-send-form-shortcuts"),
-		).not.toBeInTheDocument();
-		expect(
-			remountedComposerHost.querySelector(".astra-chat-composer"),
-		).toHaveAttribute("data-shortcuts-visible", "false");
-
-		feature.unmount();
-		window.localStorage.removeItem(
-			MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
-		);
 	});
 
 	test("keeps the options drawer available while the textarea is multiline", async () => {
@@ -3940,10 +3816,7 @@ describe("createMobileSendFormFeature", () => {
 			"option_start_new_chat",
 		);
 		const startNewChatClick = vi.fn();
-		startNewChatNativeButton?.addEventListener(
-			"click",
-			startNewChatClick,
-		);
+		startNewChatNativeButton?.addEventListener("click", startNewChatClick);
 		const reloadPage = vi.fn();
 
 		setSillyTavernContext({
@@ -4020,8 +3893,9 @@ describe("createMobileSendFormFeature", () => {
 			".mobile-send-form-shortcuts__regular-group",
 		) as HTMLElement | null;
 		const shortcutItems = Array.from(
-			shortcutsStrip?.querySelectorAll(".mobile-send-form-shortcuts__item") ??
-				[],
+			shortcutsStrip?.querySelectorAll(
+				".mobile-send-form-shortcuts__item",
+			) ?? [],
 		);
 
 		expect(featuredGroup).toBeInTheDocument();

@@ -7,8 +7,7 @@ interface ChatBackgroundAppearanceStoreLike {
 	getSnapshot(): { blurPx: number; opacityPercent: number };
 }
 
-export interface ChatBackgroundAppearanceObservableStore
-	extends ChatBackgroundAppearanceStoreLike {
+export interface ChatBackgroundAppearanceObservableStore extends ChatBackgroundAppearanceStoreLike {
 	dispose(): void;
 	subscribe(listener: () => void): () => void;
 }

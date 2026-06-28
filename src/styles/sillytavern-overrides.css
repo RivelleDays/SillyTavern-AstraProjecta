@@ -40,13 +40,14 @@ select:focus-visible,
 	box-shadow: inset 0 0 0 2px var(--color-ring-t20);
 }
 
-.menu_button, .menu_button_icon {
-    display: flex;
-    align-items: center;
-    font-size: var(--text-sm);
+.menu_button,
+.menu_button_icon {
+	display: flex;
+	align-items: center;
+	font-size: var(--text-sm);
 	font-weight: var(--font-weight-medium);
-    padding-inline: 8px;
-    gap: 8px;
+	padding-inline: 8px;
+	gap: 8px;
 }
 
 select,
@@ -116,12 +117,16 @@ textarea,
 
 .mes {
 	padding: 12px 4px;
-    padding-bottom: 0;
+	padding-bottom: 0;
 }
 
 .mes_text,
 .mes_reasoning {
-	line-height: calc(var(--mainFontSize) + 0.6rem);
+	line-height: var(
+		--astra-mes-line-height,
+		calc(var(--mainFontSize) + 0.6rem)
+	);
+	text-align: var(--astra-mes-text-align, start);
 }
 
 /* Chat background appearance (Astra chat-session-settings: blur/opacity).

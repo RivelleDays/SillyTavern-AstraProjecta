@@ -31,7 +31,9 @@ export function ChatBackgroundSettingsTab({
 					"chatSessionSettings.chatBackground.blur.reset",
 				)}
 				step={CHAT_BACKGROUND_BLUR_STEP_PX}
-				title={translateAstra("chatSessionSettings.chatBackground.blur.title")}
+				title={translateAstra(
+					"chatSessionSettings.chatBackground.blur.title",
+				)}
 				value={appearance.blurPx}
 				onValueChange={(blurPx) => {
 					onAppearanceChange({ ...appearance, blurPx });

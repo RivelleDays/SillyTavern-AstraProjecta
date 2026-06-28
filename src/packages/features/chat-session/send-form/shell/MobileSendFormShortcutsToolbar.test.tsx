@@ -113,10 +113,7 @@ describe("MobileSendFormShortcutsToolbar", () => {
 		const trigger = within(featuredGroup).getByRole("button", {
 			name: "ST menu",
 		});
-		expect(trigger).toHaveAttribute(
-			"id",
-			SILLYTAVERN_INTERFACE_TRIGGER_ID,
-		);
+		expect(trigger).toHaveAttribute("id", SILLYTAVERN_INTERFACE_TRIGGER_ID);
 		expect(trigger).toHaveClass(
 			"mobile-send-form-shortcuts__featured-button",
 		);

@@ -40,6 +40,8 @@ const RETAINED_SHADCN_FILES = [
 	"switch.tsx",
 	"tabs.tsx",
 	"textarea.tsx",
+	"toggle-group.tsx",
+	"toggle.tsx",
 	"tooltip.tsx",
 ] as const;
 

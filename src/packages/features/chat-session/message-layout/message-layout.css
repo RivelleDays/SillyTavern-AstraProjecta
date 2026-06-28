@@ -265,7 +265,7 @@ body.astra-projecta-mobile-layout {
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		font-size: var(--text-sm);
-        font-weight: var(--font-weight-bold);
+		font-weight: var(--font-weight-bold);
 	}
 
 	& #chat .mes .astra-mesHeader__name > .ch_name {

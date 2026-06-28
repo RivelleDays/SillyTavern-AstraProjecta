@@ -170,7 +170,9 @@ export function MobileChatContextUsageShortcut({
 	const tokensUnit = translateAstra("sendForm.contextUsage.unit.tokens");
 	const metricUsage = translateAstra("sendForm.contextUsage.metric.usage");
 	const metricPrompt = translateAstra("sendForm.contextUsage.metric.prompt");
-	const metricReserve = translateAstra("sendForm.contextUsage.metric.reserve");
+	const metricReserve = translateAstra(
+		"sendForm.contextUsage.metric.reserve",
+	);
 	const breakdownItems = [
 		{
 			icon: MessagesSquare,
@@ -208,7 +210,10 @@ export function MobileChatContextUsageShortcut({
 	const remainingContextTokens =
 		snapshot.usedContextTokens == null
 			? null
-			: Math.max(0, snapshot.maxContextTokens - snapshot.usedContextTokens);
+			: Math.max(
+					0,
+					snapshot.maxContextTokens - snapshot.usedContextTokens,
+				);
 
 	const triggerClassName = cn(
 		"astra-chat-context-usage-shortcut__trigger",
@@ -349,15 +354,17 @@ export function MobileChatContextUsageShortcut({
 							/>
 						</div>
 						<div className="astra-chat-context-usage-shortcut__breakdown">
-							{breakdownItems.map(({ icon, key, label, value }) => (
-								<ContextUsageBreakdownRow
-									denominator={snapshot.usedPromptTokens}
-									icon={icon}
-									key={key}
-									label={label}
-									value={value}
-								/>
-							))}
+							{breakdownItems.map(
+								({ icon, key, label, value }) => (
+									<ContextUsageBreakdownRow
+										denominator={snapshot.usedPromptTokens}
+										icon={icon}
+										key={key}
+										label={label}
+										value={value}
+									/>
+								),
+							)}
 						</div>
 						<p className="astra-chat-context-usage-shortcut__explainer">
 							<span

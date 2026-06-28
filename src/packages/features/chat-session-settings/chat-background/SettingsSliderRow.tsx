@@ -36,41 +36,56 @@ export function SettingsSliderRow({
 	title,
 	value,
 }: SettingsSliderRowProps) {
-	const slider = useSliderWithInput({ defaultValue, max, min, onValueChange, value });
+	const slider = useSliderWithInput({
+		defaultValue,
+		max,
+		min,
+		onValueChange,
+		value,
+	});
 	const isDefault = value === defaultValue;
 	const titleId = React.useId();
 
 	return (
 		<div className="chat-session-settings__slider-row">
 			<div className="chat-session-settings__slider-row-header">
-				<Label className="chat-session-settings__slider-row-title" htmlFor={titleId}>
+				<Label
+					className="chat-session-settings__slider-row-title"
+					htmlFor={titleId}
+				>
 					{title}
 				</Label>
 				<div className="chat-session-settings__slider-row-value">
 					<TooltipProvider delayDuration={0}>
-							<Tooltip>
-								<TooltipTrigger asChild={true}>
-									<button
-										aria-label={resetLabel}
-										className={cn(
-											buttonVariants({
-												size: "icon-xs",
-												variant: "ghost",
-											}),
-											"chat-session-settings__slider-row-reset",
-										)}
-										data-size="icon-xs"
-										data-slot="button"
-										data-variant="ghost"
-										disabled={isDefault}
-										type="button"
-										onClick={slider.resetToDefault}
-									>
-										<UiIcon aria-hidden={true} icon={RotateCcw} size="xs" />
-									</button>
-								</TooltipTrigger>
-								<TooltipContent side="top">{resetLabel}</TooltipContent>
-							</Tooltip>
+						<Tooltip>
+							<TooltipTrigger asChild={true}>
+								<button
+									aria-label={resetLabel}
+									className={cn(
+										buttonVariants({
+											size: "icon-xs",
+											variant: "ghost",
+										}),
+										"chat-session-settings__slider-row-reset",
+									)}
+									data-size="icon-xs"
+									data-slot="button"
+									data-variant="ghost"
+									disabled={isDefault}
+									type="button"
+									onClick={slider.resetToDefault}
+								>
+									<UiIcon
+										aria-hidden={true}
+										icon={RotateCcw}
+										size="xs"
+									/>
+								</button>
+							</TooltipTrigger>
+							<TooltipContent side="top">
+								{resetLabel}
+							</TooltipContent>
+						</Tooltip>
 					</TooltipProvider>
 					<Input
 						className="chat-session-settings__slider-row-input"
@@ -78,7 +93,9 @@ export function SettingsSliderRow({
 						inputMode="numeric"
 						value={slider.inputValue}
 						onBlur={slider.handleInputBlur}
-						onChange={(event) => slider.handleInputChange(event.target.value)}
+						onChange={(event) =>
+							slider.handleInputChange(event.target.value)
+						}
 						onKeyDown={slider.handleInputKeyDown}
 					/>
 				</div>
