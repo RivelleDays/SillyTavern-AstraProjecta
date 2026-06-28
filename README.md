@@ -3,6 +3,9 @@
 <p align="left">
   <a href="https://github.com/RivelleDays/SillyTavern-AstraProjecta/commits/main/"><img src="https://img.shields.io/badge/release-alpha-51A0DE?style=for-the-badge&labelColor=000000" alt="Release: Alpha"></a>
   <a href="https://github.com/SillyTavern/SillyTavern/releases/"><img src="https://img.shields.io/badge/required%20ST%20version-1.18.0%2B-darkred?style=for-the-badge&labelColor=000000&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAABRFBMVEVHcEyEGxubFhafFRWfFRWeFBSaFhaWFRWfFRWfFRWOFhaeFRWeFBSeFBSfFRWfFRWdFRWbFBSfFBSfFBSdFRWeExOfFBSfFRWdFBSfFRWfFRWfGxudFRWeFBSTFRWeFRWeFRWfFRWcFhaeFRWfFRWeFRWfFRWfFRWeFRWeFRWeFRWgFBSgFRWfFRWfFRWgFRX26ur4+Pj9+/ugFBT9/v6fFRWtOzueFRWeFRWgFRX///+fFRX6+/vXo6OfFBSrODj6/PzIenr28PD+/f2gFRX06ur17e3dr6+rMzPTlJS5VVW+ZGT9/v7y39/y6OioMTHx//+1Skrrz8+qMDD7+/v7/Pzq0tLkvb22UVHHe3v4+Pi3WFjIgoL4+PjNjIy5XFyuQEDmzMzZpKThubn8/Py+YWHz8/P8/Pz9//+gFRX////36+tJcu2kAAAAaXRSTlMAARDDqIkMB8qyAzqXUrnQGROErSmd1o41pL4iL2oFTFiTHYt5ccZ1PF1G6ONj2/z1gv1n32CkQz/t7ceYYH+KqdZT5fSoY+XbwLSH1u8elxi8+OmeqJ78nTmbXBds8WlWNc+EwcovuYtEjPKpAAACkklEQVQ4y3VTZXfbQBBcwYlZlmSRLdmWmRpwqGFOw1BmPvf/f+/JeU3ipr0Pp/d2VzszO7cAJfj/oXiAxK5xFEU9TkoSxa1pLejggcayrMVNp2lk26w2wEvg4iUry7IATUGVPG12tlfrYB2iWjmPFJjGAxiqwYT5dyEr3MVkoUWZhgTAF0K+JRQfkyrrvhYoYcTWGVEvT/EpF/PudIAKBRTU18LQYswcR1bNiRxv0JXzDjYRzWsiIcuzKgk0OzglkMDVMW4QDiteXu5VJ7dLMBoYMxPxLV0QUk9zRK6SAEIwX+FEL0hTgRGSW00mXXY6Ce8oaw5UETiWokhqN21z9D3RUDMKH0dXo/Ozs/PRwfqbV5UgnNKodtHmydxwOPf+Mr+HJy87rT8ie5kBoLhXw/HXm5uNzf2N4/Hcxu6B6wAYtZiGxgBryNOdi+Xl70ABqsKT8WsKqr7rpAwe1ABhLCDPjT9sj39cX/88QqTgqRm1Yx1ZZAAWhKlPDElZ9vP28szM+HI9L1ADUbSIg061QlTmc252Z+nTTxer27+e5QW82evmdt0bLItvt7a2vn1ZnhTsloAXF++8pznVsu3T4xlyxi/Wqefj/UyibNFSOZq0oGKdERR/JVzd3Ht3eDhC8dHeqhZVGEcRGD2mwHAxbkEJ2Y4CUCmiapHw8lg2IyZh7BrA2bhPZHCJ6OeUFD+HVZRFYnShj21ip5FEEy4VTS1JbUZQeV71b22KEuOBHZzYZ1mx3WRZ3/X/sU2SFRTbbfIHXYyK9YdPnF+cPMlYiO5jTT33UpKbeadspxPLcqwvTNmvz8tyY2mnR+bAYtxnmHoyjdhbYZguxspkHwKZNum/1pcioYW6MJm3Yf5v+02S+Q13BVQ4NCDLNAAAAABJRU5ErkJggg==" alt="Required ST version: 1.18.0+"></a>
+  <a href="https://discord.gg/bb35eB5Zgr">
+    <img src="https://img.shields.io/badge/Discord-AstraRiver-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=000000" alt="Join our Discord: AstraRiver">
+  </a>
 </p>
 
 **AstraProjecta** is a mobile-first third-party UI extension for SillyTavern. It reimagines SillyTavern’s frontend into a more cohesive, modern, and easier-to-navigate experience while keeping SillyTavern as the underlying runtime.
@@ -49,12 +52,13 @@ AstraProjecta currently focuses on refining SillyTavern’s core chat experience
 
 ## Requirements
 
-For the smoothest testing experience, please use the following baseline before installing AstraProjecta:
+AstraProjecta requires **SillyTavern `1.18.0` or later**. During the alpha phase, using the SillyTavern `staging` branch is recommended, since fixes and compatibility updates land there first.
 
-- Use the latest SillyTavern `staging` branch.
-- Disable all non-built-in SillyTavern extensions.
+For the smoothest testing experience, please also:
+
 - Disable custom CSS.
 - Disable custom regex.
+- Disable non-built-in SillyTavern extensions other than those listed under [Supported Third-Party Extensions](#supported-third-party-extensions).
 
 Running outside this baseline may cause unsupported behavior during alpha. If something breaks while using unsupported extensions or custom styling, I may not be able to provide a reliable fix yet.
 
@@ -70,18 +74,6 @@ https://github.com/RivelleDays/SillyTavern-AstraProjecta
 
 After installation, please make sure your environment follows the [Requirements](#requirements) above before testing.
 
-## Community
-
-<p align="left">
-  <a href="https://discord.gg/bb35eB5Zgr">
-    <img src="https://img.shields.io/badge/Discord-AstraRiver-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=000000" alt="Join our Discord: AstraRiver" height="32">
-  </a>
-</p>
-
-**[AstraRiver](https://discord.gg/bb35eB5Zgr)** is Rivelle’s personal server, created to share and discuss topics related to **AstraProjecta**, SillyTavern, AI Roleplay, and other Rivelle-made projects in one place.
-
-You are welcome to join if you would like to follow development progress, share feedback, or casually discuss related UI and project ideas.
-
 ## Compatibility
 
 | Target  | Status                                                                    |
@@ -91,6 +83,16 @@ You are welcome to join if you would like to follow development progress, share 
 | Tablet  | Supported through the mobile shell range, but not absolute test priority. |
 
 **Tested environment:** Primary browser is Chrome, with testing on macOS and iPhone via Safari/PWA. Because AstraProjecta is still in alpha, tested coverage is limited; broader browser and device support will matter more once the core UI structure stabilizes.
+
+## Supported Third-Party Extensions
+
+Supporting third-party SillyTavern extensions is **not a priority during the alpha phase**. The list below reflects extensions Astra has specifically tested and is committed to keeping compatible going forward — it is not a general compatibility guarantee.
+
+| Extension | Status |
+| --- | --- |
+| [Sillyanonymous / SillyTavern-CharacterLibrary](https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary) | Confirmed supported |
+
+Astra reserves the right to decline support for extensions of uncertain quality or from developers we can't reasonably trust, and isn't responsible for conflicts caused by using other extensions. That said, if a third-party extension's developer wants to add their own compatibility with AstraProjecta, that's entirely welcome and won't conflict with this policy.
 
 ## Status & Roadmap
 
@@ -110,10 +112,16 @@ To be clear about what AstraProjecta is **not**:
 
 - It is **not** intended to merge into SillyTavern’s main branch.
 - It is **not** a backend replacement or server plugin.
-- It is **not** a general compatibility layer for third-party SillyTavern extensions during alpha—custom CSS and custom regex are likewise unsupported for now (see [Requirements](#requirements)).
+- It is **not** a general compatibility layer for third-party SillyTavern extensions during alpha—see [Supported Third-Party Extensions](#supported-third-party-extensions) for the current exception list.
 - It is **not** a Moonlit Echoes theme skin or a continuation of Moonlit Echoes’ styling system.
 
 Deep user customization is not recommended during alpha, since future versions may change structure and selectors. Some features may also remain unavailable until SillyTavern provides stable enough extension surfaces for proper integration.
+
+## AI Usage
+
+AstraProjecta is developed using AI coding agents as **a semi-autonomous engineer, with human curation**. AI handles a substantial share of implementation work, particularly backend-facing logic, with Rivelle reviewing and directing the result. Rivelle's own hands-on work leans toward the frontend: CSS, visual style, and UI/UX decisions.
+
+We've found that AI agents can, without warning, pull patterns or code from other local or public SillyTavern extensions during development—sometimes without leaving any attribution. If you spot a credit that's missing from this README, please open an issue or PR so we can correct it.
 
 ## Credits
 
@@ -123,6 +131,8 @@ AstraProjecta is largely an independent reimplementation with substantial rewrit
 
 - **[Sillyanonymous / SillyTavern-CharacterLibrary](https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary)**: A SillyTavern third-party extension used as a reference for target-first chat jump and loading behavior for inactive character and group chat opens. AstraProjecta does not depend on it at runtime.
 - **[LenAnderson / SillyTavern-MoreFlexibleContinues](https://github.com/LenAnderson/SillyTavern-MoreFlexibleContinues/)** (Unlicensed): A core inspiration behind AstraProjecta’s continue-generation workflow. The implementation has been completely rewritten with more advanced and complete functionality, but the original idea remains an indispensable foundation for this part of the experience.
+- **[SoFizzticated / SillyTavern-ChatPlus](https://github.com/SoFizzticated/SillyTavern-ChatPlus)** (AGPLv3 License): Inspiration behind AstraProjecta's current global and per-character/group chat categorization feature.
+- **[NeoTavern / NeoTavern-Frontend](https://github.com/NeoTavern/NeoTavern-Frontend)**: Reference for AstraProjecta's typed-key i18n management approach.
 
 ### Historical Inspiration
 
@@ -131,7 +141,6 @@ These projects influenced older AstraProjecta prototypes or feature ideas. Some 
 - **[SillyTavern / Extension-TopInfoBar](https://github.com/SillyTavern/Extension-TopInfoBar)** (AGPLv3 License): Historical influence on early AstraProjecta experiments.
 - **[LenAnderson / SillyTavern-WorldInfoInfo](https://github.com/LenAnderson/SillyTavern-WorldInfoInfo)** (Unlicensed) and **[Slub77 / Sillytavern-Loretips](https://github.com/Slub77/Sillytavern-Loretips)** (AGPLv3 License): Historical inspiration for Worlds/Lorebooks information ideas in older Astra work.
 - **[LenAnderson / SillyTavern-ToastHistory](https://github.com/LenAnderson/SillyTavern-ToastHistory)** (Unlicensed): Historical inspiration for notification-related ideas in older Astra work.
-- **[SoFizzticated / SillyTavern-ChatPlus](https://github.com/SoFizzticated/SillyTavern-ChatPlus)** (AGPLv3 License): Historical inspiration for chat-list and category-management ideas.
 
 ### UI Assets
 
@@ -152,6 +161,10 @@ For full dependency details, see `package.json`.
 | [Radix UI](https://github.com/radix-ui/primitives) | UI primitives used through Shadcn/ui and Astra wrappers | MIT          |
 | [Vaul](https://github.com/emilkowalski/vaul)       | Drawer primitive used by mobile overlay surfaces        | MIT          |
 | [Base UI](https://github.com/mui/base-ui)          | UI primitives used by selected Astra wrappers           | MIT          |
+| [class-variance-authority](https://github.com/joe-bell/cva) | Variant management for component styling          | Apache 2.0   |
+| [clsx](https://github.com/lukeed/clsx)             | className utility                                       | MIT          |
+| [tailwind-merge](https://github.com/dcastil/tailwind-merge) | Tailwind class merging                           | MIT          |
+| [tw-animate-css](https://github.com/Wombosvideo/tw-animate-css) | Animation utility classes for Tailwind        | MIT          |
 
 ## Acknowledgements
 

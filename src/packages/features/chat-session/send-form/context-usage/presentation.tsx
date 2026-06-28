@@ -1,8 +1,3 @@
-import * as React from "react";
-
-import { UiIcon } from "@/components/ui/shared/icon";
-import { DatabaseZap } from "@/components/ui/shared/icons";
-import { cn } from "@/lib/utils";
 import type { ChatContextUsageSnapshot } from "@/packages/core/st/chatContextUsage";
 
 export type ContextUsageVisualState =
@@ -108,68 +103,4 @@ export function resolveContextUsageVisualState(
 	}
 
 	return "normal";
-}
-
-export function ContextUsageTextRow({
-	label,
-	value,
-	valueClassName,
-}: {
-	label: string;
-	value: string;
-	valueClassName?: string;
-}): React.ReactElement {
-	return (
-		<div className="astra-chat-context-usage-shortcut__text-row">
-			<span className="astra-chat-context-usage-shortcut__text-label">
-				{label}
-			</span>
-			<span
-				className={cn(
-					"astra-chat-context-usage-shortcut__text-value",
-					valueClassName,
-				)}
-			>
-				{value}
-			</span>
-		</div>
-	);
-}
-
-export function ContextUsageDataPill({
-	className,
-	maxContextTokens,
-	usedContextTokens,
-}: {
-	className?: string;
-	maxContextTokens: number;
-	usedContextTokens: number | null;
-}): React.ReactElement {
-	return (
-		<div
-			aria-live="polite"
-			className={cn(
-				"astra-chat-context-usage-shortcut__data-pill",
-				className,
-			)}
-		>
-			<span
-				aria-hidden={true}
-				className="astra-chat-context-usage-shortcut__data-pill-icon"
-			>
-				<UiIcon icon={DatabaseZap} size="sm" strokeWidth={2.25} />
-			</span>
-			<span className="astra-chat-context-usage-shortcut__data-pill-value">
-				{formatContextUsageTokenCount(usedContextTokens)}
-			</span>
-			<span className="astra-chat-context-usage-shortcut__data-pill-max">
-				<span className="astra-chat-context-usage-shortcut__data-pill-separator">
-					/
-				</span>
-				<span className="astra-chat-context-usage-shortcut__data-pill-max-value">
-					{formatContextUsageTokenCount(maxContextTokens)}
-				</span>
-			</span>
-		</div>
-	);
 }
