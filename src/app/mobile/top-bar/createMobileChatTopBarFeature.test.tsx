@@ -630,23 +630,25 @@ describe("createMobileChatTopBarFeature", () => {
 		fireEvent.click(settingsTrigger);
 
 		await waitFor(() => {
-				expect(
-					screen.getByRole("dialog", { name: "Chat Settings" }),
-				).toBeInTheDocument();
-			});
 			expect(
-				document.getElementById("astra-chat-session-settings-drawer"),
-			).toHaveClass("chat-session-settings-drawer");
-			expect(
-				document.querySelector(".chat-session-settings__chat-background-tab"),
+				screen.getByRole("dialog", { name: "Chat Settings" }),
 			).toBeInTheDocument();
-			expect(
-				document.getElementById("astra-chat-session-settings-panel"),
-			).not.toBeInTheDocument();
-			expect(settingsTrigger).toHaveAttribute("aria-expanded", "true");
+		});
+		expect(
+			document.getElementById("astra-chat-session-settings-drawer"),
+		).toHaveClass("chat-session-settings-drawer");
+		expect(
+			document.querySelector(
+				".chat-session-settings__chat-background-tab",
+			),
+		).toBeInTheDocument();
+		expect(
+			document.getElementById("astra-chat-session-settings-panel"),
+		).not.toBeInTheDocument();
+		expect(settingsTrigger).toHaveAttribute("aria-expanded", "true");
 
-			act(() => {
-				feature.dispose();
-			});
+		act(() => {
+			feature.dispose();
+		});
 	});
 });

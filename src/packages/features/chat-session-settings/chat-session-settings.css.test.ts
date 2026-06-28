@@ -55,6 +55,8 @@ describe("chat-session-settings CSS contracts", () => {
 	test("does not keep removed slider-row description selectors", () => {
 		const css = readCss();
 
-		expect(css).not.toContain("chat-session-settings__slider-row-description");
+		expect(css).not.toContain(
+			"chat-session-settings__slider-row-description",
+		);
 	});
 });

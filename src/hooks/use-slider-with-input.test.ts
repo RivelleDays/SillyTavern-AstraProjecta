@@ -16,7 +16,13 @@ describe("useSliderWithInput", () => {
 	test("slider drag commits the clamped value immediately via onValueChange", () => {
 		const onValueChange = vi.fn();
 		const { result } = renderHook(() =>
-			useSliderWithInput({ defaultValue: 2, max: 5, min: 0, onValueChange, value: 2 }),
+			useSliderWithInput({
+				defaultValue: 2,
+				max: 5,
+				min: 0,
+				onValueChange,
+				value: 2,
+			}),
 		);
 
 		act(() => {
@@ -29,7 +35,13 @@ describe("useSliderWithInput", () => {
 	test("typing in the input updates the local input string without committing yet", () => {
 		const onValueChange = vi.fn();
 		const { result } = renderHook(() =>
-			useSliderWithInput({ defaultValue: 2, max: 5, min: 0, onValueChange, value: 2 }),
+			useSliderWithInput({
+				defaultValue: 2,
+				max: 5,
+				min: 0,
+				onValueChange,
+				value: 2,
+			}),
 		);
 
 		act(() => {
@@ -43,7 +55,13 @@ describe("useSliderWithInput", () => {
 	test("blurring the input commits the parsed value", () => {
 		const onValueChange = vi.fn();
 		const { result } = renderHook(() =>
-			useSliderWithInput({ defaultValue: 2, max: 5, min: 0, onValueChange, value: 2 }),
+			useSliderWithInput({
+				defaultValue: 2,
+				max: 5,
+				min: 0,
+				onValueChange,
+				value: 2,
+			}),
 		);
 
 		act(() => {
@@ -59,7 +77,13 @@ describe("useSliderWithInput", () => {
 	test("Enter key in the input commits the value via blur", () => {
 		const onValueChange = vi.fn();
 		const { result } = renderHook(() =>
-			useSliderWithInput({ defaultValue: 2, max: 5, min: 0, onValueChange, value: 2 }),
+			useSliderWithInput({
+				defaultValue: 2,
+				max: 5,
+				min: 0,
+				onValueChange,
+				value: 2,
+			}),
 		);
 		const blur = vi.fn();
 
@@ -79,7 +103,13 @@ describe("useSliderWithInput", () => {
 	test("out-of-range input commits clamped to min/max on blur", () => {
 		const onValueChange = vi.fn();
 		const { result } = renderHook(() =>
-			useSliderWithInput({ defaultValue: 2, max: 5, min: 0, onValueChange, value: 2 }),
+			useSliderWithInput({
+				defaultValue: 2,
+				max: 5,
+				min: 0,
+				onValueChange,
+				value: 2,
+			}),
 		);
 
 		act(() => {
@@ -96,7 +126,13 @@ describe("useSliderWithInput", () => {
 	test("non-numeric input on blur reverts to the current committed value", () => {
 		const onValueChange = vi.fn();
 		const { result } = renderHook(() =>
-			useSliderWithInput({ defaultValue: 2, max: 5, min: 0, onValueChange, value: 3 }),
+			useSliderWithInput({
+				defaultValue: 2,
+				max: 5,
+				min: 0,
+				onValueChange,
+				value: 3,
+			}),
 		);
 
 		act(() => {
@@ -113,7 +149,13 @@ describe("useSliderWithInput", () => {
 	test("resetToDefault commits the default value", () => {
 		const onValueChange = vi.fn();
 		const { result } = renderHook(() =>
-			useSliderWithInput({ defaultValue: 2, max: 5, min: 0, onValueChange, value: 5 }),
+			useSliderWithInput({
+				defaultValue: 2,
+				max: 5,
+				min: 0,
+				onValueChange,
+				value: 5,
+			}),
 		);
 
 		act(() => {

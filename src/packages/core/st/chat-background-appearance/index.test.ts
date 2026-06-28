@@ -67,7 +67,10 @@ describe("chat background appearance store", () => {
 			createContext({
 				extensionSettings: {
 					astra_projecta: {
-						chatBackgroundAppearance: { blurPx: "nope", opacityPercent: null },
+						chatBackgroundAppearance: {
+							blurPx: "nope",
+							opacityPercent: null,
+						},
 					},
 				},
 			}),
@@ -96,7 +99,10 @@ describe("chat background appearance store", () => {
 		expect(listener).toHaveBeenCalledTimes(1);
 		expect(
 			(
-				context.extensionSettings as Record<string, Record<string, unknown>>
+				context.extensionSettings as Record<
+					string,
+					Record<string, unknown>
+				>
 			).astra_projecta.chatBackgroundAppearance,
 		).toEqual(expect.objectContaining({ blurPx: 5 }));
 	});
@@ -128,7 +134,10 @@ describe("chat background appearance store", () => {
 		expect(listener).toHaveBeenCalledTimes(1);
 		expect(
 			(
-				context.extensionSettings as Record<string, Record<string, unknown>>
+				context.extensionSettings as Record<
+					string,
+					Record<string, unknown>
+				>
 			).astra_projecta.chatBackgroundAppearance,
 		).toEqual(expect.objectContaining({ blurPx: 5, opacityPercent: 0 }));
 	});

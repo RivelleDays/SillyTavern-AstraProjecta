@@ -2543,9 +2543,7 @@ describe("createMobileSendFormFeature", () => {
 			saveSettingsDebounced: vi.fn(),
 			timestampToMoment: vi.fn(() => ({
 				format: vi.fn(() => "2026/04/23 06:30 PM"),
-				valueOf: vi.fn(() =>
-					Date.parse("2026-04-23T10:20:00.000Z"),
-				),
+				valueOf: vi.fn(() => Date.parse("2026-04-23T10:20:00.000Z")),
 			})),
 			translate: (text: string) => text,
 		};
@@ -3940,10 +3938,7 @@ describe("createMobileSendFormFeature", () => {
 			"option_start_new_chat",
 		);
 		const startNewChatClick = vi.fn();
-		startNewChatNativeButton?.addEventListener(
-			"click",
-			startNewChatClick,
-		);
+		startNewChatNativeButton?.addEventListener("click", startNewChatClick);
 		const reloadPage = vi.fn();
 
 		setSillyTavernContext({
@@ -4020,8 +4015,9 @@ describe("createMobileSendFormFeature", () => {
 			".mobile-send-form-shortcuts__regular-group",
 		) as HTMLElement | null;
 		const shortcutItems = Array.from(
-			shortcutsStrip?.querySelectorAll(".mobile-send-form-shortcuts__item") ??
-				[],
+			shortcutsStrip?.querySelectorAll(
+				".mobile-send-form-shortcuts__item",
+			) ?? [],
 		);
 
 		expect(featuredGroup).toBeInTheDocument();

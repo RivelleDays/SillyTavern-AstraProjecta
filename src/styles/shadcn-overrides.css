@@ -467,9 +467,9 @@
 }
 
 .astra-dialog-title {
-    color: var(--color-base);
-    font-size: var(--text-sm);
-    font-weight: var(--font-weight-semibold);
+	color: var(--color-base);
+	font-size: var(--text-sm);
+	font-weight: var(--font-weight-semibold);
 }
 
 .astra-dialog-description {
@@ -508,16 +508,16 @@
 }
 
 .astra-dialog-icon {
-    display: inline-flex;
-    width: 28px;
-    height: 28px;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: var(--radius-md);
-    color: var(--color-muted);
-    background: var(--surface-accent-t80);
+	display: inline-flex;
+	width: 28px;
+	height: 28px;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	border-radius: var(--radius-md);
+	color: var(--color-muted);
+	background: var(--surface-accent-t80);
 }
 
 .astra-dialog-icon svg {

@@ -88,8 +88,8 @@ After installation, please make sure your environment follows the [Requirements]
 
 Supporting third-party SillyTavern extensions is **not a priority during the alpha phase**. The list below reflects extensions Astra has specifically tested and is committed to keeping compatible going forward — it is not a general compatibility guarantee.
 
-| Extension | Status |
-| --- | --- |
+| Extension                                                                                                       | Status              |
+| --------------------------------------------------------------------------------------------------------------- | ------------------- |
 | [Sillyanonymous / SillyTavern-CharacterLibrary](https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary) | Confirmed supported |
 
 Astra reserves the right to decline support for extensions of uncertain quality or from developers we can't reasonably trust, and isn't responsible for conflicts caused by using other extensions. That said, if a third-party extension's developer wants to add their own compatibility with AstraProjecta, that's entirely welcome and won't conflict with this policy.
@@ -153,18 +153,18 @@ These projects influenced older AstraProjecta prototypes or feature ideas. Some 
 
 For full dependency details, see `package.json`.
 
-| Name                                               | Description                                             | License      |
-| -------------------------------------------------- | ------------------------------------------------------- | ------------ |
-| [React](https://github.com/facebook/react)         | UI runtime                                              | MIT          |
-| [shadcn-ui](https://github.com/shadcn-ui/ui)       | UI component foundation                                 | MIT          |
-| [coss origin](https://coss.com/origin)             | Used to create Shadcn/ui-based components               | AGPLv3 / MIT |
-| [Radix UI](https://github.com/radix-ui/primitives) | UI primitives used through Shadcn/ui and Astra wrappers | MIT          |
-| [Vaul](https://github.com/emilkowalski/vaul)       | Drawer primitive used by mobile overlay surfaces        | MIT          |
-| [Base UI](https://github.com/mui/base-ui)          | UI primitives used by selected Astra wrappers           | MIT          |
-| [class-variance-authority](https://github.com/joe-bell/cva) | Variant management for component styling          | Apache 2.0   |
-| [clsx](https://github.com/lukeed/clsx)             | className utility                                       | MIT          |
-| [tailwind-merge](https://github.com/dcastil/tailwind-merge) | Tailwind class merging                           | MIT          |
-| [tw-animate-css](https://github.com/Wombosvideo/tw-animate-css) | Animation utility classes for Tailwind        | MIT          |
+| Name                                                            | Description                                             | License      |
+| --------------------------------------------------------------- | ------------------------------------------------------- | ------------ |
+| [React](https://github.com/facebook/react)                      | UI runtime                                              | MIT          |
+| [shadcn-ui](https://github.com/shadcn-ui/ui)                    | UI component foundation                                 | MIT          |
+| [coss origin](https://coss.com/origin)                          | Used to create Shadcn/ui-based components               | AGPLv3 / MIT |
+| [Radix UI](https://github.com/radix-ui/primitives)              | UI primitives used through Shadcn/ui and Astra wrappers | MIT          |
+| [Vaul](https://github.com/emilkowalski/vaul)                    | Drawer primitive used by mobile overlay surfaces        | MIT          |
+| [Base UI](https://github.com/mui/base-ui)                       | UI primitives used by selected Astra wrappers           | MIT          |
+| [class-variance-authority](https://github.com/joe-bell/cva)     | Variant management for component styling                | Apache 2.0   |
+| [clsx](https://github.com/lukeed/clsx)                          | className utility                                       | MIT          |
+| [tailwind-merge](https://github.com/dcastil/tailwind-merge)     | Tailwind class merging                                  | MIT          |
+| [tw-animate-css](https://github.com/Wombosvideo/tw-animate-css) | Animation utility classes for Tailwind                  | MIT          |
 
 ## Acknowledgements
 

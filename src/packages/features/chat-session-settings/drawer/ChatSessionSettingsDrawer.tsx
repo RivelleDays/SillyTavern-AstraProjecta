@@ -14,10 +14,16 @@ import { UiIcon } from "@/components/ui/shared/icon";
 import { MessageCircleMore, Save } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import { ChatBackgroundSettingsTab } from "@/packages/features/chat-session-settings/chat-background/ChatBackgroundSettingsTab";
+import { ChatMessageSettingsTab } from "@/packages/features/chat-session-settings/chat-message/ChatMessageSettingsTab";
+import { SettingsSectionMarker } from "@/packages/features/chat-session-settings/SettingsSectionMarker";
 import {
 	createChatBackgroundAppearanceStore,
 	type ChatBackgroundAppearanceInput,
 } from "@/packages/core/st/chat-background-appearance";
+import {
+	createChatMessageAppearanceStore,
+	type ChatMessageAppearanceInput,
+} from "@/packages/core/st/chat-message-appearance";
 import {
 	CHAT_SESSION_SETTINGS_DRAWER_BODY_ID,
 	CHAT_SESSION_SETTINGS_DRAWER_CONTENT_ID,
@@ -39,6 +45,16 @@ function isSameAppearance(
 	return (
 		left.blurPx === right.blurPx &&
 		left.opacityPercent === right.opacityPercent
+	);
+}
+
+function isSameMessageAppearance(
+	left: ChatMessageAppearanceInput,
+	right: ChatMessageAppearanceInput,
+) {
+	return (
+		left.lineHeight === right.lineHeight &&
+		left.textAlign === right.textAlign
 	);
 }
 
@@ -89,14 +105,28 @@ export function ChatSessionSettingsDrawer({
 	onOpenChange,
 	open,
 }: ChatSessionSettingsDrawerProps) {
-	const store = React.useMemo(() => createChatBackgroundAppearanceStore(), []);
+	const store = React.useMemo(
+		() => createChatBackgroundAppearanceStore(),
+		[],
+	);
 	const snapshot = React.useSyncExternalStore(
 		store.subscribe,
 		store.getSnapshot,
 		store.getSnapshot,
 	);
+	const messageStore = React.useMemo(
+		() => createChatMessageAppearanceStore(),
+		[],
+	);
+	const messageSnapshot = React.useSyncExternalStore(
+		messageStore.subscribe,
+		messageStore.getSnapshot,
+		messageStore.getSnapshot,
+	);
 	const title = translateAstra("chatSessionSettings.panel.title");
-	const description = translateAstra("chatSessionSettings.drawer.description");
+	const description = translateAstra(
+		"chatSessionSettings.drawer.description",
+	);
 	const persistedAppearance = React.useMemo<ChatBackgroundAppearanceInput>(
 		() => ({
 			blurPx: snapshot.blurPx,
@@ -104,11 +134,27 @@ export function ChatSessionSettingsDrawer({
 		}),
 		[snapshot.blurPx, snapshot.opacityPercent],
 	);
+	const persistedMessageAppearance =
+		React.useMemo<ChatMessageAppearanceInput>(
+			() => ({
+				lineHeight: messageSnapshot.lineHeight,
+				textAlign: messageSnapshot.textAlign,
+			}),
+			[messageSnapshot.lineHeight, messageSnapshot.textAlign],
+		);
 	const [draftAppearance, setDraftAppearance] =
 		React.useState<ChatBackgroundAppearanceInput>(persistedAppearance);
-	const canSave = !isSameAppearance(draftAppearance, persistedAppearance);
+	const [draftMessageAppearance, setDraftMessageAppearance] =
+		React.useState<ChatMessageAppearanceInput>(persistedMessageAppearance);
+	const canSave =
+		!isSameAppearance(draftAppearance, persistedAppearance) ||
+		!isSameMessageAppearance(
+			draftMessageAppearance,
+			persistedMessageAppearance,
+		);
 
 	React.useEffect(() => () => store.dispose(), [store]);
+	React.useEffect(() => () => messageStore.dispose(), [messageStore]);
 
 	React.useEffect(() => {
 		if (!open) {
@@ -116,19 +162,35 @@ export function ChatSessionSettingsDrawer({
 		}
 
 		setDraftAppearance(persistedAppearance);
-	}, [open, persistedAppearance]);
+		setDraftMessageAppearance(persistedMessageAppearance);
+	}, [open, persistedAppearance, persistedMessageAppearance]);
 
 	const handleCancel = React.useCallback(() => {
 		setDraftAppearance(persistedAppearance);
-	}, [persistedAppearance]);
+		setDraftMessageAppearance(persistedMessageAppearance);
+	}, [persistedAppearance, persistedMessageAppearance]);
 
 	const handleSave = React.useCallback(() => {
-		if (!canSave) {
-			return;
+		if (!isSameAppearance(draftAppearance, persistedAppearance)) {
+			store.setAppearance(draftAppearance);
 		}
 
-		store.setAppearance(draftAppearance);
-	}, [canSave, draftAppearance, store]);
+		if (
+			!isSameMessageAppearance(
+				draftMessageAppearance,
+				persistedMessageAppearance,
+			)
+		) {
+			messageStore.setAppearance(draftMessageAppearance);
+		}
+	}, [
+		draftAppearance,
+		draftMessageAppearance,
+		messageStore,
+		persistedAppearance,
+		persistedMessageAppearance,
+		store,
+	]);
 
 	return (
 		<Drawer
@@ -194,10 +256,28 @@ export function ChatSessionSettingsDrawer({
 						className: "chat-session-settings-drawer__viewport",
 					}}
 				>
-					<ChatBackgroundSettingsTab
-						appearance={draftAppearance}
-						onAppearanceChange={setDraftAppearance}
-					/>
+					<div className="chat-session-settings__section">
+						<SettingsSectionMarker
+							label={translateAstra(
+								"chatSessionSettings.section.chatMessages",
+							)}
+						/>
+						<ChatMessageSettingsTab
+							appearance={draftMessageAppearance}
+							onAppearanceChange={setDraftMessageAppearance}
+						/>
+					</div>
+					<div className="chat-session-settings__section">
+						<SettingsSectionMarker
+							label={translateAstra(
+								"chatSessionSettings.section.chatBackground",
+							)}
+						/>
+						<ChatBackgroundSettingsTab
+							appearance={draftAppearance}
+							onAppearanceChange={setDraftAppearance}
+						/>
+					</div>
 				</DrawerBody>
 				<ChatSessionSettingsDrawerFooter
 					canSave={canSave}

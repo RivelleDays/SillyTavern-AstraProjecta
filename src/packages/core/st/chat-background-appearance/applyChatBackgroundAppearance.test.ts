@@ -10,7 +10,10 @@ function createFakeDocumentRef() {
 	return { body } as unknown as Document;
 }
 
-function createFakeStore(initialSnapshot: { blurPx: number; opacityPercent: number }) {
+function createFakeStore(initialSnapshot: {
+	blurPx: number;
+	opacityPercent: number;
+}) {
 	const listeners = new Set<() => void>();
 	let snapshot = initialSnapshot;
 	return {
@@ -36,9 +39,9 @@ describe("applyChatBackgroundAppearanceVariables", () => {
 
 		applyChatBackgroundAppearanceVariables({ documentRef, store });
 
-		expect(documentRef.body.style.getPropertyValue("--astra-chat-bg-blur")).toBe(
-			"3px",
-		);
+		expect(
+			documentRef.body.style.getPropertyValue("--astra-chat-bg-blur"),
+		).toBe("3px");
 		expect(
 			documentRef.body.style.getPropertyValue("--astra-chat-bg-opacity"),
 		).toBe("0.8");
@@ -55,9 +58,9 @@ describe("createChatBackgroundAppearanceRuntimeBridge", () => {
 			documentRef,
 		});
 
-		expect(documentRef.body.style.getPropertyValue("--astra-chat-bg-blur")).toBe(
-			"2px",
-		);
+		expect(
+			documentRef.body.style.getPropertyValue("--astra-chat-bg-blur"),
+		).toBe("2px");
 		expect(
 			documentRef.body.style.getPropertyValue("--astra-chat-bg-opacity"),
 		).toBe("0.5");
@@ -73,9 +76,9 @@ describe("createChatBackgroundAppearanceRuntimeBridge", () => {
 		});
 		store.emitChange({ blurPx: 5, opacityPercent: 25 });
 
-		expect(documentRef.body.style.getPropertyValue("--astra-chat-bg-blur")).toBe(
-			"5px",
-		);
+		expect(
+			documentRef.body.style.getPropertyValue("--astra-chat-bg-blur"),
+		).toBe("5px");
 		expect(
 			documentRef.body.style.getPropertyValue("--astra-chat-bg-opacity"),
 		).toBe("0.25");
@@ -93,8 +96,8 @@ describe("createChatBackgroundAppearanceRuntimeBridge", () => {
 		store.emitChange({ blurPx: 4, opacityPercent: 10 });
 
 		expect(store.dispose).toHaveBeenCalledTimes(1);
-		expect(documentRef.body.style.getPropertyValue("--astra-chat-bg-blur")).toBe(
-			"1px",
-		);
+		expect(
+			documentRef.body.style.getPropertyValue("--astra-chat-bg-blur"),
+		).toBe("1px");
 	});
 });

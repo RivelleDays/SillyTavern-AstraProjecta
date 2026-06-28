@@ -209,38 +209,40 @@ function MobileChatTopBar({
 				<div className="astra-chat-top-bar__name" title={displayName}>
 					{displayName}
 				</div>
-				</div>
-				<div
-					aria-label={translateAstra("chatSessionSettings.topBar.actions")}
-					className="astra-chat-top-bar__actions"
+			</div>
+			<div
+				aria-label={translateAstra(
+					"chatSessionSettings.topBar.actions",
+				)}
+				className="astra-chat-top-bar__actions"
+			>
+				<Button
+					aria-controls={CHAT_SESSION_SETTINGS_DRAWER_ID}
+					aria-expanded={isChatSessionSettingsOpen}
+					aria-haspopup="dialog"
+					aria-label={chatSessionSettingsTriggerLabel}
+					id={ASTRA_CHAT_TOP_BAR_SESSION_SETTINGS_TRIGGER_ID}
+					className="astra-chat-top-bar__action"
+					size="icon-sm"
+					title={chatSessionSettingsTriggerLabel}
+					type="button"
+					variant="ghost"
+					onClick={() => {
+						setIsChatSessionSettingsOpen(true);
+					}}
 				>
-					<Button
-						aria-controls={CHAT_SESSION_SETTINGS_DRAWER_ID}
-						aria-expanded={isChatSessionSettingsOpen}
-						aria-haspopup="dialog"
-						aria-label={chatSessionSettingsTriggerLabel}
-						id={ASTRA_CHAT_TOP_BAR_SESSION_SETTINGS_TRIGGER_ID}
-						className="astra-chat-top-bar__action"
-						size="icon-sm"
-						title={chatSessionSettingsTriggerLabel}
-						type="button"
-						variant="ghost"
-						onClick={() => {
-							setIsChatSessionSettingsOpen(true);
-						}}
-					>
-						<UiIcon
-							aria-hidden={true}
-							className="astra-chat-top-bar__action-icon"
-							icon={Bolt}
-							size="sm"
-						/>
-					</Button>
-				</div>
-				<ChatSessionSettingsDrawer
-					open={isChatSessionSettingsOpen}
-					onOpenChange={setIsChatSessionSettingsOpen}
-				/>
+					<UiIcon
+						aria-hidden={true}
+						className="astra-chat-top-bar__action-icon"
+						icon={Bolt}
+						size="sm"
+					/>
+				</Button>
+			</div>
+			<ChatSessionSettingsDrawer
+				open={isChatSessionSettingsOpen}
+				onOpenChange={setIsChatSessionSettingsOpen}
+			/>
 			<MobileAstraMainInterfacePanel
 				bodyStart={
 					showSecondaryTabsListFrame ? (

@@ -16,7 +16,8 @@ type ChatBackgroundAppearanceRoot = {
 
 export const CHAT_BACKGROUND_APPEARANCE_CHANGE_EVENT =
 	"astra-projecta:chat-background-appearance-changed";
-export const CHAT_BACKGROUND_APPEARANCE_SETTINGS_KEY = "chatBackgroundAppearance";
+export const CHAT_BACKGROUND_APPEARANCE_SETTINGS_KEY =
+	"chatBackgroundAppearance";
 export const CHAT_BACKGROUND_APPEARANCE_MODULE_KEY = "astra_projecta";
 
 export const CHAT_BACKGROUND_BLUR_MIN_PX = 0;
@@ -107,7 +108,9 @@ function resolveSettingsRoot(
 	const moduleSettings = extensionSettings[
 		CHAT_BACKGROUND_APPEARANCE_MODULE_KEY
 	] as Record<string, unknown>;
-	const root = normalizeRoot(moduleSettings[CHAT_BACKGROUND_APPEARANCE_SETTINGS_KEY]);
+	const root = normalizeRoot(
+		moduleSettings[CHAT_BACKGROUND_APPEARANCE_SETTINGS_KEY],
+	);
 	moduleSettings[CHAT_BACKGROUND_APPEARANCE_SETTINGS_KEY] = root;
 	return root;
 }
@@ -217,7 +220,8 @@ export function createChatBackgroundAppearanceStore({
 			: {};
 
 		moduleSettings[CHAT_BACKGROUND_APPEARANCE_SETTINGS_KEY] = nextRoot;
-		extensionSettings[CHAT_BACKGROUND_APPEARANCE_MODULE_KEY] = moduleSettings;
+		extensionSettings[CHAT_BACKGROUND_APPEARANCE_MODULE_KEY] =
+			moduleSettings;
 		persist(context);
 	}
 

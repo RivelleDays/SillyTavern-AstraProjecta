@@ -25,11 +25,11 @@ describe("mobile chat top-bar CSS contracts", () => {
 		expect(css).toContain("#astra-chat-top-bar-host");
 		expect(css).toContain("--astra-chat-top-bar-block-size");
 		expect(css).toContain(".astra-chat-top-bar");
-			expect(css).toContain(".astra-chat-top-bar__astra-main-trigger");
-			expect(css).toContain(".astra-chat-top-bar__astra-main-trigger-icon");
-			expect(css).toContain(".astra-chat-top-bar__actions");
-			expect(css).toContain(".astra-chat-top-bar__action");
-			expect(css).toContain(".astra-chat-top-bar__action-icon");
+		expect(css).toContain(".astra-chat-top-bar__astra-main-trigger");
+		expect(css).toContain(".astra-chat-top-bar__astra-main-trigger-icon");
+		expect(css).toContain(".astra-chat-top-bar__actions");
+		expect(css).toContain(".astra-chat-top-bar__action");
+		expect(css).toContain(".astra-chat-top-bar__action-icon");
 		expect(css).toContain(".astra-chat-top-bar__identity");
 		expect(css).toContain(".astra-chat-top-bar__avatar-frame");
 		expect(css).toContain(".astra-chat-top-bar__avatar");
