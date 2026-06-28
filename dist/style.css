@@ -9352,12 +9352,8 @@ body.astra-projecta-mobile-layout {
   padding: 0;
   border-bottom: 0;
 }
-.astra-dialog-heading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: calc(var(--drawer-content-padding) - 4px)	var(--drawer-content-padding);
-  border-bottom: 1px solid var(--border-color-base);
+.chat-session-settings-drawer__heading {
+  padding: calc(var(--drawer-content-padding) - 8px)	var(--drawer-content-padding);
 }
 .chat-session-settings-drawer__title {
   min-width: 0;
