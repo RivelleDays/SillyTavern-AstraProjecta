@@ -10,7 +10,7 @@ body.astra-projecta-mobile-layout {
 		background-color: transparent !important;
 		border: none !important;
 		backdrop-filter: none !important;
-		padding-inline: calc(var(--astra-chat-scroll-inline-padding) + 2px);
+		padding-inline: calc(var(--astra-chat-scroll-inline-padding));
 		padding-block-start: var(
 			--astra-chat-scroll-glass-clearance-block-start
 		);

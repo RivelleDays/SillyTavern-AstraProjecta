@@ -108,9 +108,7 @@ body.astra-projecta-mobile-layout {
 		overflow: visible;
 		background: transparent;
 		border-top: none;
-		padding-bottom: calc(
-			8px + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom))
-		);
+		padding-bottom: calc(calc(var(--astra-chat-spacing)) + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)));
 	}
 
 	#astra-chat-composer-shell::before {
@@ -1983,8 +1981,7 @@ body.astra-projecta-mobile-layout {
 		width: 100%;
 		height: var(--astra-send-form-menu-row-height);
 		margin: 0;
-		padding: var(--astra-send-form-menu-row-padding-block)
-			var(--astra-send-form-menu-row-padding-inline);
+		padding-block: var(--astra-send-form-menu-row-padding-block);
 		border-radius: var(--astra-send-form-menu-row-radius);
 		background: transparent;
 		color: inherit;

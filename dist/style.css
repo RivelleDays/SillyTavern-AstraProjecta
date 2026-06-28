@@ -4355,8 +4355,9 @@ textarea, select, .menu_button, .menu_button.fa-fw, .text_pole, .range-block-cou
   border: 1px solid var(--border);
 }
 textarea:focus-visible, select:focus-visible, .text_pole:focus-visible, .range-block-counter input:focus-visible {
-  outline: 2px solid var(--color-ring-t60);
-  outline-offset: 2px;
+  outline: none !important;
+  border: 1px solid var(--color-base-t50);
+  box-shadow: inset 0 0 0 2px var(--color-ring-t20);
 }
 .menu_button, .menu_button_icon {
   display: flex;
@@ -4408,7 +4409,8 @@ select, textarea, .text_pole {
   display: none !important;
 }
 .mes {
-  padding: 12px 0 0 0;
+  padding: 12px 4px;
+  padding-bottom: 0;
 }
 .mes_text, .mes_reasoning {
   line-height: calc(var(--mainFontSize) + 0.6rem);
@@ -4631,7 +4633,7 @@ body.astra-projecta-mobile-layout {
     overflow: visible;
     background: transparent;
     border-top: none;
-    padding-bottom: calc(	8px + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom))	);
+    padding-bottom: calc(calc(var(--astra-chat-spacing)) + var(--astra-mobile-safe-bottom-effective, var(--safe-bottom)));
   }
   #astra-chat-composer-shell::before {
     --astra-send-form-glass-mask-visible: rgb(0 0 0);
@@ -6219,7 +6221,7 @@ body.astra-projecta-mobile-layout {
     width: 100%;
     height: var(--astra-send-form-menu-row-height);
     margin: 0;
-    padding: var(--astra-send-form-menu-row-padding-block)	var(--astra-send-form-menu-row-padding-inline);
+    padding-block: var(--astra-send-form-menu-row-padding-block);
     border-radius: var(--astra-send-form-menu-row-radius);
     background: transparent;
     color: inherit;
@@ -9434,7 +9436,7 @@ body.astra-projecta-mobile-layout {
     background-color: transparent !important;
     border: none !important;
     backdrop-filter: none !important;
-    padding-inline: calc(var(--astra-chat-scroll-inline-padding) + 2px);
+    padding-inline: calc(var(--astra-chat-scroll-inline-padding));
     padding-block-start: var(	--astra-chat-scroll-glass-clearance-block-start	);
     padding-block-end: var(--astra-chat-scroll-glass-clearance-block-end);
   }
