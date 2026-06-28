@@ -38,12 +38,12 @@ module.exports = (_, argv) => {
 						],
 					},
 				},
-				{
-					test: /\.svg$/i,
-					include: SILLYTAVERN_INTERFACE_ICON_DIR,
-					resourceQuery: /raw/,
-					type: "asset/source",
-				},
+					{
+						test: /\.svg$/i,
+						include: SILLYTAVERN_INTERFACE_ICON_DIR,
+						resourceQuery: /raw/,
+						type: "asset/source",
+					},
 				{
 					test: /\.css$/i,
 					use: [

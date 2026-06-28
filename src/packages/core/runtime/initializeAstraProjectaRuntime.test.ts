@@ -98,6 +98,27 @@ describe("initializeAstraProjectaRuntime", () => {
 		expect(onCleanupError).not.toHaveBeenCalled();
 	});
 
+	test("applies chat background appearance variables at startup and disposes the bridge on teardown", () => {
+		const bridgeDispose = vi.fn();
+		const createChatBackgroundAppearanceRuntimeBridge = vi.fn(() => ({
+			dispose: bridgeDispose,
+			store: {} as never,
+		}));
+
+		const runtime = initializeAstraProjectaRuntime({
+			createChatBackgroundAppearanceRuntimeBridge,
+			createRuntime: () => ({ dispose: vi.fn() }),
+			documentRef: document,
+		});
+
+		expect(createChatBackgroundAppearanceRuntimeBridge).toHaveBeenCalledTimes(1);
+		expect(bridgeDispose).not.toHaveBeenCalled();
+
+		runtime.dispose();
+
+		expect(bridgeDispose).toHaveBeenCalledTimes(1);
+	});
+
 	test("disposes idempotently and continues cleanup when child disposal fails", () => {
 		const disposeError = new Error("child dispose failed");
 		const childDispose = vi.fn(() => {

@@ -123,3 +123,12 @@ textarea,
 .mes_reasoning {
 	line-height: calc(var(--mainFontSize) + 0.6rem);
 }
+
+/* Chat background appearance (Astra chat-session-settings: blur/opacity).
+   Static, user-controlled values from settings, not a motion/animation
+   surface, so prefers-reduced-motion does not apply here. */
+
+#bg1 {
+	filter: blur(var(--astra-chat-bg-blur, 2px));
+	opacity: var(--astra-chat-bg-opacity, 0.8);
+}

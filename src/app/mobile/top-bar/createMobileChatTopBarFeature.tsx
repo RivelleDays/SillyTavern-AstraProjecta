@@ -5,7 +5,7 @@ import { createRoot } from "react-dom/client";
 import { Button } from "@/components/ui/shadcn/button";
 import { AstraChatAvatar } from "@/components/ui/shared/chat-avatar";
 import { UiIcon } from "@/components/ui/shared/icon";
-import { Equal } from "@/components/ui/shared/icons";
+import { Bolt, Equal } from "@/components/ui/shared/icons";
 import { withAstraErrorBoundary } from "@/packages/core/runtime/AstraErrorBoundary";
 import { markAstraProjectaUiRoot } from "@/packages/core/runtime/uiScope";
 import {
@@ -33,6 +33,8 @@ import {
 	type ScopedChatCatalogStore,
 } from "@/packages/core/st/current-chat-catalog";
 import { translateAstra } from "@/packages/core/i18n";
+import { ChatSessionSettingsDrawer } from "@/packages/features/chat-session-settings/drawer/ChatSessionSettingsDrawer";
+import { CHAT_SESSION_SETTINGS_DRAWER_ID } from "@/packages/features/chat-session-settings/contracts/dom";
 import {
 	ASTRA_MAIN_INTERFACE_PANEL_ID,
 	ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
@@ -42,6 +44,7 @@ import {
 import {
 	ASTRA_CHAT_TOP_BAR_HOST_ID,
 	ASTRA_CHAT_SESSION_SHELL_ID,
+	ASTRA_CHAT_TOP_BAR_SESSION_SETTINGS_TRIGGER_ID,
 } from "@/app/mobile/top-bar/contracts/dom";
 
 const NATIVE_SHELD_ID = "sheld";
@@ -97,6 +100,8 @@ function MobileChatTopBar({
 	snapshot: CurrentChatIdentitySnapshot;
 }) {
 	const [isMainInterfaceOpen, setIsMainInterfaceOpen] = React.useState(false);
+	const [isChatSessionSettingsOpen, setIsChatSessionSettingsOpen] =
+		React.useState(false);
 	const [hasMainInterfaceOpened, setHasMainInterfaceOpened] =
 		React.useState(false);
 	const [activeMainInterfaceSection, setActiveMainInterfaceSection] =
@@ -130,6 +135,9 @@ function MobileChatTopBar({
 	});
 	const showSecondaryTabsListFrame = hasMainInterfaceOpened;
 	const openMainInterfaceLabel = translateAstra("astraMainInterface.open");
+	const chatSessionSettingsTriggerLabel = translateAstra(
+		"chatSessionSettings.topBar.trigger",
+	);
 	const avatarLabel = translateAstra("sendForm.mainMenu.avatar");
 	const emptyStateLabel = translateAstra("sendForm.mainMenu.empty");
 	const displayName = snapshot.hasActiveChat
@@ -201,7 +209,38 @@ function MobileChatTopBar({
 				<div className="astra-chat-top-bar__name" title={displayName}>
 					{displayName}
 				</div>
-			</div>
+				</div>
+				<div
+					aria-label={translateAstra("chatSessionSettings.topBar.actions")}
+					className="astra-chat-top-bar__actions"
+				>
+					<Button
+						aria-controls={CHAT_SESSION_SETTINGS_DRAWER_ID}
+						aria-expanded={isChatSessionSettingsOpen}
+						aria-haspopup="dialog"
+						aria-label={chatSessionSettingsTriggerLabel}
+						id={ASTRA_CHAT_TOP_BAR_SESSION_SETTINGS_TRIGGER_ID}
+						className="astra-chat-top-bar__action"
+						size="icon-sm"
+						title={chatSessionSettingsTriggerLabel}
+						type="button"
+						variant="ghost"
+						onClick={() => {
+							setIsChatSessionSettingsOpen(true);
+						}}
+					>
+						<UiIcon
+							aria-hidden={true}
+							className="astra-chat-top-bar__action-icon"
+							icon={Bolt}
+							size="sm"
+						/>
+					</Button>
+				</div>
+				<ChatSessionSettingsDrawer
+					open={isChatSessionSettingsOpen}
+					onOpenChange={setIsChatSessionSettingsOpen}
+				/>
 			<MobileAstraMainInterfacePanel
 				bodyStart={
 					showSecondaryTabsListFrame ? (

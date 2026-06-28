@@ -36,6 +36,7 @@ const RETAINED_SHADCN_FILES = [
 	"select.tsx",
 	"separator.tsx",
 	"sheet.tsx",
+	"slider.tsx",
 	"switch.tsx",
 	"tabs.tsx",
 	"textarea.tsx",

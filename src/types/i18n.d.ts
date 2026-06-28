@@ -198,6 +198,16 @@ export interface I18nMessages {
 	"astraMainInterface.sections.switching": string;
 	"astraMainInterface.title": string;
 	"astraMainInterface.title.global": string;
+	"chatSessionSettings.chatBackground.blur.description": string;
+	"chatSessionSettings.chatBackground.blur.reset": string;
+	"chatSessionSettings.chatBackground.blur.title": string;
+	"chatSessionSettings.chatBackground.opacity.description": string;
+	"chatSessionSettings.chatBackground.opacity.reset": string;
+	"chatSessionSettings.chatBackground.opacity.title": string;
+	"chatSessionSettings.drawer.description": string;
+	"chatSessionSettings.panel.title": string;
+	"chatSessionSettings.topBar.actions": string;
+	"chatSessionSettings.topBar.trigger": string;
 	"messageActions.deleteConfirm.cancel": string;
 	"messageActions.deleteConfirm.deleting": string;
 	"messageActions.deleteConfirm.message.confirm": string;

@@ -1243,6 +1243,9 @@
   .border-input {
     border-color: var(--input);
   }
+  .border-primary {
+    border-color: var(--primary);
+  }
   .border-transparent {
     border-color: transparent;
   }
@@ -1284,6 +1287,9 @@
   }
   .bg-transparent {
     background-color: transparent;
+  }
+  .bg-white {
+    background-color: var(--color-white);
   }
   .bg-repeat {
     background-repeat: repeat;
@@ -1551,6 +1557,10 @@
     --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
+  .shadow-sm {
+    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
   .shadow-xs {
     --tw-shadow: 0 1px 2px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -1562,6 +1572,12 @@
   .inset-ring {
     --tw-inset-ring-shadow: inset 0 0 0 1px var(--tw-inset-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .ring-ring\/50 {
+    --tw-ring-color: var(--ring);
+    @supports (color: color-mix(in lab, red, red)) {
+      --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent);
+    }
   }
   .ring-offset-background {
     --tw-ring-offset-color: var(--background);
@@ -1981,6 +1997,14 @@
       }
     }
   }
+  .hover\:ring-4 {
+    &:hover {
+      @media (hover: hover) {
+        --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+      }
+    }
+  }
   .focus\:bg-accent {
     &:focus {
       background-color: var(--accent);
@@ -2023,6 +2047,12 @@
       border-color: var(--ring);
     }
   }
+  .focus-visible\:ring-4 {
+    &:focus-visible {
+      --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
+  }
   .focus-visible\:ring-\[3px\] {
     &:focus-visible {
       --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
@@ -2042,6 +2072,16 @@
       --tw-ring-color: var(--ring);
       @supports (color: color-mix(in lab, red, red)) {
         --tw-ring-color: color-mix(in oklab, var(--ring) 50%, transparent);
+      }
+    }
+  }
+  .focus-visible\:outline-hidden {
+    &:focus-visible {
+      --tw-outline-style: none;
+      outline-style: none;
+      @media (forced-colors: active) {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
       }
     }
   }
@@ -2173,6 +2213,16 @@
       color: var(--destructive);
     }
   }
+  .data-\[orientation\=horizontal\]\:h-1\.5 {
+    &[data-orientation="horizontal"] {
+      height: calc(var(--spacing) * 1.5);
+    }
+  }
+  .data-\[orientation\=horizontal\]\:h-full {
+    &[data-orientation="horizontal"] {
+      height: 100%;
+    }
+  }
   .data-\[orientation\=horizontal\]\:h-px {
     &[data-orientation="horizontal"] {
       height: 1px;
@@ -2193,9 +2243,34 @@
       height: 100%;
     }
   }
+  .data-\[orientation\=vertical\]\:min-h-44 {
+    &[data-orientation="vertical"] {
+      min-height: calc(var(--spacing) * 44);
+    }
+  }
+  .data-\[orientation\=vertical\]\:w-1\.5 {
+    &[data-orientation="vertical"] {
+      width: calc(var(--spacing) * 1.5);
+    }
+  }
+  .data-\[orientation\=vertical\]\:w-auto {
+    &[data-orientation="vertical"] {
+      width: auto;
+    }
+  }
+  .data-\[orientation\=vertical\]\:w-full {
+    &[data-orientation="vertical"] {
+      width: 100%;
+    }
+  }
   .data-\[orientation\=vertical\]\:w-px {
     &[data-orientation="vertical"] {
       width: 1px;
+    }
+  }
+  .data-\[orientation\=vertical\]\:flex-col {
+    &[data-orientation="vertical"] {
+      flex-direction: column;
     }
   }
   .data-\[placeholder\]\:text-muted-foreground {
@@ -4419,6 +4494,10 @@ select, textarea, .text_pole {
 }
 .mes_text, .mes_reasoning {
   line-height: calc(var(--mainFontSize) + 0.6rem);
+}
+#bg1 {
+  filter: blur(var(--astra-chat-bg-blur, 2px));
+  opacity: var(--astra-chat-bg-opacity, 0.8);
 }
 .astra-smooth-tabs {
   --astra-smooth-tabs-motion-ease: var(
@@ -6704,6 +6783,33 @@ body.astra-projecta-mobile-layout {
   width: 24px;
   height: 24px;
   stroke-width: 1.7;
+}
+.astra-chat-top-bar__actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-left: auto;
+}
+.astra-chat-top-bar__action {
+  flex: 0 0 auto;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  color: var(--muted-foreground);
+  background: var(--surface-muted-t50);
+  opacity: 0.85;
+  border: 0;
+  box-shadow: none;
+}
+.astra-chat-top-bar__action[data-slot="button"] {
+  width: var(--astra-button-min-size);
+  height: var(--astra-button-min-size);
+}
+.astra-chat-top-bar__action-icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
 }
 .astra-chat-top-bar__identity {
   display: flex;
@@ -9230,6 +9336,106 @@ body.astra-projecta-mobile-layout {
     font-size: var(--text-sm);
     line-height: 1.6;
   }
+}
+.chat-session-settings-drawer {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--surface-base);
+}
+.chat-session-settings-drawer__header {
+  display: flex;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
+  padding-inline: var(--drawer-content-padding);
+  padding-block-end: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color-base);
+  background: var(--surface-base);
+}
+.chat-session-settings-drawer__title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-session-settings-drawer__description {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  line-height: 1.35;
+}
+.chat-session-settings-drawer__body {
+  min-height: 0;
+}
+.chat-session-settings-drawer__viewport {
+  min-height: 0;
+  padding-inline: var(--drawer-content-padding);
+  padding-block: var(--drawer-content-padding);
+  -webkit-overflow-scrolling: touch;
+}
+.chat-session-settings-drawer__content {
+  min-width: 0;
+  min-height: 0;
+}
+.chat-session-settings__chat-background-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.chat-session-settings__slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.chat-session-settings__slider-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.chat-session-settings__slider-row-value {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+}
+.chat-session-settings__slider-row-reset {
+  transition: opacity 140ms ease-out;
+}
+.chat-session-settings__slider-row-reset[data-slot="button"] {
+  width: 28px;
+  height: 28px;
+}
+.chat-session-settings__slider-row-reset[data-slot="button"]:disabled {
+  opacity: 0;
+}
+.chat-session-settings__slider-row-description {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+}
+.chat-session-settings__slider-row-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.chat-session-settings__slider {
+  flex: 1 1 auto;
+}
+.chat-session-settings__slider-row-input {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 28px;
+  padding: 0 8px;
+  text-align: center;
 }
 body.astra-projecta-mobile-layout {
   & #chat .mes {

@@ -598,4 +598,55 @@ describe("createMobileChatTopBarFeature", () => {
 			feature.dispose();
 		});
 	});
+
+	test("renders the chat settings action group and opens the settings drawer on click", async () => {
+		document.body.innerHTML = '<div id="sheld"></div>';
+		const store = createIdentityStoreStub();
+		const feature = createMobileChatTopBarFeature({
+			createCurrentChatIdentityStore: store.factory,
+			documentRef: document,
+		});
+
+		act(() => {
+			feature.mount();
+		});
+
+		const settingsTrigger = await screen.findByRole("button", {
+			name: "Open chat settings",
+		});
+
+		expect(
+			settingsTrigger.closest(".astra-chat-top-bar__actions"),
+		).toBeInTheDocument();
+		expect(settingsTrigger).toHaveAttribute(
+			"aria-controls",
+			"astra-chat-session-settings-drawer",
+		);
+		expect(settingsTrigger).toHaveAttribute("aria-expanded", "false");
+		expect(
+			settingsTrigger.querySelector(".lucide-bolt"),
+		).toBeInTheDocument();
+
+		fireEvent.click(settingsTrigger);
+
+		await waitFor(() => {
+				expect(
+					screen.getByRole("dialog", { name: "Chat Settings" }),
+				).toBeInTheDocument();
+			});
+			expect(
+				document.getElementById("astra-chat-session-settings-drawer"),
+			).toHaveClass("chat-session-settings-drawer");
+			expect(
+				document.querySelector(".chat-session-settings__chat-background-tab"),
+			).toBeInTheDocument();
+			expect(
+				document.getElementById("astra-chat-session-settings-panel"),
+			).not.toBeInTheDocument();
+			expect(settingsTrigger).toHaveAttribute("aria-expanded", "true");
+
+			act(() => {
+				feature.dispose();
+			});
+	});
 });

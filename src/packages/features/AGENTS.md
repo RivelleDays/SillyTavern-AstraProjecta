@@ -23,6 +23,8 @@ src/packages/features/
 │  └─ favorite-context/
 ├─ chat-session/
 │  └─ AGENTS.md
+├─ chat-session-settings/
+│  └─ AGENTS.md
 └─ sillytavern-interface/
    └─ AGENTS.md
 ```
