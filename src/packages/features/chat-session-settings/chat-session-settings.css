@@ -114,7 +114,8 @@
     flex: 0 0 auto;
     width: 60px;
     height: 28px;
-    font-size: var(--text-sm);
     padding: 0 8px;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
     text-align: center;
 }

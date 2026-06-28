@@ -5055,6 +5055,7 @@ body.astra-projecta-mobile-layout {
   }
   .mobile-send-form-shortcuts__button {
     flex: 0 0 auto;
+    border-radius: var(--radius-full);
   }
   .mobile-send-form-shortcuts__button[data-variant="ghost"] {
     color: inherit;
@@ -5330,6 +5331,7 @@ body.astra-projecta-mobile-layout {
     font-size: var(--text-sm);
     font-weight: var(--font-weight-bold);
     text-overflow: ellipsis;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
@@ -9432,9 +9434,11 @@ body.astra-projecta-mobile-layout {
 }
 .chat-session-settings__slider-row-input {
   flex: 0 0 auto;
-  width: 48px;
+  width: 60px;
   height: 28px;
   padding: 0 8px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
   text-align: center;
 }
 body.astra-projecta-mobile-layout {

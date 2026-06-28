@@ -844,6 +844,7 @@ body.astra-projecta-mobile-layout {
 		font-size: var(--text-sm);
 		font-weight: var(--font-weight-bold);
 		text-overflow: ellipsis;
+		line-clamp: 2;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 	}
