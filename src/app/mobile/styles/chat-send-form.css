@@ -530,6 +530,7 @@ body.astra-projecta-mobile-layout {
 
 	.mobile-send-form-shortcuts__button {
 		flex: 0 0 auto;
+		border-radius: var(--radius-full);
 	}
 
 	.mobile-send-form-shortcuts__button[data-variant="ghost"] {
