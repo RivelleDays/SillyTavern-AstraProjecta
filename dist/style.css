@@ -6916,7 +6916,7 @@ body.astra-projecta-mobile-layout {
   align-items: flex-start;
   gap: var(--astra-main-interface-scope-gap);
   min-width: max-content;
-  padding: 4px;
+  padding: 4px 0;
   width: max-content;
 }
 .astra-main-interface__scope-favorites-scrollbar {
@@ -8764,8 +8764,8 @@ body.astra-projecta-mobile-layout {
   }
   .sillytavern-interface__title-svg-icon,	.sillytavern-interface__title-svg-icon svg {
     display: block;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
   }
   .sillytavern-interface__title-lucide-icon {
     width: 28px;

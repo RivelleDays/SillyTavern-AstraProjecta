@@ -269,7 +269,7 @@
 	align-items: flex-start;
 	gap: var(--astra-main-interface-scope-gap);
 	min-width: max-content;
-	padding: 4px;
+	padding: 4px 0;
 	width: max-content;
 }
 
