@@ -6,6 +6,7 @@ import {
 	CircleUser,
 	DatabaseZap,
 	Info,
+	Loader,
 	MessageCircleDashed,
 	MessagesSquare,
 	Sparkles,
@@ -325,7 +326,7 @@ export function MobileChatContextUsageShortcut({
 								)}
 							/>
 							<ContextUsageMetricTile
-								icon={Info}
+								icon={Loader}
 								label={remainingLabel}
 								value={formatContextUsageTokenCount(
 									remainingContextTokens,

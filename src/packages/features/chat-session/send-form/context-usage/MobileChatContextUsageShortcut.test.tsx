@@ -327,7 +327,7 @@ describe("MobileChatContextUsageShortcut", () => {
 		expect(screen.getByText("—")).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				"sendForm.contextUsage.explainer::Prompt + reserve / max context.",
+				"sendForm.contextUsage.explainer::Usage: (prompt + reserve) / max context",
 			),
 		).toBeInTheDocument();
 		expect(

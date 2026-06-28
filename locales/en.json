@@ -294,7 +294,7 @@
 	"sendForm.contextUsage.breakdown.persona": "Persona",
 	"sendForm.contextUsage.breakdown.worldInfo": "World info",
 	"sendForm.contextUsage.breakdownUnavailable": "Detailed token breakdown is unavailable for this snapshot.",
-	"sendForm.contextUsage.explainer": "Prompt + reserve / max context.",
+	"sendForm.contextUsage.explainer": "Usage: (prompt + reserve) / max context",
 	"sendForm.contextUsage.idleHelper": "Context usage appears after SillyTavern prepares a Chat Completion prompt.",
 	"sendForm.contextUsage.metric.prompt": "Prompt",
 	"sendForm.contextUsage.metric.reserve": "Reserve",
