@@ -500,20 +500,20 @@ body.astra-projecta-mobile-layout {
 		-webkit-overflow-scrolling: touch;
 	}
 
-	.mobile-send-form-shortcuts__emphasis-group,
-	.mobile-send-form-shortcuts__actions-group {
+	.mobile-send-form-shortcuts__featured-group,
+	.mobile-send-form-shortcuts__regular-group {
 		display: flex;
 		align-items: center;
 		min-width: 0;
 		gap: 4px;
 	}
 
-	.mobile-send-form-shortcuts__emphasis-group {
+	.mobile-send-form-shortcuts__featured-group {
 		flex: 0 0 auto;
 		justify-content: flex-start;
 	}
 
-	.mobile-send-form-shortcuts__actions-group {
+	.mobile-send-form-shortcuts__regular-group {
 		flex: 0 0 auto;
 		justify-content: flex-end;
 	}
@@ -536,7 +536,7 @@ body.astra-projecta-mobile-layout {
 		color: inherit;
 	}
 
-	#sillytavern-interface-panel-trigger.mobile-send-form-shortcuts__button--emphasis {
+	#sillytavern-interface-panel-trigger.mobile-send-form-shortcuts__featured-button {
 		margin-right: 4px;
 		border: 1px solid var(--color-base-t5);
 		border-radius: 20px;
@@ -545,7 +545,7 @@ body.astra-projecta-mobile-layout {
 		font-weight: var(--font-weight-semibold);
 	}
 
-	#sillytavern-interface-panel-trigger.mobile-send-form-shortcuts__button--emphasis
+	#sillytavern-interface-panel-trigger.mobile-send-form-shortcuts__featured-button
 		svg {
 		width: 16px;
 		height: 16px;

@@ -121,10 +121,10 @@ describe("chat-send-form.css", () => {
 		expectSelectors(css, [
 			".mobile-send-form-shortcuts",
 			".mobile-send-form-shortcuts__strip",
-			".mobile-send-form-shortcuts__emphasis-group",
-			".mobile-send-form-shortcuts__actions-group",
+			".mobile-send-form-shortcuts__featured-group",
+			".mobile-send-form-shortcuts__regular-group",
 			"#sillytavern-interface-panel-trigger",
-			".mobile-send-form-shortcuts__button--emphasis",
+			".mobile-send-form-shortcuts__featured-button",
 			".astra-chat-input",
 			".astra-chat-input__content",
 			".astra-chat-input__avatar-button",

@@ -27,8 +27,10 @@ export const ASTRA_SEND_FORM_QUICK_REPLY_TOGGLE_ID =
 export const ASTRA_CHAT_MAIN_MENU_TRIGGER_ID = "astra-chat-main-menu-trigger";
 export const SILLYTAVERN_INTERFACE_TRIGGER_ID =
 	"sillytavern-interface-panel-trigger";
+export const ASTRA_SEND_FORM_SILLYTAVERN_INTERFACE_SHORTCUT_ITEM_ID =
+	"astra-send-form-shortcut-item-sillytavern-interface";
 export function getSendFormShortcutWrapperId(shortcutId: string): string {
-	return `astra-send-form-shortcut-${shortcutId}`;
+	return `astra-send-form-shortcut-item-${shortcutId}`;
 }
 export const ASTRA_CHAT_MAIN_MENU_DRAWER_ID = "astra-chat-main-menu-drawer";
 export const ASTRA_CHAT_MAIN_MENU_DRAWER_TITLE_ID =

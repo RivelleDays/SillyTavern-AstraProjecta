@@ -80,9 +80,11 @@ function resolveHost(
 
 export function createMobileSendFormFeature({
 	documentRef = document,
+	onPageReload,
 	sillyTavernInterface = NOOP_SEND_FORM_SILLYTAVERN_INTERFACE,
 }: {
 	documentRef?: Document;
+	onPageReload?: () => void;
 	sillyTavernInterface?: SendFormSillyTavernInterfaceAdapter;
 } = {}): MobileSendFormFeature {
 	let composerHost: HTMLDivElement | null = null;
@@ -378,6 +380,7 @@ export function createMobileSendFormFeature({
 						}
 						currentUserAvatarStore={stores.currentUserAvatarStore}
 						documentRef={documentRef}
+						onPageReload={onPageReload}
 						onQuickReplyHostChange={handleQuickReplyHostChange}
 						onTextareaHostChange={moveTextareaIntoHost}
 						primarySendActionStore={stores.primarySendActionStore}

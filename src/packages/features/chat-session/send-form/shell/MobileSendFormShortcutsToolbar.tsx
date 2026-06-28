@@ -6,6 +6,7 @@ import { BrainCircuit, ChevronDown } from "@/components/ui/shared/icons";
 import type { LucideIcon } from "@/components/ui/shared/icons";
 import type { ChatContextUsageSnapshot } from "@/packages/core/st/chatContextUsage";
 import {
+	ASTRA_SEND_FORM_SILLYTAVERN_INTERFACE_SHORTCUT_ITEM_ID,
 	getSendFormShortcutWrapperId,
 	SILLYTAVERN_INTERFACE_TRIGGER_ID,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
@@ -20,8 +21,10 @@ export interface VisibleMobileSendFormShortcut {
 export interface MobileSendFormShortcutsToolbarProps {
 	contextUsageSnapshot: ChatContextUsageSnapshot;
 	label: string;
+	onPermanentShortcutClick(shortcutId: string): void;
 	onSillyTavernInterfaceOpen(): void;
 	onQuickShortcutClick(shortcutId: string): void;
+	permanentShortcutActions: readonly VisibleMobileSendFormShortcut[];
 	sillyTavernInterfaceTriggerLabel: string;
 	showContextUsageShortcut: boolean;
 	visibleQuickShortcuts: readonly VisibleMobileSendFormShortcut[];
@@ -30,8 +33,10 @@ export interface MobileSendFormShortcutsToolbarProps {
 export function MobileSendFormShortcutsToolbar({
 	contextUsageSnapshot,
 	label,
+	onPermanentShortcutClick,
 	onSillyTavernInterfaceOpen,
 	onQuickShortcutClick,
+	permanentShortcutActions,
 	sillyTavernInterfaceTriggerLabel,
 	showContextUsageShortcut,
 	visibleQuickShortcuts,
@@ -44,10 +49,15 @@ export function MobileSendFormShortcutsToolbar({
 			role="toolbar"
 		>
 			<div className="mobile-send-form-shortcuts__strip">
-				<div className="mobile-send-form-shortcuts__emphasis-group">
-					<div className="mobile-send-form-shortcuts__item">
+				<div className="mobile-send-form-shortcuts__featured-group">
+					<div
+						id={
+							ASTRA_SEND_FORM_SILLYTAVERN_INTERFACE_SHORTCUT_ITEM_ID
+						}
+						className="mobile-send-form-shortcuts__item mobile-send-form-shortcuts__item--featured"
+					>
 						<Button
-							className="mobile-send-form-shortcuts__button mobile-send-form-shortcuts__button--emphasis"
+							className="mobile-send-form-shortcuts__button mobile-send-form-shortcuts__featured-button"
 							id={SILLYTAVERN_INTERFACE_TRIGGER_ID}
 							size="sm"
 							type="button"
@@ -71,7 +81,35 @@ export function MobileSendFormShortcutsToolbar({
 						</Button>
 					</div>
 				</div>
-				<div className="mobile-send-form-shortcuts__actions-group">
+				<div className="mobile-send-form-shortcuts__regular-group">
+					{permanentShortcutActions.map((item) => {
+						const ShortcutIcon = item.icon;
+
+						return (
+							<div
+								className="mobile-send-form-shortcuts__item"
+								id={getSendFormShortcutWrapperId(item.id)}
+								key={item.id}
+							>
+								<Button
+									aria-label={item.label}
+									className="mobile-send-form-shortcuts__button"
+									size="icon-sm"
+									type="button"
+									variant="ghost"
+									onClick={() => {
+										onPermanentShortcutClick(item.id);
+									}}
+								>
+									<UiIcon
+										aria-hidden={true}
+										icon={ShortcutIcon}
+										size="md"
+									/>
+								</Button>
+							</div>
+						);
+					})}
 					{visibleQuickShortcuts.map((item) => {
 						const ShortcutIcon = item.icon;
 

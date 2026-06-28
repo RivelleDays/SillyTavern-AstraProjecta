@@ -63,13 +63,16 @@ function createTestSillyTavernInterfaceAdapter(): SendFormSillyTavernInterfaceAd
 
 function createTestMobileSendFormFeature({
 	documentRef = document,
+	onPageReload,
 	sillyTavernInterface = createTestSillyTavernInterfaceAdapter(),
 }: {
 	documentRef?: Document;
+	onPageReload?: () => void;
 	sillyTavernInterface?: SendFormSillyTavernInterfaceAdapter;
 } = {}) {
 	return createMobileSendFormFeature({
 		documentRef,
+		onPageReload,
 		sillyTavernInterface,
 	});
 }
@@ -3904,6 +3907,99 @@ describe("createMobileSendFormFeature", () => {
 		feature.dispose();
 	});
 
+	test("routes permanent shortcut buttons through native start-chat and reload actions", async () => {
+		document.body.innerHTML = `
+      <div id="options_button"></div>
+      <div id="extensionsMenuButton"></div>
+      <div id="extensionsMenu" class="options-content" style="display: none;"></div>
+      <div id="options">
+        <button id="option_start_new_chat" type="button"></button>
+        <button id="option_impersonate" type="button"></button>
+      </div>
+      <div id="form_sheld">
+      <form id="send_form">
+        <div id="nonQRFormItems">
+          <textarea id="send_textarea"></textarea>
+          <div id="rightSendForm">
+            <button id="mes_impersonate" type="button"></button>
+            <button id="mes_continue" type="button"></button>
+            <button id="send_but" type="button"></button>
+          </div>
+        </div>
+      </form>
+      </div>
+    `;
+
+		window.matchMedia = vi.fn().mockImplementation(() => ({
+			addEventListener: vi.fn(),
+			matches: true,
+			removeEventListener: vi.fn(),
+		}));
+
+		const startNewChatNativeButton = document.getElementById(
+			"option_start_new_chat",
+		);
+		const startNewChatClick = vi.fn();
+		startNewChatNativeButton?.addEventListener(
+			"click",
+			startNewChatClick,
+		);
+		const reloadPage = vi.fn();
+
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			chatId: "chat-1",
+			characters: [{ chat: "chat-1" }],
+			getThumbnailUrl: vi.fn(() => "/thumbs/hero-persona.png"),
+			powerUserSettings: {
+				continue_on_send: false,
+				quick_continue: false,
+				quick_impersonate: true,
+			},
+			translate: (text: string) => text,
+		});
+
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+			onPageReload: reloadPage,
+		});
+		feature.mount();
+
+		const shortcutsHost = await waitForShortcutsHost();
+		const startNewChatButton = within(shortcutsHost).getByRole("button", {
+			name: "Start new chat",
+		});
+		const reloadPageButton = within(shortcutsHost).getByRole("button", {
+			name: "Reload page",
+		});
+		const impersonateButton = within(shortcutsHost).getByRole("button", {
+			name: "Ask AI to write your message for you",
+		});
+		const startNewChatItem = document.getElementById(
+			"astra-send-form-shortcut-item-start-new-chat",
+		);
+		const reloadPageItem = document.getElementById(
+			"astra-send-form-shortcut-item-reload-page",
+		);
+		const impersonateItem = document.getElementById(
+			"astra-send-form-shortcut-item-impersonate",
+		);
+
+		expect(startNewChatItem).toContainElement(startNewChatButton);
+		expect(reloadPageItem).toContainElement(reloadPageButton);
+		expect(impersonateItem).toContainElement(impersonateButton);
+
+		fireEvent.click(startNewChatButton);
+		fireEvent.click(reloadPageButton);
+
+		expect(startNewChatClick).toHaveBeenCalledTimes(1);
+		expect(reloadPage).toHaveBeenCalledTimes(1);
+
+		feature.dispose();
+	});
+
 	test("renders the quick reply visibility toggle with the textarea visible by default when native quick replies are enabled", async () => {
 		const feature = setupQuickReplyVisibilityFixture();
 
@@ -3917,29 +4013,45 @@ describe("createMobileSendFormFeature", () => {
 			".mobile-send-form-shortcuts__strip",
 		) as HTMLElement | null;
 		expect(shortcutsStrip).toBeInTheDocument();
-		const emphasisGroup = shortcutsStrip?.querySelector(
-			".mobile-send-form-shortcuts__emphasis-group",
+		const featuredGroup = shortcutsStrip?.querySelector(
+			".mobile-send-form-shortcuts__featured-group",
 		) as HTMLElement | null;
-		const actionsGroup = shortcutsStrip?.querySelector(
-			".mobile-send-form-shortcuts__actions-group",
+		const regularGroup = shortcutsStrip?.querySelector(
+			".mobile-send-form-shortcuts__regular-group",
 		) as HTMLElement | null;
 		const shortcutItems = Array.from(
 			shortcutsStrip?.querySelectorAll(".mobile-send-form-shortcuts__item") ??
 				[],
 		);
 
-		expect(emphasisGroup).toBeInTheDocument();
-		expect(actionsGroup).toBeInTheDocument();
+		expect(featuredGroup).toBeInTheDocument();
+		expect(regularGroup).toBeInTheDocument();
 		expect(shortcutItems.map((item) => item.tagName)).toEqual([
+			"DIV",
+			"DIV",
 			"DIV",
 			"DIV",
 			"DIV",
 		]);
 		expect(
-			actionsGroup?.querySelector("#astra-send-form-shortcut-impersonate"),
+			regularGroup?.querySelector(
+				"#astra-send-form-shortcut-item-start-new-chat",
+			),
 		).toBeInTheDocument();
 		expect(
-			actionsGroup?.querySelector("#astra-send-form-shortcut-continue"),
+			regularGroup?.querySelector(
+				"#astra-send-form-shortcut-item-reload-page",
+			),
+		).toBeInTheDocument();
+		expect(
+			regularGroup?.querySelector(
+				"#astra-send-form-shortcut-item-impersonate",
+			),
+		).toBeInTheDocument();
+		expect(
+			regularGroup?.querySelector(
+				"#astra-send-form-shortcut-item-continue",
+			),
 		).toBeInTheDocument();
 
 		const shortcutButtons = within(
@@ -3960,10 +4072,10 @@ describe("createMobileSendFormFeature", () => {
 			"sillytavern-interface-panel-trigger",
 		);
 		expect(shortcutButtons[0]).toHaveClass(
-			"mobile-send-form-shortcuts__button--emphasis",
+			"mobile-send-form-shortcuts__featured-button",
 		);
-		expect(emphasisGroup).toContainElement(shortcutButtons[0]);
-		expect(actionsGroup).not.toContainElement(shortcutButtons[0]);
+		expect(featuredGroup).toContainElement(shortcutButtons[0]);
+		expect(regularGroup).not.toContainElement(shortcutButtons[0]);
 		expect(shortcutButtons[0]).toHaveAccessibleName("ST menu");
 		expect(
 			shortcutButtons[0].querySelector(".lucide-brain-circuit"),
@@ -3987,7 +4099,11 @@ describe("createMobileSendFormFeature", () => {
 		).toBeInTheDocument();
 		expect(textareaActions?.firstElementChild).toBe(quickReplyToggle);
 		expect(quickReplyToggle.nextElementSibling).toBe(sendButton);
-		expect(shortcutButtons[1]).toHaveAccessibleName("Impersonate");
+		expect(
+			within(shortcutsStrip as HTMLElement).getByRole("button", {
+				name: "Impersonate",
+			}),
+		).toBeInTheDocument();
 		expectQuickReplyHostInTextareaSlot({
 			inputRowHost,
 			quickReplyHost,

@@ -30,12 +30,16 @@ import {
 	NOOP_SEND_FORM_SILLYTAVERN_INTERFACE,
 	type SendFormSillyTavernInterfaceAdapter,
 } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
-import { SEND_FORM_SHORTCUTS } from "@/packages/features/chat-session/send-form/contracts/shortcuts";
+import {
+	SEND_FORM_PERMANENT_SHORTCUT_ACTIONS,
+	SEND_FORM_SHORTCUTS,
+} from "@/packages/features/chat-session/send-form/contracts/shortcuts";
 import {
 	isMenuOpenKeyboardEvent,
 	releaseSendFormFocus,
 } from "@/packages/features/chat-session/send-form/bridges/focusRelease";
 import { triggerNativeChatSettingsOverride } from "@/packages/features/chat-session/send-form/bridges/nativeChatSettingsOverrideBridge";
+import { triggerNativeOption } from "@/packages/features/chat-session/send-form/bridges/nativeOptionBridge";
 import { triggerNativeQuickShortcut } from "@/packages/features/chat-session/send-form/bridges/nativeQuickShortcutBridge";
 import { shouldShowContextUsageShortcut } from "@/packages/features/chat-session/send-form/context-usage/presentation";
 import { CurrentChatCategoryDrawer } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatCategoryDrawer";
@@ -128,6 +132,10 @@ function resolvePrimarySendActionIcon(kind: PrimarySendActionKind) {
 		default:
 			return SendHorizontal;
 	}
+}
+
+function reloadPage() {
+	window.location.reload();
 }
 
 type CurrentChatActionDialogKind = "categories" | "delete" | "rename";
@@ -265,6 +273,7 @@ export function AstraMobileSendForm({
 	currentPresetProfileControlsStore,
 	currentUserAvatarStore,
 	documentRef = document,
+	onPageReload = reloadPage,
 	onQuickReplyHostChange,
 	onTextareaHostChange,
 	primarySendActionStore,
@@ -280,6 +289,7 @@ export function AstraMobileSendForm({
 	currentPresetProfileControlsStore: CurrentPresetProfileControlsStore;
 	currentUserAvatarStore: CurrentUserAvatarStore;
 	documentRef?: Document;
+	onPageReload?: () => void;
 	onQuickReplyHostChange(host: HTMLDivElement | null): void;
 	onTextareaHostChange(host: HTMLDivElement | null): void;
 	primarySendActionStore: PrimarySendActionStore;
@@ -536,6 +546,27 @@ export function AstraMobileSendForm({
 		},
 		[documentRef],
 	);
+	const handlePermanentShortcutClick = React.useCallback(
+		(shortcutId: string) => {
+			const descriptor = SEND_FORM_PERMANENT_SHORTCUT_ACTIONS.find(
+				(item) => item.id === shortcutId,
+			);
+			if (!descriptor) {
+				return;
+			}
+
+			if (descriptor.kind === "page-reload") {
+				onPageReload();
+				return;
+			}
+
+			triggerNativeOption({
+				documentRef,
+				nativeOptionId: descriptor.nativeOptionId,
+			});
+		},
+		[documentRef, onPageReload],
+	);
 	const handleShortcutsToolbarVisibilityChange = React.useCallback(
 		(nextValue: boolean) => {
 			setShowShortcutsToolbar(nextValue);
@@ -568,6 +599,12 @@ export function AstraMobileSendForm({
 			},
 		];
 	});
+	const permanentShortcutActions = SEND_FORM_PERMANENT_SHORTCUT_ACTIONS.map(
+		(descriptor) => ({
+			...descriptor,
+			label: translateAstra(descriptor.fallbackLabelKey),
+		}),
+	);
 	const showContextUsageShortcut =
 		shouldShowContextUsageShortcut(contextUsageSnapshot);
 	const shortcutsToolbarLabel = translateAstra("sendForm.shortcuts.toolbar");
@@ -874,9 +911,11 @@ export function AstraMobileSendForm({
 		<MobileSendFormShortcutsToolbar
 			contextUsageSnapshot={contextUsageSnapshot}
 			label={shortcutsToolbarLabel}
+			permanentShortcutActions={permanentShortcutActions}
 			sillyTavernInterfaceTriggerLabel={sillyTavernInterfaceTriggerLabel}
 			showContextUsageShortcut={showContextUsageShortcut}
 			visibleQuickShortcuts={visibleQuickShortcuts}
+			onPermanentShortcutClick={handlePermanentShortcutClick}
 			onSillyTavernInterfaceOpen={sillyTavernInterface.openCurrentPage}
 			onQuickShortcutClick={handleQuickShortcutClick}
 		/>
