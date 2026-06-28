@@ -1,7 +1,10 @@
 import * as React from "react";
 
-import { Button } from "@/components/ui/shadcn/button";
 import { Label } from "@/components/ui/shadcn/label";
+import {
+	ToggleGroup,
+	ToggleGroupItem,
+} from "@/components/ui/shadcn/toggle-group";
 import { UiIcon } from "@/components/ui/shared/icon";
 import type { LucideIcon } from "@/components/ui/shared/icons";
 
@@ -38,41 +41,40 @@ export function SettingsButtonGroupRow<Value extends string>({
 			>
 				{title}
 			</Label>
-			<div
+			<ToggleGroup
 				aria-labelledby={titleId}
 				className="chat-session-settings__button-group"
-				role="group"
+				size="sm"
+				type="single"
+				value={value}
+				variant="outline"
+				onValueChange={(next) => {
+					// Radix emits "" when the active item is toggled off; this is a
+					// single-select control, so keep the current selection instead.
+					if (next) {
+						onValueChange(next as Value);
+					}
+				}}
 			>
-				{options.map((option) => {
-					const isSelected = option.value === value;
-					return (
-						<Button
-							key={option.value}
-							aria-label={
-								option.icon ? option.ariaLabel : undefined
-							}
-							aria-pressed={isSelected}
-							className="chat-session-settings__button-group-item"
-							size="sm"
-							type="button"
-							variant={isSelected ? "default" : "outline"}
-							onClick={() => {
-								onValueChange(option.value);
-							}}
-						>
-							{option.icon ? (
-								<UiIcon
-									aria-hidden={true}
-									icon={option.icon}
-									size="sm"
-								/>
-							) : (
-								option.label
-							)}
-						</Button>
-					);
-				})}
-			</div>
+				{options.map((option) => (
+					<ToggleGroupItem
+						key={option.value}
+						aria-label={option.icon ? option.ariaLabel : undefined}
+						className="chat-session-settings__button-group-item"
+						value={option.value}
+					>
+						{option.icon ? (
+							<UiIcon
+								aria-hidden={true}
+								icon={option.icon}
+								size="sm"
+							/>
+						) : (
+							option.label
+						)}
+					</ToggleGroupItem>
+				))}
+			</ToggleGroup>
 		</div>
 	);
 }

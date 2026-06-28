@@ -126,39 +126,12 @@
 }
 
 .chat-session-settings__button-group {
-	display: inline-flex;
-	align-items: stretch;
 	align-self: flex-start;
 	max-width: 100%;
 }
 
 .chat-session-settings__button-group-item {
-	flex: 1 1 auto;
-	border-radius: 0;
 	font-size: var(--text-xs);
-	font-weight: var(--font-weight-medium);
-}
-
-.chat-session-settings__button-group-item:not(:disabled) {
-	cursor: pointer;
-}
-
-.chat-session-settings__button-group-item:not(:first-child) {
-	margin-inline-start: -1px;
-}
-
-.chat-session-settings__button-group-item:first-child {
-	border-start-start-radius: var(--radius-md);
-	border-end-start-radius: var(--radius-md);
-}
-
-.chat-session-settings__button-group-item:last-child {
-	border-start-end-radius: var(--radius-md);
-	border-end-end-radius: var(--radius-md);
-}
-
-.chat-session-settings__button-group-item[aria-pressed="true"] {
-	z-index: 1;
 }
 
 .chat-session-settings__slider-row {

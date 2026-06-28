@@ -210,8 +210,8 @@ describe("ChatSessionSettingsDrawer", () => {
 			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={true} />,
 		);
 
-		fireEvent.click(screen.getByRole("button", { name: "Large" }));
-		fireEvent.click(screen.getByRole("button", { name: "Align center" }));
+		fireEvent.click(screen.getByRole("radio", { name: "Large" }));
+		fireEvent.click(screen.getByRole("radio", { name: "Align center" }));
 
 		expect(readMessageAppearance(context)).toEqual(
 			expect.objectContaining({ lineHeight: "md", textAlign: "start" }),
@@ -283,8 +283,8 @@ describe("ChatSessionSettingsDrawer", () => {
 		const sliders = screen.getAllByRole("slider");
 		sliders[0].focus();
 		fireEvent.keyDown(sliders[0], { key: "ArrowRight" });
-		fireEvent.click(screen.getByRole("button", { name: "Large" }));
-		fireEvent.click(screen.getByRole("button", { name: "Align center" }));
+		fireEvent.click(screen.getByRole("radio", { name: "Large" }));
+		fireEvent.click(screen.getByRole("radio", { name: "Align center" }));
 
 		rerender(
 			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={false} />,
