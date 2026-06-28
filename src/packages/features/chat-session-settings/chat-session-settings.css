@@ -16,6 +16,7 @@
 }
 
 .chat-session-settings-drawer__heading {
+	display: none;
 	padding: calc(var(--drawer-content-padding) - 8px)
 		var(--drawer-content-padding);
 }
@@ -105,7 +106,8 @@
 }
 
 .chat-session-settings__chat-background-tab,
-.chat-session-settings__chat-message-tab {
+.chat-session-settings__chat-message-tab,
+.chat-session-settings__message-input-tab {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
@@ -115,13 +117,19 @@
 	gap: 16px;
 }
 
-.chat-session-settings__button-row {
+.chat-session-settings__button-row,
+.chat-session-settings__toggle-row {
 	display: flex;
 	gap: 8px;
 	justify-content: space-between;
 }
 
-.chat-session-settings__button-row-title {
+.chat-session-settings__toggle-row {
+	align-items: center;
+}
+
+.chat-session-settings__button-row-title,
+.chat-session-settings__toggle-row-title {
 	font-size: var(--text-sm);
 }
 

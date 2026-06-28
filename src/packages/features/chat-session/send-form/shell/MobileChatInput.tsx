@@ -30,13 +30,11 @@ export interface MobileChatInputProps {
 	onPrimarySendActionClick(): void;
 	onQuickReplyHostChange(host: HTMLDivElement | null): void;
 	onQuickReplyHostVisibilityToggle(): void;
-	onShortcutsToolbarVisibilityChange(nextValue: boolean): void;
 	onTextareaHostChange(host: HTMLDivElement | null): void;
 	primarySendActionIcon: LucideIcon;
 	primarySendActionSnapshot: PrimarySendActionSnapshot;
 	quickReplyVisibilityToggleLabel: string;
 	showQuickReplyVisibilityToggle: boolean;
-	showShortcutsToolbar: boolean;
 	userAvatarSnapshot: CurrentUserAvatarSnapshot;
 }
 
@@ -54,13 +52,11 @@ export function MobileChatInput({
 	onPrimarySendActionClick,
 	onQuickReplyHostChange,
 	onQuickReplyHostVisibilityToggle,
-	onShortcutsToolbarVisibilityChange,
 	onTextareaHostChange,
 	primarySendActionIcon: PrimarySendActionIcon,
 	primarySendActionSnapshot,
 	quickReplyVisibilityToggleLabel,
 	showQuickReplyVisibilityToggle,
-	showShortcutsToolbar,
 	userAvatarSnapshot,
 }: MobileChatInputProps) {
 	const handleQuickReplyHostRef = React.useCallback(
@@ -143,10 +139,6 @@ export function MobileChatInput({
 								</button>
 								<MobileSendFormOptionsMenu
 									documentRef={documentRef}
-									showShortcutsToolbar={showShortcutsToolbar}
-									onShowShortcutsToolbarChange={
-										onShortcutsToolbarVisibilityChange
-									}
 								/>
 								<MobileSendFormExtensionsMenu
 									documentRef={documentRef}

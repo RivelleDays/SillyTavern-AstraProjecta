@@ -23,7 +23,6 @@ import {
 	ASTRA_CHAT_INPUT_HOST_ID,
 	MOBILE_SEND_FORM_QUICK_REPLY_VISIBILITY_STORAGE_KEY,
 	ASTRA_CHAT_SHORTCUTS_HOST_ID,
-	MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import type { SillyTavernInterfaceRouteKey } from "@/app/shared/sillytavern-interface";
 import {
@@ -48,6 +47,7 @@ import { CurrentChatRenameDialog } from "@/packages/features/chat-session/send-f
 import { MobileChatMainMenuDrawer } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawer";
 import { MobileChatInput } from "@/packages/features/chat-session/send-form/shell/MobileChatInput";
 import { MobileSendFormShortcutsToolbar } from "@/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar";
+import { shortcutsToolbarVisibilityStore } from "@/packages/features/chat-session/send-form/shell/shortcutsToolbarVisibilityStore";
 import {
 	deleteCurrentChat,
 	type DeleteCurrentChatResult,
@@ -178,49 +178,6 @@ function cloneCurrentChatInfoSnapshot(
 	};
 }
 
-function readStoredShortcutsToolbarVisibility(documentRef: Document): boolean {
-	const storage = documentRef.defaultView?.localStorage;
-	if (!storage) {
-		return true;
-	}
-
-	try {
-		const storedValue = storage.getItem(
-			MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
-		);
-		if (storedValue === "false") {
-			return false;
-		}
-
-		if (storedValue === "true") {
-			return true;
-		}
-	} catch {
-		return true;
-	}
-
-	return true;
-}
-
-function persistShortcutsToolbarVisibility(
-	documentRef: Document,
-	isVisible: boolean,
-) {
-	const storage = documentRef.defaultView?.localStorage;
-	if (!storage) {
-		return;
-	}
-
-	try {
-		storage.setItem(
-			MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
-			String(isVisible),
-		);
-	} catch {
-		// Ignore storage failures and keep the in-memory preference active.
-	}
-}
-
 function readStoredQuickReplyHostVisibility(documentRef: Document): boolean {
 	const storage = documentRef.defaultView?.localStorage;
 	if (!storage) {
@@ -345,8 +302,10 @@ export function AstraMobileSendForm({
 	const [managedTextarea, setManagedTextarea] =
 		React.useState<HTMLTextAreaElement | null>(null);
 	const [isTextareaMultiline, setIsTextareaMultiline] = React.useState(false);
-	const [showShortcutsToolbar, setShowShortcutsToolbar] = React.useState(() =>
-		readStoredShortcutsToolbarVisibility(documentRef),
+	const showShortcutsToolbar = React.useSyncExternalStore(
+		shortcutsToolbarVisibilityStore.subscribe,
+		shortcutsToolbarVisibilityStore.getSnapshot,
+		shortcutsToolbarVisibilityStore.getSnapshot,
 	);
 	const [showQuickReplyHost, setShowQuickReplyHost] = React.useState(() =>
 		readStoredQuickReplyHostVisibility(documentRef),
@@ -566,13 +525,6 @@ export function AstraMobileSendForm({
 			});
 		},
 		[documentRef, onPageReload],
-	);
-	const handleShortcutsToolbarVisibilityChange = React.useCallback(
-		(nextValue: boolean) => {
-			setShowShortcutsToolbar(nextValue);
-			persistShortcutsToolbarVisibility(documentRef, nextValue);
-		},
-		[documentRef],
 	);
 	const handleQuickReplyHostVisibilityToggle = React.useCallback(() => {
 		setShowQuickReplyHost((current) => {
@@ -935,7 +887,6 @@ export function AstraMobileSendForm({
 			showQuickReplyVisibilityToggle={
 				shouldShowQuickReplyVisibilityToggle
 			}
-			showShortcutsToolbar={showShortcutsToolbar}
 			userAvatarSnapshot={avatarSnapshot}
 			onMainMenuOpen={handleMainMenuOpen}
 			onMainMenuTriggerKeyDownCapture={
@@ -948,9 +899,6 @@ export function AstraMobileSendForm({
 			onQuickReplyHostChange={onQuickReplyHostChange}
 			onQuickReplyHostVisibilityToggle={
 				handleQuickReplyHostVisibilityToggle
-			}
-			onShortcutsToolbarVisibilityChange={
-				handleShortcutsToolbarVisibilityChange
 			}
 			onTextareaHostChange={handleTextareaHostRef}
 		/>

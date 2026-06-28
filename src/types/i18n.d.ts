@@ -214,9 +214,11 @@ export interface I18nMessages {
 	"chatSessionSettings.drawer.cancel": string;
 	"chatSessionSettings.drawer.description": string;
 	"chatSessionSettings.drawer.save": string;
+	"chatSessionSettings.messageInput.shortcuts.label": string;
 	"chatSessionSettings.panel.title": string;
 	"chatSessionSettings.section.chatBackground": string;
 	"chatSessionSettings.section.chatMessages": string;
+	"chatSessionSettings.section.messageInput": string;
 	"chatSessionSettings.topBar.actions": string;
 	"chatSessionSettings.topBar.trigger": string;
 	"messageActions.deleteConfirm.cancel": string;
@@ -418,7 +420,6 @@ export interface I18nMessages {
 	"sendForm.options.group.dangerZone": string;
 	"sendForm.options.group.generation": string;
 	"sendForm.options.group.promptPanels": string;
-	"sendForm.options.shortcutsVisibility": string;
 	"sendForm.options.title": string;
 	"sendForm.options.trigger": string;
 	"sendForm.primaryAction.continue": string;

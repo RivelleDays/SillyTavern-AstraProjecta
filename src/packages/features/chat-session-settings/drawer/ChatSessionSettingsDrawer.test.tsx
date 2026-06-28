@@ -10,6 +10,8 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ensureAstraProjectaUiInfrastructure } from "@/packages/core/runtime/uiScope";
 import { ChatSessionSettingsDrawer } from "@/packages/features/chat-session-settings/drawer/ChatSessionSettingsDrawer";
+import { MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY } from "@/packages/features/chat-session/send-form/contracts/dom";
+import { shortcutsToolbarVisibilityStore } from "@/packages/features/chat-session/send-form/shell/shortcutsToolbarVisibilityStore";
 
 function setSillyTavernContext(context: Record<string, unknown>) {
 	(globalThis as { SillyTavern?: unknown }).SillyTavern = {
@@ -79,6 +81,9 @@ beforeEach(() => {
 
 afterEach(() => {
 	cleanup();
+	window.localStorage.removeItem(
+		MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
+	);
 	Reflect.deleteProperty(
 		globalThis as Record<string, unknown>,
 		"SillyTavern",
@@ -130,8 +135,8 @@ describe("ChatSessionSettingsDrawer", () => {
 				".chat-session-settings__chat-background-tab",
 			),
 		);
-		expect(screen.getByText("Background Blur")).toBeInTheDocument();
-		expect(screen.getByText("Background Opacity")).toBeInTheDocument();
+		expect(screen.getByText("Background blur")).toBeInTheDocument();
+		expect(screen.getByText("Background opacity")).toBeInTheDocument();
 		const chatMessagesMarker = screen
 			.getByText("Chat Messages")
 			.closest(".chat-session-settings__section-marker");
@@ -306,5 +311,61 @@ describe("ChatSessionSettingsDrawer", () => {
 		expect(
 			document.body.style.getPropertyValue("--astra-mes-text-align"),
 		).toBe("end");
+	});
+
+	test("previews the shortcuts toggle live but persists only when Save is clicked", () => {
+		setupContextWithAppearance();
+		render(
+			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={true} />,
+		);
+
+		const toggle = screen.getByRole("switch", {
+			name: "Show chat shortcuts",
+		});
+		expect(toggle).toHaveAttribute("aria-checked", "true");
+
+		fireEvent.click(toggle);
+
+		expect(toggle).toHaveAttribute("aria-checked", "false");
+		// Live preview drives the send-form toolbar without persisting yet.
+		expect(shortcutsToolbarVisibilityStore.getSnapshot()).toBe(false);
+		expect(
+			window.localStorage.getItem(
+				MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
+			),
+		).toBeNull();
+
+		fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+		expect(
+			window.localStorage.getItem(
+				MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
+			),
+		).toBe("false");
+		expect(shortcutsToolbarVisibilityStore.getPersisted()).toBe(false);
+	});
+
+	test("reverts the shortcuts toggle preview when closing without Save", () => {
+		setupContextWithAppearance();
+		const { rerender } = render(
+			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={true} />,
+		);
+
+		fireEvent.click(
+			screen.getByRole("switch", { name: "Show chat shortcuts" }),
+		);
+		expect(shortcutsToolbarVisibilityStore.getSnapshot()).toBe(false);
+
+		rerender(
+			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={false} />,
+		);
+
+		// Preview reverts to the persisted default and nothing is written.
+		expect(shortcutsToolbarVisibilityStore.getSnapshot()).toBe(true);
+		expect(
+			window.localStorage.getItem(
+				MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
+			),
+		).toBeNull();
 	});
 });

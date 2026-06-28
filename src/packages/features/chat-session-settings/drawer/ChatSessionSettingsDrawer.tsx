@@ -11,11 +11,18 @@ import {
 } from "@/components/ui/astra/drawer";
 import { Button } from "@/components/ui/shadcn/button";
 import { UiIcon } from "@/components/ui/shared/icon";
-import { Image, MessageCircleMore, Save } from "@/components/ui/shared/icons";
+import {
+	Image,
+	MessageCircleMore,
+	Save,
+	Send,
+} from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import { ChatBackgroundSettingsTab } from "@/packages/features/chat-session-settings/chat-background/ChatBackgroundSettingsTab";
 import { ChatMessageSettingsTab } from "@/packages/features/chat-session-settings/chat-message/ChatMessageSettingsTab";
+import { MessageInputSettingsTab } from "@/packages/features/chat-session-settings/message-input/MessageInputSettingsTab";
 import { SettingsSectionMarker } from "@/packages/features/chat-session-settings/SettingsSectionMarker";
+import { shortcutsToolbarVisibilityStore } from "@/packages/features/chat-session/send-form/shell/shortcutsToolbarVisibilityStore";
 import {
 	createChatBackgroundAppearanceStore,
 	type ChatBackgroundAppearanceInput,
@@ -173,20 +180,33 @@ export function ChatSessionSettingsDrawer({
 			}),
 			[messageSnapshot.lineHeight, messageSnapshot.textAlign],
 		);
+	const persistedShortcutsVisible = React.useSyncExternalStore(
+		shortcutsToolbarVisibilityStore.subscribe,
+		shortcutsToolbarVisibilityStore.getPersisted,
+		shortcutsToolbarVisibilityStore.getPersisted,
+	);
 	const [draftAppearance, setDraftAppearance] =
 		React.useState<ChatBackgroundAppearanceInput>(persistedAppearance);
 	const [draftMessageAppearance, setDraftMessageAppearance] =
 		React.useState<ChatMessageAppearanceInput>(persistedMessageAppearance);
+	const [draftShortcutsVisible, setDraftShortcutsVisible] = React.useState(
+		persistedShortcutsVisible,
+	);
 	const savedCloseRef = React.useRef(false);
 	const canSave =
 		!isSameAppearance(draftAppearance, persistedAppearance) ||
 		!isSameMessageAppearance(
 			draftMessageAppearance,
 			persistedMessageAppearance,
-		);
+		) ||
+		draftShortcutsVisible !== persistedShortcutsVisible;
 
 	React.useEffect(() => () => store.dispose(), [store]);
 	React.useEffect(() => () => messageStore.dispose(), [messageStore]);
+	React.useEffect(
+		() => () => shortcutsToolbarVisibilityStore.clearPreview(),
+		[],
+	);
 
 	React.useEffect(() => {
 		if (!open) {
@@ -196,11 +216,18 @@ export function ChatSessionSettingsDrawer({
 		savedCloseRef.current = false;
 		setDraftAppearance(persistedAppearance);
 		setDraftMessageAppearance(persistedMessageAppearance);
+		setDraftShortcutsVisible(persistedShortcutsVisible);
 		applySettingsPreview({
 			backgroundAppearance: persistedAppearance,
 			messageAppearance: persistedMessageAppearance,
 		});
-	}, [open, persistedAppearance, persistedMessageAppearance]);
+		shortcutsToolbarVisibilityStore.setPreview(persistedShortcutsVisible);
+	}, [
+		open,
+		persistedAppearance,
+		persistedMessageAppearance,
+		persistedShortcutsVisible,
+	]);
 
 	React.useEffect(() => {
 		if (!open) {
@@ -211,16 +238,23 @@ export function ChatSessionSettingsDrawer({
 			backgroundAppearance: draftAppearance,
 			messageAppearance: draftMessageAppearance,
 		});
-	}, [draftAppearance, draftMessageAppearance, open]);
+		shortcutsToolbarVisibilityStore.setPreview(draftShortcutsVisible);
+	}, [draftAppearance, draftMessageAppearance, draftShortcutsVisible, open]);
 
 	const restorePersistedPreview = React.useCallback(() => {
 		setDraftAppearance(persistedAppearance);
 		setDraftMessageAppearance(persistedMessageAppearance);
+		setDraftShortcutsVisible(persistedShortcutsVisible);
 		applySettingsPreview({
 			backgroundAppearance: persistedAppearance,
 			messageAppearance: persistedMessageAppearance,
 		});
-	}, [persistedAppearance, persistedMessageAppearance]);
+		shortcutsToolbarVisibilityStore.clearPreview();
+	}, [
+		persistedAppearance,
+		persistedMessageAppearance,
+		persistedShortcutsVisible,
+	]);
 
 	const handleCancel = React.useCallback(() => {
 		savedCloseRef.current = false;
@@ -242,6 +276,10 @@ export function ChatSessionSettingsDrawer({
 		) {
 			messageStore.setAppearance(draftMessageAppearance);
 		}
+
+		if (draftShortcutsVisible !== persistedShortcutsVisible) {
+			shortcutsToolbarVisibilityStore.commit(draftShortcutsVisible);
+		}
 		applySettingsPreview({
 			backgroundAppearance: draftAppearance,
 			messageAppearance: draftMessageAppearance,
@@ -249,9 +287,11 @@ export function ChatSessionSettingsDrawer({
 	}, [
 		draftAppearance,
 		draftMessageAppearance,
+		draftShortcutsVisible,
 		messageStore,
 		persistedAppearance,
 		persistedMessageAppearance,
+		persistedShortcutsVisible,
 		store,
 	]);
 
@@ -338,6 +378,20 @@ export function ChatSessionSettingsDrawer({
 						className: "chat-session-settings-drawer__viewport",
 					}}
 				>
+					<div className="chat-session-settings__section">
+						<SettingsSectionMarker
+							icon={Send}
+							label={translateAstra(
+								"chatSessionSettings.section.messageInput",
+							)}
+						/>
+						<MessageInputSettingsTab
+							showShortcutsToolbar={draftShortcutsVisible}
+							onShowShortcutsToolbarChange={
+								setDraftShortcutsVisible
+							}
+						/>
+					</div>
 					<div className="chat-session-settings__section">
 						<SettingsSectionMarker
 							icon={MessageCircleMore}

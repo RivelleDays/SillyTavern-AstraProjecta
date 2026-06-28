@@ -11,8 +11,6 @@ import {
 import { UiIcon } from "@/components/ui/shared/icon";
 import { Menu } from "@/components/ui/shared/icons";
 import { buttonVariants } from "@/components/ui/shadcn/button";
-import { Label } from "@/components/ui/shadcn/label";
-import { Switch } from "@/components/ui/shadcn/switch";
 import { cn } from "@/lib/utils";
 import { translateAstra } from "@/packages/core/i18n";
 import { getStContext } from "@/packages/core/st/context";
@@ -28,8 +26,6 @@ import {
 	ASTRA_SEND_FORM_OPTIONS_DRAWER_MENU_ID,
 	ASTRA_SEND_FORM_OPTIONS_DRAWER_SCROLLABLE_CONTENT_ID,
 	ASTRA_SEND_FORM_OPTIONS_DRAWER_TITLE_ID,
-	ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_ID,
-	ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID,
 	NATIVE_OPTIONS_ROOT_ID,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import { triggerNativeOption } from "@/packages/features/chat-session/send-form/bridges/nativeOptionBridge";
@@ -197,22 +193,15 @@ export function MobileSendFormOptionsMenu({
 	documentRef = document,
 	interactionBlocked = false,
 	onPageReload = reloadPage,
-	onShowShortcutsToolbarChange = () => {},
-	showShortcutsToolbar = true,
 }: {
 	documentRef?: Document;
 	interactionBlocked?: boolean;
 	onPageReload?: () => void;
-	onShowShortcutsToolbarChange?(nextValue: boolean): void;
-	showShortcutsToolbar?: boolean;
 }) {
 	const [isOpen, setIsOpen] = React.useState(false);
 	const triggerLabel = translateAstra("sendForm.options.trigger");
 	const title = translateAstra("sendForm.options.title");
 	const description = translateAstra("sendForm.options.description");
-	const shortcutsVisibilityLabel = translateAstra(
-		"sendForm.options.shortcutsVisibility",
-	);
 
 	useMenuVersion(documentRef);
 
@@ -374,47 +363,7 @@ export function MobileSendFormOptionsMenu({
 								</section>
 							);
 
-							if (group.key !== "danger-zone") {
-								return groupSection;
-							}
-
-							return (
-								<React.Fragment key={group.key}>
-									<section className="astra-send-form-options-drawer__group astra-send-form-options-drawer__group--shortcuts-visibility">
-										<div className="astra-send-form-options-drawer__group-items">
-											<div
-												id={
-													ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_ID
-												}
-												className="astra-send-form-options-drawer__toggle"
-											>
-												<Label
-													className="astra-send-form-options-drawer__toggle-label"
-													htmlFor={
-														ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID
-													}
-												>
-													{shortcutsVisibilityLabel}
-												</Label>
-												<Switch
-													checked={
-														showShortcutsToolbar
-													}
-													id={
-														ASTRA_SEND_FORM_SHORTCUTS_TOGGLE_SWITCH_ID
-													}
-													size="default"
-													type="button"
-													onCheckedChange={
-														onShowShortcutsToolbarChange
-													}
-												/>
-											</div>
-										</div>
-									</section>
-									{groupSection}
-								</React.Fragment>
-							);
+							return groupSection;
 						})}
 					</div>
 				</DrawerBody>
