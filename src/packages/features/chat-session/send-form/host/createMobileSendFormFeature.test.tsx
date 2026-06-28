@@ -9,6 +9,7 @@ import {
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { ensureAstraProjectaUiInfrastructure } from "@/packages/core/runtime/uiScope";
+import { createChatCategoryStore } from "@/packages/core/st/chat-categories";
 import {
 	createMobileSillyTavernInterfacePanelFeature,
 	type MobileSillyTavernInterfacePanelFeature,
@@ -2477,6 +2478,176 @@ describe("createMobileSendFormFeature", () => {
 		feature.dispose();
 	});
 
+	test("opens current chat categories as a sibling drawer with staged assignment changes", async () => {
+		document.body.innerHTML = `
+      <div id="options_button" title="Menu"></div>
+      <div id="extensionsMenuButton" title="Extensions"></div>
+      <div id="extensionsMenu" class="options-content" style="display: none;"></div>
+      <div id="options">
+        <button id="option_toggle_AN" type="button"></button>
+        <button id="option_close_chat" type="button"></button>
+      </div>
+      <div id="user_avatar_block">
+        <div class="avatar-container selected" data-avatar-id="hero-persona"></div>
+      </div>
+      <div id="form_sheld">
+      <form id="send_form">
+        <div id="nonQRFormItems">
+          <textarea id="send_textarea"></textarea>
+          <div id="rightSendForm">
+            <button id="mes_impersonate" title="Impersonate" type="button"></button>
+            <button id="mes_continue" title="Continue" type="button"></button>
+            <button id="send_but" title="Send message" type="button"></button>
+          </div>
+        </div>
+      </form>
+      </div>
+    `;
+
+		window.matchMedia = vi.fn().mockImplementation(() => ({
+			addEventListener: vi.fn(),
+			matches: true,
+			removeEventListener: vi.fn(),
+		}));
+
+		const context = {
+			characterId: 0,
+			characters: [
+				{
+					avatar: "hero.png",
+					chat: "chapter-1",
+					name: "Hero",
+				},
+			],
+			chat: [
+				{
+					is_system: false,
+					is_user: true,
+					mes: "Hello",
+					send_date: "2026-04-23T10:20:00.000Z",
+				},
+			],
+			chatId: "chapter-1",
+			extensionSettings: {},
+			getThumbnailUrl: vi.fn((type: string, value: string) => {
+				if (type === "persona") {
+					return `/thumbs/persona/${value}`;
+				}
+
+				return `/thumbs/avatar/${value}`;
+			}),
+			powerUserSettings: { continue_on_send: false },
+			saveSettingsDebounced: vi.fn(),
+			timestampToMoment: vi.fn(() => ({
+				format: vi.fn(() => "2026/04/23 06:30 PM"),
+				valueOf: vi.fn(() =>
+					Date.parse("2026-04-23T10:20:00.000Z"),
+				),
+			})),
+			translate: (text: string) => text,
+		};
+		const seededCategoryStore = createChatCategoryStore({
+			createId: vi
+				.fn()
+				.mockReturnValueOnce("cat_owner")
+				.mockReturnValueOnce("cat_global"),
+			getContext: () => context,
+		});
+		const ownerCategory = seededCategoryStore.createCategory({
+			name: "Hero Notes",
+			ownerId: "0",
+			ownerType: "character",
+			scope: "owner",
+		});
+		const globalCategory = seededCategoryStore.createCategory({
+			name: "Shared Tags",
+			scope: "global",
+		});
+		expect(ownerCategory.ok).toBe(true);
+		expect(globalCategory.ok).toBe(true);
+		seededCategoryStore.setChatCategoryIds("character:0:chapter-1", [
+			"cat_owner",
+		]);
+		seededCategoryStore.dispose();
+
+		setSillyTavernContext(context);
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+
+		const feature = createTestMobileSendFormFeature({
+			documentRef: document,
+		});
+		feature.mount();
+
+		const host = await waitForInputRowHost();
+		fireEvent.click(
+			within(host).getByRole("button", {
+				name: "Current user avatar",
+			}),
+		);
+
+		const drawer = await waitFor(() => {
+			const element = document.getElementById(
+				"astra-chat-main-menu-drawer",
+			);
+			expect(element).toBeInTheDocument();
+			return element as HTMLElement;
+		});
+
+		fireEvent.click(
+			within(drawer).getByRole("button", { name: "Edit categories" }),
+		);
+
+		await waitFor(() => {
+			expect(
+				document.getElementById("astra-chat-main-menu-drawer"),
+			).not.toBeInTheDocument();
+		});
+
+		const categoryDrawer = await screen.findByRole("dialog", {
+			name: "Edit categories",
+		});
+		expect(categoryDrawer).toHaveAttribute(
+			"id",
+			"astra-main-interface-chat-category-drawer",
+		);
+		expect(
+			categoryDrawer.querySelector(".astra-dialog-identityName"),
+		).toHaveTextContent("Hero");
+		expect(
+			within(categoryDrawer).getByText("chapter-1"),
+		).toBeInTheDocument();
+		expect(
+			categoryDrawer.querySelector(
+				'.astra-main-interface-chat-category-drawer__scope-section[data-scope="owner"]',
+			),
+		).toBeInTheDocument();
+		expect(
+			categoryDrawer.querySelector(
+				'.astra-main-interface-chat-category-drawer__scope-section[data-scope="global"]',
+			),
+		).toBeInTheDocument();
+
+		const ownerCheckbox = within(categoryDrawer).getByRole("checkbox", {
+			name: "Hero Notes",
+		});
+		const globalCheckbox = within(categoryDrawer).getByRole("checkbox", {
+			name: "Shared Tags",
+		});
+		const saveButton = within(categoryDrawer).getByRole("button", {
+			name: "Save changes",
+		});
+
+		expect(ownerCheckbox).toBeChecked();
+		expect(globalCheckbox).not.toBeChecked();
+		expect(saveButton).toBeDisabled();
+
+		fireEvent.click(globalCheckbox);
+
+		expect(saveButton).toBeEnabled();
+
+		feature.dispose();
+	});
+
 	test("opens delete chat as a sibling responsive dialog and confirms through the delete adapter path", async () => {
 		document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>
@@ -3746,6 +3917,30 @@ describe("createMobileSendFormFeature", () => {
 			".mobile-send-form-shortcuts__strip",
 		) as HTMLElement | null;
 		expect(shortcutsStrip).toBeInTheDocument();
+		const emphasisGroup = shortcutsStrip?.querySelector(
+			".mobile-send-form-shortcuts__emphasis-group",
+		) as HTMLElement | null;
+		const actionsGroup = shortcutsStrip?.querySelector(
+			".mobile-send-form-shortcuts__actions-group",
+		) as HTMLElement | null;
+		const shortcutItems = Array.from(
+			shortcutsStrip?.querySelectorAll(".mobile-send-form-shortcuts__item") ??
+				[],
+		);
+
+		expect(emphasisGroup).toBeInTheDocument();
+		expect(actionsGroup).toBeInTheDocument();
+		expect(shortcutItems.map((item) => item.tagName)).toEqual([
+			"DIV",
+			"DIV",
+			"DIV",
+		]);
+		expect(
+			actionsGroup?.querySelector("#astra-send-form-shortcut-impersonate"),
+		).toBeInTheDocument();
+		expect(
+			actionsGroup?.querySelector("#astra-send-form-shortcut-continue"),
+		).toBeInTheDocument();
 
 		const shortcutButtons = within(
 			shortcutsStrip as HTMLElement,
@@ -3764,6 +3959,11 @@ describe("createMobileSendFormFeature", () => {
 			"id",
 			"sillytavern-interface-panel-trigger",
 		);
+		expect(shortcutButtons[0]).toHaveClass(
+			"mobile-send-form-shortcuts__button--emphasis",
+		);
+		expect(emphasisGroup).toContainElement(shortcutButtons[0]);
+		expect(actionsGroup).not.toContainElement(shortcutButtons[0]);
 		expect(shortcutButtons[0]).toHaveAccessibleName("ST menu");
 		expect(
 			shortcutButtons[0].querySelector(".lucide-brain-circuit"),

@@ -208,6 +208,7 @@ export function MobileChatMainMenuDrawer({
 	onRequestChatSettingsOverride,
 	open,
 	onOpenChange,
+	onRequestCategories,
 	onRequestDelete,
 	onRequestRename,
 	renderSillyTavernInterfaceRouteIcon = () => null,
@@ -225,6 +226,7 @@ export function MobileChatMainMenuDrawer({
 		pageKey: SillyTavernInterfaceRouteKey,
 	): void;
 	onRequestChatSettingsOverride?(): void;
+	onRequestCategories?(): void;
 	onRequestDelete?(): void;
 	onRequestRename?(): void;
 	open: boolean;
@@ -503,6 +505,8 @@ export function MobileChatMainMenuDrawer({
 										onClick={
 											key === "delete"
 												? onRequestDelete
+												: key === "categories"
+													? onRequestCategories
 												: key === "rename"
 													? onRequestRename
 													: undefined
