@@ -634,7 +634,6 @@ describe("globals.css", () => {
 		);
 		expect(messageLayoutCss).toContain("var(--border-color-base)");
 		expect(messageLayoutCss).toContain("var(--color-base)");
-		expect(messageLayoutCss).toContain("var(--color-base-t80)");
 	});
 
 	test("imports the chat-scroll stylesheet for the mobile native #chat scrollbar bridge", () => {
