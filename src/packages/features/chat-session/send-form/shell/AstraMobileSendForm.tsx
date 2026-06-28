@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import type { ChatContextUsageStore } from "@/packages/core/st/chatContextUsage";
+import type { ChatCategoryStore } from "@/packages/core/st/chat-categories";
 import type { CurrentConnectionInfoStore } from "@/packages/core/st/currentConnectionInfo";
 import type { CurrentChatIdentityStore } from "@/packages/core/st/chat-identity";
 import type { CurrentChatInfoStore } from "@/packages/core/st/currentChatInfo";
@@ -37,6 +38,7 @@ import {
 import { triggerNativeChatSettingsOverride } from "@/packages/features/chat-session/send-form/bridges/nativeChatSettingsOverrideBridge";
 import { triggerNativeQuickShortcut } from "@/packages/features/chat-session/send-form/bridges/nativeQuickShortcutBridge";
 import { shouldShowContextUsageShortcut } from "@/packages/features/chat-session/send-form/context-usage/presentation";
+import { CurrentChatCategoryDrawer } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatCategoryDrawer";
 import { CurrentChatDeleteDialog } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatDeleteDialog";
 import { CurrentChatRenameDialog } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatRenameDialog";
 import { MobileChatMainMenuDrawer } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawer";
@@ -128,7 +130,7 @@ function resolvePrimarySendActionIcon(kind: PrimarySendActionKind) {
 	}
 }
 
-type CurrentChatActionDialogKind = "delete" | "rename";
+type CurrentChatActionDialogKind = "categories" | "delete" | "rename";
 
 type CurrentChatActionDialogState = {
 	chatInfoSnapshot: CurrentChatInfoSnapshot;
@@ -255,6 +257,7 @@ function persistQuickReplyHostVisibility(
 }
 
 export function AstraMobileSendForm({
+	chatCategoryStore,
 	chatContextUsageStore,
 	currentConnectionInfoStore,
 	currentChatIdentityStore,
@@ -269,6 +272,7 @@ export function AstraMobileSendForm({
 	quickShortcutStore,
 	sillyTavernInterface = NOOP_SEND_FORM_SILLYTAVERN_INTERFACE,
 }: {
+	chatCategoryStore: ChatCategoryStore;
 	chatContextUsageStore: ChatContextUsageStore;
 	currentConnectionInfoStore: CurrentConnectionInfoStore;
 	currentChatIdentityStore: CurrentChatIdentityStore;
@@ -729,6 +733,17 @@ export function AstraMobileSendForm({
 		scheduleCurrentChatActionDialog,
 	]);
 
+	const handleMainMenuCategoriesRequest = React.useCallback(() => {
+		if (!currentChatIdentitySnapshot.hasActiveChat) {
+			return;
+		}
+
+		scheduleCurrentChatActionDialog("categories");
+	}, [
+		currentChatIdentitySnapshot.hasActiveChat,
+		scheduleCurrentChatActionDialog,
+	]);
+
 	const handleMainMenuRenameRequest = React.useCallback(() => {
 		if (!currentChatIdentitySnapshot.hasActiveChat) {
 			return;
@@ -851,6 +866,8 @@ export function AstraMobileSendForm({
 		currentChatActionDialog?.snapshot ?? currentChatIdentitySnapshot;
 	const currentChatActionDialogInfoSnapshot =
 		currentChatActionDialog?.chatInfoSnapshot ?? currentChatInfoSnapshot;
+	const isCategoriesDrawerOpen =
+		currentChatActionDialog?.kind === "categories";
 	const isRenameDialogOpen = currentChatActionDialog?.kind === "rename";
 	const isDeleteDialogOpen = currentChatActionDialog?.kind === "delete";
 	const shortcutsToolbar = showShortcutsToolbar ? (
@@ -940,6 +957,7 @@ export function AstraMobileSendForm({
 				onRequestChatSettingsOverride={
 					handleChatSettingsOverrideRequest
 				}
+				onRequestCategories={handleMainMenuCategoriesRequest}
 				onRequestDelete={handleMainMenuDeleteRequest}
 				onOpenChange={handleMainMenuOpenChange}
 				onRequestRename={handleMainMenuRenameRequest}
@@ -948,6 +966,13 @@ export function AstraMobileSendForm({
 					sillyTavernInterface.renderRouteIcon
 				}
 				snapshot={currentChatIdentitySnapshot}
+			/>
+			<CurrentChatCategoryDrawer
+				chatCategoryStore={chatCategoryStore}
+				chatInfoSnapshot={currentChatActionDialogInfoSnapshot}
+				open={isCategoriesDrawerOpen}
+				snapshot={currentChatActionDialogSnapshot}
+				onOpenChange={handleCurrentChatActionDialogOpenChange}
 			/>
 			<CurrentChatDeleteDialog
 				chatInfoSnapshot={currentChatActionDialogInfoSnapshot}

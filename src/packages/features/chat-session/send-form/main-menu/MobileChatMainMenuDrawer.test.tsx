@@ -2062,7 +2062,7 @@ describe("MobileChatMainMenuDrawer", () => {
 		).toBeNull();
 	});
 
-	test("routes delete and rename actions through their own callbacks only", async () => {
+	test("routes delete, categories, and rename actions through their own callbacks only", async () => {
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 		setSillyTavernContext({
 			timestampToMoment: () => ({
@@ -2072,12 +2072,14 @@ describe("MobileChatMainMenuDrawer", () => {
 		});
 
 		const onRequestDelete = vi.fn();
+		const onRequestCategories = vi.fn();
 		const onRequestRename = vi.fn();
 
 		render(
 			<MobileChatMainMenuDrawer
 				chatContextUsageSnapshot={createContextUsageSnapshot()}
 				chatInfoSnapshot={createInfoSnapshot()}
+				onRequestCategories={onRequestCategories}
 				onRequestDelete={onRequestDelete}
 				onOpenChange={() => {}}
 				onRequestRename={onRequestRename}
@@ -2090,16 +2092,19 @@ describe("MobileChatMainMenuDrawer", () => {
 			await screen.findByRole("button", { name: "Delete chat" }),
 		);
 		expect(onRequestDelete).toHaveBeenCalledTimes(1);
+		expect(onRequestCategories).not.toHaveBeenCalled();
 		expect(onRequestRename).not.toHaveBeenCalled();
 
 		fireEvent.click(
 			screen.getByRole("button", { name: "Edit categories" }),
 		);
 		expect(onRequestDelete).toHaveBeenCalledTimes(1);
+		expect(onRequestCategories).toHaveBeenCalledTimes(1);
 		expect(onRequestRename).not.toHaveBeenCalled();
 
 		fireEvent.click(screen.getByRole("button", { name: "Rename chat" }));
 		expect(onRequestDelete).toHaveBeenCalledTimes(1);
+		expect(onRequestCategories).toHaveBeenCalledTimes(1);
 		expect(onRequestRename).toHaveBeenCalledTimes(1);
 	});
 

@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { withAstraErrorBoundary } from "@/packages/core/runtime/AstraErrorBoundary";
 import { markAstraProjectaUiRoot } from "@/packages/core/runtime/uiScope";
 import { createChatContextUsageStore } from "@/packages/core/st/chatContextUsage";
+import { createChatCategoryStore } from "@/packages/core/st/chat-categories";
 import { createCurrentConnectionInfoStore } from "@/packages/core/st/currentConnectionInfo";
 import { createCurrentChatIdentityStore } from "@/packages/core/st/chat-identity";
 import { createCurrentChatInfoStore } from "@/packages/core/st/currentChatInfo";
@@ -96,6 +97,8 @@ export function createMobileSendFormFeature({
 	let currentChatIdentityStore: ReturnType<
 		typeof createCurrentChatIdentityStore
 	> | null = null;
+	let chatCategoryStore: ReturnType<typeof createChatCategoryStore> | null =
+		null;
 	let currentConnectionInfoStore: ReturnType<
 		typeof createCurrentConnectionInfoStore
 	> | null = null;
@@ -256,6 +259,7 @@ export function createMobileSendFormFeature({
 	}
 
 	function ensureStores() {
+		chatCategoryStore ??= createChatCategoryStore();
 		chatContextUsageStore ??= createChatContextUsageStore({
 			documentRef,
 		});
@@ -283,6 +287,7 @@ export function createMobileSendFormFeature({
 		});
 
 		return {
+			chatCategoryStore,
 			chatContextUsageStore,
 			currentConnectionInfoStore,
 			currentChatIdentityStore,
@@ -296,6 +301,7 @@ export function createMobileSendFormFeature({
 	}
 
 	function disposeStores() {
+		chatCategoryStore?.dispose();
 		chatContextUsageStore?.dispose();
 		currentConnectionInfoStore?.dispose();
 		currentChatIdentityStore?.dispose();
@@ -305,6 +311,7 @@ export function createMobileSendFormFeature({
 		primarySendActionStore?.dispose();
 		quickReplyEnabledStore?.dispose();
 		quickShortcutStore?.dispose();
+		chatCategoryStore = null;
 		chatContextUsageStore = null;
 		currentConnectionInfoStore = null;
 		currentChatIdentityStore = null;
@@ -357,6 +364,7 @@ export function createMobileSendFormFeature({
 			withAstraErrorBoundary({
 				children: (
 					<AstraMobileSendForm
+						chatCategoryStore={stores.chatCategoryStore}
 						chatContextUsageStore={stores.chatContextUsageStore}
 						currentConnectionInfoStore={
 							stores.currentConnectionInfoStore

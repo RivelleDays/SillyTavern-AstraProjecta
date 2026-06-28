@@ -35,16 +35,15 @@ describe("sillytavern-interface.css", () => {
 		expect(css).not.toContain("@media screen and (max-width: 1000px)");
 		expectSelectors(css, [
 			"body.astra-projecta-mobile-layout {",
-			"#sillytavern-interface-panel-trigger",
 			".sillytavern-interface-panel",
 		]);
+		expect(css).not.toContain("#sillytavern-interface-panel-trigger");
 	});
 
 	test("keeps SillyTavern interface selector contracts addressable", () => {
 		const css = readCss();
 
 		expectSelectors(css, [
-			"#sillytavern-interface-panel-trigger",
 			".sillytavern-interface-panel",
 			".sillytavern-interface-panel__header",
 			".sillytavern-interface-panel__header-main",

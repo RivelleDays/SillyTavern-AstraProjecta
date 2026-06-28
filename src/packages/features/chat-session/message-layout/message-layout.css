@@ -263,8 +263,8 @@ body.astra-projecta-mobile-layout {
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		font-size: var(--text-base);
-		font-weight: var(--font-weight-semibold);
+		font-size: var(--text-sm);
+        font-weight: var(--font-weight-bold);
 	}
 
 	& #chat .mes .astra-mesHeader__name > .ch_name {
