@@ -108,8 +108,9 @@ body.astra-projecta-mobile-layout {
 		padding: 8px 12px;
 		border: unset;
 		border-top: 1px solid var(--border-color-base);
-		color: var(--color-base-t80);
+		color: var(--color-base);
 		font-size: var(--text-sm);
+		opacity: 0.8;
 	}
 
 	/*
