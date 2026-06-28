@@ -35,11 +35,17 @@ export interface ChatBackgroundAppearanceSnapshot {
 	updatedAt: number;
 }
 
+export interface ChatBackgroundAppearanceInput {
+	blurPx: number;
+	opacityPercent: number;
+}
+
 export interface ChatBackgroundAppearanceStore {
 	dispose(): void;
 	getSnapshot(): ChatBackgroundAppearanceSnapshot;
 	resetBlur(): void;
 	resetOpacity(): void;
+	setAppearance(value: ChatBackgroundAppearanceInput): void;
 	setBlurPx(value: number): void;
 	setOpacityPercent(value: number): void;
 	subscribe(listener: Listener): () => void;
@@ -215,27 +221,36 @@ export function createChatBackgroundAppearanceStore({
 		persist(context);
 	}
 
-	function setBlurPx(value: number) {
+	function setAppearance(value: ChatBackgroundAppearanceInput) {
 		const { root } = getRootAndContext();
 		writeRoot({
 			...root,
 			blurPx: clamp(
-				value,
+				value.blurPx,
 				CHAT_BACKGROUND_BLUR_MIN_PX,
 				CHAT_BACKGROUND_BLUR_MAX_PX,
 			),
+			opacityPercent: clamp(
+				value.opacityPercent,
+				CHAT_BACKGROUND_OPACITY_MIN_PERCENT,
+				CHAT_BACKGROUND_OPACITY_MAX_PERCENT,
+			),
+		});
+	}
+
+	function setBlurPx(value: number) {
+		const { root } = getRootAndContext();
+		setAppearance({
+			opacityPercent: root.opacityPercent,
+			blurPx: value,
 		});
 	}
 
 	function setOpacityPercent(value: number) {
 		const { root } = getRootAndContext();
-		writeRoot({
+		setAppearance({
 			...root,
-			opacityPercent: clamp(
-				value,
-				CHAT_BACKGROUND_OPACITY_MIN_PERCENT,
-				CHAT_BACKGROUND_OPACITY_MAX_PERCENT,
-			),
+			opacityPercent: value,
 		});
 	}
 
@@ -276,6 +291,7 @@ export function createChatBackgroundAppearanceStore({
 			setOpacityPercent(CHAT_BACKGROUND_OPACITY_DEFAULT_PERCENT);
 		},
 
+		setAppearance,
 		setBlurPx,
 		setOpacityPercent,
 

@@ -17,7 +17,6 @@ import { cn } from "@/lib/utils";
 
 export interface SettingsSliderRowProps {
 	defaultValue: number;
-	description: string;
 	max: number;
 	min: number;
 	onValueChange(value: number): void;
@@ -29,7 +28,6 @@ export interface SettingsSliderRowProps {
 
 export function SettingsSliderRow({
 	defaultValue,
-	description,
 	max,
 	min,
 	onValueChange,
@@ -85,9 +83,6 @@ export function SettingsSliderRow({
 					/>
 				</div>
 			</div>
-			<p className="chat-session-settings__slider-row-description">
-				{description}
-			</p>
 			<div className="chat-session-settings__slider-row-controls">
 				<Slider
 					aria-label={title}

@@ -9,13 +9,12 @@ afterEach(() => {
 });
 
 describe("SettingsSliderRow", () => {
-	test("renders title, description, and current value", () => {
+	test("renders title and current value without helper description text", () => {
 		const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
 
 		render(
 			<SettingsSliderRow
 				defaultValue={2}
-				description="Adjust the blur."
 				max={5}
 				min={0}
 				resetLabel="Reset blur to default"
@@ -27,7 +26,10 @@ describe("SettingsSliderRow", () => {
 		);
 
 		expect(screen.getByText("Background Blur")).toBeInTheDocument();
-		expect(screen.getByText("Adjust the blur.")).toBeInTheDocument();
+		expect(screen.queryByText("Adjust the blur.")).not.toBeInTheDocument();
+		expect(
+			document.querySelector(".chat-session-settings__slider-row-description"),
+		).not.toBeInTheDocument();
 		expect(screen.getByRole("textbox")).toHaveValue("3");
 		expect(screen.getByRole("slider")).toHaveAttribute("aria-valuenow", "3");
 		expect(consoleError).not.toHaveBeenCalled();
@@ -39,7 +41,6 @@ describe("SettingsSliderRow", () => {
 		const { rerender } = render(
 			<SettingsSliderRow
 				defaultValue={2}
-				description="Adjust the blur."
 				max={5}
 				min={0}
 				resetLabel="Reset blur to default"
@@ -55,7 +56,6 @@ describe("SettingsSliderRow", () => {
 		rerender(
 			<SettingsSliderRow
 				defaultValue={2}
-				description="Adjust the blur."
 				max={5}
 				min={0}
 				resetLabel="Reset blur to default"
@@ -74,7 +74,6 @@ describe("SettingsSliderRow", () => {
 		render(
 			<SettingsSliderRow
 				defaultValue={2}
-				description="Adjust the blur."
 				max={5}
 				min={0}
 				resetLabel="Reset blur to default"
@@ -95,7 +94,6 @@ describe("SettingsSliderRow", () => {
 		render(
 			<SettingsSliderRow
 				defaultValue={2}
-				description="Adjust the blur."
 				max={5}
 				min={0}
 				resetLabel="Reset blur to default"
@@ -117,7 +115,6 @@ describe("SettingsSliderRow", () => {
 		render(
 			<SettingsSliderRow
 				defaultValue={2}
-				description="Adjust the blur."
 				max={5}
 				min={0}
 				resetLabel="Reset blur to default"
