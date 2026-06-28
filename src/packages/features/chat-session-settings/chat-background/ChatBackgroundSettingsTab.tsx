@@ -1,5 +1,3 @@
-import * as React from "react";
-
 import { SettingsSliderRow } from "@/packages/features/chat-session-settings/chat-background/SettingsSliderRow";
 import { translateAstra } from "@/packages/core/i18n";
 import {
@@ -11,19 +9,18 @@ import {
 	CHAT_BACKGROUND_OPACITY_MAX_PERCENT,
 	CHAT_BACKGROUND_OPACITY_MIN_PERCENT,
 	CHAT_BACKGROUND_OPACITY_STEP_PERCENT,
-	createChatBackgroundAppearanceStore,
+	type ChatBackgroundAppearanceInput,
 } from "@/packages/core/st/chat-background-appearance";
 
-export function ChatBackgroundSettingsTab() {
-	const store = React.useMemo(() => createChatBackgroundAppearanceStore(), []);
-	const snapshot = React.useSyncExternalStore(
-		store.subscribe,
-		store.getSnapshot,
-		store.getSnapshot,
-	);
+export interface ChatBackgroundSettingsTabProps {
+	appearance: ChatBackgroundAppearanceInput;
+	onAppearanceChange(nextAppearance: ChatBackgroundAppearanceInput): void;
+}
 
-	React.useEffect(() => () => store.dispose(), [store]);
-
+export function ChatBackgroundSettingsTab({
+	appearance,
+	onAppearanceChange,
+}: ChatBackgroundSettingsTabProps) {
 	return (
 		<div className="chat-session-settings__chat-background-tab">
 			<SettingsSliderRow
@@ -38,8 +35,10 @@ export function ChatBackgroundSettingsTab() {
 				)}
 				step={CHAT_BACKGROUND_BLUR_STEP_PX}
 				title={translateAstra("chatSessionSettings.chatBackground.blur.title")}
-				value={snapshot.blurPx}
-				onValueChange={store.setBlurPx}
+				value={appearance.blurPx}
+				onValueChange={(blurPx) => {
+					onAppearanceChange({ ...appearance, blurPx });
+				}}
 			/>
 			<SettingsSliderRow
 				defaultValue={CHAT_BACKGROUND_OPACITY_DEFAULT_PERCENT}
@@ -55,8 +54,10 @@ export function ChatBackgroundSettingsTab() {
 				title={translateAstra(
 					"chatSessionSettings.chatBackground.opacity.title",
 				)}
-				value={snapshot.opacityPercent}
-				onValueChange={store.setOpacityPercent}
+				value={appearance.opacityPercent}
+				onValueChange={(opacityPercent) => {
+					onAppearanceChange({ ...appearance, opacityPercent });
+				}}
 			/>
 		</div>
 	);

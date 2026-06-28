@@ -112,6 +112,27 @@ describe("chat background appearance store", () => {
 		expect(context.saveSettingsDebounced).toHaveBeenCalledTimes(1);
 	});
 
+	test("setAppearance clamps, persists once, and notifies subscribers once", () => {
+		const context = createContext();
+		setSillyTavernContext(context);
+		const store = createChatBackgroundAppearanceStore();
+		const listener = vi.fn();
+		store.subscribe(listener);
+
+		store.setAppearance({ blurPx: 999, opacityPercent: -50 });
+
+		expect(store.getSnapshot()).toEqual(
+			expect.objectContaining({ blurPx: 5, opacityPercent: 0 }),
+		);
+		expect(context.saveSettingsDebounced).toHaveBeenCalledTimes(1);
+		expect(listener).toHaveBeenCalledTimes(1);
+		expect(
+			(
+				context.extensionSettings as Record<string, Record<string, unknown>>
+			).astra_projecta.chatBackgroundAppearance,
+		).toEqual(expect.objectContaining({ blurPx: 5, opacityPercent: 0 }));
+	});
+
 	test("resetBlur and resetOpacity restore defaults", () => {
 		setSillyTavernContext(createContext());
 		const store = createChatBackgroundAppearanceStore();

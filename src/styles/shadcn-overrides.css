@@ -447,7 +447,7 @@
 .astra-dialog-heading {
 	display: flex;
 	align-items: center;
-	gap: 16px;
+	gap: 8px;
 	padding: calc(var(--drawer-content-padding) - 4px)
 		var(--drawer-content-padding);
 	border-bottom: 1px solid var(--border-color-base);
@@ -467,10 +467,9 @@
 }
 
 .astra-dialog-title {
-	color: var(--color-base);
-	font-size: var(--text-base);
-	font-weight: var(--font-weight-semibold);
-	line-height: 1.2;
+    color: var(--color-base);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
 }
 
 .astra-dialog-description {
@@ -509,15 +508,16 @@
 }
 
 .astra-dialog-icon {
-	display: inline-flex;
-	width: var(--button-xl);
-	height: var(--button-xl);
-	flex-shrink: 0;
-	align-items: center;
-	justify-content: center;
-	border: 1px solid var(--border-color-accent);
-	border-radius: var(--radius-full);
-	color: var(--color-base);
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--color-muted);
+    background: var(--surface-accent-t80);
 }
 
 .astra-dialog-icon svg {

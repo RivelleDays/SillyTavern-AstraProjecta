@@ -3513,7 +3513,7 @@
 .astra-dialog-heading {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   padding: calc(var(--drawer-content-padding) - 4px)	var(--drawer-content-padding);
   border-bottom: 1px solid var(--border-color-base);
 }
@@ -3530,9 +3530,8 @@
 }
 .astra-dialog-title {
   color: var(--color-base);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
-  line-height: 1.2;
 }
 .astra-dialog-description {
   color: var(--color-muted);
@@ -3567,14 +3566,15 @@
 }
 .astra-dialog-icon {
   display: inline-flex;
-  width: var(--button-xl);
-  height: var(--button-xl);
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-color-accent);
-  border-radius: var(--radius-full);
-  color: var(--color-base);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-muted);
+  background: var(--surface-accent-t80);
 }
 .astra-dialog-icon svg {
   width: 16px;
@@ -5638,7 +5638,7 @@ body.astra-projecta-mobile-layout {
     max-width: 100%;
     min-width: 0;
     color: var(--foreground);
-    font-size: var(--text-base);
+    font-size: var(--text-sm);
     font-weight: var(--font-weight-semibold);
     white-space: nowrap;
     overflow: hidden;
@@ -9346,33 +9346,27 @@ body.astra-projecta-mobile-layout {
   background-color: var(--surface-base);
 }
 .chat-session-settings-drawer__header {
-  display: flex;
   box-sizing: border-box;
   flex: 0 0 auto;
-  flex-direction: column;
-  gap: 4px;
-  align-items: stretch;
-  padding-inline: var(--drawer-content-padding);
-  padding-block-end: 12px;
-  text-align: left;
+  gap: 0;
+  padding: 0;
+  border-bottom: 0;
+}
+.astra-dialog-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: calc(var(--drawer-content-padding) - 4px)	var(--drawer-content-padding);
   border-bottom: 1px solid var(--border-color-base);
-  background: var(--surface-base);
 }
 .chat-session-settings-drawer__title {
   min-width: 0;
   overflow: hidden;
-  color: var(--foreground);
-  font-size: var(--text-base);
-  font-weight: var(--font-weight-bold);
-  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .chat-session-settings-drawer__description {
-  margin: 0;
-  color: var(--color-muted);
-  font-size: var(--text-sm);
-  line-height: 1.35;
+  max-width: 100%;
 }
 .chat-session-settings-drawer__body {
   min-height: 0;
@@ -9386,6 +9380,18 @@ body.astra-projecta-mobile-layout {
 .chat-session-settings-drawer__content {
   min-width: 0;
   min-height: 0;
+}
+.chat-session-settings-drawer__footer-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.chat-session-settings-drawer__action:not(:disabled) {
+  cursor: pointer;
+}
+.chat-session-settings-drawer__action:disabled {
+  cursor: not-allowed;
 }
 .chat-session-settings__chat-background-tab {
   display: flex;
@@ -9402,6 +9408,10 @@ body.astra-projecta-mobile-layout {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+.chat-session-settings__slider-row-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
 }
 .chat-session-settings__slider-row-value {
   display: flex;
