@@ -700,7 +700,7 @@ body.astra-projecta-mobile-layout {
 	}
 
 	.astra-chat-context-usage-shortcut__popover {
-		--context-usage-accent: var(--primary);
+		--context-usage-accent: var(--color-muted);
 		--context-usage-track: var(--color-base-t20);
 		width: min(286px, calc(100vw - 24px));
 		max-width: min(286px, calc(100vw - 24px));
@@ -796,14 +796,14 @@ body.astra-projecta-mobile-layout {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 8px;
 		min-width: 0;
-		padding: 12px 12px 10px;
+		padding: 12px;
 	}
 
 	.astra-chat-context-usage-shortcut__metric-tile {
 		display: flex;
 		flex-direction: column;
 		min-width: 0;
-		gap: 6px;
+		gap: 12px;
 		padding: 9px;
 		border: 1px solid var(--border-color-base);
 		border-radius: var(--radius-md);
@@ -813,9 +813,9 @@ body.astra-projecta-mobile-layout {
 	.astra-chat-context-usage-shortcut__metric-label {
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: 8px;
 		min-width: 0;
-		color: var(--color-muted-t90);
+		color: var(--color-muted);
 		font-size: var(--text-xs);
 		font-weight: var(--font-weight-semibold);
 		line-height: 1.2;
@@ -837,11 +837,9 @@ body.astra-projecta-mobile-layout {
 	}
 
 	.astra-chat-context-usage-shortcut__metric-value {
-		color: var(--foreground);
-		font-size: var(--text-xs);
+		color: var(--color-base);
+		font-size: var(--text-sm);
 		font-weight: var(--font-weight-bold);
-		font-variant-numeric: tabular-nums;
-		white-space: nowrap;
 	}
 
 	.astra-chat-context-usage-shortcut__breakdown {
@@ -864,12 +862,11 @@ body.astra-projecta-mobile-layout {
 	.astra-chat-context-usage-shortcut__breakdown-name {
 		display: flex;
 		align-items: center;
-		gap: 7px;
+		gap: 8px;
 		min-width: 0;
-		color: var(--color-base-t90);
+		color: var(--color-muted);
 		font-size: var(--text-xs);
 		font-weight: var(--font-weight-semibold);
-		line-height: 1.2;
 	}
 
 	.astra-chat-context-usage-shortcut__breakdown-name span:last-child {
@@ -884,7 +881,7 @@ body.astra-projecta-mobile-layout {
 		align-items: center;
 		justify-content: center;
 		flex: 0 0 auto;
-		color: var(--context-usage-accent);
+		color: var(--color-muted)
 	}
 
 	.astra-chat-context-usage-shortcut__breakdown-track {
@@ -903,9 +900,9 @@ body.astra-projecta-mobile-layout {
 	}
 
 	.astra-chat-context-usage-shortcut__breakdown-value {
-		color: var(--foreground);
+		color: var(--color-muted);
 		font-size: var(--text-xs);
-		font-weight: var(--font-weight-bold);
+		font-weight: var(--font-weight-medium);
 		font-variant-numeric: tabular-nums;
 		text-align: right;
 		white-space: nowrap;
@@ -916,10 +913,10 @@ body.astra-projecta-mobile-layout {
 		align-items: flex-start;
 		gap: 8px;
 		margin: 0;
-		padding: 9px 12px 11px;
-		border-top: 1px solid var(--border-color-base);
-		background: var(--surface-muted-t30);
-		color: var(--color-muted-t90);
+		padding: 8px 12px;
+		border-top: 1px dashed var(--border-color-base);
+		background: var(--color-base-t5);
+		color: var(--color-muted);
 		font-size: var(--text-xs);
 		line-height: 1.4;
 	}
@@ -933,11 +930,16 @@ body.astra-projecta-mobile-layout {
 	}
 
 	.astra-chat-context-usage-shortcut__metric-icon svg,
-	.astra-chat-context-usage-shortcut__breakdown-icon svg,
 	.astra-chat-context-usage-shortcut__header-icon svg,
 	.astra-chat-context-usage-shortcut__explainer-icon svg {
 		display: block;
 		max-width: 100%;
+	}
+
+	.astra-chat-context-usage-shortcut__breakdown-icon svg {
+		display: block;
+        max-width: 100%;
+        stroke-width: 2;
 	}
 
 	.astra-chat-context-usage-shortcut__helper {
