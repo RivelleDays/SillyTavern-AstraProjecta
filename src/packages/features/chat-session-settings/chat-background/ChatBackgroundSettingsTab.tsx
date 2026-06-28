@@ -25,9 +25,6 @@ export function ChatBackgroundSettingsTab({
 		<div className="chat-session-settings__chat-background-tab">
 			<SettingsSliderRow
 				defaultValue={CHAT_BACKGROUND_BLUR_DEFAULT_PX}
-				description={translateAstra(
-					"chatSessionSettings.chatBackground.blur.description",
-				)}
 				max={CHAT_BACKGROUND_BLUR_MAX_PX}
 				min={CHAT_BACKGROUND_BLUR_MIN_PX}
 				resetLabel={translateAstra(
@@ -42,9 +39,6 @@ export function ChatBackgroundSettingsTab({
 			/>
 			<SettingsSliderRow
 				defaultValue={CHAT_BACKGROUND_OPACITY_DEFAULT_PERCENT}
-				description={translateAstra(
-					"chatSessionSettings.chatBackground.opacity.description",
-				)}
 				max={CHAT_BACKGROUND_OPACITY_MAX_PERCENT}
 				min={CHAT_BACKGROUND_OPACITY_MIN_PERCENT}
 				resetLabel={translateAstra(

@@ -21,6 +21,9 @@ describe("chat-session-settings CSS contracts", () => {
 		expect(css).toContain(".chat-session-settings-drawer__content");
 		expect(css).toContain(".chat-session-settings-drawer__footer-actions");
 		expect(css).toContain(".chat-session-settings-drawer__action");
+		expect(css).toContain(
+			".chat-session-settings-drawer__action--save:disabled svg",
+		);
 	});
 
 	test("keeps the background settings selector contracts addressable", () => {
@@ -31,7 +34,6 @@ describe("chat-session-settings CSS contracts", () => {
 		expect(css).toContain(".chat-session-settings__slider-row-header");
 		expect(css).toContain(".chat-session-settings__slider-row-title");
 		expect(css).toContain(".chat-session-settings__slider-row-value");
-		expect(css).toContain(".chat-session-settings__slider-row-description");
 		expect(css).toContain(".chat-session-settings__slider-row-controls");
 		expect(css).toContain(".chat-session-settings__slider");
 		expect(css).toContain(".chat-session-settings__slider-row-input");
@@ -48,5 +50,11 @@ describe("chat-session-settings CSS contracts", () => {
 		const css = readCss();
 
 		expect(css).not.toContain("chat-session-settings-panel__");
+	});
+
+	test("does not keep removed slider-row description selectors", () => {
+		const css = readCss();
+
+		expect(css).not.toContain("chat-session-settings__slider-row-description");
 	});
 });

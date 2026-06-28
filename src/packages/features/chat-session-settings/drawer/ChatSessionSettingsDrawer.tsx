@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/astra/drawer";
 import { Button } from "@/components/ui/shadcn/button";
 import { UiIcon } from "@/components/ui/shared/icon";
-import { MessageCircleMore } from "@/components/ui/shared/icons";
+import { MessageCircleMore, Save } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import { ChatBackgroundSettingsTab } from "@/packages/features/chat-session-settings/chat-background/ChatBackgroundSettingsTab";
 import {
@@ -77,6 +77,7 @@ function ChatSessionSettingsDrawerFooter({
 						requestClose();
 					}}
 				>
+					<UiIcon aria-hidden={true} icon={Save} size="sm" />
 					{translateAstra("chatSessionSettings.drawer.save")}
 				</Button>
 			</div>

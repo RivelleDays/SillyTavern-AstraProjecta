@@ -107,6 +107,11 @@ describe("ChatSessionSettingsDrawer", () => {
 				name: "Save changes",
 			}),
 		).toBeDisabled();
+		expect(
+			within(footer as HTMLElement)
+				.getByRole("button", { name: "Save changes" })
+				.querySelector("[data-slot='ui-icon']"),
+		).toBeInTheDocument();
 		expect(screen.queryByRole("button", { name: "Close" })).not.toBeInTheDocument();
 		expect(consoleError).not.toHaveBeenCalled();
 
