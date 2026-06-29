@@ -161,19 +161,26 @@ describe("ChatSessionSettingsDrawer", () => {
 		});
 		expect(screen.getByText("Background blur")).toBeInTheDocument();
 		expect(screen.getByText("Background opacity")).toBeInTheDocument();
-		const shortcutsHelp = screen.getByText(
-			"Display the shortcut toolbar above the message input.",
-		);
 		const shortcutsToggle = screen.getByRole("switch", {
-			name: "Show chat shortcuts",
+			name: "Show shortcut toolbar",
 		});
-		expect(shortcutsHelp).toHaveClass(
-			"chat-session-settings__toggle-row-description",
+		const shortcutsRow = shortcutsToggle.closest(
+			".chat-session-settings__toggle-row",
 		);
-		expect(shortcutsToggle).toHaveAttribute(
-			"aria-describedby",
-			shortcutsHelp.id,
+		const shortcutsHeader = shortcutsToggle.closest(
+			".chat-session-settings__toggle-row-header",
 		);
+		expect(shortcutsHeader).toContainElement(
+			screen.getByText("Show shortcut toolbar"),
+		);
+		expect(shortcutsHeader).toContainElement(shortcutsToggle);
+		expect(shortcutsRow).toContainElement(shortcutsHeader);
+		expect(
+			screen.queryByText(
+				"Display the shortcut toolbar above the message input.",
+			),
+		).not.toBeInTheDocument();
+		expect(shortcutsToggle).not.toHaveAttribute("aria-describedby");
 		const footer = dialog.querySelector(".astra-dialog-footer");
 		expect(footer).toBeInTheDocument();
 		expect(
@@ -341,7 +348,7 @@ describe("ChatSessionSettingsDrawer", () => {
 		);
 
 		const toggle = screen.getByRole("switch", {
-			name: "Show chat shortcuts",
+			name: "Show shortcut toolbar",
 		});
 		expect(toggle).toHaveAttribute("aria-checked", "true");
 
@@ -373,7 +380,9 @@ describe("ChatSessionSettingsDrawer", () => {
 		);
 
 		fireEvent.click(
-			screen.getByRole("switch", { name: "Show chat shortcuts" }),
+			screen.getByRole("switch", {
+				name: "Show shortcut toolbar",
+			}),
 		);
 		expect(shortcutsToolbarVisibilityStore.getSnapshot()).toBe(false);
 

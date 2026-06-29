@@ -214,7 +214,6 @@ export interface I18nMessages {
 	"chatSessionSettings.drawer.cancel": string;
 	"chatSessionSettings.drawer.description": string;
 	"chatSessionSettings.drawer.save": string;
-	"chatSessionSettings.messageInput.shortcuts.description": string;
 	"chatSessionSettings.messageInput.shortcuts.label": string;
 	"chatSessionSettings.panel.title": string;
 	"chatSessionSettings.section.chatBackground": string;

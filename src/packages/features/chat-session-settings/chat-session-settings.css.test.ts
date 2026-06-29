@@ -45,7 +45,8 @@ describe("chat-session-settings CSS contracts", () => {
 		expect(css).toContain(".chat-session-settings__section-title");
 		expect(css).toContain(".chat-session-settings__section-card");
 		expect(css).toContain(".chat-session-settings__section-card >");
-		expect(css).toContain(
+		expect(css).toContain(".chat-session-settings__toggle-row-header");
+		expect(css).not.toContain(
 			".chat-session-settings__toggle-row-description",
 		);
 		expect(css).not.toContain(".chat-session-settings__section-marker");
