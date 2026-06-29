@@ -48,6 +48,7 @@ import { MobileChatMainMenuDrawer } from "@/packages/features/chat-session/send-
 import { MobileChatInput } from "@/packages/features/chat-session/send-form/shell/MobileChatInput";
 import { MobileSendFormShortcutsToolbar } from "@/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar";
 import { shortcutsToolbarVisibilityStore } from "@/packages/features/chat-session/send-form/shell/shortcutsToolbarVisibilityStore";
+import { ChatSessionSettingsDrawer } from "@/packages/features/chat-session-settings/drawer/ChatSessionSettingsDrawer";
 import {
 	deleteCurrentChat,
 	type DeleteCurrentChatResult,
@@ -311,6 +312,8 @@ export function AstraMobileSendForm({
 		readStoredQuickReplyHostVisibility(documentRef),
 	);
 	const [isMainMenuOpen, setIsMainMenuOpen] = React.useState(false);
+	const [isChatSessionSettingsOpen, setIsChatSessionSettingsOpen] =
+		React.useState(false);
 	const [currentChatActionDialog, setCurrentChatActionDialog] =
 		React.useState<CurrentChatActionDialogState>(null);
 	const [isConnectionProfileBusy, setIsConnectionProfileBusy] =
@@ -325,6 +328,12 @@ export function AstraMobileSendForm({
 		number | ReturnType<typeof setTimeout> | null
 	>(null);
 	const chatSettingsOverrideOpenHandleKindRef = React.useRef<
+		"frame" | "timeout" | null
+	>(null);
+	const chatSessionSettingsOpenHandleRef = React.useRef<
+		number | ReturnType<typeof setTimeout> | null
+	>(null);
+	const chatSessionSettingsOpenHandleKindRef = React.useRef<
 		"frame" | "timeout" | null
 	>(null);
 
@@ -366,6 +375,25 @@ export function AstraMobileSendForm({
 		clearTimeout(handle as ReturnType<typeof setTimeout>);
 	}, [documentRef]);
 
+	const clearPendingChatSessionSettingsOpen = React.useCallback(() => {
+		const handle = chatSessionSettingsOpenHandleRef.current;
+		const handleKind = chatSessionSettingsOpenHandleKindRef.current;
+
+		if (handle === null) {
+			return;
+		}
+
+		chatSessionSettingsOpenHandleRef.current = null;
+		chatSessionSettingsOpenHandleKindRef.current = null;
+
+		if (handleKind === "frame") {
+			documentRef.defaultView?.cancelAnimationFrame(handle as number);
+			return;
+		}
+
+		clearTimeout(handle as ReturnType<typeof setTimeout>);
+	}, [documentRef]);
+
 	const canShowQuickReplyHost =
 		quickReplyEnabledSnapshot.hasNativeToggle &&
 		quickReplyEnabledSnapshot.isEnabled;
@@ -385,6 +413,12 @@ export function AstraMobileSendForm({
 			clearPendingChatSettingsOverrideOpen();
 		};
 	}, [clearPendingChatSettingsOverrideOpen]);
+
+	React.useEffect(() => {
+		return () => {
+			clearPendingChatSessionSettingsOpen();
+		};
+	}, [clearPendingChatSessionSettingsOpen]);
 
 	React.useEffect(() => {
 		const syncManagedTextarea = () => {
@@ -660,6 +694,35 @@ export function AstraMobileSendForm({
 	}, [
 		clearPendingChatSettingsOverrideOpen,
 		currentChatIdentitySnapshot.kind,
+		documentRef,
+		handleMainMenuOpenChange,
+	]);
+
+	const handleChatSessionSettingsRequest = React.useCallback(() => {
+		clearPendingChatSessionSettingsOpen();
+		handleMainMenuOpenChange(false);
+
+		const openChatSessionSettings = () => {
+			chatSessionSettingsOpenHandleRef.current = null;
+			chatSessionSettingsOpenHandleKindRef.current = null;
+			setIsChatSessionSettingsOpen(true);
+		};
+		const view = documentRef.defaultView;
+
+		if (typeof view?.requestAnimationFrame === "function") {
+			chatSessionSettingsOpenHandleKindRef.current = "frame";
+			chatSessionSettingsOpenHandleRef.current =
+				view.requestAnimationFrame(openChatSessionSettings);
+			return;
+		}
+
+		chatSessionSettingsOpenHandleKindRef.current = "timeout";
+		chatSessionSettingsOpenHandleRef.current = setTimeout(
+			openChatSessionSettings,
+			0,
+		);
+	}, [
+		clearPendingChatSessionSettingsOpen,
 		documentRef,
 		handleMainMenuOpenChange,
 	]);
@@ -944,6 +1007,7 @@ export function AstraMobileSendForm({
 				onRequestChatSettingsOverride={
 					handleChatSettingsOverrideRequest
 				}
+				onRequestChatSessionSettings={handleChatSessionSettingsRequest}
 				onRequestCategories={handleMainMenuCategoriesRequest}
 				onRequestDelete={handleMainMenuDeleteRequest}
 				onOpenChange={handleMainMenuOpenChange}
@@ -953,6 +1017,10 @@ export function AstraMobileSendForm({
 					sillyTavernInterface.renderRouteIcon
 				}
 				snapshot={currentChatIdentitySnapshot}
+			/>
+			<ChatSessionSettingsDrawer
+				open={isChatSessionSettingsOpen}
+				onOpenChange={setIsChatSessionSettingsOpen}
 			/>
 			<CurrentChatCategoryDrawer
 				chatCategoryStore={chatCategoryStore}

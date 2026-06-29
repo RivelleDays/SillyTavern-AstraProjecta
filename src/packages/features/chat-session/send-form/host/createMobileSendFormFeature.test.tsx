@@ -2348,6 +2348,34 @@ describe("createMobileSendFormFeature", () => {
 		feature.dispose();
 	});
 
+	test("opens chat settings as a sibling drawer after closing the main menu drawer", async () => {
+		const { feature } = setupChatSettingsOverrideFixture("character");
+
+		const drawer = await openMainMenuFromCurrentUserAvatar();
+
+		fireEvent.click(
+			within(drawer).getByRole("button", {
+				name: "Open chat settings",
+			}),
+		);
+
+		await waitFor(() => {
+			expect(drawer).toHaveAttribute("data-state", "closed");
+		});
+
+		const settingsDrawer = await screen.findByRole("dialog", {
+			name: "Chat Settings",
+		});
+		expect(settingsDrawer).toHaveClass("chat-session-settings-drawer");
+		expect(
+			document.querySelector(
+				".chat-session-settings__chat-background-tab",
+			),
+		).toBeInTheDocument();
+
+		feature.dispose();
+	});
+
 	test("opens rename chat as a sibling responsive dialog after closing the main menu drawer", async () => {
 		document.body.innerHTML = `
       <div id="options_button" title="Menu"></div>

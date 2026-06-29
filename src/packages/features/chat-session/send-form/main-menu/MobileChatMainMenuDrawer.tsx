@@ -88,16 +88,16 @@ const ASTRA_CHAT_MAIN_MENU_CURRENT_USER_ACTIONS = [
 	},
 	{
 		icon: ArrowRightLeft,
-		key: "personaSwitch",
-		labelKey: "sendForm.mainMenu.currentUser.action.personaSwitch",
-		sillyTavernInterfacePageKey: undefined,
-	},
-	{
-		icon: Bolt,
 		key: "personaManagement",
 		labelKey: "sendForm.mainMenu.currentUser.action.personaManagement",
 		sillyTavernInterfacePageKey:
 			SILLYTAVERN_INTERFACE_ROUTES.personaManagement,
+	},
+	{
+		icon: Bolt,
+		key: "chatSessionSettings",
+		labelKey: "chatSessionSettings.topBar.trigger",
+		sillyTavernInterfacePageKey: undefined,
 	},
 ] as const;
 
@@ -205,6 +205,7 @@ export function MobileChatMainMenuDrawer({
 	currentUserSnapshot,
 	onConnectionProfileChange,
 	onSillyTavernInterfaceShortcutSelect,
+	onRequestChatSessionSettings,
 	onRequestChatSettingsOverride,
 	open,
 	onOpenChange,
@@ -225,6 +226,7 @@ export function MobileChatMainMenuDrawer({
 	onSillyTavernInterfaceShortcutSelect?(
 		pageKey: SillyTavernInterfaceRouteKey,
 	): void;
+	onRequestChatSessionSettings?(): void;
 	onRequestChatSettingsOverride?(): void;
 	onRequestCategories?(): void;
 	onRequestDelete?(): void;
@@ -678,15 +680,20 @@ export function MobileChatMainMenuDrawer({
 												const isChatSettingsOverrideAction =
 													key ===
 													"chatSettingsOverride";
+												const isChatSessionSettingsAction =
+													key ===
+													"chatSessionSettings";
 												const isDisabled =
 													isChatSettingsOverrideAction
 														? !onRequestChatSettingsOverride ||
 															!canRequestChatSettingsOverride(
 																snapshot,
 															)
-														: sillyTavernInterfacePageKey ===
-																undefined ||
-															!onSillyTavernInterfaceShortcutSelect;
+														: isChatSessionSettingsAction
+															? !onRequestChatSessionSettings
+															: sillyTavernInterfacePageKey ===
+																	undefined ||
+																!onSillyTavernInterfaceShortcutSelect;
 
 												return (
 													<Button
@@ -704,6 +711,13 @@ export function MobileChatMainMenuDrawer({
 																isChatSettingsOverrideAction
 															) {
 																onRequestChatSettingsOverride?.();
+																return;
+															}
+
+															if (
+																isChatSessionSettingsAction
+															) {
+																onRequestChatSessionSettings?.();
 																return;
 															}
 

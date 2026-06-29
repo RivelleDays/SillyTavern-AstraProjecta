@@ -586,6 +586,7 @@ describe("MobileChatMainMenuDrawer", () => {
 
 	test("renders the current user card after the tile grid and routes persona management", async () => {
 		const onSillyTavernInterfaceShortcutSelect = vi.fn();
+		const onRequestChatSessionSettings = vi.fn();
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 		setSillyTavernContext({
 			timestampToMoment: () => ({
@@ -603,6 +604,7 @@ describe("MobileChatMainMenuDrawer", () => {
 				onSillyTavernInterfaceShortcutSelect={
 					onSillyTavernInterfaceShortcutSelect
 				}
+				onRequestChatSessionSettings={onRequestChatSessionSettings}
 				open={true}
 				snapshot={createIdentitySnapshot()}
 			/>,
@@ -702,8 +704,8 @@ describe("MobileChatMainMenuDrawer", () => {
 			actionButtons.map((button) => button.getAttribute("aria-label")),
 		).toEqual([
 			"Chat settings override",
-			"Persona switch",
 			"Persona management",
+			"Open chat settings",
 		]);
 		for (const button of actionButtons) {
 			expect(button).toHaveClass(
@@ -715,14 +717,30 @@ describe("MobileChatMainMenuDrawer", () => {
 			expect(button).toHaveAttribute("data-size", "icon");
 		}
 		expect(actionButtons[0]).toBeDisabled();
-		expect(actionButtons[1]).toBeDisabled();
+		expect(actionButtons[1]).not.toBeDisabled();
 		expect(actionButtons[2]).not.toBeDisabled();
+		expect(
+			actionButtons[1]?.querySelector(".lucide-arrow-right-left"),
+		).toBeInTheDocument();
+		expect(
+			actionButtons[2]?.querySelector(".lucide-bolt"),
+		).toBeInTheDocument();
+		expect(
+			within(currentUserCard as HTMLElement).queryByRole("button", {
+				name: "Persona switch",
+			}),
+		).not.toBeInTheDocument();
 
-		fireEvent.click(actionButtons[2] as HTMLElement);
+		fireEvent.click(actionButtons[1] as HTMLElement);
 
 		expect(onSillyTavernInterfaceShortcutSelect).toHaveBeenCalledWith(
 			SILLYTAVERN_INTERFACE_ROUTES.personaManagement,
 		);
+		expect(onRequestChatSessionSettings).not.toHaveBeenCalled();
+
+		fireEvent.click(actionButtons[2] as HTMLElement);
+
+		expect(onRequestChatSessionSettings).toHaveBeenCalledTimes(1);
 	});
 
 	test("falls back to persona name for the current user subtitle and hides it when it matches display name", async () => {
