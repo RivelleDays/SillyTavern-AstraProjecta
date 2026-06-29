@@ -11251,7 +11251,7 @@ body.astra-projecta-mobile-layout {
   cursor: pointer;
   border-radius: var(--radius-full);
   color: var(--muted-foreground);
-  background: var(--surface-muted-t70);
+  background: transparent;
 }
 .astra-chat-message-search-panel__option:disabled, .astra-chat-message-search-panel__replace-action:disabled, .astra-chat-message-search-controls__button:disabled {
   cursor: not-allowed;
@@ -11268,12 +11268,15 @@ body.astra-projecta-mobile-layout {
   gap: 12px;
   width: 100%;
   min-width: 0;
-  padding: 0 8px;
+  border-radius: var(--radius-4xl);
+  border: 1px solid var(--border);
+  padding: 8px;
+  background: var(--surface-background-t50);
 }
 .astra-chat-message-search-controls__cluster {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   min-width: 0;
 }
 .astra-chat-message-search-controls__cluster--end {
