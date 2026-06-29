@@ -220,6 +220,7 @@ export interface I18nMessages {
 	"chatSessionSettings.section.chatMessages": string;
 	"chatSessionSettings.section.messageInput": string;
 	"chatSessionSettings.topBar.actions": string;
+	"chatSessionSettings.topBar.searchPlaceholder": string;
 	"chatSessionSettings.topBar.trigger": string;
 	"messageActions.deleteConfirm.cancel": string;
 	"messageActions.deleteConfirm.deleting": string;
@@ -348,7 +349,6 @@ export interface I18nMessages {
 	"sendForm.mainMenu.controls.connectionProfilePlaceholder": string;
 	"sendForm.mainMenu.currentUser.action.chatSettingsOverride": string;
 	"sendForm.mainMenu.currentUser.action.personaManagement": string;
-	"sendForm.mainMenu.currentUser.action.personaSwitch": string;
 	"sendForm.mainMenu.currentUser.actions": string;
 	"sendForm.mainMenu.currentUser.card": string;
 	"sendForm.mainMenu.currentUser.personaName": string;
