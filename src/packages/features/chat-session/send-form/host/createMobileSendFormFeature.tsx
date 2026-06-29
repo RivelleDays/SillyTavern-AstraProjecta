@@ -12,6 +12,7 @@ import { createCurrentPresetProfileControlsStore } from "@/packages/core/st/curr
 import { createCurrentUserAvatarStore } from "@/packages/core/st/currentUserAvatar";
 import { createPrimarySendActionStore } from "@/packages/core/st/primarySendAction";
 import { createQuickShortcutStore } from "@/packages/core/st/quickShortcuts";
+import { createDefaultChatMessageSearchStore } from "@/packages/core/st/chatMessageSearch";
 import {
 	ASTRA_CHAT_COMPOSER_HOST_ID,
 	ASTRA_CHAT_COMPOSER_SHELL_ID,
@@ -32,6 +33,7 @@ import {
 	type SendFormSillyTavernInterfaceAdapter,
 } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 import { AstraMobileSendForm } from "@/packages/features/chat-session/send-form/shell/AstraMobileSendForm";
+import type { ChatMessageSearchStore } from "@/packages/features/chat-session/message-search";
 
 export interface MobileSendFormFeature {
 	dispose(): void;
@@ -79,14 +81,20 @@ function resolveHost(
 }
 
 export function createMobileSendFormFeature({
+	chatMessageSearchStore,
 	documentRef = document,
 	onPageReload,
 	sillyTavernInterface = NOOP_SEND_FORM_SILLYTAVERN_INTERFACE,
 }: {
+	chatMessageSearchStore?: ChatMessageSearchStore;
 	documentRef?: Document;
 	onPageReload?: () => void;
 	sillyTavernInterface?: SendFormSillyTavernInterfaceAdapter;
 } = {}): MobileSendFormFeature {
+	const resolvedChatMessageSearchStore =
+		chatMessageSearchStore ??
+		createDefaultChatMessageSearchStore({ documentRef });
+	const ownsChatMessageSearchStore = !chatMessageSearchStore;
 	let composerHost: HTMLDivElement | null = null;
 	let composerShell: HTMLDivElement | null = null;
 	let quickReplyBarBridge: NativeQuickReplyBarBridge | null = null;
@@ -137,6 +145,7 @@ export function createMobileSendFormFeature({
 
 	function moveTextareaIntoHost(nextHost: HTMLDivElement | null) {
 		if (!(nextHost instanceof HTMLDivElement) || !nextHost.isConnected) {
+			restoreTextareaToNativeRow();
 			return;
 		}
 
@@ -368,6 +377,9 @@ export function createMobileSendFormFeature({
 					<AstraMobileSendForm
 						chatCategoryStore={stores.chatCategoryStore}
 						chatContextUsageStore={stores.chatContextUsageStore}
+						chatMessageSearchStore={
+							resolvedChatMessageSearchStore
+						}
 						currentConnectionInfoStore={
 							stores.currentConnectionInfoStore
 						}
@@ -417,6 +429,9 @@ export function createMobileSendFormFeature({
 
 	function dispose() {
 		unmount();
+		if (ownsChatMessageSearchStore) {
+			resolvedChatMessageSearchStore.dispose();
+		}
 	}
 
 	return {

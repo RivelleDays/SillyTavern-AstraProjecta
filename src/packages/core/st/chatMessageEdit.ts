@@ -59,6 +59,15 @@ export interface ChatMessageEditSaveInput {
 	reasoningText: string;
 }
 
+export interface BatchChatMessageTextEdit {
+	messageId: number;
+	messageText: string;
+}
+
+export interface BatchChatMessageTextEditInput {
+	edits: BatchChatMessageTextEdit[];
+}
+
 export interface ChatMessageMoveInput {
 	direction: ChatMessageMoveDirection;
 	messageId: number;
@@ -85,6 +94,13 @@ export type ReadChatMessageEditDraftResult =
 export type ChatMessageEditMutationResult =
 	| {
 			messageId: number;
+			ok: true;
+	  }
+	| ChatMessageEditFailureResult;
+
+export type BatchChatMessageEditMutationResult =
+	| {
+			messageIds: number[];
 			ok: true;
 	  }
 	| ChatMessageEditFailureResult;
@@ -468,6 +484,75 @@ export async function saveChatMessageEdit({
 			reason: "save-failed",
 		};
 	}
+}
+
+export async function batchSaveChatMessageTextEdits({
+	edits,
+}: BatchChatMessageTextEditInput): Promise<BatchChatMessageEditMutationResult> {
+	const resolvedTargets: ResolvedMessageTarget[] = [];
+
+	for (const edit of edits) {
+		const target = resolveMessageTarget(edit.messageId);
+		if (!isResolvedMessageTarget(target)) {
+			return target;
+		}
+		resolvedTargets.push(target);
+	}
+
+	if (resolvedTargets.length === 0) {
+		return {
+			messageIds: [],
+			ok: true,
+		};
+	}
+
+	const context = resolvedTargets[0].context;
+	if (resolvedTargets.some((target) => target.context !== context)) {
+		return {
+			ok: false,
+			reason: "api-unavailable",
+		};
+	}
+
+	const originalMessages = resolvedTargets.map((target) =>
+		cloneMessage(target.message),
+	);
+
+	try {
+		for (const [index, edit] of edits.entries()) {
+			writeMessageTextDraft({
+				context,
+				message: resolvedTargets[index].message,
+				messageText: edit.messageText,
+			});
+		}
+
+		await saveChat(context);
+	} catch {
+		for (const [index, target] of resolvedTargets.entries()) {
+			target.chat[target.messageId] = originalMessages[index];
+		}
+
+		return {
+			ok: false,
+			reason: "save-failed",
+		};
+	}
+
+	for (const target of resolvedTargets) {
+		await emitContextEvent(context, "MESSAGE_EDITED", target.messageId);
+		updateMessageBlock({
+			context,
+			message: target.message,
+			messageId: target.messageId,
+		});
+		await emitContextEvent(context, "MESSAGE_UPDATED", target.messageId);
+	}
+
+	return {
+		messageIds: resolvedTargets.map((target) => target.messageId),
+		ok: true,
+	};
 }
 
 export async function copyChatMessageFromDraft({

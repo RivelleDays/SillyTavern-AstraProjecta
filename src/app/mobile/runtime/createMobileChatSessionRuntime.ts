@@ -47,6 +47,11 @@ import {
 	type MobileChatTopBarFeature,
 } from "@/app/mobile/top-bar/createMobileChatTopBarFeature";
 import {
+	createDefaultChatMessageSearchStore,
+	type CreateDefaultChatMessageSearchStoreOptions,
+} from "@/packages/core/st/chatMessageSearch";
+import type { ChatMessageSearchStore } from "@/packages/features/chat-session/message-search";
+import {
 	mountFeaturesTransactionally,
 	unmountFeaturesSafely,
 	type MountableRuntimeFeature,
@@ -65,6 +70,7 @@ export function createMobileChatSessionRuntime({
 	createChatSwitchLoadingFeature = createMobileChatSwitchLoadingFeature,
 	createMessageActionsFeature = createMobileMessageActionsFeature,
 	createMessageHeaderLayoutFeature = createDefaultMessageHeaderLayoutFeature,
+	createChatMessageSearchStore = createDefaultChatMessageSearchStore,
 	createSendFormFeature = createMobileSendFormFeature,
 	createSillyTavernInterfacePanelFeature = createMobileSillyTavernInterfacePanelFeature,
 	createTopBarFeature = createMobileChatTopBarFeature,
@@ -96,7 +102,11 @@ export function createMobileChatSessionRuntime({
 	createMessageHeaderLayoutFeature?: (args?: {
 		documentRef?: Document;
 	}) => MessageHeaderLayoutFeature;
+	createChatMessageSearchStore?: (
+		args?: CreateDefaultChatMessageSearchStoreOptions,
+	) => ChatMessageSearchStore;
 	createSendFormFeature?: (args?: {
+		chatMessageSearchStore?: ChatMessageSearchStore;
 		documentRef?: Document;
 		sillyTavernInterface?: SendFormSillyTavernInterfaceAdapter;
 	}) => MobileSendFormFeature;
@@ -104,6 +114,7 @@ export function createMobileChatSessionRuntime({
 		documentRef?: Document;
 	}) => MobileSillyTavernInterfacePanelFeature;
 	createTopBarFeature?: (args?: {
+		chatMessageSearchStore?: ChatMessageSearchStore;
 		documentRef?: Document;
 	}) => MobileChatTopBarFeature;
 	getLayoutModeStore?: (args?: {
@@ -114,9 +125,13 @@ export function createMobileChatSessionRuntime({
 	windowRef?: LayoutModeWindowLike & MobileKeyboardViewportBridgeWindowLike;
 } = {}): MobileChatSessionRuntime {
 	const messageActionsFeature = createMessageActionsFeature({ documentRef });
+	const chatMessageSearchStore = createChatMessageSearchStore({
+		documentRef,
+	});
 	const sillyTavernInterfacePanelFeature =
 		createSillyTavernInterfacePanelFeature({ documentRef });
 	const sendFormFeature = createSendFormFeature({
+		chatMessageSearchStore,
 		documentRef,
 		sillyTavernInterface:
 			sillyTavernInterfacePanelFeature.getSendFormAdapter(),
@@ -132,7 +147,10 @@ export function createMobileChatSessionRuntime({
 	const messageHeaderLayout = createMessageHeaderLayoutFeature({
 		documentRef,
 	});
-	const topBarFeature = createTopBarFeature({ documentRef });
+	const topBarFeature = createTopBarFeature({
+		chatMessageSearchStore,
+		documentRef,
+	});
 	const nativePopupBridge = createNativePopupBridge({ documentRef });
 	const keyboardViewportBridge = createKeyboardViewportBridge({
 		documentRef,
@@ -160,11 +178,13 @@ export function createMobileChatSessionRuntime({
 		topBarFeature,
 		nativePopupBridge,
 		keyboardViewportBridge,
+		chatMessageSearchStore,
 	];
 	let disposed = false;
 
 	const deactivateMobileLayout = () => {
 		unmountFeaturesSafely(mobileLayoutFeatures, { onCleanupError });
+		chatMessageSearchStore.close();
 		documentRef.body?.classList.remove(BASE_UI_BODY_CLASS);
 		documentRef.body?.classList.remove(MOBILE_LAYOUT_CLASS);
 	};

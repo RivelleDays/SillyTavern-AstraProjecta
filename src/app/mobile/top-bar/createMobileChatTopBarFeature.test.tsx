@@ -8,8 +8,15 @@ import {
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identity";
+import { createChatMessageSearchStore } from "@/packages/features/chat-session/message-search/store";
+import {
+	ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID,
+	ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
+	ASTRA_CHAT_MESSAGE_SEARCH_PANEL_ID,
+} from "@/packages/features/chat-session/message-search/contracts/dom";
 import {
 	createMobileChatTopBarFeature,
+	ASTRA_CHAT_TOP_BAR_ACTIONS_ID,
 	ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
 	ASTRA_CHAT_TOP_BAR_HOST_ID,
 	ASTRA_CHAT_SESSION_SHELL_ID,
@@ -599,10 +606,17 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 	});
 
-	test("renders a disabled chat message search placeholder in the top-bar action group", async () => {
+	test("opens the chat message search panel from the top-bar action group", async () => {
 		document.body.innerHTML = '<div id="sheld"></div>';
 		const store = createIdentityStoreStub();
+		const chatMessageSearchStore = createChatMessageSearchStore({
+			readMessages: () => [
+				{ messageId: 0, mes: "Searchable message" },
+				{ messageId: 1, mes: "Another searchable message" },
+			],
+		});
 		const feature = createMobileChatTopBarFeature({
+			chatMessageSearchStore,
 			createCurrentChatIdentityStore: store.factory,
 			documentRef: document,
 		});
@@ -616,9 +630,9 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 
 		expect(
-			searchTrigger.closest(".astra-chat-top-bar__actions"),
+			searchTrigger.closest(`#${ASTRA_CHAT_TOP_BAR_ACTIONS_ID}`),
 		).toBeInTheDocument();
-		expect(searchTrigger).toBeDisabled();
+		expect(searchTrigger).toBeEnabled();
 		expect(
 			searchTrigger.querySelector(".lucide-search"),
 		).toBeInTheDocument();
@@ -629,8 +643,41 @@ describe("createMobileChatTopBarFeature", () => {
 			document.getElementById("astra-chat-session-settings-panel"),
 		).not.toBeInTheDocument();
 
+		fireEvent.click(searchTrigger);
+
+		const searchPanel = await waitFor(() => {
+			const nextPanel = document.getElementById(
+				ASTRA_CHAT_MESSAGE_SEARCH_PANEL_ID,
+			);
+			expect(nextPanel).toBeInTheDocument();
+			return nextPanel as HTMLElement;
+		});
+		expect(searchPanel).toHaveAttribute("data-replace-open", "false");
+		const searchInput = document.getElementById(
+			ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
+		);
+		expect(searchInput).toBeInstanceOf(HTMLInputElement);
+		expect(document.activeElement).toBe(searchInput);
+		fireEvent.change(searchInput as HTMLInputElement, {
+			target: { value: "searchable" },
+		});
+		expect(chatMessageSearchStore.getSnapshot()).toMatchObject({
+			isOpen: true,
+			matchCount: 2,
+			query: "searchable",
+		});
+
+		fireEvent.click(
+			within(searchPanel).getByRole("button", { name: "Show replace" }),
+		);
+		expect(searchPanel).toHaveAttribute("data-replace-open", "true");
+		expect(
+			document.getElementById(ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID),
+		).toBeInstanceOf(HTMLInputElement);
+
 		act(() => {
 			feature.dispose();
 		});
+		chatMessageSearchStore.dispose();
 	});
 });
