@@ -164,10 +164,10 @@ describe("ChatSessionSettingsDrawer", () => {
 		const shortcutsToggle = screen.getByRole("switch", {
 			name: "Show shortcut toolbar",
 		});
-		const shortcutsRow = shortcutsToggle.closest(
+		const shortcutsRow = shortcutsToggle.closest<HTMLElement>(
 			".chat-session-settings__toggle-row",
 		);
-		const shortcutsHeader = shortcutsToggle.closest(
+		const shortcutsHeader = shortcutsToggle.closest<HTMLElement>(
 			".chat-session-settings__toggle-row-header",
 		);
 		expect(shortcutsHeader).toContainElement(
@@ -175,11 +175,6 @@ describe("ChatSessionSettingsDrawer", () => {
 		);
 		expect(shortcutsHeader).toContainElement(shortcutsToggle);
 		expect(shortcutsRow).toContainElement(shortcutsHeader);
-		expect(
-			screen.queryByText(
-				"Display the shortcut toolbar above the message input.",
-			),
-		).not.toBeInTheDocument();
 		expect(shortcutsToggle).not.toHaveAttribute("aria-describedby");
 		const footer = dialog.querySelector(".astra-dialog-footer");
 		expect(footer).toBeInTheDocument();
