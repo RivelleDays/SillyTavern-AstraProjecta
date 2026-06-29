@@ -136,6 +136,46 @@ function useGlobalChatCatalogStore(injectedStore?: ChatCatalogStore) {
 	return store;
 }
 
+function useGlobalCategoriesFullHistoryRefresh({
+	activeTab,
+	chatCatalogStore,
+}: {
+	activeTab: GlobalAstraMainInterfaceTabValue;
+	chatCatalogStore: ChatCatalogStore;
+}) {
+	const snapshot = React.useSyncExternalStore(
+		chatCatalogStore.subscribe,
+		chatCatalogStore.getSnapshot,
+		chatCatalogStore.getSnapshot,
+	);
+	const hasRequestedFullHistoryRef = React.useRef(false);
+
+	React.useEffect(() => {
+		if (snapshot.status === "ready" && !snapshot.isLikelyTruncated) {
+			hasRequestedFullHistoryRef.current = false;
+		}
+	}, [snapshot.isLikelyTruncated, snapshot.status]);
+
+	React.useEffect(() => {
+		if (
+			activeTab !== "categories" ||
+			snapshot.status !== "ready" ||
+			!snapshot.isLikelyTruncated ||
+			hasRequestedFullHistoryRef.current
+		) {
+			return;
+		}
+
+		hasRequestedFullHistoryRef.current = true;
+		chatCatalogStore.refresh({ full: true });
+	}, [
+		activeTab,
+		chatCatalogStore,
+		snapshot.isLikelyTruncated,
+		snapshot.status,
+	]);
+}
+
 export function GlobalAstraMainInterface({
 	activeTab,
 	chatCategoryStore,
@@ -146,6 +186,10 @@ export function GlobalAstraMainInterface({
 	const chatCatalogStore = useGlobalChatCatalogStore(
 		chatListProps.chatCatalogStore,
 	);
+	useGlobalCategoriesFullHistoryRefresh({
+		activeTab,
+		chatCatalogStore,
+	});
 	const items: AstraSmoothTabItem<GlobalAstraMainInterfaceTabValue>[] = [
 		{
 			content: (

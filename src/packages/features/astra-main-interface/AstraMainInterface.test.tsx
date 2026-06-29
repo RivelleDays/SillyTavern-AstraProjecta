@@ -3670,6 +3670,188 @@ describe("AstraMainInterface", () => {
 		expect(screen.queryByText("Other Hero")).not.toBeInTheDocument();
 	});
 
+	test("does not auto-load full history while global chats is active", () => {
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [createEntry()],
+				isLikelyTruncated: true,
+			}),
+		);
+
+		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+		expect(storeStub.store.refresh).not.toHaveBeenCalled();
+	});
+
+	test("auto-loads full history once when opening truncated global categories", async () => {
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [createEntry()],
+				isLikelyTruncated: true,
+			}),
+		);
+
+		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+		const globalTabs = screen.getByRole("tablist", {
+			name: "Global sections",
+		});
+		fireEvent.click(
+			within(globalTabs).getByRole("tab", { name: "Categories" }),
+		);
+
+		await waitFor(() => {
+			expect(storeStub.store.refresh).toHaveBeenCalledWith({
+				full: true,
+			});
+		});
+		expect(storeStub.store.refresh).toHaveBeenCalledTimes(1);
+
+		storeStub.dispatch(
+			createSnapshot({
+				entries: [createEntry()],
+				isLikelyTruncated: true,
+			}),
+		);
+
+		expect(storeStub.store.refresh).toHaveBeenCalledTimes(1);
+	});
+
+	test.each(["loading", "refreshing"] as const)(
+		"does not auto-load full history from global categories while the catalog is %s",
+		async (status) => {
+			const storeStub = createStoreStub(
+				createSnapshot({
+					entries: [createEntry()],
+					isLikelyTruncated: true,
+					status,
+				}),
+			);
+
+			render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+			const globalTabs = screen.getByRole("tablist", {
+				name: "Global sections",
+			});
+			fireEvent.click(
+				within(globalTabs).getByRole("tab", { name: "Categories" }),
+			);
+
+			await waitFor(() => {
+				expect(
+					within(globalTabs).getByRole("tab", {
+						name: "Categories",
+					}),
+				).toHaveAttribute("data-state", "active");
+			});
+			expect(storeStub.store.refresh).not.toHaveBeenCalled();
+		},
+	);
+
+	test("allows global categories to request full history again after a complete snapshot", async () => {
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [createEntry()],
+				isLikelyTruncated: true,
+			}),
+		);
+
+		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+		const globalTabs = screen.getByRole("tablist", {
+			name: "Global sections",
+		});
+		fireEvent.click(
+			within(globalTabs).getByRole("tab", { name: "Categories" }),
+		);
+
+		await waitFor(() => {
+			expect(storeStub.store.refresh).toHaveBeenCalledTimes(1);
+		});
+
+		storeStub.dispatch(
+			createSnapshot({
+				entries: [createEntry()],
+				isLikelyTruncated: false,
+			}),
+		);
+		await act(async () => {});
+
+		storeStub.dispatch(
+			createSnapshot({
+				entries: [createEntry()],
+				isLikelyTruncated: true,
+			}),
+		);
+
+		await waitFor(() => {
+			expect(storeStub.store.refresh).toHaveBeenCalledTimes(2);
+		});
+		expect(storeStub.store.refresh).toHaveBeenLastCalledWith({
+			full: true,
+		});
+	});
+
+	test("shows global category chats after the full-history snapshot supplies their catalog entries", async () => {
+		const oldChat = createEntry({
+			chatId: "older-quest",
+			entityName: "Archive Hero",
+			key: "character:0:older-quest",
+		});
+		const storeStub = createStoreStub(
+			createSnapshot({
+				entries: [],
+				isLikelyTruncated: true,
+			}),
+		);
+		const categoryStoreStub = createSeededChatCategoryStore({
+			ids: ["cat_global_archive"],
+		});
+		categoryStoreStub.store.createCategory({
+			name: "Archive",
+			scope: "global",
+		});
+		categoryStoreStub.store.setChatCategoryIds(oldChat.key, [
+			"cat_global_archive",
+		]);
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				chatCategoryStore={categoryStoreStub.store}
+			/>,
+		);
+
+		const globalTabs = screen.getByRole("tablist", {
+			name: "Global sections",
+		});
+		fireEvent.click(
+			within(globalTabs).getByRole("tab", { name: "Categories" }),
+		);
+
+		await waitFor(() => {
+			expect(storeStub.store.refresh).toHaveBeenCalledWith({
+				full: true,
+			});
+		});
+		expect(
+			screen.getByRole("button", { name: /Archive\s*\(0\)/ }),
+		).toBeInTheDocument();
+
+		storeStub.dispatch(
+			createSnapshot({
+				entries: [oldChat],
+				isLikelyTruncated: false,
+			}),
+		);
+
+		expect(
+			await screen.findByRole("button", {
+				name: "Open Archive Hero older-quest",
+			}),
+		).toBeInTheDocument();
+	});
+
 	test("switches global tabs from the smooth-tabs swipe viewport", () => {
 		const storeStub = createStoreStub(
 			createSnapshot({
