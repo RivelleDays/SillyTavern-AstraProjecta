@@ -1105,6 +1105,130 @@ describe("createMobileMessageActionsFeature", () => {
 		}
 	});
 
+	test("opens Astra edit drawer for native reasoning summary markup without native reasoning edit DOM", async () => {
+		resetDefaultLayoutModeStoreForTests();
+		setDefaultLayoutModePreferenceReader(() => "auto");
+		mockMatchMedia(true);
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		const frame = installAnimationFrameQueue();
+		document.body.innerHTML += `
+            <div id="chat">
+                <div class="mes reasoning" mesid="0" is_user="false" is_system="false">
+                    <div class="mesAvatarWrapper">
+                        <div class="avatar"><img src="/assistant-avatar.png" /></div>
+                        <div class="mesIDDisplay">#0</div>
+                    </div>
+                    <div class="mes_block">
+                        <div class="ch_name">Assistant</div>
+                        <div class="mes_buttons">
+                            <button type="button" class="mes_edit"></button>
+                        </div>
+                        <details class="mes_reasoning_details" open>
+                            <summary class="mes_reasoning_summary flex-container">
+                                <div class="mes_reasoning_header_block flex-container">
+                                    <div class="mes_reasoning_header flex-container">
+                                        <span class="mes_reasoning_header_title">Thought for 8 seconds</span>
+                                        <div class="mes_reasoning_arrow fa-solid fa-chevron-up"></div>
+                                    </div>
+                                </div>
+                                <div class="mes_reasoning_actions flex-container">
+                                    <div class="mes_reasoning_edit_done menu_button edit_button fa-solid fa-check" title="Confirm"></div>
+                                    <div class="mes_reasoning_delete menu_button edit_button fa-solid fa-trash-can" title="Remove reasoning"></div>
+                                    <div class="mes_reasoning_edit_cancel menu_button edit_button fa-solid fa-xmark" title="Cancel edit"></div>
+                                    <div class="mes_reasoning_close_all mes_button fa-solid fa-minimize" title="Collapse all reasoning blocks"></div>
+                                    <div class="mes_reasoning_copy mes_button fa-solid fa-copy" title="Copy reasoning"></div>
+                                    <div class="mes_reasoning_edit mes_button fa-solid fa-pencil" title="Edit reasoning"></div>
+                                </div>
+                            </summary>
+                            <div class="mes_reasoning">Visible native reasoning text</div>
+                        </details>
+                        <div class="mes_text"><p>Native reasoning summary body</p></div>
+                    </div>
+                </div>
+            </div>
+        `;
+		const nativeReasoningEditClick = vi.fn();
+		document
+			.querySelector(".mes_reasoning_edit")
+			?.addEventListener("click", nativeReasoningEditClick);
+		setSillyTavernContext({
+			chat: [
+				{
+					is_system: false,
+					is_user: false,
+					extra: {
+						reasoning: "Native reasoning summary draft",
+					},
+					mes: "Native reasoning summary body",
+					name: "Assistant",
+					swipe_id: 0,
+					swipes: ["Native reasoning summary body"],
+				},
+			],
+			eventSource: { emit: vi.fn() },
+			eventTypes: {},
+			messageFormatting: vi.fn((value: string) => `<p>${value}</p>`),
+			powerUserSettings: {
+				click_to_edit: true,
+				trim_spaces: true,
+			},
+			saveChat: vi.fn(),
+			substituteParams: vi.fn((value: string) => value),
+		});
+		const feature = createMobileMessageActionsFeature({
+			createHistoryStore: () => createHistoryStoreStub([]).store,
+			createRevisionStore: () =>
+				createRevisionStoreStub({
+					canContinue: false,
+					canRegenerate: false,
+					canUndo: false,
+					isBusy: false,
+					messageId: null,
+					status: "idle",
+					updatedAt: 0,
+				}).store,
+			createSwipeStore: () =>
+				createSwipeStoreStub({
+					canSwipeNext: false,
+					canSwipePrevious: false,
+					currentIndex: 0,
+					isNativeSwipeBusy: false,
+					messageId: null,
+					status: "idle",
+					total: 1,
+					updatedAt: 0,
+				}).store,
+			documentRef: document,
+		});
+
+		try {
+			feature.mount();
+
+			fireEvent.click(document.querySelector(".mes_reasoning")!);
+			frame.flushFrames();
+
+			const editDialog = await screen.findByRole("dialog", {
+				name: "Edit Message",
+			});
+			expect(nativeReasoningEditClick).not.toHaveBeenCalled();
+			expect(
+				within(editDialog).getByLabelText("Message text"),
+			).toHaveValue("Native reasoning summary body");
+			expect(within(editDialog).getByLabelText("Reasoning")).toHaveValue(
+				"Native reasoning summary draft",
+			);
+			expect(
+				editDialog.querySelector(".reasoning_edit_textarea"),
+			).toBeNull();
+		} finally {
+			feature.unmount();
+			frame.restore();
+			delete (globalThis as { SillyTavern?: unknown }).SillyTavern;
+			resetDefaultLayoutModeStoreForTests();
+			setDefaultLayoutModePreferenceReader(() => "auto");
+		}
+	});
+
 	test("cleans up message header action roots when a message leaves the chat DOM", async () => {
 		resetDefaultLayoutModeStoreForTests();
 		setDefaultLayoutModePreferenceReader(() => "auto");
