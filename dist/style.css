@@ -9465,14 +9465,20 @@ body.astra-projecta-mobile-layout {
   border-bottom: 0;
 }
 .chat-session-settings-drawer__heading {
-  display: none;
-  padding: calc(var(--drawer-content-padding) - 8px)	var(--drawer-content-padding);
+  display: flex;
+  min-width: 0;
+  padding: 8px var(--drawer-content-padding);
+  border-bottom: 1px solid var(--border);
 }
 .chat-session-settings-drawer__title {
+  margin: 0;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--color-base);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
 }
 .chat-session-settings-drawer__description {
   max-width: 100%;
@@ -9508,52 +9514,70 @@ body.astra-projecta-mobile-layout {
 .chat-session-settings-drawer__content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 .chat-session-settings__section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
 }
-.chat-session-settings__section-marker {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.chat-session-settings__section-marker-icon {
-  display: flex;
+.chat-session-settings__section-title {
+  margin: 0;
   color: var(--color-muted-t80);
-}
-.chat-session-settings__section-marker-label {
-  flex: 0 0 auto;
   font-size: var(--text-xs);
   font-weight: var(--font-weight-medium);
-  color: var(--color-muted-t80);
   text-transform: uppercase;
 }
-.chat-session-settings__section-marker-line {
-  flex: 1 1 auto;
-  height: 1px;
-  background-color: var(--border-color-base, var(--border));
+.chat-session-settings__section-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-color-base);
+  border-radius: var(--radius-xl);
+  background: var(--surface-muted-t20);
+}
+.chat-session-settings__section-card > * {
+  min-width: 0;
 }
 .chat-session-settings__chat-background-tab, .chat-session-settings__chat-message-tab, .chat-session-settings__message-input-tab {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
 }
-.chat-session-settings__chat-background-tab {
-  gap: 16px;
+.chat-session-settings__section-card	> .chat-session-settings__chat-background-tab	> *, .chat-session-settings__section-card	> .chat-session-settings__chat-message-tab	> *, .chat-session-settings__section-card	> .chat-session-settings__message-input-tab	> * {
+  padding: 12px;
+}
+.chat-session-settings__section-card	> .chat-session-settings__chat-background-tab	> * + *, .chat-session-settings__section-card	> .chat-session-settings__chat-message-tab	> * + *, .chat-session-settings__section-card	> .chat-session-settings__message-input-tab	> * + * {
+  border-top: 1px solid var(--border-color-base);
 }
 .chat-session-settings__button-row, .chat-session-settings__toggle-row {
   display: flex;
   gap: 8px;
   justify-content: space-between;
 }
+.chat-session-settings__button-row {
+  align-items: center;
+  flex-wrap: wrap;
+}
 .chat-session-settings__toggle-row {
   align-items: center;
 }
+.chat-session-settings__toggle-row-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
 .chat-session-settings__button-row-title, .chat-session-settings__toggle-row-title {
   font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+}
+.chat-session-settings__toggle-row-description {
+  margin: 0;
+  color: var(--color-muted-t80);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
 }
 .chat-session-settings__button-group {
   align-self: flex-start;
@@ -9566,6 +9590,7 @@ body.astra-projecta-mobile-layout {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding-bottom: 16px !important;
 }
 .chat-session-settings__slider-row-header {
   display: flex;

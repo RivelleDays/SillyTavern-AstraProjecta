@@ -7,7 +7,7 @@
 
 - `contracts/dom.ts` owns this drawer's stable DOM ids (`astra-chat-session-settings-drawer*`).
 - `drawer/` owns `ChatSessionSettingsDrawer`, built on the shared Astra `Drawer` primitive.
-- `SettingsSectionMarker.tsx` owns the feature-local labeled section divider (label + right-side line) shared across settings sections.
+- `SettingsSectionGroup.tsx` owns the feature-local section wrapper: semantic section, plain section title, and rounded settings-card container shared across settings sections.
 - `chat-background/` owns the Chat Background settings tab content (blur/opacity sliders) and reads/writes `packages/core/st/chat-background-appearance`.
 - `chat-message/` owns the Chat Messages settings tab content (line-height / text-align button groups) and reads/writes `packages/core/st/chat-message-appearance`.
 

@@ -39,13 +39,25 @@ describe("chat-session-settings CSS contracts", () => {
 		expect(css).toContain(".chat-session-settings__slider-row-input");
 	});
 
-	test("keeps the section marker selector contracts addressable", () => {
+	test("keeps the grouped section selector contracts addressable", () => {
 		const css = readCss();
 
-		expect(css).toContain(".chat-session-settings__section-marker");
-		expect(css).toContain(".chat-session-settings__section-marker-icon");
-		expect(css).toContain(".chat-session-settings__section-marker-label");
-		expect(css).toContain(".chat-session-settings__section-marker-line");
+		expect(css).toContain(".chat-session-settings__section-title");
+		expect(css).toContain(".chat-session-settings__section-card");
+		expect(css).toContain(".chat-session-settings__section-card >");
+		expect(css).toContain(
+			".chat-session-settings__toggle-row-description",
+		);
+		expect(css).not.toContain(".chat-session-settings__section-marker");
+		expect(css).not.toContain(
+			".chat-session-settings__section-marker-icon",
+		);
+		expect(css).not.toContain(
+			".chat-session-settings__section-marker-label",
+		);
+		expect(css).not.toContain(
+			".chat-session-settings__section-marker-line",
+		);
 	});
 
 	test("does not reuse sillytavern-interface-panel or astra-main-interface-panel selectors", () => {
