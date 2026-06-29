@@ -1,16 +1,16 @@
 ## Purpose
 
-- Own the mobile chat-switch loading overlay that mounts over SillyTavern's native `#sheld` chat-session surface.
+- Own the mobile chat-switch loading overlay that mounts over Astra's `#astra-chat-session-shell`, falling back to SillyTavern's native `#sheld` chat-session surface.
 - Keep chat switching feedback close to the content being replaced instead of presenting it inside the Astra main interface panel.
 - Keep the overlay outside `#chat` so SillyTavern message clearing during chat reloads cannot remove the loading affordance.
 
 ## SillyTavern Touchpoints
 
-- Target host: `#sheld`.
+- Target host: `#astra-chat-session-shell`, falling back to `#sheld`.
 - Startup baseline: `eventTypes.APP_READY`; fall back to `app_ready` only when the typed event name is unavailable.
 - Switch signal: `SillyTavern.getContext().eventSource` with `eventTypes.CHAT_CHANGED`; fall back to `chat_id_changed` only when the typed event name is unavailable.
 - Settle target: native `#chat`, read-only `.mes[mesid]` inspection, and Astra-owned message layout/action selectors.
-- Missing `#sheld` must no-op and return a disposable handle.
+- Missing `#astra-chat-session-shell` and `#sheld` must no-op and return a disposable handle.
 - The helper may append and remove only the Astra-owned `.astra-chat-switch-loading-overlay` child and `data-astra-projecta-chat-switch-loading` state attribute.
 
 ## Rules

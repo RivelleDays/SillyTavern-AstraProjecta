@@ -113,36 +113,41 @@ function renderReadyChat({
 	scrollHeight?: number;
 } = {}) {
 	document.body.innerHTML = `
-		<div id="sheld">
-			<div id="chat">
-				${Array.from({ length: messageCount }, (_, index) => {
-					const timestamp =
-						index === 0 ? '<small class="timestamp"></small>' : "";
-					const timestampMeta =
-						index === 0
-							? '<div class="astra-mesMeta__time"></div>'
-							: "";
-					return `
-						<div class="mes" mesid="${index}">
-							<div class="mesAvatarWrapper"></div>
-							<div class="astra-mesHeader"></div>
-							<div class="mes_block">
-								<div class="ch_name"></div>
-								${timestamp}
-							</div>
-							<div class="astra-mesMeta">
-								${timestampMeta}
-							</div>
-							<div class="astra-mesActions" data-astra-component="mes-actions" data-astra-slot="footer">
-								<div class="astra-mesActions__left">
-									<div class="astra-mesActions__leftDefault">
-										<div class="astra-mesActions__moreHost"></div>
+		<div id="astra-chat-session-shell">
+			<div id="astra-chat-top-bar-host"></div>
+			<div id="sheld">
+				<div id="chat">
+					${Array.from({ length: messageCount }, (_, index) => {
+						const timestamp =
+							index === 0
+								? '<small class="timestamp"></small>'
+								: "";
+						const timestampMeta =
+							index === 0
+								? '<div class="astra-mesMeta__time"></div>'
+								: "";
+						return `
+							<div class="mes" mesid="${index}">
+								<div class="mesAvatarWrapper"></div>
+								<div class="astra-mesHeader"></div>
+								<div class="mes_block">
+									<div class="ch_name"></div>
+									${timestamp}
+								</div>
+								<div class="astra-mesMeta">
+									${timestampMeta}
+								</div>
+								<div class="astra-mesActions" data-astra-component="mes-actions" data-astra-slot="footer">
+									<div class="astra-mesActions__left">
+										<div class="astra-mesActions__leftDefault">
+											<div class="astra-mesActions__moreHost"></div>
+										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-					`;
-				}).join("")}
+						`;
+					}).join("")}
+				</div>
 			</div>
 		</div>
 	`;
@@ -273,13 +278,16 @@ describe("createMobileChatSwitchLoadingFeature", () => {
 		};
 		setSillyTavernContext(contextRef);
 		document.body.innerHTML = `
-			<div id="sheld">
-				<div id="chat">
-					<div class="mes" mesid="0">
-						<div class="mesAvatarWrapper"></div>
-						<div class="mes_block">
-							<div class="ch_name"></div>
-							<small class="timestamp"></small>
+			<div id="astra-chat-session-shell">
+				<div id="astra-chat-top-bar-host"></div>
+				<div id="sheld">
+					<div id="chat">
+						<div class="mes" mesid="0">
+							<div class="mesAvatarWrapper"></div>
+							<div class="mes_block">
+								<div class="ch_name"></div>
+								<small class="timestamp"></small>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -489,8 +497,11 @@ describe("createMobileChatSwitchLoadingFeature", () => {
 	test("settles zero-message chats and no-ops cleanly without context or chat", async () => {
 		vi.useFakeTimers();
 		document.body.innerHTML = `
-			<div id="sheld">
-				<div id="chat"></div>
+			<div id="astra-chat-session-shell">
+				<div id="astra-chat-top-bar-host"></div>
+				<div id="sheld">
+					<div id="chat"></div>
+				</div>
 			</div>
 		`;
 		const frame = installAnimationFrameQueue();

@@ -9,7 +9,56 @@ describe("showChatSwitchLoadingOverlay", () => {
 		vi.useRealTimers();
 	});
 
-	test("renders a visible status message over the native #sheld chat-session surface", async () => {
+	test("renders a visible status message over the Astra chat-session shell", async () => {
+		document.body.innerHTML = `
+            <div id="astra-chat-session-shell">
+                <div id="astra-chat-top-bar-host"></div>
+                <div id="sheld">
+                    <div id="chat"></div>
+                </div>
+            </div>
+        `;
+		const shell = document.getElementById(
+			"astra-chat-session-shell",
+		) as HTMLElement;
+		const sheld = document.getElementById("sheld") as HTMLElement;
+
+		const handle = showChatSwitchLoadingOverlay({
+			documentRef: document,
+			exitDurationMs: 0,
+			label: "Opening chat...",
+		});
+
+		const overlay = within(shell).getByRole("status", {
+			name: "Opening chat...",
+		});
+		expect(shell).toHaveAttribute(
+			"data-astra-projecta-chat-switch-loading",
+			"active",
+		);
+		expect(sheld).not.toHaveAttribute(
+			"data-astra-projecta-chat-switch-loading",
+		);
+		expect(overlay).toHaveClass("astra-chat-switch-loading-overlay");
+		expect(overlay.parentElement).toBe(shell);
+		expect(sheld).not.toContainElement(overlay);
+		expect(
+			overlay.querySelector(".astra-chat-switch-loading-overlay__text"),
+		).toHaveTextContent("Opening chat...");
+
+		await handle.hide();
+
+		expect(shell).not.toHaveAttribute(
+			"data-astra-projecta-chat-switch-loading",
+		);
+		expect(
+			within(shell).queryByRole("status", {
+				name: "Opening chat...",
+			}),
+		).not.toBeInTheDocument();
+	});
+
+	test("falls back to the native #sheld surface when the Astra shell is unavailable", async () => {
 		document.body.innerHTML = `
             <div id="sheld">
                 <div id="chat"></div>
@@ -30,11 +79,7 @@ describe("showChatSwitchLoadingOverlay", () => {
 			"data-astra-projecta-chat-switch-loading",
 			"active",
 		);
-		expect(overlay).toHaveClass("astra-chat-switch-loading-overlay");
 		expect(overlay.parentElement).toBe(sheld);
-		expect(
-			overlay.querySelector(".astra-chat-switch-loading-overlay__text"),
-		).toHaveTextContent("Opening chat...");
 
 		await handle.hide();
 

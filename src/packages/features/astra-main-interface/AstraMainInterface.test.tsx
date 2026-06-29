@@ -6934,12 +6934,18 @@ describe("AstraMainInterface", () => {
 		).toBeDisabled();
 	});
 
-	test("starts a #sheld loading overlay and closes the panel while a non-current row opens", async () => {
+	test("starts a chat-session shell loading overlay and closes the panel while a non-current row opens", async () => {
 		document.body.innerHTML = `
-            <div id="sheld">
-                <div id="chat"></div>
+            <div id="astra-chat-session-shell">
+                <div id="astra-chat-top-bar-host"></div>
+                <div id="sheld">
+                    <div id="chat"></div>
+                </div>
             </div>
         `;
+		const shell = document.getElementById(
+			"astra-chat-session-shell",
+		) as HTMLElement;
 		const sheld = document.getElementById("sheld") as HTMLElement;
 		const storeStub = createStoreStub(
 			createSnapshot({
@@ -6970,10 +6976,12 @@ describe("AstraMainInterface", () => {
 			}),
 		);
 
-		const overlay = within(sheld).getByRole("status", {
+		const overlay = within(shell).getByRole("status", {
 			name: "Opening chat...",
 		});
 		expect(overlay).toHaveClass("astra-chat-switch-loading-overlay");
+		expect(overlay.parentElement).toBe(shell);
+		expect(sheld).not.toContainElement(overlay);
 		expect(
 			overlay.querySelector(".astra-chat-switch-loading-overlay__text"),
 		).toHaveTextContent("Opening chat...");
@@ -6995,20 +7003,25 @@ describe("AstraMainInterface", () => {
 			});
 		});
 		expect(
-			within(sheld).getByRole("status", {
+			within(shell).getByRole("status", {
 				name: "Opening chat...",
 			}),
 		).toBeInTheDocument();
 		expect(openChat).toHaveBeenCalledTimes(1);
 	});
 
-	test("removes the #sheld loading overlay and shows an inline error when chat opening fails while mounted", async () => {
+	test("removes the chat-session shell loading overlay and shows an inline error when chat opening fails while mounted", async () => {
 		document.body.innerHTML = `
-            <div id="sheld">
-                <div id="chat"></div>
+            <div id="astra-chat-session-shell">
+                <div id="astra-chat-top-bar-host"></div>
+                <div id="sheld">
+                    <div id="chat"></div>
+                </div>
             </div>
         `;
-		const sheld = document.getElementById("sheld") as HTMLElement;
+		const shell = document.getElementById(
+			"astra-chat-session-shell",
+		) as HTMLElement;
 		const storeStub = createStoreStub(
 			createSnapshot({
 				entries: [createEntry()],
@@ -7039,7 +7052,7 @@ describe("AstraMainInterface", () => {
 		);
 
 		expect(
-			within(sheld).getByRole("status", {
+			within(shell).getByRole("status", {
 				name: "Opening chat...",
 			}),
 		).toBeInTheDocument();
@@ -7054,7 +7067,7 @@ describe("AstraMainInterface", () => {
 			await screen.findByText("Failed to open chat."),
 		).toBeInTheDocument();
 		expect(
-			within(sheld).queryByRole("status", {
+			within(shell).queryByRole("status", {
 				name: "Opening chat...",
 			}),
 		).not.toBeInTheDocument();

@@ -6,6 +6,7 @@ const CHAT_SWITCH_LOADING_ATTRIBUTE = "data-astra-projecta-chat-switch-loading";
 const CHAT_SWITCH_LOADING_OVERLAY_CLASS = "astra-chat-switch-loading-overlay";
 const CHAT_SWITCH_LOADING_OVERLAY_SELECTOR = `.${CHAT_SWITCH_LOADING_OVERLAY_CLASS}`;
 const DEFAULT_EXIT_DURATION_MS = 180;
+const ASTRA_CHAT_SESSION_SHELL_ID = "astra-chat-session-shell";
 const NATIVE_SHELD_ID = "sheld";
 
 function createNoopHandle(): ChatSwitchLoadingOverlayHandle {
@@ -49,6 +50,13 @@ function resolveExistingOverlay(hostElement: HTMLElement) {
 	return overlay;
 }
 
+function resolveOverlayHost(documentRef: Document) {
+	return (
+		documentRef.getElementById(ASTRA_CHAT_SESSION_SHELL_ID) ??
+		documentRef.getElementById(NATIVE_SHELD_ID)
+	);
+}
+
 export function showChatSwitchLoadingOverlay({
 	documentRef = document,
 	exitDurationMs = DEFAULT_EXIT_DURATION_MS,
@@ -58,7 +66,7 @@ export function showChatSwitchLoadingOverlay({
 	exitDurationMs?: number;
 	label: string;
 }): ChatSwitchLoadingOverlayHandle {
-	const hostElement = documentRef.getElementById(NATIVE_SHELD_ID);
+	const hostElement = resolveOverlayHost(documentRef);
 	if (!hostElement) {
 		return createNoopHandle();
 	}

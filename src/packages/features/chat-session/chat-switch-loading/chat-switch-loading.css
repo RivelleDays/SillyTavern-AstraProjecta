@@ -5,6 +5,11 @@
 }
 
 body.astra-projecta-mobile-layout {
+	& #astra-chat-session-shell {
+		position: relative;
+	}
+
+	& #astra-chat-session-shell > .astra-chat-switch-loading-overlay,
 	& #sheld > .astra-chat-switch-loading-overlay {
 		position: absolute;
 		inset: 0;
@@ -20,6 +25,8 @@ body.astra-projecta-mobile-layout {
 		transition: opacity 180ms ease;
 	}
 
+	& #astra-chat-session-shell
+		> .astra-chat-switch-loading-overlay[data-state="closing"],
 	& #sheld > .astra-chat-switch-loading-overlay[data-state="closing"] {
 		opacity: 0;
 	}
@@ -58,6 +65,7 @@ body.astra-projecta-mobile-layout {
 	}
 
 	@media (prefers-reduced-motion: reduce) {
+		& #astra-chat-session-shell > .astra-chat-switch-loading-overlay,
 		& #sheld > .astra-chat-switch-loading-overlay {
 			transition: none;
 		}

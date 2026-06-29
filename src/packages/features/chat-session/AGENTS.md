@@ -41,7 +41,7 @@ src/packages/features/chat-session/
 - The right-side SillyTavern interface implementation lives in `src/packages/features/sillytavern-interface`; mobile assembly and send-form adapter wiring live in `src/app/mobile/sillytavern-interface-panel`.
 - The mobile top-bar and left-side main interface panel live in `src/app/mobile`.
 - `chat-scroll` may style and align the native `#chat` scroll container, but must not wrap, move, or replace it because SillyTavern commands and chat lifecycle code read and write `#chat.scrollTop`.
-- `chat-switch-loading` may append a transient Astra-owned loading overlay over `#sheld` during chat-file switches, but must not mutate SillyTavern-owned message nodes or depend on `#chat` children surviving reload.
+- `chat-switch-loading` may append a transient Astra-owned loading overlay over `#astra-chat-session-shell`, falling back to `#sheld`, during chat-file switches, but must not mutate SillyTavern-owned message nodes or depend on `#chat` children surviving reload.
 
 ## Allowed Patterns
 

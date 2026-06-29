@@ -717,7 +717,7 @@ describe("globals.css", () => {
 		);
 	});
 
-	test("imports the chat-switch loading stylesheet for the native #sheld overlay", () => {
+	test("imports the chat-switch loading stylesheet for the chat-session shell overlay", () => {
 		const css = normalizeStyleSource(
 			readFileSync(
 				resolve(process.cwd(), "src/styles/globals.css"),
@@ -738,6 +738,9 @@ describe("globals.css", () => {
 			"@import '../packages/features/chat-session/chat-switch-loading/chat-switch-loading.css';",
 		);
 		expect(loadingCss).toContain("body.astra-projecta-mobile-layout {");
+		expect(loadingCss).toMatch(
+			/#astra-chat-session-shell\s*>\s*\.astra-chat-switch-loading-overlay/,
+		);
 		expect(loadingCss).toMatch(
 			/#sheld\s*>\s*\.astra-chat-switch-loading-overlay/,
 		);
