@@ -12,16 +12,13 @@ import {
 import { Button } from "@/components/ui/shadcn/button";
 import { UiIcon } from "@/components/ui/shared/icon";
 import {
-	Image,
-	MessageCircleMore,
 	Save,
-	Send,
 } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import { ChatBackgroundSettingsTab } from "@/packages/features/chat-session-settings/chat-background/ChatBackgroundSettingsTab";
 import { ChatMessageSettingsTab } from "@/packages/features/chat-session-settings/chat-message/ChatMessageSettingsTab";
 import { MessageInputSettingsTab } from "@/packages/features/chat-session-settings/message-input/MessageInputSettingsTab";
-import { SettingsSectionMarker } from "@/packages/features/chat-session-settings/SettingsSectionMarker";
+import { SettingsSectionGroup } from "@/packages/features/chat-session-settings/SettingsSectionGroup";
 import { shortcutsToolbarVisibilityStore } from "@/packages/features/chat-session/send-form/shell/shortcutsToolbarVisibilityStore";
 import {
 	createChatBackgroundAppearanceStore,
@@ -342,28 +339,19 @@ export function ChatSessionSettingsDrawer({
 					</DrawerDescription>
 				</DrawerHeader>
 				<div className="chat-session-settings-drawer__header astra-dialog-header">
-					<div className="chat-session-settings-drawer__heading astra-dialog-heading">
-						<span aria-hidden={true} className="astra-dialog-icon">
-							<UiIcon
-								aria-hidden={true}
-								icon={MessageCircleMore}
-								size="sm"
-							/>
-						</span>
-						<div className="astra-dialog-headingContent">
-							<h2
-								id={CHAT_SESSION_SETTINGS_DRAWER_TITLE_ID}
-								className="chat-session-settings-drawer__title astra-dialog-title"
-							>
-								{title}
-							</h2>
-							<p
-								id={CHAT_SESSION_SETTINGS_DRAWER_DESCRIPTION_ID}
-								className="chat-session-settings-drawer__description astra-dialog-description sr-only"
-							>
-								{description}
-							</p>
-						</div>
+					<div className="chat-session-settings-drawer__heading">
+						<h2
+							id={CHAT_SESSION_SETTINGS_DRAWER_TITLE_ID}
+							className="chat-session-settings-drawer__title"
+						>
+							{title}
+						</h2>
+						<p
+							id={CHAT_SESSION_SETTINGS_DRAWER_DESCRIPTION_ID}
+							className="chat-session-settings-drawer__description sr-only"
+						>
+							{description}
+						</p>
 					</div>
 				</div>
 				<DrawerBody
@@ -378,44 +366,38 @@ export function ChatSessionSettingsDrawer({
 						className: "chat-session-settings-drawer__viewport",
 					}}
 				>
-					<div className="chat-session-settings__section">
-						<SettingsSectionMarker
-							icon={Send}
-							label={translateAstra(
-								"chatSessionSettings.section.messageInput",
-							)}
+					<SettingsSectionGroup
+						label={translateAstra(
+							"chatSessionSettings.section.chatMessages",
+						)}
+					>
+						<ChatMessageSettingsTab
+							appearance={draftMessageAppearance}
+							onAppearanceChange={setDraftMessageAppearance}
 						/>
+					</SettingsSectionGroup>
+					<SettingsSectionGroup
+						label={translateAstra(
+							"chatSessionSettings.section.messageInput",
+						)}
+					>
 						<MessageInputSettingsTab
 							showShortcutsToolbar={draftShortcutsVisible}
 							onShowShortcutsToolbarChange={
 								setDraftShortcutsVisible
 							}
 						/>
-					</div>
-					<div className="chat-session-settings__section">
-						<SettingsSectionMarker
-							icon={MessageCircleMore}
-							label={translateAstra(
-								"chatSessionSettings.section.chatMessages",
-							)}
-						/>
-						<ChatMessageSettingsTab
-							appearance={draftMessageAppearance}
-							onAppearanceChange={setDraftMessageAppearance}
-						/>
-					</div>
-					<div className="chat-session-settings__section">
-						<SettingsSectionMarker
-							icon={Image}
-							label={translateAstra(
-								"chatSessionSettings.section.chatBackground",
-							)}
-						/>
+					</SettingsSectionGroup>
+					<SettingsSectionGroup
+						label={translateAstra(
+							"chatSessionSettings.section.chatBackground",
+						)}
+					>
 						<ChatBackgroundSettingsTab
 							appearance={draftAppearance}
 							onAppearanceChange={setDraftAppearance}
 						/>
-					</div>
+					</SettingsSectionGroup>
 				</DrawerBody>
 				<ChatSessionSettingsDrawerFooter
 					canSave={canSave}
