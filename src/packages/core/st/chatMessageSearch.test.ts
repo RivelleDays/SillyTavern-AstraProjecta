@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import {
 	readCurrentChatMessageSearchMessages,
+	saveCurrentChatMessageSearchTextEdits,
 	subscribeToCurrentChatMessageSearchChanges,
 } from "@/packages/core/st/chatMessageSearch";
 
@@ -54,10 +55,43 @@ describe("chat message search SillyTavern adapter", () => {
 		});
 
 		expect(readCurrentChatMessageSearchMessages()).toEqual([
-			{ mes: "base", messageId: 0 },
-			{ mes: "active", messageId: 1 },
-			{ mes: "", messageId: 2 },
+			{ mes: "base", messageId: 0, swipeId: null },
+			{ mes: "active", messageId: 1, swipeId: 1 },
+			{ mes: "", messageId: 2, swipeId: null },
 		]);
+	});
+
+	test("saves replacement text to only the active swipe", async () => {
+		const saveChat = vi.fn(async () => undefined);
+		const chat = [
+			{
+				mes: "visible cat",
+				swipe_id: 1,
+				swipes: ["hidden cat", "visible cat"],
+			},
+		];
+		setSillyTavernContext({ chat, saveChat });
+
+		const messages = readCurrentChatMessageSearchMessages();
+		expect(messages).toEqual([
+			{ mes: "visible cat", messageId: 0, swipeId: 1 },
+		]);
+
+		await expect(
+			saveCurrentChatMessageSearchTextEdits({
+				edits: [
+					{
+						messageId: messages[0].messageId,
+						messageText: "visible dog",
+						swipeId: messages[0].swipeId,
+					},
+				],
+			}),
+		).resolves.toEqual({ messageIds: [0], ok: true });
+
+		expect(chat[0].mes).toBe("visible dog");
+		expect(chat[0].swipes).toEqual(["hidden cat", "visible dog"]);
+		expect(saveChat).toHaveBeenCalledTimes(1);
 	});
 
 	test("subscribes to chat load and change events with cleanup", () => {

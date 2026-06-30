@@ -9,6 +9,7 @@ type Listener = () => void;
 export interface ChatMessageSearchStoreTextEdit {
 	messageId: number;
 	messageText: string;
+	swipeId: number | null;
 }
 
 export type ChatMessageSearchStoreSaveTextEdits = (input: {
@@ -73,6 +74,7 @@ interface ReplacementOperationItem {
 	after: string;
 	before: string;
 	messageId: number;
+	swipeId: number | null;
 }
 
 type ReplacementOperation = ReplacementOperationItem[];
@@ -119,9 +121,22 @@ function replaceRange({
 function findMessageText(
 	messages: ChatMessageSearchMessage[],
 	messageId: number,
+	swipeId: number | null,
 ): string | null {
-	const message = messages.find((item) => item.messageId === messageId);
+	const message = messages.find(
+		(item) => item.messageId === messageId && item.swipeId === swipeId,
+	);
 	return typeof message?.mes === "string" ? message.mes : null;
+}
+
+function createReplacementTargetKey({
+	messageId,
+	swipeId,
+}: {
+	messageId: number;
+	swipeId: number | null;
+}): string {
+	return `${messageId}:${swipeId ?? "message"}`;
 }
 
 export function createChatMessageSearchStore({
@@ -218,6 +233,7 @@ export function createChatMessageSearchStore({
 		const edits = operation.map((item) => ({
 			messageId: item.messageId,
 			messageText: direction === "undo" ? item.before : item.after,
+			swipeId: item.swipeId,
 		}));
 		const result = await saveTextEdits({ edits });
 		if (!result.ok) {
@@ -293,22 +309,23 @@ export function createChatMessageSearchStore({
 				return false;
 			}
 
-			const replacementsByMessage = new Map<number, ChatMessageSearchMatch[]>();
+			const replacementsByMessage = new Map<string, ChatMessageSearchMatch[]>();
 			for (const match of snapshot.matches) {
+				const key = createReplacementTargetKey(match);
 				const messageMatches =
-					replacementsByMessage.get(match.messageId) ?? [];
+					replacementsByMessage.get(key) ?? [];
 				messageMatches.push(match);
-				replacementsByMessage.set(match.messageId, messageMatches);
+				replacementsByMessage.set(key, messageMatches);
 			}
 
 			const operation: ReplacementOperation = [];
 			for (const message of messages) {
 				const messageMatches = replacementsByMessage.get(
-					message.messageId,
+					createReplacementTargetKey(message),
 				);
 				const before =
 					typeof message.mes === "string" ? message.mes : null;
-				if (!before || !messageMatches) {
+				if (before === null || !messageMatches) {
 					continue;
 				}
 
@@ -329,6 +346,7 @@ export function createChatMessageSearchStore({
 						after,
 						before,
 						messageId: message.messageId,
+						swipeId: message.swipeId,
 					});
 				}
 			}
@@ -349,7 +367,11 @@ export function createChatMessageSearchStore({
 				return false;
 			}
 
-			const before = findMessageText(messages, match.messageId);
+			const before = findMessageText(
+				messages,
+				match.messageId,
+				match.swipeId,
+			);
 			if (before === null) {
 				return false;
 			}
@@ -365,7 +387,12 @@ export function createChatMessageSearchStore({
 			}
 
 			const operation: ReplacementOperation = [
-				{ after, before, messageId: match.messageId },
+				{
+					after,
+					before,
+					messageId: match.messageId,
+					swipeId: match.swipeId,
+				},
 			];
 			const saved = await saveOperation(operation, "redo");
 			if (!saved) {

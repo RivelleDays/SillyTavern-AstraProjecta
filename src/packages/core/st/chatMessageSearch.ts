@@ -31,7 +31,9 @@ export interface CreateDefaultChatMessageSearchStoreOptions {
 	documentRef?: Document;
 }
 
-function readActiveMessageText(message: ChatMessageSearchMessageLike): string {
+function readActiveMessage(
+	message: ChatMessageSearchMessageLike,
+): Pick<ChatMessageSearchMessage, "mes" | "swipeId"> {
 	const swipeId = message.swipe_id;
 	if (
 		typeof swipeId === "number" &&
@@ -39,22 +41,32 @@ function readActiveMessageText(message: ChatMessageSearchMessageLike): string {
 		Array.isArray(message.swipes) &&
 		typeof message.swipes[swipeId] === "string"
 	) {
-		return message.swipes[swipeId];
+		return {
+			mes: message.swipes[swipeId],
+			swipeId,
+		};
 	}
 
-	return typeof message.mes === "string" ? message.mes : "";
+	return {
+		mes: typeof message.mes === "string" ? message.mes : "",
+		swipeId: null,
+	};
 }
 
 export function readCurrentChatMessageSearchMessages(): ChatMessageSearchMessage[] {
 	const context = readContextSafe<ChatMessageSearchContextLike>();
 	const chat = Array.isArray(context?.chat) ? context.chat : [];
 
-	return chat.map((message, messageId) => ({
-		mes: isRecord(message)
-			? readActiveMessageText(message as ChatMessageSearchMessageLike)
-			: "",
-		messageId,
-	}));
+	return chat.map((message, messageId) => {
+		const activeMessage = isRecord(message)
+			? readActiveMessage(message as ChatMessageSearchMessageLike)
+			: { mes: "", swipeId: null };
+
+		return {
+			...activeMessage,
+			messageId,
+		};
+	});
 }
 
 export const saveCurrentChatMessageSearchTextEdits: ChatMessageSearchStoreSaveTextEdits =

@@ -436,13 +436,74 @@ describe("chatMessageEdit", () => {
 		expect(saveChat).toHaveBeenCalledTimes(1);
 	});
 
+	test("batch saves explicit hidden swipe text without mutating visible text", async () => {
+		const saveChat = vi.fn(async () => undefined);
+		const chat: TestMessage[] = [
+			{
+				is_user: false,
+				mes: "Visible current",
+				swipe_id: 0,
+				swipes: ["Visible current", "Hidden target"],
+			},
+		];
+		setSillyTavernContext({ chat, saveChat });
+
+		await expect(
+			batchSaveChatMessageTextEdits({
+				edits: [
+					{
+						messageId: 0,
+						messageText: "Hidden edited",
+						swipeId: 1,
+					},
+				],
+			}),
+		).resolves.toEqual({ messageIds: [0], ok: true });
+
+		expect(chat[0].mes).toBe("Visible current");
+		expect(chat[0].swipes).toEqual(["Visible current", "Hidden edited"]);
+		expect(saveChat).toHaveBeenCalledTimes(1);
+	});
+
+	test("batch edit rejects invalid explicit swipe ids before mutating chat", async () => {
+		const saveChat = vi.fn(async () => undefined);
+		const chat: TestMessage[] = [
+			{
+				is_user: false,
+				mes: "Visible current",
+				swipe_id: 0,
+				swipes: ["Visible current"],
+			},
+		];
+		setSillyTavernContext({ chat, saveChat });
+
+		await expect(
+			batchSaveChatMessageTextEdits({
+				edits: [
+					{
+						messageId: 0,
+						messageText: "Nope",
+						swipeId: 3,
+					},
+				],
+			}),
+		).resolves.toEqual({
+			ok: false,
+			reason: "invalid-message-id",
+		});
+
+		expect(chat[0].mes).toBe("Visible current");
+		expect(chat[0].swipes).toEqual(["Visible current"]);
+		expect(saveChat).not.toHaveBeenCalled();
+	});
+
 	test("batch edit restores original chat messages when save fails", async () => {
 		const chat: TestMessage[] = [
 			{
 				is_user: true,
 				mes: "Original",
 				swipe_id: 0,
-				swipes: ["Original"],
+				swipes: ["Original", "Hidden"],
 			},
 		];
 		const saveChat = vi.fn(async () => {
@@ -452,7 +513,7 @@ describe("chatMessageEdit", () => {
 
 		await expect(
 			batchSaveChatMessageTextEdits({
-				edits: [{ messageId: 0, messageText: "Changed" }],
+				edits: [{ messageId: 0, messageText: "Changed", swipeId: 1 }],
 			}),
 		).resolves.toEqual({
 			ok: false,
@@ -461,6 +522,7 @@ describe("chatMessageEdit", () => {
 
 		expect(chat[0].mes).toBe("Original");
 		expect(chat[0].swipes?.[0]).toBe("Original");
+		expect(chat[0].swipes?.[1]).toBe("Hidden");
 		expect(saveChat).toHaveBeenCalledTimes(1);
 	});
 });

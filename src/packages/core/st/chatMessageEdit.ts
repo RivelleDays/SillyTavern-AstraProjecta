@@ -62,6 +62,7 @@ export interface ChatMessageEditSaveInput {
 export interface BatchChatMessageTextEdit {
 	messageId: number;
 	messageText: string;
+	swipeId?: number | null;
 }
 
 export interface BatchChatMessageTextEditInput {
@@ -259,25 +260,65 @@ function writeMessageTextDraft({
 	context,
 	message,
 	messageText,
+	swipeId,
 }: {
 	context: StContextLike;
 	message: ChatMessageEditLike;
 	messageText: string;
+	swipeId?: number | null;
 }): string {
 	const nextMessageText = normalizeMessageText(context, messageText);
+
+	if (swipeId === null) {
+		message.mes = nextMessageText;
+		return nextMessageText;
+	}
+
+	if (typeof swipeId === "number") {
+		const isActiveSwipe = message.swipe_id === swipeId;
+		if (
+			Array.isArray(message.swipes) &&
+			typeof message.swipes[swipeId] === "string"
+		) {
+			message.swipes[swipeId] = nextMessageText;
+		}
+		if (isActiveSwipe) {
+			message.mes = nextMessageText;
+		}
+		return nextMessageText;
+	}
+
 	message.mes = nextMessageText;
 
-	const swipeId = message.swipe_id;
+	const activeSwipeId = message.swipe_id;
 	if (
-		typeof swipeId === "number" &&
-		Number.isInteger(swipeId) &&
+		typeof activeSwipeId === "number" &&
+		Number.isInteger(activeSwipeId) &&
 		Array.isArray(message.swipes) &&
-		typeof message.swipes[swipeId] === "string"
+		typeof message.swipes[activeSwipeId] === "string"
 	) {
-		message.swipes[swipeId] = nextMessageText;
+		message.swipes[activeSwipeId] = nextMessageText;
 	}
 
 	return nextMessageText;
+}
+
+function hasExplicitSwipeId(
+	edit: BatchChatMessageTextEdit,
+): edit is BatchChatMessageTextEdit & { swipeId: number | null } {
+	return Object.prototype.hasOwnProperty.call(edit, "swipeId");
+}
+
+function isValidExplicitSwipeId(
+	message: ChatMessageEditLike,
+	swipeId: number | null,
+): boolean {
+	return (
+		swipeId === null ||
+		(Number.isInteger(swipeId) &&
+			Array.isArray(message.swipes) &&
+			typeof message.swipes[swipeId] === "string")
+	);
 }
 
 function writeDraftToMessage({
@@ -496,6 +537,15 @@ export async function batchSaveChatMessageTextEdits({
 		if (!isResolvedMessageTarget(target)) {
 			return target;
 		}
+		if (
+			hasExplicitSwipeId(edit) &&
+			!isValidExplicitSwipeId(target.message, edit.swipeId)
+		) {
+			return {
+				ok: false,
+				reason: "invalid-message-id",
+			};
+		}
 		resolvedTargets.push(target);
 	}
 
@@ -524,6 +574,7 @@ export async function batchSaveChatMessageTextEdits({
 				context,
 				message: resolvedTargets[index].message,
 				messageText: edit.messageText,
+				swipeId: hasExplicitSwipeId(edit) ? edit.swipeId : undefined,
 			});
 		}
 

@@ -8,7 +8,7 @@ import {
 function createMessages(
 	values: Array<string | null | undefined>,
 ): ChatMessageSearchMessage[] {
-	return values.map((mes, messageId) => ({ mes, messageId }));
+	return values.map((mes, messageId) => ({ mes, messageId, swipeId: null }));
 }
 
 describe("chat message search matching", () => {
@@ -23,8 +23,8 @@ describe("chat message search matching", () => {
 				},
 			}),
 		).toEqual([
-			{ end: 5, messageId: 0, start: 0, text: "Alpha" },
-			{ end: 10, messageId: 1, start: 5, text: "alpha" },
+			{ end: 5, messageId: 0, start: 0, swipeId: null, text: "Alpha" },
+			{ end: 10, messageId: 1, start: 5, swipeId: null, text: "alpha" },
 		]);
 	});
 
@@ -38,7 +38,9 @@ describe("chat message search matching", () => {
 					wholeWord: false,
 				},
 			}),
-		).toEqual([{ end: 5, messageId: 0, start: 0, text: "Alpha" }]);
+		).toEqual([
+			{ end: 5, messageId: 0, start: 0, swipeId: null, text: "Alpha" },
+		]);
 	});
 
 	test("uses Latin and digit word boundaries for whole-word matching", () => {
@@ -54,11 +56,11 @@ describe("chat message search matching", () => {
 				},
 			}),
 		).toEqual([
-			{ end: 3, messageId: 0, start: 0, text: "cat" },
-			{ end: 25, messageId: 0, start: 22, text: "cat" },
-			{ end: 33, messageId: 0, start: 30, text: "cat" },
-			{ end: 41, messageId: 0, start: 38, text: "cat" },
-			{ end: 45, messageId: 0, start: 42, text: "cat" },
+			{ end: 3, messageId: 0, start: 0, swipeId: null, text: "cat" },
+			{ end: 25, messageId: 0, start: 22, swipeId: null, text: "cat" },
+			{ end: 33, messageId: 0, start: 30, swipeId: null, text: "cat" },
+			{ end: 41, messageId: 0, start: 38, swipeId: null, text: "cat" },
+			{ end: 45, messageId: 0, start: 42, swipeId: null, text: "cat" },
 		]);
 	});
 
@@ -73,8 +75,8 @@ describe("chat message search matching", () => {
 				},
 			}),
 		).toEqual([
-			{ end: 3, messageId: 0, start: 0, text: "益生菌" },
-			{ end: 4, messageId: 1, start: 1, text: "益生菌" },
+			{ end: 3, messageId: 0, start: 0, swipeId: null, text: "益生菌" },
+			{ end: 4, messageId: 1, start: 1, swipeId: null, text: "益生菌" },
 		]);
 	});
 

@@ -20,8 +20,8 @@ describe("chat message search store", () => {
 	test("opens with default options and recomputes current-chat matches", () => {
 		const store = createChatMessageSearchStore({
 			readMessages: () => [
-				{ mes: "Alpha alpha", messageId: 0 },
-				{ mes: "Beta", messageId: 1 },
+				{ mes: "Alpha alpha", messageId: 0, swipeId: null },
+				{ mes: "Beta", messageId: 1, swipeId: null },
 			],
 			saveTextEdits: createSaveSuccess(),
 		});
@@ -51,8 +51,8 @@ describe("chat message search store", () => {
 	test("navigates matches with wraparound", () => {
 		const store = createChatMessageSearchStore({
 			readMessages: () => [
-				{ mes: "one", messageId: 0 },
-				{ mes: "one", messageId: 1 },
+				{ mes: "one", messageId: 0, swipeId: null },
+				{ mes: "one", messageId: 1, swipeId: null },
 			],
 			saveTextEdits: createSaveSuccess(),
 		});
@@ -73,7 +73,9 @@ describe("chat message search store", () => {
 	});
 
 	test("replaces the active match and records a session undo step", async () => {
-		let messages = [{ mes: "eat probiotic now", messageId: 0 }];
+		let messages = [
+			{ mes: "eat probiotic now", messageId: 0, swipeId: null },
+		];
 		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
 			edits,
 		}) => {
@@ -100,7 +102,9 @@ describe("chat message search store", () => {
 
 		await expect(store.replaceCurrent()).resolves.toBe(true);
 		expect(saveTextEdits).toHaveBeenLastCalledWith({
-			edits: [{ messageId: 0, messageText: "eat 益生菌 now" }],
+			edits: [
+				{ messageId: 0, messageText: "eat 益生菌 now", swipeId: null },
+			],
 		});
 		expect(store.getSnapshot()).toMatchObject({
 			canRedo: false,
@@ -121,8 +125,8 @@ describe("chat message search store", () => {
 
 	test("replaces all matches as one undoable operation and supports redo", async () => {
 		let messages = [
-			{ mes: "cat cat", messageId: 0 },
-			{ mes: "cat", messageId: 1 },
+			{ mes: "cat cat", messageId: 0, swipeId: null },
+			{ mes: "cat", messageId: 1, swipeId: 2 },
 		];
 		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
 			edits,
@@ -155,8 +159,8 @@ describe("chat message search store", () => {
 		]);
 		expect(saveTextEdits).toHaveBeenLastCalledWith({
 			edits: [
-				{ messageId: 0, messageText: "dog dog" },
-				{ messageId: 1, messageText: "dog" },
+				{ messageId: 0, messageText: "dog dog", swipeId: null },
+				{ messageId: 1, messageText: "dog", swipeId: 2 },
 			],
 		});
 
@@ -177,7 +181,7 @@ describe("chat message search store", () => {
 
 	test("resets search state when the active chat changes", () => {
 		const store = createChatMessageSearchStore({
-			readMessages: () => [{ mes: "cat", messageId: 0 }],
+			readMessages: () => [{ mes: "cat", messageId: 0, swipeId: null }],
 			saveTextEdits: createSaveSuccess(),
 		});
 
@@ -206,7 +210,7 @@ describe("chat message search store", () => {
 			listener = null;
 		});
 		const store = createChatMessageSearchStore({
-			readMessages: () => [{ mes: "cat", messageId: 0 }],
+			readMessages: () => [{ mes: "cat", messageId: 0, swipeId: null }],
 			saveTextEdits: createSaveSuccess(),
 			subscribeToChatChanges: (nextListener) => {
 				listener = nextListener;

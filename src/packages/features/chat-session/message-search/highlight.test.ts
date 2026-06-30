@@ -14,8 +14,8 @@ function createSnapshot(
 	overrides: Partial<ChatMessageSearchSnapshot> = {},
 ): ChatMessageSearchSnapshot {
 	const matches = [
-		{ end: 3, messageId: 0, start: 0, text: "cat" },
-		{ end: 11, messageId: 0, start: 8, text: "cat" },
+		{ end: 3, messageId: 0, start: 0, swipeId: null, text: "cat" },
+		{ end: 11, messageId: 0, start: 8, swipeId: null, text: "cat" },
 	];
 
 	return {

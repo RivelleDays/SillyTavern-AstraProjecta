@@ -1,6 +1,7 @@
 export interface ChatMessageSearchMessage {
 	mes?: string | null;
 	messageId: number;
+	swipeId: number | null;
 }
 
 export interface ChatMessageSearchOptions {
@@ -12,6 +13,7 @@ export interface ChatMessageSearchMatch {
 	end: number;
 	messageId: number;
 	start: number;
+	swipeId: number | null;
 	text: string;
 }
 
@@ -91,6 +93,7 @@ export function collectChatMessageSearchMatches({
 					end,
 					messageId: message.messageId,
 					start,
+					swipeId: message.swipeId,
 					text: text.slice(start, end),
 				});
 			}

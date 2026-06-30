@@ -156,7 +156,7 @@ export function applyChatMessageSearchHighlights({
 
 		const text = textNode.textContent ?? "";
 		const matches = collectChatMessageSearchMatches({
-			messages: [{ mes: text, messageId }],
+			messages: [{ mes: text, messageId, swipeId: null }],
 			options: {
 				caseSensitive: snapshot.caseSensitive,
 				wholeWord: snapshot.wholeWord,
