@@ -1,9 +1,5 @@
-export {
-	MobileChatMessageSearchControls,
-} from "@/packages/features/chat-session/message-search/MobileChatMessageSearchControls";
-export {
-	MobileChatMessageSearchPanel,
-} from "@/packages/features/chat-session/message-search/MobileChatMessageSearchPanel";
+export { MobileChatMessageSearchControls } from "@/packages/features/chat-session/message-search/MobileChatMessageSearchControls";
+export { MobileChatMessageSearchPanel } from "@/packages/features/chat-session/message-search/MobileChatMessageSearchPanel";
 export {
 	applyChatMessageSearchHighlights,
 	clearChatMessageSearchHighlights,
@@ -21,6 +17,4 @@ export {
 	type ChatMessageSearchStoreSaveTextEdits,
 	type ChatMessageSearchStoreTextEdit,
 } from "@/packages/features/chat-session/message-search/store";
-export {
-	useChatMessageSearchSnapshot,
-} from "@/packages/features/chat-session/message-search/useChatMessageSearchSnapshot";
+export { useChatMessageSearchSnapshot } from "@/packages/features/chat-session/message-search/useChatMessageSearchSnapshot";

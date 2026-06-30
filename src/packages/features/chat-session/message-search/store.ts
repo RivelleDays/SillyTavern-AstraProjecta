@@ -35,7 +35,6 @@ export interface ChatMessageSearchSnapshot {
 	caseSensitive: boolean;
 	isBusy: boolean;
 	isOpen: boolean;
-	isReplaceOpen: boolean;
 	lastReplaceFailureReason: string | null;
 	matchCount: number;
 	matches: ChatMessageSearchMatch[];
@@ -58,7 +57,6 @@ export interface ChatMessageSearchStore {
 	resetForChatChange(): void;
 	setCaseSensitive(value: boolean): void;
 	setQuery(value: string): void;
-	setReplaceOpen(value: boolean): void;
 	setReplaceText(value: string): void;
 	setWholeWord(value: boolean): void;
 	subscribe(listener: Listener): () => void;
@@ -80,10 +78,11 @@ interface ReplacementOperationItem {
 
 type ReplacementOperation = ReplacementOperationItem[];
 
-const DEFAULT_SAVE_TEXT_EDITS: ChatMessageSearchStoreSaveTextEdits = async () => ({
-	ok: false,
-	reason: "api-unavailable",
-});
+const DEFAULT_SAVE_TEXT_EDITS: ChatMessageSearchStoreSaveTextEdits =
+	async () => ({
+		ok: false,
+		reason: "api-unavailable",
+	});
 const REPLACE_FAILURE_LOG_PREFIX =
 	"[AstraProjecta] Chat message replacement failed.";
 
@@ -98,7 +97,6 @@ function createEmptySnapshot(): ChatMessageSearchSnapshot {
 		caseSensitive: false,
 		isBusy: false,
 		isOpen: false,
-		isReplaceOpen: false,
 		lastReplaceFailureReason: null,
 		matchCount: 0,
 		matches: [],
@@ -137,13 +135,6 @@ function getSearchOptions(snapshot: ChatMessageSearchSnapshot): {
 	caseSensitive: boolean;
 	wholeWord: boolean;
 } {
-	if (snapshot.isReplaceOpen) {
-		return {
-			caseSensitive: true,
-			wholeWord: false,
-		};
-	}
-
 	return {
 		caseSensitive: snapshot.caseSensitive,
 		wholeWord: snapshot.wholeWord,
@@ -178,13 +169,17 @@ export function createChatMessageSearchStore({
 	}
 
 	function setSnapshot(
-		updater: (current: ChatMessageSearchSnapshot) => ChatMessageSearchSnapshot,
+		updater: (
+			current: ChatMessageSearchSnapshot,
+		) => ChatMessageSearchSnapshot,
 	): void {
 		snapshot = updater(snapshot);
 		emit();
 	}
 
-	function recomputeMatches(activeMatchIndex = snapshot.activeMatchIndex): void {
+	function recomputeMatches(
+		activeMatchIndex = snapshot.activeMatchIndex,
+	): void {
 		messages = readMessages();
 		const matches = collectChatMessageSearchMatches({
 			messages,
@@ -209,7 +204,9 @@ export function createChatMessageSearchStore({
 		};
 	}
 
-	function refreshAndEmit(activeMatchIndex = snapshot.activeMatchIndex): void {
+	function refreshAndEmit(
+		activeMatchIndex = snapshot.activeMatchIndex,
+	): void {
 		recomputeMatches(activeMatchIndex);
 		emit();
 	}
@@ -342,27 +339,57 @@ export function createChatMessageSearchStore({
 			refreshAndEmit();
 		},
 		async replaceAll() {
-			const query = snapshot.query;
-			if (!query || snapshot.matchCount === 0) {
+			if (snapshot.matches.length === 0) {
 				return false;
 			}
 
+			const groups = new Map<
+				string,
+				{
+					matches: ChatMessageSearchMatch[];
+					messageId: number;
+					swipeId: number | null;
+				}
+			>();
+			for (const match of snapshot.matches) {
+				const key = `${match.messageId}:${match.swipeId}`;
+				const existing = groups.get(key);
+				if (existing) {
+					existing.matches.push(match);
+				} else {
+					groups.set(key, {
+						matches: [match],
+						messageId: match.messageId,
+						swipeId: match.swipeId,
+					});
+				}
+			}
+
 			const operation: ReplacementOperation = [];
-			for (const message of messages) {
-				const before =
-					typeof message.mes === "string" ? message.mes : null;
-				if (before === null || !before.includes(query)) {
+			for (const {
+				matches: groupMatches,
+				messageId,
+				swipeId,
+			} of groups.values()) {
+				const before = findMessageText(messages, messageId, swipeId);
+				if (before === null) {
 					continue;
 				}
 
-				const after = before.replaceAll(query, snapshot.replaceText);
-				if (after !== before) {
-					operation.push({
-						after,
-						before,
-						messageId: message.messageId,
-						swipeId: message.swipeId,
+				let after = before;
+				for (const match of [...groupMatches].sort(
+					(left, right) => right.start - left.start,
+				)) {
+					after = replaceRange({
+						end: match.end,
+						replacement: snapshot.replaceText,
+						start: match.start,
+						text: after,
 					});
+				}
+
+				if (after !== before) {
+					operation.push({ after, before, messageId, swipeId });
 				}
 			}
 
@@ -378,7 +405,7 @@ export function createChatMessageSearchStore({
 		},
 		async replaceCurrent() {
 			const match = snapshot.activeMatch;
-			if (!match || match.text !== snapshot.query) {
+			if (!match) {
 				return false;
 			}
 
@@ -423,31 +450,18 @@ export function createChatMessageSearchStore({
 			resetSession(false);
 		},
 		setCaseSensitive(value: boolean) {
-			snapshot = snapshot.isReplaceOpen
-				? {
-						...snapshot,
-						caseSensitive: true,
-						lastReplaceFailureReason: null,
-						wholeWord: false,
-					}
-				: {
-						...snapshot,
-						caseSensitive: value,
-						lastReplaceFailureReason: null,
-					};
+			snapshot = {
+				...snapshot,
+				caseSensitive: value,
+				lastReplaceFailureReason: null,
+			};
 			refreshAndEmit(0);
 		},
 		setQuery(value: string) {
-			snapshot = { ...snapshot, lastReplaceFailureReason: null, query: value };
-			refreshAndEmit(0);
-		},
-		setReplaceOpen(value: boolean) {
 			snapshot = {
 				...snapshot,
-				caseSensitive: value ? true : snapshot.caseSensitive,
-				isReplaceOpen: value,
 				lastReplaceFailureReason: null,
-				wholeWord: value ? false : snapshot.wholeWord,
+				query: value,
 			};
 			refreshAndEmit(0);
 		},
@@ -459,18 +473,11 @@ export function createChatMessageSearchStore({
 			}));
 		},
 		setWholeWord(value: boolean) {
-			snapshot = snapshot.isReplaceOpen
-				? {
-						...snapshot,
-						caseSensitive: true,
-						lastReplaceFailureReason: null,
-						wholeWord: false,
-					}
-				: {
-						...snapshot,
-						lastReplaceFailureReason: null,
-						wholeWord: value,
-					};
+			snapshot = {
+				...snapshot,
+				lastReplaceFailureReason: null,
+				wholeWord: value,
+			};
 			refreshAndEmit(0);
 		},
 		subscribe(listener: Listener) {

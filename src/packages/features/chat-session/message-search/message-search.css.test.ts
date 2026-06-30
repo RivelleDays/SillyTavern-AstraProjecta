@@ -15,16 +15,14 @@ describe("chat message search CSS contracts", () => {
 		expect(css).toContain("#astra-chat-message-search-panel");
 		expect(css).toContain("#astra-chat-session-shell:has");
 		expect(css).toContain(".astra-chat-message-search-panel");
-		expect(css).toContain(
-			".astra-chat-message-search-panel__replace-toggle",
-		);
-		expect(css).toContain(
-			".astra-chat-message-search-panel__replace-toggle-icon",
-		);
 		expect(css).toContain(".astra-chat-message-search-panel__search-row");
 		expect(css).toContain(".astra-chat-message-search-panel__replace-row");
+		expect(css).toContain(".astra-chat-message-search-panel__input-shell");
 		expect(css).toContain(".astra-chat-message-search-controls");
 		expect(css).toContain(".astra-chat-message-search-controls__cluster");
+		expect(css).toContain(
+			".astra-chat-message-search-controls__cluster--center",
+		);
 		expect(css).toContain(".astra-chat-message-search-controls__counter");
 		expect(css).toContain(".astra-chat-message-search-highlight");
 		expect(css).toContain(".astra-chat-message-search-highlight--active");
@@ -34,13 +32,10 @@ describe("chat message search CSS contracts", () => {
 		const css = readCss();
 
 		expect(css).toMatch(
-			/\.astra-chat-message-search-panel__replace-toggle\s*\{[^}]*cursor:\s*pointer;/u,
-		);
-		expect(css).toMatch(
 			/\.astra-chat-message-search-panel__option,\s*\.astra-chat-message-search-panel__replace-action,\s*\.astra-chat-message-search-controls__button\s*\{[^}]*cursor:\s*pointer;/u,
 		);
 		expect(css).toMatch(
-			/\.astra-chat-message-search-panel__replace-toggle:disabled\s*\{[^}]*cursor:\s*not-allowed;/u,
+			/\.astra-chat-message-search-controls__button--done\s*\{[^}]*cursor:\s*pointer;/u,
 		);
 		expect(css).toMatch(
 			/\.astra-chat-message-search-controls__button:disabled\s*\{[^}]*cursor:\s*not-allowed;/u,

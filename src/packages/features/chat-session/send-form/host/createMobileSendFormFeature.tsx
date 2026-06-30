@@ -377,9 +377,7 @@ export function createMobileSendFormFeature({
 					<AstraMobileSendForm
 						chatCategoryStore={stores.chatCategoryStore}
 						chatContextUsageStore={stores.chatContextUsageStore}
-						chatMessageSearchStore={
-							resolvedChatMessageSearchStore
-						}
+						chatMessageSearchStore={resolvedChatMessageSearchStore}
 						currentConnectionInfoStore={
 							stores.currentConnectionInfoStore
 						}

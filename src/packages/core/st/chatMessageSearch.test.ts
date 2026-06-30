@@ -146,7 +146,6 @@ describe("chat message search SillyTavern adapter", () => {
 		store.open();
 		store.setQuery("cat");
 		store.setReplaceText("dog");
-		store.setReplaceOpen(true);
 
 		await expect(store.replaceAll()).resolves.toBe(true);
 
@@ -181,7 +180,8 @@ describe("chat message search SillyTavern adapter", () => {
 			},
 		});
 
-		const unsubscribe = subscribeToCurrentChatMessageSearchChanges(listener);
+		const unsubscribe =
+			subscribeToCurrentChatMessageSearchChanges(listener);
 		expect(eventSource.listenerCount("chat_changed")).toBe(1);
 		expect(eventSource.listenerCount("chat_loaded")).toBe(1);
 

@@ -4,8 +4,8 @@ import {
 	ArrowDown,
 	ArrowUp,
 	Check,
-	RedoDot,
-	UndoDot,
+	Redo2,
+	Undo2,
 } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import {
@@ -36,6 +36,45 @@ export function MobileChatMessageSearchControls({
 		>
 			<div className="astra-chat-message-search-controls__cluster astra-chat-message-search-controls__cluster--start">
 				<Button
+					aria-label={translateAstra("chatMessageSearch.undo")}
+					className="astra-chat-message-search-controls__button"
+					disabled={!snapshot.canUndo || snapshot.isBusy}
+					size="icon-sm"
+					title={translateAstra("chatMessageSearch.undo")}
+					type="button"
+					variant="ghost"
+					onClick={() => {
+						void store.undo();
+					}}
+				>
+					<UiIcon aria-hidden={true} icon={Undo2} size="sm" />
+				</Button>
+				<Button
+					aria-label={translateAstra("chatMessageSearch.redo")}
+					className="astra-chat-message-search-controls__button"
+					disabled={!snapshot.canRedo || snapshot.isBusy}
+					size="icon-sm"
+					title={translateAstra("chatMessageSearch.redo")}
+					type="button"
+					variant="ghost"
+					onClick={() => {
+						void store.redo();
+					}}
+				>
+					<UiIcon aria-hidden={true} icon={Redo2} size="sm" />
+				</Button>
+			</div>
+			<div className="astra-chat-message-search-controls__cluster astra-chat-message-search-controls__cluster--center">
+				<div
+					id={ASTRA_CHAT_MESSAGE_SEARCH_COUNTER_ID}
+					className="astra-chat-message-search-controls__counter"
+					aria-live="polite"
+				>
+					{counterText}
+				</div>
+			</div>
+			<div className="astra-chat-message-search-controls__cluster astra-chat-message-search-controls__cluster--end">
+				<Button
 					aria-label={translateAstra("chatMessageSearch.previous")}
 					className="astra-chat-message-search-controls__button"
 					disabled={!snapshot.canNavigate}
@@ -63,50 +102,13 @@ export function MobileChatMessageSearchControls({
 				>
 					<UiIcon aria-hidden={true} icon={ArrowDown} size="sm" />
 				</Button>
-				<div
-					id={ASTRA_CHAT_MESSAGE_SEARCH_COUNTER_ID}
-					className="astra-chat-message-search-controls__counter"
-					aria-live="polite"
-				>
-					{counterText}
-				</div>
-			</div>
-			<div className="astra-chat-message-search-controls__cluster astra-chat-message-search-controls__cluster--end">
-				<Button
-					aria-label={translateAstra("chatMessageSearch.undo")}
-					className="astra-chat-message-search-controls__button"
-					disabled={!snapshot.canUndo || snapshot.isBusy}
-					size="icon-sm"
-					title={translateAstra("chatMessageSearch.undo")}
-					type="button"
-					variant="ghost"
-					onClick={() => {
-						void store.undo();
-					}}
-				>
-					<UiIcon aria-hidden={true} icon={UndoDot} size="sm" />
-				</Button>
-				<Button
-					aria-label={translateAstra("chatMessageSearch.redo")}
-					className="astra-chat-message-search-controls__button"
-					disabled={!snapshot.canRedo || snapshot.isBusy}
-					size="icon-sm"
-					title={translateAstra("chatMessageSearch.redo")}
-					type="button"
-					variant="ghost"
-					onClick={() => {
-						void store.redo();
-					}}
-				>
-					<UiIcon aria-hidden={true} icon={RedoDot} size="sm" />
-				</Button>
 				<Button
 					aria-label={translateAstra("chatMessageSearch.done")}
-					className="astra-chat-message-search-controls__button astra-chat-message-search-controls__button--done"
+					className="astra-chat-message-search-controls__button--done"
 					size="icon-sm"
 					title={translateAstra("chatMessageSearch.done")}
 					type="button"
-					variant="ghost"
+					variant="default"
 					onClick={() => {
 						store.close();
 					}}

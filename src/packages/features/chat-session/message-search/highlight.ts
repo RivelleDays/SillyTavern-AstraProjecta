@@ -65,9 +65,8 @@ function findRangeForOffset(
 	offset: number,
 ): TextNodeRange | null {
 	return (
-		ranges.find(
-			(range) => offset >= range.start && offset <= range.end,
-		) ?? null
+		ranges.find((range) => offset >= range.start && offset <= range.end) ??
+		null
 	);
 }
 
@@ -140,7 +139,9 @@ export function applyChatMessageSearchHighlights({
 	}
 
 	let activeHighlight: HTMLElement | null = null;
-	const textNodes = documentRef.querySelectorAll("#chat .mes[mesid] .mes_text");
+	const textNodes = documentRef.querySelectorAll(
+		"#chat .mes[mesid] .mes_text",
+	);
 	for (const textNode of textNodes) {
 		if (!(textNode instanceof HTMLElement)) {
 			continue;
@@ -149,7 +150,9 @@ export function applyChatMessageSearchHighlights({
 		const messageNode = textNode.closest(".mes[mesid]");
 		const rawMessageId = messageNode?.getAttribute("mesid");
 		const messageId =
-			typeof rawMessageId === "string" ? Number.parseInt(rawMessageId, 10) : NaN;
+			typeof rawMessageId === "string"
+				? Number.parseInt(rawMessageId, 10)
+				: NaN;
 		if (!Number.isInteger(messageId)) {
 			continue;
 		}

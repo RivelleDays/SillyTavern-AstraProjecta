@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/shadcn/input";
 import { UiIcon } from "@/components/ui/shared/icon";
 import {
 	CaseSensitive,
-	ChevronRight,
 	Replace,
 	ReplaceAll,
 	Search,
@@ -45,9 +44,6 @@ export function MobileChatMessageSearchPanel({
 	const replacePlaceholder = translateAstra(
 		"chatMessageSearch.replace.placeholder",
 	);
-	const replaceToggleLabel = snapshot.isReplaceOpen
-		? translateAstra("chatMessageSearch.replace.hide")
-		: translateAstra("chatMessageSearch.replace.show");
 
 	React.useEffect(() => {
 		if (!snapshot.isOpen) {
@@ -75,28 +71,7 @@ export function MobileChatMessageSearchPanel({
 		<div
 			id={ASTRA_CHAT_MESSAGE_SEARCH_PANEL_ID}
 			className="astra-chat-message-search-panel"
-			data-replace-open={snapshot.isReplaceOpen ? "true" : "false"}
 		>
-			<Button
-				aria-expanded={snapshot.isReplaceOpen}
-				aria-label={replaceToggleLabel}
-				className="astra-chat-message-search-panel__replace-toggle"
-				data-replace-open={snapshot.isReplaceOpen ? "true" : "false"}
-				size="icon-sm"
-				title={replaceToggleLabel}
-				type="button"
-				variant="ghost"
-				onClick={() => {
-					store.setReplaceOpen(!snapshot.isReplaceOpen);
-				}}
-			>
-				<UiIcon
-					aria-hidden={true}
-					className="astra-chat-message-search-panel__replace-toggle-icon"
-					icon={ChevronRight}
-					size="sm"
-				/>
-			</Button>
 			<div className="astra-chat-message-search-panel__fields">
 				<div className="astra-chat-message-search-panel__search-row">
 					<label
@@ -123,98 +98,112 @@ export function MobileChatMessageSearchPanel({
 								store.setQuery(event.target.value);
 							}}
 						/>
-					</div>
-					<Button
-						aria-label={translateAstra(
-							"chatMessageSearch.matchCase",
-						)}
-						aria-pressed={snapshot.caseSensitive}
-						className="astra-chat-message-search-panel__option"
-						data-active={snapshot.caseSensitive ? "true" : "false"}
-						size="icon-sm"
-						title={translateAstra("chatMessageSearch.matchCase")}
-						type="button"
-						variant="ghost"
-						onClick={() => {
-							store.setCaseSensitive(!snapshot.caseSensitive);
-						}}
-					>
-						<UiIcon aria-hidden={true} icon={CaseSensitive} size="sm" />
-					</Button>
-					<Button
-						aria-label={translateAstra(
-							"chatMessageSearch.wholeWord",
-						)}
-						aria-pressed={snapshot.wholeWord}
-						className="astra-chat-message-search-panel__option"
-						data-active={snapshot.wholeWord ? "true" : "false"}
-						size="icon-sm"
-						title={translateAstra("chatMessageSearch.wholeWord")}
-						type="button"
-						variant="ghost"
-						onClick={() => {
-							store.setWholeWord(!snapshot.wholeWord);
-						}}
-					>
-						<UiIcon aria-hidden={true} icon={WholeWord} size="sm" />
-					</Button>
-				</div>
-				{snapshot.isReplaceOpen ? (
-					<div className="astra-chat-message-search-panel__replace-row">
-						<label
-							className="sr-only"
-							htmlFor={ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID}
+						<Button
+							aria-label={translateAstra(
+								"chatMessageSearch.matchCase",
+							)}
+							aria-pressed={snapshot.caseSensitive}
+							className="astra-chat-message-search-panel__option"
+							data-active={
+								snapshot.caseSensitive ? "true" : "false"
+							}
+							size="icon-sm"
+							title={translateAstra(
+								"chatMessageSearch.matchCase",
+							)}
+							type="button"
+							variant="ghost"
+							onClick={() => {
+								store.setCaseSensitive(!snapshot.caseSensitive);
+							}}
 						>
-							{replaceInputLabel}
-						</label>
+							<UiIcon
+								aria-hidden={true}
+								icon={CaseSensitive}
+								size="sm"
+							/>
+						</Button>
+						<Button
+							aria-label={translateAstra(
+								"chatMessageSearch.wholeWord",
+							)}
+							aria-pressed={snapshot.wholeWord}
+							className="astra-chat-message-search-panel__option"
+							data-active={snapshot.wholeWord ? "true" : "false"}
+							size="icon-sm"
+							title={translateAstra(
+								"chatMessageSearch.wholeWord",
+							)}
+							type="button"
+							variant="ghost"
+							onClick={() => {
+								store.setWholeWord(!snapshot.wholeWord);
+							}}
+						>
+							<UiIcon
+								aria-hidden={true}
+								icon={WholeWord}
+								size="sm"
+							/>
+						</Button>
+					</div>
+				</div>
+				<div className="astra-chat-message-search-panel__replace-row">
+					<label
+						className="sr-only"
+						htmlFor={ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID}
+					>
+						{replaceInputLabel}
+					</label>
+					<div className="astra-chat-message-search-panel__input-shell">
 						<Input
 							id={ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID}
 							aria-label={replaceInputLabel}
-							className="astra-chat-message-search-panel__replace-input"
+							className="astra-chat-message-search-panel__input astra-chat-message-search-panel__replace-input"
 							placeholder={replacePlaceholder}
 							value={snapshot.replaceText}
 							onChange={(event) => {
 								store.setReplaceText(event.target.value);
 							}}
 						/>
-						<Button
-							aria-label={translateAstra(
-								"chatMessageSearch.replace.one",
-							)}
-							className="astra-chat-message-search-panel__replace-action"
-							disabled={!snapshot.canReplace || snapshot.isBusy}
-							size="icon-sm"
-							title={translateAstra(
-								"chatMessageSearch.replace.one",
-							)}
-							type="button"
-							variant="ghost"
-							onClick={() => {
-								void store.replaceCurrent();
-							}}
-						>
-							<UiIcon aria-hidden={true} icon={Replace} size="sm" />
-						</Button>
-						<Button
-							aria-label={translateAstra(
-								"chatMessageSearch.replace.all",
-							)}
-							className="astra-chat-message-search-panel__replace-action"
-							disabled={!snapshot.canReplace || snapshot.isBusy}
-							size="icon-sm"
-							title={translateAstra(
-								"chatMessageSearch.replace.all",
-							)}
-							type="button"
-							variant="ghost"
-							onClick={() => {
-								void store.replaceAll();
-							}}
-						>
-							<UiIcon aria-hidden={true} icon={ReplaceAll} size="sm" />
-						</Button>
 					</div>
-				) : null}
+					<Button
+						aria-label={translateAstra(
+							"chatMessageSearch.replace.one",
+						)}
+						className="astra-chat-message-search-panel__replace-action"
+						disabled={!snapshot.canReplace || snapshot.isBusy}
+						size="icon-sm"
+						title={translateAstra("chatMessageSearch.replace.one")}
+						type="button"
+						variant="ghost"
+						onClick={() => {
+							void store.replaceCurrent();
+						}}
+					>
+						<UiIcon aria-hidden={true} icon={Replace} size="sm" />
+					</Button>
+					<Button
+						aria-label={translateAstra(
+							"chatMessageSearch.replace.all",
+						)}
+						className="astra-chat-message-search-panel__replace-action"
+						disabled={!snapshot.canReplace || snapshot.isBusy}
+						size="icon-sm"
+						title={translateAstra("chatMessageSearch.replace.all")}
+						type="button"
+						variant="ghost"
+						onClick={() => {
+							void store.replaceAll();
+						}}
+					>
+						<UiIcon
+							aria-hidden={true}
+							icon={ReplaceAll}
+							size="sm"
+						/>
+					</Button>
+				</div>
 			</div>
 		</div>
 	);

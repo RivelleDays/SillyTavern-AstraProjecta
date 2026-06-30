@@ -770,7 +770,9 @@ describe("createMobileSendFormFeature", () => {
 
 		feature.mount();
 		const { composerHost, inputRowHost } = await waitForSendFormHosts();
-		expect(inputRowHost.querySelector("#send_textarea")).toBeInTheDocument();
+		expect(
+			inputRowHost.querySelector("#send_textarea"),
+		).toBeInTheDocument();
 
 		act(() => {
 			chatMessageSearchStore.open();

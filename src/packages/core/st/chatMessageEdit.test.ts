@@ -423,12 +423,12 @@ describe("chatMessageEdit", () => {
 		expect(chat[0].swipes?.[0]).toBe("New one");
 		expect(chat[1].mes).toBe("New two");
 		expect(chat[1].swipes?.[1]).toBe("New two");
-		expect(document.querySelector('.mes[mesid="0"] .mes_text')).toHaveTextContent(
-			"New one",
-		);
-		expect(document.querySelector('.mes[mesid="1"] .mes_text')).toHaveTextContent(
-			"New two",
-		);
+		expect(
+			document.querySelector('.mes[mesid="0"] .mes_text'),
+		).toHaveTextContent("New one");
+		expect(
+			document.querySelector('.mes[mesid="1"] .mes_text'),
+		).toHaveTextContent("New two");
 		expect(eventSource.emit).toHaveBeenCalledWith("message_edited", 0);
 		expect(eventSource.emit).toHaveBeenCalledWith("message_updated", 0);
 		expect(eventSource.emit).toHaveBeenCalledWith("message_edited", 1);
@@ -595,9 +595,9 @@ describe("chatMessageEdit", () => {
 			}),
 		).resolves.toEqual({ messageIds: [0], ok: true });
 
-		expect(document.querySelector('.mes[mesid="0"] .mes_text')).toHaveTextContent(
-			"New dog",
-		);
+		expect(
+			document.querySelector('.mes[mesid="0"] .mes_text'),
+		).toHaveTextContent("New dog");
 		expect(saveChat).toHaveBeenCalledTimes(1);
 	});
 

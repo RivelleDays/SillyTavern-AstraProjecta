@@ -33,7 +33,6 @@ describe("chat message search store", () => {
 			activeMatchIndex: 0,
 			caseSensitive: false,
 			isOpen: true,
-			isReplaceOpen: false,
 			matchCount: 2,
 			query: "alpha",
 			replaceText: "",
@@ -72,7 +71,7 @@ describe("chat message search store", () => {
 		store.dispose();
 	});
 
-	test("replace mode forces exact literal matching", () => {
+	test("keeps match case and whole word options functional", () => {
 		const store = createChatMessageSearchStore({
 			readMessages: () => [
 				{ mes: "Alpha alpha", messageId: 0, swipeId: null },
@@ -84,18 +83,15 @@ describe("chat message search store", () => {
 		store.setQuery("alpha");
 		expect(store.getSnapshot()).toMatchObject({
 			caseSensitive: false,
-			isReplaceOpen: false,
 			matchCount: 2,
 			wholeWord: false,
 		});
 
-		store.setReplaceOpen(true);
+		store.setCaseSensitive(true);
 		expect(store.getSnapshot()).toMatchObject({
 			activeMatchIndex: 0,
 			caseSensitive: true,
-			isReplaceOpen: true,
 			matchCount: 1,
-			wholeWord: false,
 		});
 		expect(store.getSnapshot().activeMatch).toMatchObject({
 			start: 6,
@@ -105,9 +101,9 @@ describe("chat message search store", () => {
 		store.setCaseSensitive(false);
 		store.setWholeWord(true);
 		expect(store.getSnapshot()).toMatchObject({
-			caseSensitive: true,
-			matchCount: 1,
-			wholeWord: false,
+			caseSensitive: false,
+			matchCount: 2,
+			wholeWord: true,
 		});
 
 		store.dispose();
@@ -164,10 +160,8 @@ describe("chat message search store", () => {
 		store.dispose();
 	});
 
-	test("replaces the active exact match in replace mode", async () => {
-		let messages = [
-			{ mes: "Cat cat", messageId: 0, swipeId: null },
-		];
+	test("replaces the active case-sensitive match", async () => {
+		let messages = [{ mes: "Cat cat", messageId: 0, swipeId: null }];
 		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
 			edits,
 		}) => {
@@ -191,14 +185,12 @@ describe("chat message search store", () => {
 		store.open();
 		store.setQuery("cat");
 		store.setReplaceText("dog");
-		store.setReplaceOpen(true);
+		store.setCaseSensitive(true);
 
 		await expect(store.replaceCurrent()).resolves.toBe(true);
 		expect(messages[0].mes).toBe("Cat dog");
 		expect(saveTextEdits).toHaveBeenLastCalledWith({
-			edits: [
-				{ messageId: 0, messageText: "Cat dog", swipeId: null },
-			],
+			edits: [{ messageId: 0, messageText: "Cat dog", swipeId: null }],
 		});
 
 		store.dispose();
@@ -232,7 +224,7 @@ describe("chat message search store", () => {
 		store.open();
 		store.setQuery("cat");
 		store.setReplaceText("dog");
-		store.setReplaceOpen(true);
+		store.setCaseSensitive(true);
 
 		await expect(store.replaceAll()).resolves.toBe(true);
 		expect(messages.map((message) => message.mes)).toEqual([
@@ -261,12 +253,42 @@ describe("chat message search store", () => {
 		store.dispose();
 	});
 
-	test("does not save replace all when replace mode has no exact matches", async () => {
+	test("replaces case-insensitive matches by position", async () => {
+		let messages = [{ mes: "Cat cat CAT", messageId: 0, swipeId: null }];
+		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
+			edits,
+		}) => {
+			messages = messages.map((message) => {
+				const edit = edits.find(
+					(item) => item.messageId === message.messageId,
+				);
+				return edit ? { ...message, mes: edit.messageText } : message;
+			});
+			return {
+				messageIds: edits.map((edit) => edit.messageId),
+				ok: true,
+			};
+		};
+		const saveTextEdits = vi.fn(saveTextEditsImpl);
+		const store = createChatMessageSearchStore({
+			readMessages: () => messages,
+			saveTextEdits,
+		});
+
+		store.open();
+		store.setQuery("cat");
+		store.setReplaceText("dog");
+
+		await expect(store.replaceAll()).resolves.toBe(true);
+		expect(messages[0].mes).toBe("dog dog dog");
+
+		store.dispose();
+	});
+
+	test("does not save replace all when there are no matches", async () => {
 		const saveTextEdits = createSaveSuccess();
 		const store = createChatMessageSearchStore({
-			readMessages: () => [
-				{ mes: "Cat", messageId: 0, swipeId: null },
-			],
+			readMessages: () => [{ mes: "Cat", messageId: 0, swipeId: null }],
 			saveTextEdits,
 		});
 
@@ -277,7 +299,7 @@ describe("chat message search store", () => {
 			matchCount: 1,
 		});
 
-		store.setReplaceOpen(true);
+		store.setCaseSensitive(true);
 		expect(store.getSnapshot()).toMatchObject({
 			canReplace: false,
 			matchCount: 0,
@@ -300,16 +322,13 @@ describe("chat message search store", () => {
 			throw new Error("save failed");
 		});
 		const store = createChatMessageSearchStore({
-			readMessages: () => [
-				{ mes: "cat", messageId: 0, swipeId: null },
-			],
+			readMessages: () => [{ mes: "cat", messageId: 0, swipeId: null }],
 			saveTextEdits,
 		});
 
 		store.open();
 		store.setQuery("cat");
 		store.setReplaceText("dog");
-		store.setReplaceOpen(true);
 
 		await expect(store.replaceAll()).resolves.toBe(false);
 		expect(saveTextEdits).toHaveBeenCalledTimes(1);
@@ -332,21 +351,21 @@ describe("chat message search store", () => {
 		const warnSpy = vi
 			.spyOn(console, "warn")
 			.mockImplementation(() => undefined);
-		const saveTextEdits = vi.fn(async () => ({
-			ok: false,
-			reason: "save-failed",
-		}) as const);
+		const saveTextEdits = vi.fn(
+			async () =>
+				({
+					ok: false,
+					reason: "save-failed",
+				}) as const,
+		);
 		const store = createChatMessageSearchStore({
-			readMessages: () => [
-				{ mes: "cat", messageId: 0, swipeId: null },
-			],
+			readMessages: () => [{ mes: "cat", messageId: 0, swipeId: null }],
 			saveTextEdits,
 		});
 
 		store.open();
 		store.setQuery("cat");
 		store.setReplaceText("dog");
-		store.setReplaceOpen(true);
 
 		await expect(store.replaceAll()).resolves.toBe(false);
 		expect(saveTextEdits).toHaveBeenCalledTimes(1);
@@ -398,7 +417,6 @@ describe("chat message search store", () => {
 		store.open();
 		store.setQuery("cat");
 		store.setReplaceText("dog");
-		store.setReplaceOpen(true);
 		await expect(store.replaceAll()).resolves.toBe(true);
 
 		shouldThrow = true;
@@ -443,14 +461,12 @@ describe("chat message search store", () => {
 		store.open();
 		store.setQuery("cat");
 		store.setReplaceText("dog");
-		store.setReplaceOpen(true);
 		store.resetForChatChange();
 
 		expect(store.getSnapshot()).toMatchObject({
 			canRedo: false,
 			canUndo: false,
 			isOpen: false,
-			isReplaceOpen: false,
 			matchCount: 0,
 			query: "",
 			replaceText: "",

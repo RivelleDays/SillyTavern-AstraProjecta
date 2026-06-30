@@ -267,8 +267,9 @@ export function AstraMobileSendForm({
 		chatContextUsageStore.getSnapshot,
 		chatContextUsageStore.getSnapshot,
 	);
-	const chatMessageSearchSnapshot =
-		useChatMessageSearchSnapshot(chatMessageSearchStore);
+	const chatMessageSearchSnapshot = useChatMessageSearchSnapshot(
+		chatMessageSearchStore,
+	);
 	const currentConnectionSnapshot = React.useSyncExternalStore(
 		currentConnectionInfoStore.subscribe,
 		currentConnectionInfoStore.getSnapshot,

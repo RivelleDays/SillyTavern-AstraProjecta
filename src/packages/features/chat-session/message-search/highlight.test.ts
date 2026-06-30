@@ -28,7 +28,6 @@ function createSnapshot(
 		caseSensitive: false,
 		isBusy: false,
 		isOpen: true,
-		isReplaceOpen: false,
 		lastReplaceFailureReason: null,
 		matchCount: matches.length,
 		matches,
@@ -72,7 +71,9 @@ describe("chat message search highlights", () => {
 
 		clearChatMessageSearchHighlights(document);
 		expect(
-			document.querySelector(`.${ASTRA_CHAT_MESSAGE_SEARCH_HIGHLIGHT_CLASS}`),
+			document.querySelector(
+				`.${ASTRA_CHAT_MESSAGE_SEARCH_HIGHLIGHT_CLASS}`,
+			),
 		).toBeNull();
 		expect(document.querySelector(".mes_text")?.textContent).toBe(
 			"cat dog cat",

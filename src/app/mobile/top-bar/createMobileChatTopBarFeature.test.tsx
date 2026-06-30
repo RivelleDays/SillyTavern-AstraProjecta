@@ -677,7 +677,6 @@ describe("createMobileChatTopBarFeature", () => {
 			expect(nextPanel).toBeInTheDocument();
 			return nextPanel as HTMLElement;
 		});
-		expect(searchPanel).toHaveAttribute("data-replace-open", "false");
 		const searchInput = document.getElementById(
 			ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
 		);
@@ -692,10 +691,6 @@ describe("createMobileChatTopBarFeature", () => {
 			query: "searchable",
 		});
 
-		fireEvent.click(
-			within(searchPanel).getByRole("button", { name: "Show replace" }),
-		);
-		expect(searchPanel).toHaveAttribute("data-replace-open", "true");
 		const replaceInput = document.getElementById(
 			ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID,
 		);
@@ -703,11 +698,7 @@ describe("createMobileChatTopBarFeature", () => {
 		const replaceAllButton = within(searchPanel).getByRole("button", {
 			name: "Replace all",
 		});
-		expect(replaceAllButton).toBeDisabled();
 
-		fireEvent.change(searchInput as HTMLInputElement, {
-			target: { value: "Searchable" },
-		});
 		fireEvent.change(replaceInput as HTMLInputElement, {
 			target: { value: "Found" },
 		});
@@ -733,6 +724,53 @@ describe("createMobileChatTopBarFeature", () => {
 				},
 			],
 		});
+
+		act(() => {
+			feature.dispose();
+		});
+		chatMessageSearchStore.dispose();
+	});
+
+	test("keeps the main interface panel mounted and closed while search is open", async () => {
+		document.body.innerHTML = '<div id="sheld"></div>';
+		const store = createIdentityStoreStub();
+		const chatMessageSearchStore = createChatMessageSearchStore({
+			readMessages: () => [
+				{ messageId: 0, mes: "Searchable message", swipeId: null },
+			],
+		});
+		const feature = createMobileChatTopBarFeature({
+			chatMessageSearchStore,
+			createCurrentChatIdentityStore: store.factory,
+			documentRef: document,
+		});
+
+		act(() => {
+			feature.mount();
+		});
+
+		const searchTrigger = await screen.findByRole("button", {
+			name: "Search chat messages",
+		});
+		expect(
+			document.getElementById("astra-main-interface-panel"),
+		).toBeInTheDocument();
+
+		fireEvent.click(searchTrigger);
+
+		await waitFor(() => {
+			expect(
+				document.getElementById(ASTRA_CHAT_MESSAGE_SEARCH_PANEL_ID),
+			).toBeInTheDocument();
+		});
+
+		// Opening search must not unmount the main interface panel; remounting it
+		// on close is what made it animate open after pressing Done.
+		const mainInterfacePanel = document.getElementById(
+			"astra-main-interface-panel",
+		);
+		expect(mainInterfacePanel).toBeInTheDocument();
+		expect(mainInterfacePanel).toHaveAttribute("data-state", "closed");
 
 		act(() => {
 			feature.dispose();
