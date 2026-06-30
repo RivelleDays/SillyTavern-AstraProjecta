@@ -27,10 +27,15 @@ import { MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY } from "@/packages/fe
 import type { SendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 import { createChatMessageSearchStore } from "@/packages/features/chat-session/message-search/store";
 import {
+	ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID,
 	ASTRA_CHAT_MESSAGE_SEARCH_CONTROLS_ID,
 	ASTRA_CHAT_MESSAGE_SEARCH_COUNTER_ID,
+	ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
 } from "@/packages/features/chat-session/message-search/contracts/dom";
-import type { ChatMessageSearchStore } from "@/packages/features/chat-session/message-search/store";
+import type {
+	ChatMessageSearchStore,
+	ChatMessageSearchStoreSaveTextEdits,
+} from "@/packages/features/chat-session/message-search/store";
 
 type Listener = (...args: unknown[]) => void;
 
@@ -758,10 +763,28 @@ describe("createMobileSendFormFeature", () => {
 			powerUserSettings: { continue_on_send: false },
 		});
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		let messages = [
+			{ messageId: 0, mes: "draft searchable", swipeId: null },
+		];
+		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
+			edits,
+		}) => {
+			messages = messages.map((message) => {
+				const edit = edits.find(
+					(item) => item.messageId === message.messageId,
+				);
+				return edit ? { ...message, mes: edit.messageText } : message;
+			});
+
+			return {
+				messageIds: edits.map((edit) => edit.messageId),
+				ok: true,
+			};
+		};
+		const saveTextEdits = vi.fn(saveTextEditsImpl);
 		const chatMessageSearchStore = createChatMessageSearchStore({
-			readMessages: () => [
-				{ messageId: 0, mes: "draft searchable", swipeId: null },
-			],
+			readMessages: () => messages,
+			saveTextEdits,
 		});
 		const feature = createTestMobileSendFormFeature({
 			chatMessageSearchStore,
@@ -788,11 +811,61 @@ describe("createMobileSendFormFeature", () => {
 		});
 		expect(composerHost.querySelector(".astra-chat-composer")).toBeNull();
 		expect(
+			controls.querySelector(
+				".astra-chat-message-search-controls__surface",
+			),
+		).toBeInTheDocument();
+		const searchInput = document.getElementById(
+			ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
+		);
+		expect(searchInput).toBeInstanceOf(HTMLInputElement);
+		expect(document.activeElement).toBe(searchInput);
+		expect(
 			document.getElementById(ASTRA_CHAT_MESSAGE_SEARCH_COUNTER_ID),
 		).toHaveTextContent("1 / 1");
 		const textarea = document.getElementById("send_textarea");
 		expect(textarea?.parentElement?.id).toBe("nonQRFormItems");
 		expect(textarea?.nextElementSibling?.id).toBe("rightSendForm");
+
+		fireEvent.click(
+			within(controls).getByRole("button", {
+				name: "Search options",
+			}),
+		);
+		const replaceToggle = await screen.findByRole("checkbox", {
+			name: "Replace",
+		});
+		fireEvent.click(replaceToggle);
+
+		const replaceInput = await waitFor(() => {
+			const nextInput = document.getElementById(
+				ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID,
+			);
+			expect(nextInput).toBeInstanceOf(HTMLInputElement);
+			return nextInput as HTMLInputElement;
+		});
+		expect(controls).toContainElement(replaceInput);
+		fireEvent.change(replaceInput, {
+			target: { value: "found" },
+		});
+
+		const replaceAllButton = within(controls).getByRole("button", {
+			name: "Replace all",
+		});
+		await waitFor(() => {
+			expect(replaceAllButton).toBeEnabled();
+		});
+		fireEvent.click(replaceAllButton);
+		await waitFor(() => {
+			expect(messages.map((message) => message.mes)).toEqual([
+				"draft found",
+			]);
+		});
+		expect(saveTextEdits).toHaveBeenLastCalledWith({
+			edits: [
+				{ messageId: 0, messageText: "draft found", swipeId: null },
+			],
+		});
 
 		fireEvent.click(within(controls).getByRole("button", { name: "Done" }));
 

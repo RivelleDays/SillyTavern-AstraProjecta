@@ -680,10 +680,17 @@ describe("createMobileChatTopBarFeature", () => {
 		const searchInput = document.getElementById(
 			ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
 		);
-		expect(searchInput).toBeInstanceOf(HTMLInputElement);
-		expect(document.activeElement).toBe(searchInput);
-		fireEvent.change(searchInput as HTMLInputElement, {
-			target: { value: "searchable" },
+		expect(searchInput).not.toBeInTheDocument();
+		expect(
+			document.getElementById(ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID),
+		).not.toBeInTheDocument();
+		expect(
+			searchPanel.querySelector(".astra-chat-message-search-panel__mode"),
+		).toBeInTheDocument();
+		expect(searchPanel).toHaveTextContent("Search chat messages");
+
+		act(() => {
+			chatMessageSearchStore.setQuery("searchable");
 		});
 		expect(chatMessageSearchStore.getSnapshot()).toMatchObject({
 			isOpen: true,
@@ -692,59 +699,7 @@ describe("createMobileChatTopBarFeature", () => {
 			replaceVisible: false,
 		});
 
-		expect(
-			document.getElementById(ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID),
-		).not.toBeInTheDocument();
-		fireEvent.click(
-			within(searchPanel).getByRole("button", {
-				name: "Search options",
-			}),
-		);
-		const replaceToggle = await screen.findByRole("checkbox", {
-			name: "Replace",
-		});
-		fireEvent.click(replaceToggle);
-		expect(chatMessageSearchStore.getSnapshot()).toMatchObject({
-			replaceVisible: true,
-		});
-
-		const replaceInput = await waitFor(() => {
-			const nextInput = document.getElementById(
-				ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID,
-			);
-			expect(nextInput).toBeInstanceOf(HTMLInputElement);
-			return nextInput;
-		});
-		expect(replaceInput).toBeInstanceOf(HTMLInputElement);
-		const replaceAllButton = within(searchPanel).getByRole("button", {
-			name: "Replace all",
-		});
-
-		fireEvent.change(replaceInput as HTMLInputElement, {
-			target: { value: "Found" },
-		});
-		await waitFor(() => {
-			expect(replaceAllButton).toBeEnabled();
-		});
-
-		fireEvent.click(replaceAllButton);
-
-		await waitFor(() => {
-			expect(messages.map((message) => message.mes)).toEqual([
-				"Found message",
-				"Another Found message",
-			]);
-		});
-		expect(saveTextEdits).toHaveBeenLastCalledWith({
-			edits: [
-				{ messageId: 0, messageText: "Found message", swipeId: null },
-				{
-					messageId: 1,
-					messageText: "Another Found message",
-					swipeId: null,
-				},
-			],
-		});
+		expect(saveTextEdits).not.toHaveBeenCalled();
 
 		act(() => {
 			feature.dispose();
@@ -780,26 +735,35 @@ describe("createMobileChatTopBarFeature", () => {
 				name: "Search chat messages",
 			}),
 		);
-		const searchInput = await waitFor(() => {
-			const nextInput = document.getElementById(
-				ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
+		const searchPanel = await waitFor(() => {
+			const nextPanel = document.getElementById(
+				ASTRA_CHAT_MESSAGE_SEARCH_PANEL_ID,
 			);
-			expect(nextInput).toBeInstanceOf(HTMLInputElement);
-			return nextInput as HTMLInputElement;
+			expect(nextPanel).toBeInTheDocument();
+			return nextPanel as HTMLElement;
 		});
-		fireEvent.change(searchInput, {
-			target: { value: "alpha" },
+		expect(searchPanel).toHaveAttribute("data-replace-visible", "true");
+		expect(
+			document.getElementById(ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID),
+		).not.toBeInTheDocument();
+		expect(
+			document.getElementById(ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID),
+		).not.toBeInTheDocument();
+
+		act(() => {
+			chatMessageSearchStore.setQuery("alpha");
 		});
 
+		await waitFor(() => {
+			expect(searchPanel).toHaveTextContent("1 / 1");
+		});
 		expect(chatMessageSearchStore.getSnapshot()).toMatchObject({
 			caseSensitive: true,
 			matchCount: 1,
+			query: "alpha",
 			replaceVisible: true,
 			wholeWord: true,
 		});
-		expect(
-			document.getElementById(ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID),
-		).toBeInstanceOf(HTMLInputElement);
 
 		act(() => {
 			feature.dispose();

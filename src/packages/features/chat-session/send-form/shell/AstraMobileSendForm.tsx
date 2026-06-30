@@ -979,6 +979,7 @@ export function AstraMobileSendForm({
 
 	const composerSurface = chatMessageSearchSnapshot.isOpen ? (
 		<MobileChatMessageSearchControls
+			documentRef={documentRef}
 			snapshot={chatMessageSearchSnapshot}
 			store={chatMessageSearchStore}
 		/>

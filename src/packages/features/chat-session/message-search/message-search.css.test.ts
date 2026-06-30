@@ -16,6 +16,7 @@ describe("chat message search CSS contracts", () => {
 		expect(css).toContain("#astra-chat-session-shell:has");
 		expect(css).toContain('[data-replace-visible="true"]');
 		expect(css).toContain(".astra-chat-message-search-panel");
+		expect(css).toContain(".astra-chat-message-search-panel__mode");
 		expect(css).toContain(".astra-chat-message-search-panel__search-row");
 		expect(css).toContain(".astra-chat-message-search-panel__replace-row");
 		expect(css).toContain(".astra-chat-message-search-panel__input-shell");
@@ -27,9 +28,14 @@ describe("chat message search CSS contracts", () => {
 		);
 		expect(css).toContain(".astra-chat-message-search-panel__option-row");
 		expect(css).toContain(".astra-chat-message-search-controls");
+		expect(css).toContain(".astra-chat-message-search-controls__surface");
+		expect(css).toContain(".astra-chat-message-search-controls__row");
 		expect(css).toContain(".astra-chat-message-search-controls__cluster");
 		expect(css).toContain(
-			".astra-chat-message-search-controls__cluster--center",
+			".astra-chat-message-search-controls__cluster--nav",
+		);
+		expect(css).toContain(
+			".astra-chat-message-search-controls__cluster--history",
 		);
 		expect(css).toContain(".astra-chat-message-search-controls__counter");
 		expect(css).toContain(".astra-chat-message-search-highlight");
