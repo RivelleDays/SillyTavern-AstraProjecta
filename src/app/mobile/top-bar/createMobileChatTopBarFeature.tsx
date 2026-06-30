@@ -184,7 +184,6 @@ function MobileChatTopBar({
 				<MobileChatMessageSearchPanel
 					documentRef={documentRef}
 					snapshot={searchSnapshot}
-					store={chatMessageSearchStore}
 				/>
 			) : (
 				<>

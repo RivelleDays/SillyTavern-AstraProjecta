@@ -687,6 +687,16 @@ describe("createMobileChatTopBarFeature", () => {
 		expect(
 			searchPanel.querySelector(".astra-chat-message-search-panel__mode"),
 		).toBeInTheDocument();
+		expect(
+			searchPanel.querySelector(
+				".astra-chat-message-search-panel__mode-counter",
+			),
+		).not.toBeInTheDocument();
+		expect(
+			searchPanel.querySelector(
+				".astra-chat-message-search-panel__mode-close",
+			),
+		).not.toBeInTheDocument();
 		expect(searchPanel).toHaveTextContent("Search chat messages");
 
 		act(() => {
@@ -754,9 +764,6 @@ describe("createMobileChatTopBarFeature", () => {
 			chatMessageSearchStore.setQuery("alpha");
 		});
 
-		await waitFor(() => {
-			expect(searchPanel).toHaveTextContent("1 / 1");
-		});
 		expect(chatMessageSearchStore.getSnapshot()).toMatchObject({
 			caseSensitive: true,
 			matchCount: 1,

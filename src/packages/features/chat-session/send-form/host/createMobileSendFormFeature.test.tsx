@@ -815,6 +815,33 @@ describe("createMobileSendFormFeature", () => {
 				".astra-chat-message-search-controls__surface",
 			),
 		).toBeInTheDocument();
+		const searchRow = controls.querySelector(
+			".astra-chat-message-search-controls__row--search",
+		);
+		expect(
+			searchRow?.querySelector(
+				".astra-chat-message-search-controls__cluster--nav",
+			),
+		).not.toBeInTheDocument();
+		const actionsRow = controls.querySelector(
+			".astra-chat-message-search-controls__row--actions",
+		);
+		const actionChildren = Array.from(actionsRow?.children ?? []);
+		expect(actionChildren).toHaveLength(4);
+		expect(actionChildren[0]).toMatchObject({
+			className: "astra-chat-message-search-controls__counter",
+		});
+		expect(actionChildren[1]).toHaveClass(
+			"astra-chat-message-search-controls__cluster",
+			"astra-chat-message-search-controls__cluster--history",
+		);
+		expect(actionChildren[2]).toHaveClass(
+			"astra-chat-message-search-controls__cluster",
+			"astra-chat-message-search-controls__cluster--nav",
+		);
+		expect(actionChildren[3]).toHaveClass(
+			"astra-chat-message-search-controls__button--done",
+		);
 		const searchInput = document.getElementById(
 			ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
 		);

@@ -218,48 +218,6 @@ export function MobileChatMessageSearchControls({
 							}}
 						/>
 					</div>
-					<div className="astra-chat-message-search-controls__cluster astra-chat-message-search-controls__cluster--nav">
-						<Button
-							aria-label={translateAstra(
-								"chatMessageSearch.previous",
-							)}
-							className="astra-chat-message-search-controls__button"
-							disabled={!snapshot.canNavigate}
-							size="icon-sm"
-							title={translateAstra("chatMessageSearch.previous")}
-							type="button"
-							variant="ghost"
-							onClick={() => {
-								store.goToPrevious();
-							}}
-						>
-							<UiIcon
-								aria-hidden={true}
-								icon={ArrowUp}
-								size="sm"
-							/>
-						</Button>
-						<Button
-							aria-label={translateAstra(
-								"chatMessageSearch.next",
-							)}
-							className="astra-chat-message-search-controls__button"
-							disabled={!snapshot.canNavigate}
-							size="icon-sm"
-							title={translateAstra("chatMessageSearch.next")}
-							type="button"
-							variant="ghost"
-							onClick={() => {
-								store.goToNext();
-							}}
-						>
-							<UiIcon
-								aria-hidden={true}
-								icon={ArrowDown}
-								size="sm"
-							/>
-						</Button>
-					</div>
 				</div>
 				{snapshot.replaceVisible ? (
 					<div className="astra-chat-message-search-panel__replace-row astra-chat-message-search-controls__row astra-chat-message-search-controls__row--replace">
@@ -350,6 +308,13 @@ export function MobileChatMessageSearchControls({
 					</div>
 				) : null}
 				<div className="astra-chat-message-search-controls__row astra-chat-message-search-controls__row--actions">
+					<div
+						id={ASTRA_CHAT_MESSAGE_SEARCH_COUNTER_ID}
+						className="astra-chat-message-search-controls__counter"
+						aria-live="polite"
+					>
+						{counterText}
+					</div>
 					<div className="astra-chat-message-search-controls__cluster astra-chat-message-search-controls__cluster--history">
 						<Button
 							aria-label={translateAstra(
@@ -384,12 +349,47 @@ export function MobileChatMessageSearchControls({
 							<UiIcon aria-hidden={true} icon={Redo2} size="sm" />
 						</Button>
 					</div>
-					<div
-						id={ASTRA_CHAT_MESSAGE_SEARCH_COUNTER_ID}
-						className="astra-chat-message-search-controls__counter"
-						aria-live="polite"
-					>
-						{counterText}
+					<div className="astra-chat-message-search-controls__cluster astra-chat-message-search-controls__cluster--nav">
+						<Button
+							aria-label={translateAstra(
+								"chatMessageSearch.previous",
+							)}
+							className="astra-chat-message-search-controls__button"
+							disabled={!snapshot.canNavigate}
+							size="icon-sm"
+							title={translateAstra("chatMessageSearch.previous")}
+							type="button"
+							variant="ghost"
+							onClick={() => {
+								store.goToPrevious();
+							}}
+						>
+							<UiIcon
+								aria-hidden={true}
+								icon={ArrowUp}
+								size="sm"
+							/>
+						</Button>
+						<Button
+							aria-label={translateAstra(
+								"chatMessageSearch.next",
+							)}
+							className="astra-chat-message-search-controls__button"
+							disabled={!snapshot.canNavigate}
+							size="icon-sm"
+							title={translateAstra("chatMessageSearch.next")}
+							type="button"
+							variant="ghost"
+							onClick={() => {
+								store.goToNext();
+							}}
+						>
+							<UiIcon
+								aria-hidden={true}
+								icon={ArrowDown}
+								size="sm"
+							/>
+						</Button>
 					</div>
 					<Button
 						aria-label={translateAstra("chatMessageSearch.done")}
