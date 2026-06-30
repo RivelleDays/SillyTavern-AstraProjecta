@@ -202,6 +202,14 @@ function normalizeReasoningText(context: StContextLike, value: string): string {
 	return substituteText(context, value);
 }
 
+function clearStaleDisplayText(message: ChatMessageEditLike): void {
+	if (!isRecord(message.extra)) {
+		return;
+	}
+
+	delete (message.extra as Record<string, unknown>).display_text;
+}
+
 function ensureExtra(message: ChatMessageEditLike): Record<string, unknown> {
 	if (!isRecord(message.extra)) {
 		message.extra = {};
@@ -271,6 +279,7 @@ function writeMessageTextDraft({
 
 	if (swipeId === null) {
 		message.mes = nextMessageText;
+		clearStaleDisplayText(message);
 		return nextMessageText;
 	}
 
@@ -284,11 +293,13 @@ function writeMessageTextDraft({
 		}
 		if (isActiveSwipe) {
 			message.mes = nextMessageText;
+			clearStaleDisplayText(message);
 		}
 		return nextMessageText;
 	}
 
 	message.mes = nextMessageText;
+	clearStaleDisplayText(message);
 
 	const activeSwipeId = message.swipe_id;
 	if (
@@ -578,6 +589,16 @@ export async function batchSaveChatMessageTextEdits({
 			});
 		}
 
+		for (const target of resolvedTargets) {
+			await emitContextEvent(context, "MESSAGE_EDITED", target.messageId);
+			updateMessageBlock({
+				context,
+				message: target.message,
+				messageId: target.messageId,
+			});
+			await emitContextEvent(context, "MESSAGE_UPDATED", target.messageId);
+		}
+
 		await saveChat(context);
 	} catch {
 		for (const [index, target] of resolvedTargets.entries()) {
@@ -588,16 +609,6 @@ export async function batchSaveChatMessageTextEdits({
 			ok: false,
 			reason: "save-failed",
 		};
-	}
-
-	for (const target of resolvedTargets) {
-		await emitContextEvent(context, "MESSAGE_EDITED", target.messageId);
-		updateMessageBlock({
-			context,
-			message: target.message,
-			messageId: target.messageId,
-		});
-		await emitContextEvent(context, "MESSAGE_UPDATED", target.messageId);
 	}
 
 	return {

@@ -611,8 +611,12 @@ describe("createMobileChatTopBarFeature", () => {
 		const store = createIdentityStoreStub();
 		const chatMessageSearchStore = createChatMessageSearchStore({
 			readMessages: () => [
-				{ messageId: 0, mes: "Searchable message" },
-				{ messageId: 1, mes: "Another searchable message" },
+				{ messageId: 0, mes: "Searchable message", swipeId: null },
+				{
+					messageId: 1,
+					mes: "Another searchable message",
+					swipeId: null,
+				},
 			],
 		});
 		const feature = createMobileChatTopBarFeature({

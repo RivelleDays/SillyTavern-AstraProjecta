@@ -759,7 +759,9 @@ describe("createMobileSendFormFeature", () => {
 		});
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 		const chatMessageSearchStore = createChatMessageSearchStore({
-			readMessages: () => [{ messageId: 0, mes: "draft searchable" }],
+			readMessages: () => [
+				{ messageId: 0, mes: "draft searchable", swipeId: null },
+			],
 		});
 		const feature = createTestMobileSendFormFeature({
 			chatMessageSearchStore,

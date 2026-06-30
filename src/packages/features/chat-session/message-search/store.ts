@@ -235,7 +235,14 @@ export function createChatMessageSearchStore({
 			messageText: direction === "undo" ? item.before : item.after,
 			swipeId: item.swipeId,
 		}));
-		const result = await saveTextEdits({ edits });
+		let result: Awaited<ReturnType<ChatMessageSearchStoreSaveTextEdits>>;
+		try {
+			result = await saveTextEdits({ edits });
+		} catch {
+			setSnapshot((current) => ({ ...current, isBusy: false }));
+			return false;
+		}
+
 		if (!result.ok) {
 			setSnapshot((current) => ({ ...current, isBusy: false }));
 			return false;

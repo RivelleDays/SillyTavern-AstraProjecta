@@ -436,6 +436,139 @@ describe("chatMessageEdit", () => {
 		expect(saveChat).toHaveBeenCalledTimes(1);
 	});
 
+	test("batch edits clear stale display text and preserve reasoning display text", async () => {
+		document.body.innerHTML = `
+			<div id="chat">
+				<div class="mes" mesid="0"><div class="mes_block"><div class="mes_text">Translated cat</div></div></div>
+			</div>
+		`;
+		const saveChat = vi.fn(async () => undefined);
+		const chat: TestMessage[] = [
+			{
+				extra: {
+					display_text: "Translated cat",
+					reasoning_display_text: "Translated reasoning",
+				},
+				is_user: false,
+				mes: "cat",
+				name: "Assistant",
+			},
+		];
+		setSillyTavernContext({
+			chat,
+			messageFormatting: (value: string) => `<p>${value}</p>`,
+			saveChat,
+		});
+
+		await expect(
+			batchSaveChatMessageTextEdits({
+				edits: [{ messageId: 0, messageText: "dog" }],
+			}),
+		).resolves.toEqual({ messageIds: [0], ok: true });
+
+		expect(chat[0].mes).toBe("dog");
+		expect(chat[0].extra?.display_text).toBeUndefined();
+		expect(chat[0].extra?.reasoning_display_text).toBe(
+			"Translated reasoning",
+		);
+		expect(
+			document.querySelector('.mes[mesid="0"] .mes_text'),
+		).toHaveTextContent("dog");
+		expect(saveChat).toHaveBeenCalledTimes(1);
+	});
+
+	test("batch edits emit update lifecycle before saving the chat", async () => {
+		const calls: string[] = [];
+		const eventSource = {
+			emit: vi.fn(async (eventName: string, messageId: number) => {
+				calls.push(`${eventName}:${messageId}`);
+			}),
+		};
+		const saveChat = vi.fn(async () => {
+			calls.push("save");
+		});
+		const updateMessageBlock = vi.fn((messageId: number) => {
+			calls.push(`update:${messageId}`);
+		});
+		const chat: TestMessage[] = [
+			{ is_user: false, mes: "Old one" },
+			{ is_user: true, mes: "Old two" },
+		];
+		setSillyTavernContext({
+			chat,
+			eventSource,
+			eventTypes: {
+				MESSAGE_EDITED: "message_edited",
+				MESSAGE_UPDATED: "message_updated",
+			},
+			saveChat,
+			updateMessageBlock,
+		});
+
+		await expect(
+			batchSaveChatMessageTextEdits({
+				edits: [
+					{ messageId: 0, messageText: "New one" },
+					{ messageId: 1, messageText: "New two" },
+				],
+			}),
+		).resolves.toEqual({ messageIds: [0, 1], ok: true });
+
+		expect(calls).toEqual([
+			"message_edited:0",
+			"update:0",
+			"message_updated:0",
+			"message_edited:1",
+			"update:1",
+			"message_updated:1",
+			"save",
+		]);
+	});
+
+	test("batch edit restores original chat messages when update events fail", async () => {
+		const chat: TestMessage[] = [
+			{
+				extra: { display_text: "Translated original" },
+				is_user: false,
+				mes: "Original",
+				swipe_id: 0,
+				swipes: ["Original"],
+			},
+		];
+		const saveChat = vi.fn(async () => undefined);
+		const eventSource = {
+			emit: vi.fn(async (eventName: string) => {
+				if (eventName === "message_updated") {
+					throw new Error("listener failed");
+				}
+			}),
+		};
+		setSillyTavernContext({
+			chat,
+			eventSource,
+			eventTypes: {
+				MESSAGE_EDITED: "message_edited",
+				MESSAGE_UPDATED: "message_updated",
+			},
+			saveChat,
+			updateMessageBlock: vi.fn(),
+		});
+
+		await expect(
+			batchSaveChatMessageTextEdits({
+				edits: [{ messageId: 0, messageText: "Changed" }],
+			}),
+		).resolves.toEqual({
+			ok: false,
+			reason: "save-failed",
+		});
+
+		expect(chat[0].mes).toBe("Original");
+		expect(chat[0].swipes?.[0]).toBe("Original");
+		expect(chat[0].extra?.display_text).toBe("Translated original");
+		expect(saveChat).not.toHaveBeenCalled();
+	});
+
 	test("batch saves explicit hidden swipe text without mutating visible text", async () => {
 		const saveChat = vi.fn(async () => undefined);
 		const chat: TestMessage[] = [

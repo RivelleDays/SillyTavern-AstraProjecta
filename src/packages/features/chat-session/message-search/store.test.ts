@@ -179,6 +179,93 @@ describe("chat message search store", () => {
 		store.dispose();
 	});
 
+	test("returns false and restores busy state when replace all save throws", async () => {
+		const saveTextEdits = vi.fn(async () => {
+			throw new Error("save failed");
+		});
+		const store = createChatMessageSearchStore({
+			readMessages: () => [
+				{ mes: "cat", messageId: 0, swipeId: null },
+			],
+			saveTextEdits,
+		});
+
+		store.open();
+		store.setQuery("cat");
+		store.setReplaceText("dog");
+
+		await expect(store.replaceAll()).resolves.toBe(false);
+		expect(saveTextEdits).toHaveBeenCalledTimes(1);
+		expect(store.getSnapshot()).toMatchObject({
+			canUndo: false,
+			isBusy: false,
+			matchCount: 1,
+		});
+
+		store.dispose();
+	});
+
+	test("keeps undo and redo history when a save throws", async () => {
+		let shouldThrow = false;
+		let messages = [{ mes: "cat", messageId: 0, swipeId: null }];
+		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
+			edits,
+		}) => {
+			if (shouldThrow) {
+				throw new Error("save failed");
+			}
+
+			messages = messages.map((message) => {
+				const edit = edits.find(
+					(item) => item.messageId === message.messageId,
+				);
+				return edit ? { ...message, mes: edit.messageText } : message;
+			});
+			return {
+				messageIds: edits.map((edit) => edit.messageId),
+				ok: true,
+			};
+		};
+		const saveTextEdits = vi.fn(saveTextEditsImpl);
+		const store = createChatMessageSearchStore({
+			readMessages: () => messages,
+			saveTextEdits,
+		});
+
+		store.open();
+		store.setQuery("cat");
+		store.setReplaceText("dog");
+		await expect(store.replaceAll()).resolves.toBe(true);
+
+		shouldThrow = true;
+		await expect(store.undo()).resolves.toBe(false);
+		expect(messages[0].mes).toBe("dog");
+		expect(store.getSnapshot()).toMatchObject({
+			canRedo: false,
+			canUndo: true,
+			isBusy: false,
+		});
+
+		shouldThrow = false;
+		await expect(store.undo()).resolves.toBe(true);
+		expect(messages[0].mes).toBe("cat");
+		expect(store.getSnapshot()).toMatchObject({
+			canRedo: true,
+			canUndo: false,
+		});
+
+		shouldThrow = true;
+		await expect(store.redo()).resolves.toBe(false);
+		expect(messages[0].mes).toBe("cat");
+		expect(store.getSnapshot()).toMatchObject({
+			canRedo: true,
+			canUndo: false,
+			isBusy: false,
+		});
+
+		store.dispose();
+	});
+
 	test("resets search state when the active chat changes", () => {
 		const store = createChatMessageSearchStore({
 			readMessages: () => [{ mes: "cat", messageId: 0, swipeId: null }],
