@@ -138,6 +138,13 @@ function resolveMessageTarget(
 	messageId: number,
 ): ResolvedMessageTarget | ChatMessageEditFailureResult {
 	const context = resolveContextSafe();
+	return resolveMessageTargetFromContext(context, messageId);
+}
+
+function resolveMessageTargetFromContext(
+	context: StContextLike | null,
+	messageId: number,
+): ResolvedMessageTarget | ChatMessageEditFailureResult {
 	const chat = Array.isArray(context?.chat) ? context.chat : [];
 
 	if (!context || !Array.isArray(context.chat)) {
@@ -584,10 +591,14 @@ export async function saveChatMessageEdit({
 export async function batchSaveChatMessageTextEdits({
 	edits,
 }: BatchChatMessageTextEditInput): Promise<BatchChatMessageEditMutationResult> {
+	const initialContext = resolveContextSafe();
 	const resolvedTargets: ResolvedMessageTarget[] = [];
 
 	for (const edit of edits) {
-		const target = resolveMessageTarget(edit.messageId);
+		const target = resolveMessageTargetFromContext(
+			initialContext,
+			edit.messageId,
+		);
 		if (!isResolvedMessageTarget(target)) {
 			return target;
 		}
@@ -611,13 +622,6 @@ export async function batchSaveChatMessageTextEdits({
 	}
 
 	const context = resolvedTargets[0].context;
-	if (resolvedTargets.some((target) => target.context !== context)) {
-		return {
-			ok: false,
-			reason: "api-unavailable",
-		};
-	}
-
 	const originalMessages = resolvedTargets.map((target) =>
 		cloneMessage(target.message),
 	);

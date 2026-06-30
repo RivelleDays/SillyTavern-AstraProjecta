@@ -47,6 +47,12 @@ function setSillyTavernContext(context: unknown) {
 	};
 }
 
+function setSillyTavernContextFactory(getContext: () => unknown) {
+	(globalThis as { SillyTavern?: unknown }).SillyTavern = {
+		getContext,
+	};
+}
+
 describe("chat message search SillyTavern adapter", () => {
 	afterEach(() => {
 		Reflect.deleteProperty(
@@ -165,6 +171,57 @@ describe("chat message search SillyTavern adapter", () => {
 			canUndo: true,
 			matchCount: 0,
 		});
+
+		store.dispose();
+	});
+
+	test("default store replaces all matches when getContext returns a fresh wrapper", async () => {
+		const saveChat = vi.fn(async () => undefined);
+		const updateMessageBlock = vi.fn();
+		const eventSource = { emit: vi.fn(async () => undefined) };
+		const chat: TestMessage[] = [
+			{
+				is_user: false,
+				mes: "cat cat",
+				name: "Assistant",
+				swipe_id: 0,
+				swipes: ["cat cat"],
+			},
+			{
+				is_user: false,
+				mes: "visible cat",
+				name: "Assistant",
+				swipe_id: 1,
+				swipes: ["hidden cat", "visible cat"],
+			},
+		];
+		setSillyTavernContextFactory(() => ({
+			chat,
+			eventSource,
+			eventTypes: {
+				MESSAGE_EDITED: "message_edited",
+				MESSAGE_UPDATED: "message_updated",
+			},
+			powerUserSettings: { trim_spaces: false },
+			saveChat,
+			substituteParams: (value: string) => value,
+			updateMessageBlock,
+		}));
+		const store = createDefaultChatMessageSearchStore();
+
+		store.open();
+		store.setQuery("cat");
+		store.setReplaceText("dog");
+
+		await expect(store.replaceAll()).resolves.toBe(true);
+
+		expect(chat[0].mes).toBe("dog dog");
+		expect(chat[0].swipes).toEqual(["dog dog"]);
+		expect(chat[1].mes).toBe("visible dog");
+		expect(chat[1].swipes).toEqual(["hidden cat", "visible dog"]);
+		expect(updateMessageBlock).toHaveBeenCalledWith(0, chat[0]);
+		expect(updateMessageBlock).toHaveBeenCalledWith(1, chat[1]);
+		expect(saveChat).toHaveBeenCalledTimes(1);
 
 		store.dispose();
 	});

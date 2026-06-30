@@ -32,6 +32,12 @@ function setSillyTavernContext(context: unknown) {
 	};
 }
 
+function setSillyTavernContextFactory(getContext: () => unknown) {
+	(globalThis as { SillyTavern?: unknown }).SillyTavern = {
+		getContext,
+	};
+}
+
 function renderMessageTarget(): Element {
 	document.body.innerHTML = `
 		<div id="chat">
@@ -429,6 +435,56 @@ describe("chatMessageEdit", () => {
 		expect(
 			document.querySelector('.mes[mesid="1"] .mes_text'),
 		).toHaveTextContent("New two");
+		expect(eventSource.emit).toHaveBeenCalledWith("message_edited", 0);
+		expect(eventSource.emit).toHaveBeenCalledWith("message_updated", 0);
+		expect(eventSource.emit).toHaveBeenCalledWith("message_edited", 1);
+		expect(eventSource.emit).toHaveBeenCalledWith("message_updated", 1);
+		expect(saveChat).toHaveBeenCalledTimes(1);
+	});
+
+	test("batch saves multiple edits when getContext returns a fresh wrapper", async () => {
+		const eventSource = { emit: vi.fn(async () => undefined) };
+		const saveChat = vi.fn(async () => undefined);
+		const updateMessageBlock = vi.fn();
+		const chat: TestMessage[] = [
+			{
+				is_user: true,
+				mes: "Old one",
+				swipe_id: 0,
+				swipes: ["Old one"],
+			},
+			{
+				is_user: false,
+				mes: "Old two",
+				swipe_id: 1,
+				swipes: ["First", "Old two"],
+			},
+		];
+		setSillyTavernContextFactory(() => ({
+			chat,
+			eventSource,
+			eventTypes: {
+				MESSAGE_EDITED: "message_edited",
+				MESSAGE_UPDATED: "message_updated",
+			},
+			saveChat,
+			updateMessageBlock,
+		}));
+
+		const result = await batchSaveChatMessageTextEdits({
+			edits: [
+				{ messageId: 0, messageText: "New one" },
+				{ messageId: 1, messageText: "New two" },
+			],
+		});
+
+		expect(result).toEqual({ messageIds: [0, 1], ok: true });
+		expect(chat[0].mes).toBe("New one");
+		expect(chat[0].swipes?.[0]).toBe("New one");
+		expect(chat[1].mes).toBe("New two");
+		expect(chat[1].swipes?.[1]).toBe("New two");
+		expect(updateMessageBlock).toHaveBeenCalledWith(0, chat[0]);
+		expect(updateMessageBlock).toHaveBeenCalledWith(1, chat[1]);
 		expect(eventSource.emit).toHaveBeenCalledWith("message_edited", 0);
 		expect(eventSource.emit).toHaveBeenCalledWith("message_updated", 0);
 		expect(eventSource.emit).toHaveBeenCalledWith("message_edited", 1);
