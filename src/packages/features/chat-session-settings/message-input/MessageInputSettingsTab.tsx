@@ -21,23 +21,27 @@ export function MessageInputSettingsTab({
 				className="chat-session-settings__toggle-row"
 				id={CHAT_SESSION_SETTINGS_DRAWER_SHORTCUTS_TOGGLE_ID}
 			>
-				<Label
-					className="chat-session-settings__toggle-row-title"
-					htmlFor={
-						CHAT_SESSION_SETTINGS_DRAWER_SHORTCUTS_TOGGLE_SWITCH_ID
-					}
-				>
-					{translateAstra(
-						"chatSessionSettings.messageInput.shortcuts.label",
-					)}
-				</Label>
-				<Switch
-					checked={showShortcutsToolbar}
-					id={CHAT_SESSION_SETTINGS_DRAWER_SHORTCUTS_TOGGLE_SWITCH_ID}
-					size="default"
-					type="button"
-					onCheckedChange={onShowShortcutsToolbarChange}
-				/>
+				<div className="chat-session-settings__toggle-row-header">
+					<Label
+						className="chat-session-settings__toggle-row-title"
+						htmlFor={
+							CHAT_SESSION_SETTINGS_DRAWER_SHORTCUTS_TOGGLE_SWITCH_ID
+						}
+					>
+						{translateAstra(
+							"chatSessionSettings.messageInput.shortcuts.label",
+						)}
+					</Label>
+					<Switch
+						checked={showShortcutsToolbar}
+						id={
+							CHAT_SESSION_SETTINGS_DRAWER_SHORTCUTS_TOGGLE_SWITCH_ID
+						}
+						size="default"
+						type="button"
+						onCheckedChange={onShowShortcutsToolbarChange}
+					/>
+				</div>
 			</div>
 		</div>
 	);
