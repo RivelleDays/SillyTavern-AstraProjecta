@@ -25,6 +25,17 @@ import {
 import { createMobileSendFormFeature } from "@/packages/features/chat-session/send-form/host/createMobileSendFormFeature";
 import { MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY } from "@/packages/features/chat-session/send-form/contracts/dom";
 import type { SendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
+import { createChatMessageSearchStore } from "@/packages/features/chat-session/message-search/store";
+import {
+	ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID,
+	ASTRA_CHAT_MESSAGE_SEARCH_CONTROLS_ID,
+	ASTRA_CHAT_MESSAGE_SEARCH_COUNTER_ID,
+	ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
+} from "@/packages/features/chat-session/message-search/contracts/dom";
+import type {
+	ChatMessageSearchStore,
+	ChatMessageSearchStoreSaveTextEdits,
+} from "@/packages/features/chat-session/message-search/store";
 
 type Listener = (...args: unknown[]) => void;
 
@@ -62,15 +73,18 @@ function createTestSillyTavernInterfaceAdapter(): SendFormSillyTavernInterfaceAd
 }
 
 function createTestMobileSendFormFeature({
+	chatMessageSearchStore,
 	documentRef = document,
 	onPageReload,
 	sillyTavernInterface = createTestSillyTavernInterfaceAdapter(),
 }: {
+	chatMessageSearchStore?: ChatMessageSearchStore;
 	documentRef?: Document;
 	onPageReload?: () => void;
 	sillyTavernInterface?: SendFormSillyTavernInterfaceAdapter;
 } = {}) {
 	return createMobileSendFormFeature({
+		chatMessageSearchStore,
 		documentRef,
 		onPageReload,
 		sillyTavernInterface,
@@ -712,6 +726,184 @@ describe("createMobileSendFormFeature", () => {
 		window.localStorage.removeItem(
 			MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY,
 		);
+	});
+
+	test("renders search controls instead of the composer and restores the textarea to the native row", async () => {
+		document.body.innerHTML = `
+      <div id="options_button" title="Menu"></div>
+      <div id="extensionsMenuButton" title="Extensions"></div>
+      <div id="extensionsMenu" class="options-content" style="display: none;"></div>
+      <div id="options"></div>
+      <div id="form_sheld">
+        <form id="send_form">
+          <div id="qr--bar"><button type="button">Quick reply</button></div>
+          <div id="nonQRFormItems">
+            <textarea id="send_textarea">draft</textarea>
+            <div id="rightSendForm">
+              <button id="mes_continue" title="Continue" type="button"></button>
+              <button id="send_but" title="Send message" type="button"></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    `;
+		window.matchMedia = vi.fn().mockImplementation(() => ({
+			addEventListener: vi.fn(),
+			matches: true,
+			removeEventListener: vi.fn(),
+		}));
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			chatId: "chat-1",
+			chatMetadata: {},
+			characterId: 0,
+			characters: [{ chat: "chat-1", name: "Hero" }],
+			executeSlashCommandsWithOptions: vi.fn(),
+			getThumbnailUrl: vi.fn(() => "/thumbs/hero-persona.png"),
+			powerUserSettings: { continue_on_send: false },
+		});
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		let messages = [
+			{ messageId: 0, mes: "draft searchable", swipeId: null },
+		];
+		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
+			edits,
+		}) => {
+			messages = messages.map((message) => {
+				const edit = edits.find(
+					(item) => item.messageId === message.messageId,
+				);
+				return edit ? { ...message, mes: edit.messageText } : message;
+			});
+
+			return {
+				messageIds: edits.map((edit) => edit.messageId),
+				ok: true,
+			};
+		};
+		const saveTextEdits = vi.fn(saveTextEditsImpl);
+		const chatMessageSearchStore = createChatMessageSearchStore({
+			readMessages: () => messages,
+			saveTextEdits,
+		});
+		const feature = createTestMobileSendFormFeature({
+			chatMessageSearchStore,
+			documentRef: document,
+		});
+
+		feature.mount();
+		const { composerHost, inputRowHost } = await waitForSendFormHosts();
+		expect(
+			inputRowHost.querySelector("#send_textarea"),
+		).toBeInTheDocument();
+
+		act(() => {
+			chatMessageSearchStore.open();
+			chatMessageSearchStore.setQuery("searchable");
+		});
+
+		const controls = await waitFor(() => {
+			const nextControls = document.getElementById(
+				ASTRA_CHAT_MESSAGE_SEARCH_CONTROLS_ID,
+			);
+			expect(nextControls).toBeInTheDocument();
+			return nextControls as HTMLElement;
+		});
+		expect(composerHost.querySelector(".astra-chat-composer")).toBeNull();
+		expect(
+			controls.querySelector(
+				".astra-chat-message-search-controls__surface",
+			),
+		).toBeInTheDocument();
+		const searchRow = controls.querySelector(
+			".astra-chat-message-search-controls__row--search",
+		);
+		expect(
+			searchRow?.querySelector(
+				".astra-chat-message-search-controls__cluster--nav",
+			),
+		).not.toBeInTheDocument();
+		const actionsRow = controls.querySelector(
+			".astra-chat-message-search-controls__row--actions",
+		);
+		const actionChildren = Array.from(actionsRow?.children ?? []);
+		expect(actionChildren).toHaveLength(4);
+		expect(actionChildren[0]).toMatchObject({
+			className: "astra-chat-message-search-controls__counter",
+		});
+		expect(actionChildren[1]).toHaveClass(
+			"astra-chat-message-search-controls__cluster",
+			"astra-chat-message-search-controls__cluster--history",
+		);
+		expect(actionChildren[2]).toHaveClass(
+			"astra-chat-message-search-controls__cluster",
+			"astra-chat-message-search-controls__cluster--nav",
+		);
+		expect(actionChildren[3]).toHaveClass(
+			"astra-chat-message-search-controls__button--done",
+		);
+		const searchInput = document.getElementById(
+			ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
+		);
+		expect(searchInput).toBeInstanceOf(HTMLInputElement);
+		expect(document.activeElement).toBe(searchInput);
+		expect(
+			document.getElementById(ASTRA_CHAT_MESSAGE_SEARCH_COUNTER_ID),
+		).toHaveTextContent("1 / 1");
+		const textarea = document.getElementById("send_textarea");
+		expect(textarea?.parentElement?.id).toBe("nonQRFormItems");
+		expect(textarea?.nextElementSibling?.id).toBe("rightSendForm");
+
+		fireEvent.click(
+			within(controls).getByRole("button", {
+				name: "Search options",
+			}),
+		);
+		const replaceToggle = await screen.findByRole("checkbox", {
+			name: "Replace",
+		});
+		fireEvent.click(replaceToggle);
+
+		const replaceInput = await waitFor(() => {
+			const nextInput = document.getElementById(
+				ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID,
+			);
+			expect(nextInput).toBeInstanceOf(HTMLInputElement);
+			return nextInput as HTMLInputElement;
+		});
+		expect(controls).toContainElement(replaceInput);
+		fireEvent.change(replaceInput, {
+			target: { value: "found" },
+		});
+
+		const replaceAllButton = within(controls).getByRole("button", {
+			name: "Replace all",
+		});
+		await waitFor(() => {
+			expect(replaceAllButton).toBeEnabled();
+		});
+		fireEvent.click(replaceAllButton);
+		await waitFor(() => {
+			expect(messages.map((message) => message.mes)).toEqual([
+				"draft found",
+			]);
+		});
+		expect(saveTextEdits).toHaveBeenLastCalledWith({
+			edits: [
+				{ messageId: 0, messageText: "draft found", swipeId: null },
+			],
+		});
+
+		fireEvent.click(within(controls).getByRole("button", { name: "Done" }));
+
+		await waitFor(() => {
+			expect(
+				composerHost.querySelector(".astra-chat-composer"),
+			).toBeInTheDocument();
+		});
+
+		feature.unmount();
+		chatMessageSearchStore.dispose();
 	});
 
 	test("mounts the textarea host with persistent left controls and restores the textarea on unmount", async () => {
@@ -3502,7 +3694,7 @@ describe("createMobileSendFormFeature", () => {
 		});
 		feature.mount();
 
-		const host = await waitForInputRowHost();
+		await waitForInputRowHost();
 
 		const leftControlsExtensionsButton = document.getElementById(
 			"astra-send-form-extension-shortcuts-button",

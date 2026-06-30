@@ -352,6 +352,30 @@ describe("createMobileChatSessionRuntime", () => {
 		const messageHeaderMount = vi.fn();
 		const messageHeaderUnmount = vi.fn();
 		const messageHeaderDispose = vi.fn();
+		const chatMessageSearchStoreDispose = vi.fn();
+		const chatMessageSearchStore = {
+			close: vi.fn(),
+			dispose: chatMessageSearchStoreDispose,
+			getSnapshot: vi.fn(),
+			goToNext: vi.fn(),
+			goToPrevious: vi.fn(),
+			open: vi.fn(),
+			redo: vi.fn(),
+			refresh: vi.fn(),
+			replaceAll: vi.fn(),
+			replaceCurrent: vi.fn(),
+			resetForChatChange: vi.fn(),
+			setCaseSensitive: vi.fn(),
+			setQuery: vi.fn(),
+			setReplaceVisible: vi.fn(),
+			setReplaceText: vi.fn(),
+			setWholeWord: vi.fn(),
+			subscribe: vi.fn(() => () => undefined),
+			undo: vi.fn(),
+		};
+		const chatMessageSearchStoreFactory = vi.fn(
+			() => chatMessageSearchStore,
+		);
 		const sillyTavernInterface = {
 			openCurrentPage: vi.fn(),
 			openRoute: vi.fn(),
@@ -398,6 +422,7 @@ describe("createMobileChatSessionRuntime", () => {
 		const layoutModeStore = createLayoutModeStoreStub("mobile");
 
 		const runtime = createMobileChatSessionRuntime({
+			createChatMessageSearchStore: chatMessageSearchStoreFactory,
 			createChatScrollFeature: chatScrollFeatureFactory,
 			createChatSwitchLoadingFeature: chatSwitchLoadingFeatureFactory,
 			createMessageHeaderLayoutFeature: messageHeaderLayoutFeatureFactory,
@@ -412,8 +437,13 @@ describe("createMobileChatSessionRuntime", () => {
 
 		expect(featureFactory).toHaveBeenCalledTimes(1);
 		expect(featureFactory).toHaveBeenCalledWith({
+			chatMessageSearchStore,
 			documentRef: document,
 			sillyTavernInterface,
+		});
+		expect(chatMessageSearchStoreFactory).toHaveBeenCalledTimes(1);
+		expect(chatMessageSearchStoreFactory).toHaveBeenCalledWith({
+			documentRef: document,
 		});
 		expect(sillyTavernInterfacePanelFeatureFactory).toHaveBeenCalledTimes(
 			1,
@@ -425,6 +455,10 @@ describe("createMobileChatSessionRuntime", () => {
 		expect(chatScrollFeatureFactory).toHaveBeenCalledTimes(1);
 		expect(chatSwitchLoadingFeatureFactory).toHaveBeenCalledTimes(1);
 		expect(topBarFeatureFactory).toHaveBeenCalledTimes(1);
+		expect(topBarFeatureFactory).toHaveBeenCalledWith({
+			chatMessageSearchStore,
+			documentRef: document,
+		});
 		expect(messageHeaderLayoutFeatureFactory).toHaveBeenCalledTimes(1);
 		expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
 		expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
@@ -479,6 +513,7 @@ describe("createMobileChatSessionRuntime", () => {
 		expect(chatScrollDispose).toHaveBeenCalledTimes(1);
 		expect(chatSwitchLoadingDispose).toHaveBeenCalledTimes(1);
 		expect(topBarDispose).toHaveBeenCalledTimes(1);
+		expect(chatMessageSearchStoreDispose).toHaveBeenCalledTimes(1);
 		expect(layoutModeStore.unsubscribe).toHaveBeenCalledTimes(1);
 
 		layoutModeStore.dispatch("mobile");
@@ -500,6 +535,7 @@ describe("createMobileChatSessionRuntime", () => {
 		expect(chatScrollDispose).toHaveBeenCalledTimes(1);
 		expect(chatSwitchLoadingDispose).toHaveBeenCalledTimes(1);
 		expect(topBarDispose).toHaveBeenCalledTimes(1);
+		expect(chatMessageSearchStoreDispose).toHaveBeenCalledTimes(1);
 		expect(layoutModeStore.unsubscribe).toHaveBeenCalledTimes(1);
 	});
 

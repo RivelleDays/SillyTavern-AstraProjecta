@@ -59,6 +59,16 @@ export interface ChatMessageEditSaveInput {
 	reasoningText: string;
 }
 
+export interface BatchChatMessageTextEdit {
+	messageId: number;
+	messageText: string;
+	swipeId?: number | null;
+}
+
+export interface BatchChatMessageTextEditInput {
+	edits: BatchChatMessageTextEdit[];
+}
+
 export interface ChatMessageMoveInput {
 	direction: ChatMessageMoveDirection;
 	messageId: number;
@@ -85,6 +95,13 @@ export type ReadChatMessageEditDraftResult =
 export type ChatMessageEditMutationResult =
 	| {
 			messageId: number;
+			ok: true;
+	  }
+	| ChatMessageEditFailureResult;
+
+export type BatchChatMessageEditMutationResult =
+	| {
+			messageIds: number[];
 			ok: true;
 	  }
 	| ChatMessageEditFailureResult;
@@ -121,6 +138,13 @@ function resolveMessageTarget(
 	messageId: number,
 ): ResolvedMessageTarget | ChatMessageEditFailureResult {
 	const context = resolveContextSafe();
+	return resolveMessageTargetFromContext(context, messageId);
+}
+
+function resolveMessageTargetFromContext(
+	context: StContextLike | null,
+	messageId: number,
+): ResolvedMessageTarget | ChatMessageEditFailureResult {
 	const chat = Array.isArray(context?.chat) ? context.chat : [];
 
 	if (!context || !Array.isArray(context.chat)) {
@@ -185,6 +209,14 @@ function normalizeReasoningText(context: StContextLike, value: string): string {
 	return substituteText(context, value);
 }
 
+function clearStaleDisplayText(message: ChatMessageEditLike): void {
+	if (!isRecord(message.extra)) {
+		return;
+	}
+
+	delete (message.extra as Record<string, unknown>).display_text;
+}
+
 function ensureExtra(message: ChatMessageEditLike): Record<string, unknown> {
 	if (!isRecord(message.extra)) {
 		message.extra = {};
@@ -243,25 +275,68 @@ function writeMessageTextDraft({
 	context,
 	message,
 	messageText,
+	swipeId,
 }: {
 	context: StContextLike;
 	message: ChatMessageEditLike;
 	messageText: string;
+	swipeId?: number | null;
 }): string {
 	const nextMessageText = normalizeMessageText(context, messageText);
-	message.mes = nextMessageText;
 
-	const swipeId = message.swipe_id;
+	if (swipeId === null) {
+		message.mes = nextMessageText;
+		clearStaleDisplayText(message);
+		return nextMessageText;
+	}
+
+	if (typeof swipeId === "number") {
+		const isActiveSwipe = message.swipe_id === swipeId;
+		if (
+			Array.isArray(message.swipes) &&
+			typeof message.swipes[swipeId] === "string"
+		) {
+			message.swipes[swipeId] = nextMessageText;
+		}
+		if (isActiveSwipe) {
+			message.mes = nextMessageText;
+			clearStaleDisplayText(message);
+		}
+		return nextMessageText;
+	}
+
+	message.mes = nextMessageText;
+	clearStaleDisplayText(message);
+
+	const activeSwipeId = message.swipe_id;
 	if (
-		typeof swipeId === "number" &&
-		Number.isInteger(swipeId) &&
+		typeof activeSwipeId === "number" &&
+		Number.isInteger(activeSwipeId) &&
 		Array.isArray(message.swipes) &&
-		typeof message.swipes[swipeId] === "string"
+		typeof message.swipes[activeSwipeId] === "string"
 	) {
-		message.swipes[swipeId] = nextMessageText;
+		message.swipes[activeSwipeId] = nextMessageText;
 	}
 
 	return nextMessageText;
+}
+
+function hasExplicitSwipeId(
+	edit: BatchChatMessageTextEdit,
+): edit is BatchChatMessageTextEdit & { swipeId: number | null } {
+	return Object.prototype.hasOwnProperty.call(edit, "swipeId");
+}
+
+function isValidExplicitSwipeId(
+	message: ChatMessageEditLike,
+	swipeId: number | null,
+): boolean {
+	return (
+		swipeId === null ||
+		(Number.isInteger(swipeId) &&
+			Array.isArray(message.swipes) &&
+			typeof message.swipes[swipeId] === "string")
+	);
 }
 
 function writeDraftToMessage({
@@ -349,6 +424,19 @@ async function emitContextEvent(
 	await context.eventSource?.emit?.(eventName, messageId);
 }
 
+async function emitContextEventBestEffort(
+	context: StContextLike,
+	eventKey: keyof EventTypesLike,
+	messageId: number,
+): Promise<void> {
+	try {
+		await emitContextEvent(context, eventKey, messageId);
+	} catch {
+		// Message replacement has already been saved; third-party listeners
+		// must not roll back the persisted chat text.
+	}
+}
+
 async function saveChat(context: StContextLike): Promise<void> {
 	const save =
 		typeof context.saveChat === "function"
@@ -368,6 +456,36 @@ async function redrawChat(context: StContextLike): Promise<void> {
 	}
 
 	await (context.printMessages as () => unknown | Promise<unknown>)();
+}
+
+async function updateMessageBlockBestEffort({
+	context,
+	message,
+	messageId,
+}: {
+	context: StContextLike;
+	message: ChatMessageEditLike;
+	messageId: number;
+}): Promise<void> {
+	try {
+		updateMessageBlock({ context, message, messageId });
+		return;
+	} catch {
+		// Fall through to the plain rendered-text fallback below.
+	}
+
+	try {
+		updateMessageDomFallback({ context, message, messageId });
+		return;
+	} catch {
+		// Last resort: ask SillyTavern to redraw if that public hook exists.
+	}
+
+	try {
+		await redrawChat(context);
+	} catch {
+		// Rendering is best-effort after a successful save.
+	}
 }
 
 function cloneMessage(message: ChatMessageEditLike): ChatMessageEditLike {
@@ -468,6 +586,90 @@ export async function saveChatMessageEdit({
 			reason: "save-failed",
 		};
 	}
+}
+
+export async function batchSaveChatMessageTextEdits({
+	edits,
+}: BatchChatMessageTextEditInput): Promise<BatchChatMessageEditMutationResult> {
+	const initialContext = resolveContextSafe();
+	const resolvedTargets: ResolvedMessageTarget[] = [];
+
+	for (const edit of edits) {
+		const target = resolveMessageTargetFromContext(
+			initialContext,
+			edit.messageId,
+		);
+		if (!isResolvedMessageTarget(target)) {
+			return target;
+		}
+		if (
+			hasExplicitSwipeId(edit) &&
+			!isValidExplicitSwipeId(target.message, edit.swipeId)
+		) {
+			return {
+				ok: false,
+				reason: "invalid-message-id",
+			};
+		}
+		resolvedTargets.push(target);
+	}
+
+	if (resolvedTargets.length === 0) {
+		return {
+			messageIds: [],
+			ok: true,
+		};
+	}
+
+	const context = resolvedTargets[0].context;
+	const originalMessages = resolvedTargets.map((target) =>
+		cloneMessage(target.message),
+	);
+
+	try {
+		for (const [index, edit] of edits.entries()) {
+			writeMessageTextDraft({
+				context,
+				message: resolvedTargets[index].message,
+				messageText: edit.messageText,
+				swipeId: hasExplicitSwipeId(edit) ? edit.swipeId : undefined,
+			});
+		}
+
+		await saveChat(context);
+	} catch {
+		for (const [index, target] of resolvedTargets.entries()) {
+			target.chat[target.messageId] = originalMessages[index];
+		}
+
+		return {
+			ok: false,
+			reason: "save-failed",
+		};
+	}
+
+	for (const target of resolvedTargets) {
+		await emitContextEventBestEffort(
+			context,
+			"MESSAGE_EDITED",
+			target.messageId,
+		);
+		await updateMessageBlockBestEffort({
+			context,
+			message: target.message,
+			messageId: target.messageId,
+		});
+		await emitContextEventBestEffort(
+			context,
+			"MESSAGE_UPDATED",
+			target.messageId,
+		);
+	}
+
+	return {
+		messageIds: resolvedTargets.map((target) => target.messageId),
+		ok: true,
+	};
 }
 
 export async function copyChatMessageFromDraft({

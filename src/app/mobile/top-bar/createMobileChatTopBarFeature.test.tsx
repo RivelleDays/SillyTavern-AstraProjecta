@@ -9,7 +9,17 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identity";
 import {
+	createChatMessageSearchStore,
+	type ChatMessageSearchStoreSaveTextEdits,
+} from "@/packages/features/chat-session/message-search/store";
+import {
+	ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID,
+	ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
+	ASTRA_CHAT_MESSAGE_SEARCH_PANEL_ID,
+} from "@/packages/features/chat-session/message-search/contracts/dom";
+import {
 	createMobileChatTopBarFeature,
+	ASTRA_CHAT_TOP_BAR_ACTIONS_ID,
 	ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
 	ASTRA_CHAT_TOP_BAR_HOST_ID,
 	ASTRA_CHAT_SESSION_SHELL_ID,
@@ -599,10 +609,39 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 	});
 
-	test("renders a disabled chat message search placeholder in the top-bar action group", async () => {
+	test("opens the chat message search panel from the top-bar action group", async () => {
 		document.body.innerHTML = '<div id="sheld"></div>';
 		const store = createIdentityStoreStub();
+		let messages = [
+			{ messageId: 0, mes: "Searchable message", swipeId: null },
+			{
+				messageId: 1,
+				mes: "Another Searchable message",
+				swipeId: null,
+			},
+		];
+		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
+			edits,
+		}) => {
+			messages = messages.map((message) => {
+				const edit = edits.find(
+					(item) => item.messageId === message.messageId,
+				);
+				return edit ? { ...message, mes: edit.messageText } : message;
+			});
+
+			return {
+				messageIds: edits.map((edit) => edit.messageId),
+				ok: true,
+			};
+		};
+		const saveTextEdits = vi.fn(saveTextEditsImpl);
+		const chatMessageSearchStore = createChatMessageSearchStore({
+			readMessages: () => messages,
+			saveTextEdits,
+		});
 		const feature = createMobileChatTopBarFeature({
+			chatMessageSearchStore,
 			createCurrentChatIdentityStore: store.factory,
 			documentRef: document,
 		});
@@ -616,9 +655,9 @@ describe("createMobileChatTopBarFeature", () => {
 		});
 
 		expect(
-			searchTrigger.closest(".astra-chat-top-bar__actions"),
+			searchTrigger.closest(`#${ASTRA_CHAT_TOP_BAR_ACTIONS_ID}`),
 		).toBeInTheDocument();
-		expect(searchTrigger).toBeDisabled();
+		expect(searchTrigger).toBeEnabled();
 		expect(
 			searchTrigger.querySelector(".lucide-search"),
 		).toBeInTheDocument();
@@ -629,8 +668,160 @@ describe("createMobileChatTopBarFeature", () => {
 			document.getElementById("astra-chat-session-settings-panel"),
 		).not.toBeInTheDocument();
 
+		fireEvent.click(searchTrigger);
+
+		const searchPanel = await waitFor(() => {
+			const nextPanel = document.getElementById(
+				ASTRA_CHAT_MESSAGE_SEARCH_PANEL_ID,
+			);
+			expect(nextPanel).toBeInTheDocument();
+			return nextPanel as HTMLElement;
+		});
+		const searchInput = document.getElementById(
+			ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
+		);
+		expect(searchInput).not.toBeInTheDocument();
+		expect(
+			document.getElementById(ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID),
+		).not.toBeInTheDocument();
+		expect(
+			searchPanel.querySelector(".astra-chat-message-search-panel__mode"),
+		).toBeInTheDocument();
+		expect(
+			searchPanel.querySelector(
+				".astra-chat-message-search-panel__mode-counter",
+			),
+		).not.toBeInTheDocument();
+		expect(
+			searchPanel.querySelector(
+				".astra-chat-message-search-panel__mode-close",
+			),
+		).not.toBeInTheDocument();
+		expect(searchPanel).toHaveTextContent("Search chat messages");
+
+		act(() => {
+			chatMessageSearchStore.setQuery("searchable");
+		});
+		expect(chatMessageSearchStore.getSnapshot()).toMatchObject({
+			isOpen: true,
+			matchCount: 2,
+			query: "searchable",
+			replaceVisible: false,
+		});
+
+		expect(saveTextEdits).not.toHaveBeenCalled();
+
 		act(() => {
 			feature.dispose();
 		});
+		chatMessageSearchStore.dispose();
+	});
+
+	test("renders stored search preferences before opening the search panel", async () => {
+		document.body.innerHTML = '<div id="sheld"></div>';
+		const store = createIdentityStoreStub();
+		const chatMessageSearchStore = createChatMessageSearchStore({
+			initialPreferences: {
+				caseSensitive: true,
+				replaceVisible: true,
+				wholeWord: true,
+			},
+			readMessages: () => [
+				{ messageId: 0, mes: "Alpha alpha alphabet", swipeId: null },
+			],
+		});
+		const feature = createMobileChatTopBarFeature({
+			chatMessageSearchStore,
+			createCurrentChatIdentityStore: store.factory,
+			documentRef: document,
+		});
+
+		act(() => {
+			feature.mount();
+		});
+
+		fireEvent.click(
+			await screen.findByRole("button", {
+				name: "Search chat messages",
+			}),
+		);
+		const searchPanel = await waitFor(() => {
+			const nextPanel = document.getElementById(
+				ASTRA_CHAT_MESSAGE_SEARCH_PANEL_ID,
+			);
+			expect(nextPanel).toBeInTheDocument();
+			return nextPanel as HTMLElement;
+		});
+		expect(searchPanel).toHaveAttribute("data-replace-visible", "true");
+		expect(
+			document.getElementById(ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID),
+		).not.toBeInTheDocument();
+		expect(
+			document.getElementById(ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID),
+		).not.toBeInTheDocument();
+
+		act(() => {
+			chatMessageSearchStore.setQuery("alpha");
+		});
+
+		expect(chatMessageSearchStore.getSnapshot()).toMatchObject({
+			caseSensitive: true,
+			matchCount: 1,
+			query: "alpha",
+			replaceVisible: true,
+			wholeWord: true,
+		});
+
+		act(() => {
+			feature.dispose();
+		});
+		chatMessageSearchStore.dispose();
+	});
+
+	test("keeps the main interface panel mounted and closed while search is open", async () => {
+		document.body.innerHTML = '<div id="sheld"></div>';
+		const store = createIdentityStoreStub();
+		const chatMessageSearchStore = createChatMessageSearchStore({
+			readMessages: () => [
+				{ messageId: 0, mes: "Searchable message", swipeId: null },
+			],
+		});
+		const feature = createMobileChatTopBarFeature({
+			chatMessageSearchStore,
+			createCurrentChatIdentityStore: store.factory,
+			documentRef: document,
+		});
+
+		act(() => {
+			feature.mount();
+		});
+
+		const searchTrigger = await screen.findByRole("button", {
+			name: "Search chat messages",
+		});
+		expect(
+			document.getElementById("astra-main-interface-panel"),
+		).toBeInTheDocument();
+
+		fireEvent.click(searchTrigger);
+
+		await waitFor(() => {
+			expect(
+				document.getElementById(ASTRA_CHAT_MESSAGE_SEARCH_PANEL_ID),
+			).toBeInTheDocument();
+		});
+
+		// Opening search must not unmount the main interface panel; remounting it
+		// on close is what made it animate open after pressing Done.
+		const mainInterfacePanel = document.getElementById(
+			"astra-main-interface-panel",
+		);
+		expect(mainInterfacePanel).toBeInTheDocument();
+		expect(mainInterfacePanel).toHaveAttribute("data-state", "closed");
+
+		act(() => {
+			feature.dispose();
+		});
+		chatMessageSearchStore.dispose();
 	});
 });

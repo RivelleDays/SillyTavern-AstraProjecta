@@ -17,6 +17,7 @@
 @import "../packages/features/chat-session/chat-scroll/chat-scroll.css";
 @import "../packages/features/chat-session/chat-switch-loading/chat-switch-loading.css";
 @import "../packages/features/chat-session/message-actions/message-actions.css";
+@import "../packages/features/chat-session/message-search/message-search.css";
 
 @custom-variant dark (&:is(.dark *));
 

@@ -48,6 +48,11 @@ import { MobileChatMainMenuDrawer } from "@/packages/features/chat-session/send-
 import { MobileChatInput } from "@/packages/features/chat-session/send-form/shell/MobileChatInput";
 import { MobileSendFormShortcutsToolbar } from "@/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar";
 import { shortcutsToolbarVisibilityStore } from "@/packages/features/chat-session/send-form/shell/shortcutsToolbarVisibilityStore";
+import {
+	MobileChatMessageSearchControls,
+	type ChatMessageSearchStore,
+	useChatMessageSearchSnapshot,
+} from "@/packages/features/chat-session/message-search";
 import { ChatSessionSettingsDrawer } from "@/packages/features/chat-session-settings/drawer/ChatSessionSettingsDrawer";
 import {
 	deleteCurrentChat,
@@ -225,6 +230,7 @@ function persistQuickReplyHostVisibility(
 export function AstraMobileSendForm({
 	chatCategoryStore,
 	chatContextUsageStore,
+	chatMessageSearchStore,
 	currentConnectionInfoStore,
 	currentChatIdentityStore,
 	currentChatInfoStore,
@@ -241,6 +247,7 @@ export function AstraMobileSendForm({
 }: {
 	chatCategoryStore: ChatCategoryStore;
 	chatContextUsageStore: ChatContextUsageStore;
+	chatMessageSearchStore: ChatMessageSearchStore;
 	currentConnectionInfoStore: CurrentConnectionInfoStore;
 	currentChatIdentityStore: CurrentChatIdentityStore;
 	currentChatInfoStore: CurrentChatInfoStore;
@@ -259,6 +266,9 @@ export function AstraMobileSendForm({
 		chatContextUsageStore.subscribe,
 		chatContextUsageStore.getSnapshot,
 		chatContextUsageStore.getSnapshot,
+	);
+	const chatMessageSearchSnapshot = useChatMessageSearchSnapshot(
+		chatMessageSearchStore,
 	);
 	const currentConnectionSnapshot = React.useSyncExternalStore(
 		currentConnectionInfoStore.subscribe,
@@ -967,30 +977,40 @@ export function AstraMobileSendForm({
 		/>
 	);
 
-	return (
-		<>
-			<div
-				className="astra-chat-composer"
-				data-shortcuts-visible={showShortcutsToolbar ? "true" : "false"}
-				data-slot="astra-chat-composer"
-			>
-				<div className="astra-chat-composer__shortcuts-region">
-					<div
-						id={ASTRA_CHAT_SHORTCUTS_HOST_ID}
-						className="astra-chat-shortcuts-host"
-					>
-						{shortcutsToolbar}
-					</div>
-				</div>
-				<div className="astra-chat-composer__input-region">
-					<div
-						id={ASTRA_CHAT_INPUT_HOST_ID}
-						className="astra-chat-input-host"
-					>
-						{inputRow}
-					</div>
+	const composerSurface = chatMessageSearchSnapshot.isOpen ? (
+		<MobileChatMessageSearchControls
+			documentRef={documentRef}
+			snapshot={chatMessageSearchSnapshot}
+			store={chatMessageSearchStore}
+		/>
+	) : (
+		<div
+			className="astra-chat-composer"
+			data-shortcuts-visible={showShortcutsToolbar ? "true" : "false"}
+			data-slot="astra-chat-composer"
+		>
+			<div className="astra-chat-composer__shortcuts-region">
+				<div
+					id={ASTRA_CHAT_SHORTCUTS_HOST_ID}
+					className="astra-chat-shortcuts-host"
+				>
+					{shortcutsToolbar}
 				</div>
 			</div>
+			<div className="astra-chat-composer__input-region">
+				<div
+					id={ASTRA_CHAT_INPUT_HOST_ID}
+					className="astra-chat-input-host"
+				>
+					{inputRow}
+				</div>
+			</div>
+		</div>
+	);
+
+	return (
+		<>
+			{composerSurface}
 			<MobileChatMainMenuDrawer
 				chatContextUsageSnapshot={contextUsageSnapshot}
 				currentConnectionSnapshot={currentConnectionSnapshot}

@@ -42,7 +42,14 @@ import {
 import {
 	ASTRA_CHAT_TOP_BAR_HOST_ID,
 	ASTRA_CHAT_SESSION_SHELL_ID,
+	ASTRA_CHAT_TOP_BAR_ACTIONS_ID,
 } from "@/app/mobile/top-bar/contracts/dom";
+import { createDefaultChatMessageSearchStore } from "@/packages/core/st/chatMessageSearch";
+import {
+	MobileChatMessageSearchPanel,
+	type ChatMessageSearchStore,
+	useChatMessageSearchSnapshot,
+} from "@/packages/features/chat-session/message-search";
 
 const NATIVE_SHELD_ID = "sheld";
 
@@ -60,6 +67,7 @@ export {
 export {
 	ASTRA_CHAT_TOP_BAR_HOST_ID,
 	ASTRA_CHAT_SESSION_SHELL_ID,
+	ASTRA_CHAT_TOP_BAR_ACTIONS_ID,
 } from "@/app/mobile/top-bar/contracts/dom";
 
 export interface MobileChatTopBarFeature {
@@ -90,10 +98,14 @@ function useFavoriteChatEntitiesSnapshot(
 }
 
 function MobileChatTopBar({
+	chatMessageSearchStore,
 	currentChatIdentityStore,
+	documentRef,
 	snapshot,
 }: {
+	chatMessageSearchStore: ChatMessageSearchStore;
 	currentChatIdentityStore: CurrentChatIdentityStore;
+	documentRef: Document;
 	snapshot: CurrentChatIdentitySnapshot;
 }) {
 	const [isMainInterfaceOpen, setIsMainInterfaceOpen] = React.useState(false);
@@ -133,6 +145,7 @@ function MobileChatTopBar({
 	const searchChatMessagesLabel = translateAstra(
 		"chatSessionSettings.topBar.searchPlaceholder",
 	);
+	const searchSnapshot = useChatMessageSearchSnapshot(chatMessageSearchStore);
 	const avatarLabel = translateAstra("sendForm.mainMenu.avatar");
 	const emptyStateLabel = translateAstra("sendForm.mainMenu.empty");
 	const displayName = snapshot.hasActiveChat
@@ -167,67 +180,85 @@ function MobileChatTopBar({
 			className="astra-chat-top-bar"
 			data-slot="astra-chat-top-bar"
 		>
-			<Button
-				aria-controls={ASTRA_MAIN_INTERFACE_PANEL_ID}
-				aria-expanded={isMainInterfaceOpen}
-				aria-haspopup="dialog"
-				aria-label={openMainInterfaceLabel}
-				id={ASTRA_MAIN_INTERFACE_TRIGGER_ID}
-				className="astra-chat-top-bar__astra-main-trigger"
-				size="icon-sm"
-				title={openMainInterfaceLabel}
-				type="button"
-				variant="ghost"
-				onClick={() => {
-					handleMainInterfaceOpenChange(true);
-				}}
-			>
-				<UiIcon
-					aria-hidden={true}
-					className="astra-chat-top-bar__astra-main-trigger-icon"
-					icon={Equal}
-					size="sm"
+			{searchSnapshot.isOpen ? (
+				<MobileChatMessageSearchPanel
+					documentRef={documentRef}
+					snapshot={searchSnapshot}
 				/>
-			</Button>
-			<div className="astra-chat-top-bar__identity">
-				<div className="astra-chat-top-bar__avatar-frame">
-					<AstraChatAvatar
-						alt={avatarLabel}
-						className="astra-chat-top-bar__avatar"
-						avatarUrl={snapshot.thumbnailUrl}
-						fallbackText={displayName.trim().charAt(0) || "?"}
-						groupAvatarUrls={snapshot.groupAvatarUrls}
-						imageClassName="astra-chat-top-bar__avatar-image"
-						loading="eager"
-					/>
-				</div>
-				<div className="astra-chat-top-bar__name" title={displayName}>
-					{displayName}
-				</div>
-			</div>
-			<div
-				aria-label={translateAstra(
-					"chatSessionSettings.topBar.actions",
-				)}
-				className="astra-chat-top-bar__actions"
-			>
-				<Button
-					aria-label={searchChatMessagesLabel}
-					className="astra-chat-top-bar__action"
-					disabled={true}
-					size="icon-sm"
-					title={searchChatMessagesLabel}
-					type="button"
-					variant="ghost"
-				>
-					<UiIcon
-						aria-hidden={true}
-						className="astra-chat-top-bar__action-icon"
-						icon={Search}
-						size="sm"
-					/>
-				</Button>
-			</div>
+			) : (
+				<>
+					<Button
+						aria-controls={ASTRA_MAIN_INTERFACE_PANEL_ID}
+						aria-expanded={isMainInterfaceOpen}
+						aria-haspopup="dialog"
+						aria-label={openMainInterfaceLabel}
+						id={ASTRA_MAIN_INTERFACE_TRIGGER_ID}
+						className="astra-chat-top-bar__astra-main-trigger"
+						size="icon-sm"
+						title={openMainInterfaceLabel}
+						type="button"
+						variant="ghost"
+						onClick={() => {
+							handleMainInterfaceOpenChange(true);
+						}}
+					>
+						<UiIcon
+							aria-hidden={true}
+							className="astra-chat-top-bar__astra-main-trigger-icon"
+							icon={Equal}
+							size="sm"
+						/>
+					</Button>
+					<div className="astra-chat-top-bar__identity">
+						<div className="astra-chat-top-bar__avatar-frame">
+							<AstraChatAvatar
+								alt={avatarLabel}
+								className="astra-chat-top-bar__avatar"
+								avatarUrl={snapshot.thumbnailUrl}
+								fallbackText={
+									displayName.trim().charAt(0) || "?"
+								}
+								groupAvatarUrls={snapshot.groupAvatarUrls}
+								imageClassName="astra-chat-top-bar__avatar-image"
+								loading="eager"
+							/>
+						</div>
+						<div
+							className="astra-chat-top-bar__name"
+							title={displayName}
+						>
+							{displayName}
+						</div>
+					</div>
+					<div
+						aria-label={translateAstra(
+							"chatSessionSettings.topBar.actions",
+						)}
+						id={ASTRA_CHAT_TOP_BAR_ACTIONS_ID}
+						className="astra-chat-top-bar__actions"
+					>
+						<Button
+							aria-label={searchChatMessagesLabel}
+							className="astra-chat-top-bar__action"
+							size="icon-sm"
+							title={searchChatMessagesLabel}
+							type="button"
+							variant="ghost"
+							onClick={() => {
+								handleMainInterfaceOpenChange(false);
+								chatMessageSearchStore.open();
+							}}
+						>
+							<UiIcon
+								aria-hidden={true}
+								className="astra-chat-top-bar__action-icon"
+								icon={Search}
+								size="sm"
+							/>
+						</Button>
+					</div>
+				</>
+			)}
 			<MobileAstraMainInterfacePanel
 				bodyStart={
 					showSecondaryTabsListFrame ? (
@@ -284,9 +315,13 @@ function MobileChatTopBar({
 }
 
 function MobileChatTopBarRoot({
+	chatMessageSearchStore,
 	currentChatIdentityStore,
+	documentRef,
 }: {
+	chatMessageSearchStore: ChatMessageSearchStore;
 	currentChatIdentityStore: CurrentChatIdentityStore;
+	documentRef: Document;
 }) {
 	const snapshot = React.useSyncExternalStore(
 		currentChatIdentityStore.subscribe,
@@ -296,22 +331,30 @@ function MobileChatTopBarRoot({
 
 	return (
 		<MobileChatTopBar
+			chatMessageSearchStore={chatMessageSearchStore}
 			currentChatIdentityStore={currentChatIdentityStore}
+			documentRef={documentRef}
 			snapshot={snapshot}
 		/>
 	);
 }
 
 export function createMobileChatTopBarFeature({
+	chatMessageSearchStore,
 	createCurrentChatIdentityStore:
 		createIdentityStore = createCurrentChatIdentityStore,
 	documentRef = document,
 }: {
+	chatMessageSearchStore?: ChatMessageSearchStore;
 	createCurrentChatIdentityStore?: (args?: {
 		documentRef?: Document;
 	}) => CurrentChatIdentityStore;
 	documentRef?: Document;
 } = {}): MobileChatTopBarFeature {
+	const resolvedChatMessageSearchStore =
+		chatMessageSearchStore ??
+		createDefaultChatMessageSearchStore({ documentRef });
+	const ownsChatMessageSearchStore = !chatMessageSearchStore;
 	let currentChatIdentityStore: CurrentChatIdentityStore | null = null;
 	let originalNextSibling: ChildNode | null = null;
 	let originalParent: Node | null = null;
@@ -364,7 +407,9 @@ export function createMobileChatTopBarFeature({
 			withAstraErrorBoundary({
 				children: (
 					<MobileChatTopBarRoot
+						chatMessageSearchStore={resolvedChatMessageSearchStore}
 						currentChatIdentityStore={currentChatIdentityStore}
+						documentRef={documentRef}
 					/>
 				),
 				source: "mobile-chat-top-bar",
@@ -395,6 +440,7 @@ export function createMobileChatTopBarFeature({
 	}
 
 	function unmount() {
+		resolvedChatMessageSearchStore.close();
 		root?.unmount();
 		root = null;
 		currentChatIdentityStore?.dispose();
@@ -410,6 +456,9 @@ export function createMobileChatTopBarFeature({
 
 	function dispose() {
 		unmount();
+		if (ownsChatMessageSearchStore) {
+			resolvedChatMessageSearchStore.dispose();
+		}
 	}
 
 	return {
