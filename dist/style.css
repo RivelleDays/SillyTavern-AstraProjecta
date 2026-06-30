@@ -11175,7 +11175,7 @@ body.astra-projecta-mobile-layout {
 .last_mes {
   padding-bottom: 8px;
 }
-#astra-chat-session-shell:has(#astra-chat-message-search-panel) {
+#astra-chat-session-shell:has(	#astra-chat-message-search-panel[data-replace-visible="true"] ) {
   --astra-chat-top-bar-block-size: 96px;
 }
 .astra-chat-message-search-panel {
@@ -11207,9 +11207,23 @@ body.astra-projecta-mobile-layout {
   border-radius: var(--radius-lg);
   background: var(--surface-muted-t60);
 }
-.astra-chat-message-search-panel__input-icon {
+.astra-chat-message-search-panel__options-trigger, .astra-chat-message-search-panel__replace-action, .astra-chat-message-search-controls__button {
   flex: 0 0 auto;
+  cursor: pointer;
+  border-radius: var(--radius-full);
   color: var(--muted-foreground);
+}
+.astra-chat-message-search-panel__options-trigger {
+  width: auto;
+  min-width: 40px;
+  padding-inline: 8px 6px;
+  gap: 2px;
+}
+.astra-chat-message-search-panel__options-search-icon, .astra-chat-message-search-panel__options-chevron {
+  flex: 0 0 auto;
+}
+.astra-chat-message-search-panel__options-chevron {
+  opacity: 0.72;
 }
 .astra-chat-message-search-panel__input, .astra-chat-message-search-panel__replace-input {
   min-width: 0;
@@ -11217,19 +11231,41 @@ body.astra-projecta-mobile-layout {
   box-shadow: none;
   background: transparent;
 }
-.astra-chat-message-search-panel__option, .astra-chat-message-search-panel__replace-action, .astra-chat-message-search-controls__button {
-  flex: 0 0 auto;
-  cursor: pointer;
-  border-radius: var(--radius-full);
+.astra-chat-message-search-panel__options-popover {
+  width: 176px;
+  padding: 12px;
+}
+.astra-chat-message-search-panel__options-title {
+  margin-block-end: 10px;
   color: var(--muted-foreground);
-  background: transparent;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
 }
-.astra-chat-message-search-panel__option:disabled, .astra-chat-message-search-panel__replace-action:disabled, .astra-chat-message-search-controls__button:disabled {
+.astra-chat-message-search-panel__option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.astra-chat-message-search-panel__option-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.astra-chat-message-search-panel__option-checkbox {
+  cursor: pointer;
+}
+.astra-chat-message-search-panel__option-label {
+  min-width: 0;
+  cursor: pointer;
+  font-weight: var(--font-weight-normal);
+}
+.astra-chat-message-search-panel__option-separator {
+  margin-block: 2px;
+}
+.astra-chat-message-search-panel__replace-action:disabled, .astra-chat-message-search-controls__button:disabled {
   cursor: not-allowed;
-}
-.astra-chat-message-search-panel__option[data-active="true"] {
-  color: var(--foreground);
-  background: var(--surface-accent-t70);
 }
 .astra-chat-message-search-controls__button--done {
   cursor: pointer;

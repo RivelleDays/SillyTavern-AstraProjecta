@@ -201,12 +201,14 @@ export interface I18nMessages {
 	"chatMessageSearch.done": string;
 	"chatMessageSearch.matchCase": string;
 	"chatMessageSearch.next": string;
+	"chatMessageSearch.options.label": string;
 	"chatMessageSearch.previous": string;
 	"chatMessageSearch.redo": string;
 	"chatMessageSearch.replace.all": string;
 	"chatMessageSearch.replace.inputLabel": string;
 	"chatMessageSearch.replace.one": string;
 	"chatMessageSearch.replace.placeholder": string;
+	"chatMessageSearch.replace.toggle": string;
 	"chatMessageSearch.search.label": string;
 	"chatMessageSearch.search.placeholder": string;
 	"chatMessageSearch.undo": string;

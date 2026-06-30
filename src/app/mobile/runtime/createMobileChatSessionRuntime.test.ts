@@ -367,6 +367,7 @@ describe("createMobileChatSessionRuntime", () => {
 			resetForChatChange: vi.fn(),
 			setCaseSensitive: vi.fn(),
 			setQuery: vi.fn(),
+			setReplaceVisible: vi.fn(),
 			setReplaceText: vi.fn(),
 			setWholeWord: vi.fn(),
 			subscribe: vi.fn(() => () => undefined),

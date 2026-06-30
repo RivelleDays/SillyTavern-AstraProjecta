@@ -55,6 +55,7 @@ function setSillyTavernContextFactory(getContext: () => unknown) {
 
 describe("chat message search SillyTavern adapter", () => {
 	afterEach(() => {
+		window.localStorage.clear();
 		Reflect.deleteProperty(
 			globalThis as Record<string, unknown>,
 			"SillyTavern",
@@ -251,5 +252,115 @@ describe("chat message search SillyTavern adapter", () => {
 		expect(listener).toHaveBeenCalledTimes(2);
 		expect(eventSource.listenerCount("chat_changed")).toBe(0);
 		expect(eventSource.listenerCount("chat_loaded")).toBe(0);
+	});
+
+	test("default store reads and persists browser search preferences", () => {
+		window.localStorage.setItem(
+			"astra_projecta.chat_message_search.case_sensitive",
+			"true",
+		);
+		window.localStorage.setItem(
+			"astra_projecta.chat_message_search.whole_word",
+			"true",
+		);
+		window.localStorage.setItem(
+			"astra_projecta.chat_message_search.replace_visible",
+			"true",
+		);
+		setSillyTavernContext({
+			chat: [{ mes: "Alpha alpha alphabet" }],
+		});
+
+		const store = createDefaultChatMessageSearchStore({
+			documentRef: document,
+		});
+
+		store.open();
+		store.setQuery("alpha");
+		expect(store.getSnapshot()).toMatchObject({
+			caseSensitive: true,
+			matchCount: 1,
+			replaceVisible: true,
+			wholeWord: true,
+		});
+
+		store.setCaseSensitive(false);
+		store.setWholeWord(false);
+		store.setReplaceVisible(false);
+
+		expect(
+			window.localStorage.getItem(
+				"astra_projecta.chat_message_search.case_sensitive",
+			),
+		).toBe("false");
+		expect(
+			window.localStorage.getItem(
+				"astra_projecta.chat_message_search.whole_word",
+			),
+		).toBe("false");
+		expect(
+			window.localStorage.getItem(
+				"astra_projecta.chat_message_search.replace_visible",
+			),
+		).toBe("false");
+
+		store.dispose();
+	});
+
+	test("default store falls back for invalid or unavailable browser preference storage", () => {
+		window.localStorage.setItem(
+			"astra_projecta.chat_message_search.case_sensitive",
+			"invalid",
+		);
+		window.localStorage.setItem(
+			"astra_projecta.chat_message_search.whole_word",
+			"invalid",
+		);
+		window.localStorage.setItem(
+			"astra_projecta.chat_message_search.replace_visible",
+			"invalid",
+		);
+		setSillyTavernContext({ chat: [{ mes: "Alpha alpha" }] });
+
+		const store = createDefaultChatMessageSearchStore({
+			documentRef: document,
+		});
+
+		store.open();
+		expect(store.getSnapshot()).toMatchObject({
+			caseSensitive: false,
+			replaceVisible: false,
+			wholeWord: false,
+		});
+		store.dispose();
+
+		const throwingStorage = {
+			getItem: vi.fn(() => {
+				throw new Error("blocked");
+			}),
+			setItem: vi.fn(() => {
+				throw new Error("blocked");
+			}),
+		};
+		const blockedDocument = {
+			defaultView: { localStorage: throwingStorage },
+		} as unknown as Document;
+		const blockedStore = createDefaultChatMessageSearchStore({
+			documentRef: blockedDocument,
+		});
+
+		blockedStore.open();
+		expect(blockedStore.getSnapshot()).toMatchObject({
+			caseSensitive: false,
+			replaceVisible: false,
+			wholeWord: false,
+		});
+		expect(() => {
+			blockedStore.setCaseSensitive(true);
+			blockedStore.setWholeWord(true);
+			blockedStore.setReplaceVisible(true);
+		}).not.toThrow();
+
+		blockedStore.dispose();
 	});
 });

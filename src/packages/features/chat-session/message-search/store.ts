@@ -39,7 +39,14 @@ export interface ChatMessageSearchSnapshot {
 	matchCount: number;
 	matches: ChatMessageSearchMatch[];
 	query: string;
+	replaceVisible: boolean;
 	replaceText: string;
+	wholeWord: boolean;
+}
+
+export interface ChatMessageSearchPreferences {
+	caseSensitive: boolean;
+	replaceVisible: boolean;
 	wholeWord: boolean;
 }
 
@@ -57,6 +64,7 @@ export interface ChatMessageSearchStore {
 	resetForChatChange(): void;
 	setCaseSensitive(value: boolean): void;
 	setQuery(value: string): void;
+	setReplaceVisible(value: boolean): void;
 	setReplaceText(value: string): void;
 	setWholeWord(value: boolean): void;
 	subscribe(listener: Listener): () => void;
@@ -64,6 +72,8 @@ export interface ChatMessageSearchStore {
 }
 
 export interface CreateChatMessageSearchStoreOptions {
+	initialPreferences?: Partial<ChatMessageSearchPreferences>;
+	onPreferencesChange?: (preferences: ChatMessageSearchPreferences) => void;
 	readMessages?: () => ChatMessageSearchMessage[];
 	saveTextEdits?: ChatMessageSearchStoreSaveTextEdits;
 	subscribeToChatChanges?: (listener: Listener) => () => void;
@@ -83,10 +93,27 @@ const DEFAULT_SAVE_TEXT_EDITS: ChatMessageSearchStoreSaveTextEdits =
 		ok: false,
 		reason: "api-unavailable",
 	});
+const DEFAULT_SEARCH_PREFERENCES: ChatMessageSearchPreferences = {
+	caseSensitive: false,
+	replaceVisible: false,
+	wholeWord: false,
+};
 const REPLACE_FAILURE_LOG_PREFIX =
 	"[AstraProjecta] Chat message replacement failed.";
 
-function createEmptySnapshot(): ChatMessageSearchSnapshot {
+function normalizeSearchPreferences(
+	preferences: Partial<ChatMessageSearchPreferences> | undefined,
+): ChatMessageSearchPreferences {
+	return {
+		caseSensitive: preferences?.caseSensitive === true,
+		replaceVisible: preferences?.replaceVisible === true,
+		wholeWord: preferences?.wholeWord === true,
+	};
+}
+
+function createEmptySnapshot(
+	preferences: ChatMessageSearchPreferences = DEFAULT_SEARCH_PREFERENCES,
+): ChatMessageSearchSnapshot {
 	return {
 		activeMatch: null,
 		activeMatchIndex: -1,
@@ -94,15 +121,16 @@ function createEmptySnapshot(): ChatMessageSearchSnapshot {
 		canRedo: false,
 		canReplace: false,
 		canUndo: false,
-		caseSensitive: false,
+		caseSensitive: preferences.caseSensitive,
 		isBusy: false,
 		isOpen: false,
 		lastReplaceFailureReason: null,
 		matchCount: 0,
 		matches: [],
 		query: "",
+		replaceVisible: preferences.replaceVisible,
 		replaceText: "",
-		wholeWord: false,
+		wholeWord: preferences.wholeWord,
 	};
 }
 
@@ -146,14 +174,17 @@ function logReplaceFailure(reason: string): void {
 }
 
 export function createChatMessageSearchStore({
+	initialPreferences,
+	onPreferencesChange,
 	readMessages = () => [],
 	saveTextEdits = DEFAULT_SAVE_TEXT_EDITS,
 	subscribeToChatChanges,
 }: CreateChatMessageSearchStoreOptions = {}): ChatMessageSearchStore {
 	const listeners = new Set<Listener>();
+	let preferences = normalizeSearchPreferences(initialPreferences);
 	let disposed = false;
 	let messages: ChatMessageSearchMessage[] = [];
-	let snapshot = createEmptySnapshot();
+	let snapshot = createEmptySnapshot(preferences);
 	let undoStack: ReplacementOperation[] = [];
 	let redoStack: ReplacementOperation[] = [];
 	let unsubscribeChatChanges: (() => void) | null = null;
@@ -215,13 +246,39 @@ export function createChatMessageSearchStore({
 		undoStack = [];
 		redoStack = [];
 		snapshot = {
-			...createEmptySnapshot(),
+			...createEmptySnapshot(preferences),
 			isOpen: nextOpen,
 		};
 		messages = [];
 		if (nextOpen) {
 			recomputeMatches(0);
 		}
+		emit();
+	}
+
+	function notifyPreferencesChange(): void {
+		onPreferencesChange?.({ ...preferences });
+	}
+
+	function updatePreferences(
+		nextPreferences: ChatMessageSearchPreferences,
+		shouldRecomputeMatches: boolean,
+	): void {
+		preferences = nextPreferences;
+		snapshot = {
+			...snapshot,
+			caseSensitive: preferences.caseSensitive,
+			lastReplaceFailureReason: null,
+			replaceVisible: preferences.replaceVisible,
+			wholeWord: preferences.wholeWord,
+		};
+		notifyPreferencesChange();
+
+		if (shouldRecomputeMatches) {
+			refreshAndEmit(0);
+			return;
+		}
+
 		emit();
 	}
 
@@ -450,12 +507,13 @@ export function createChatMessageSearchStore({
 			resetSession(false);
 		},
 		setCaseSensitive(value: boolean) {
-			snapshot = {
-				...snapshot,
-				caseSensitive: value,
-				lastReplaceFailureReason: null,
-			};
-			refreshAndEmit(0);
+			updatePreferences(
+				{
+					...preferences,
+					caseSensitive: value,
+				},
+				true,
+			);
 		},
 		setQuery(value: string) {
 			snapshot = {
@@ -472,13 +530,23 @@ export function createChatMessageSearchStore({
 				replaceText: value,
 			}));
 		},
+		setReplaceVisible(value: boolean) {
+			updatePreferences(
+				{
+					...preferences,
+					replaceVisible: value,
+				},
+				false,
+			);
+		},
 		setWholeWord(value: boolean) {
-			snapshot = {
-				...snapshot,
-				lastReplaceFailureReason: null,
-				wholeWord: value,
-			};
-			refreshAndEmit(0);
+			updatePreferences(
+				{
+					...preferences,
+					wholeWord: value,
+				},
+				true,
+			);
 		},
 		subscribe(listener: Listener) {
 			if (disposed) {

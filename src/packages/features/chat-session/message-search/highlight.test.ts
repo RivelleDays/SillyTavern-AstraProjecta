@@ -32,6 +32,7 @@ function createSnapshot(
 		matchCount: matches.length,
 		matches,
 		query: "cat",
+		replaceVisible: false,
 		replaceText: "",
 		wholeWord: false,
 		...overrides,

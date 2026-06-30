@@ -35,6 +35,7 @@ describe("chat message search store", () => {
 			isOpen: true,
 			matchCount: 2,
 			query: "alpha",
+			replaceVisible: false,
 			replaceText: "",
 			wholeWord: false,
 		});
@@ -42,6 +43,96 @@ describe("chat message search store", () => {
 			messageId: 0,
 			start: 0,
 			text: "Alpha",
+		});
+
+		store.dispose();
+	});
+
+	test("opens with initial preferences and keeps them across session resets", () => {
+		const store = createChatMessageSearchStore({
+			initialPreferences: {
+				caseSensitive: true,
+				replaceVisible: true,
+				wholeWord: true,
+			},
+			readMessages: () => [
+				{ mes: "Alpha alpha alphabet", messageId: 0, swipeId: null },
+			],
+			saveTextEdits: createSaveSuccess(),
+		});
+
+		store.open();
+		store.setQuery("alpha");
+		store.setReplaceText("dog");
+
+		expect(store.getSnapshot()).toMatchObject({
+			caseSensitive: true,
+			matchCount: 1,
+			query: "alpha",
+			replaceText: "dog",
+			replaceVisible: true,
+			wholeWord: true,
+		});
+		expect(store.getSnapshot().activeMatch).toMatchObject({
+			start: 6,
+			text: "alpha",
+		});
+
+		store.close();
+		store.open();
+
+		expect(store.getSnapshot()).toMatchObject({
+			caseSensitive: true,
+			isOpen: true,
+			matchCount: 0,
+			query: "",
+			replaceText: "",
+			replaceVisible: true,
+			wholeWord: true,
+		});
+
+		store.dispose();
+	});
+
+	test("notifies preference changes without persisting session search text", () => {
+		const onPreferencesChange = vi.fn();
+		const store = createChatMessageSearchStore({
+			onPreferencesChange,
+			readMessages: () => [
+				{ mes: "Alpha alpha", messageId: 0, swipeId: null },
+			],
+			saveTextEdits: createSaveSuccess(),
+		});
+
+		store.open();
+		store.setQuery("alpha");
+		store.setReplaceText("dog");
+		store.setCaseSensitive(true);
+		store.setWholeWord(true);
+		store.setReplaceVisible(true);
+
+		expect(onPreferencesChange).toHaveBeenCalledTimes(3);
+		expect(onPreferencesChange).toHaveBeenNthCalledWith(1, {
+			caseSensitive: true,
+			replaceVisible: false,
+			wholeWord: false,
+		});
+		expect(onPreferencesChange).toHaveBeenNthCalledWith(2, {
+			caseSensitive: true,
+			replaceVisible: false,
+			wholeWord: true,
+		});
+		expect(onPreferencesChange).toHaveBeenNthCalledWith(3, {
+			caseSensitive: true,
+			replaceVisible: true,
+			wholeWord: true,
+		});
+		expect(store.getSnapshot()).toMatchObject({
+			caseSensitive: true,
+			query: "alpha",
+			replaceText: "dog",
+			replaceVisible: true,
+			wholeWord: true,
 		});
 
 		store.dispose();
