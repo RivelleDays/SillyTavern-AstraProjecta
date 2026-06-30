@@ -17,6 +17,7 @@ import {
 	ArrowUp,
 	Check,
 	ChevronDown,
+	CircleX,
 	Redo2,
 	Replace,
 	ReplaceAll,
@@ -54,6 +55,7 @@ export function MobileChatMessageSearchControls({
 	const searchPlaceholder = translateAstra(
 		"chatMessageSearch.search.placeholder",
 	);
+	const clearSearchLabel = translateAstra("chatMessageSearch.search.clear");
 	const replaceInputLabel = translateAstra(
 		"chatMessageSearch.replace.inputLabel",
 	);
@@ -211,12 +213,41 @@ export function MobileChatMessageSearchControls({
 							aria-label={searchLabel}
 							className="astra-chat-message-search-panel__input astra-chat-message-search-controls__input"
 							placeholder={searchPlaceholder}
-							type="search"
+							type="text"
 							value={snapshot.query}
 							onChange={(event) => {
 								store.setQuery(event.target.value);
 							}}
 						/>
+						{snapshot.query ? (
+							<button
+								aria-label={clearSearchLabel}
+								className={cn(
+									buttonVariants({
+										size: "icon-sm",
+										variant: "ghost",
+									}),
+									"astra-chat-message-search-panel__clear",
+								)}
+								title={clearSearchLabel}
+								type="button"
+								onClick={() => {
+									store.setQuery("");
+									const searchInput = documentRef.getElementById(
+										ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
+									);
+									if (searchInput instanceof HTMLInputElement) {
+										searchInput.focus();
+									}
+								}}
+							>
+								<UiIcon
+									aria-hidden={true}
+									icon={CircleX}
+									size="sm"
+								/>
+							</button>
+						) : null}
 					</div>
 				</div>
 				{snapshot.replaceVisible ? (

@@ -11257,6 +11257,11 @@ body.astra-projecta-mobile-layout {
   box-shadow: none;
   background: transparent;
 }
+.astra-chat-message-search-panel__clear {
+  flex: 0 0 auto;
+  cursor: pointer;
+  color: var(--muted-foreground);
+}
 .astra-chat-message-search-panel__options-popover {
   width: 176px;
   padding: 12px;

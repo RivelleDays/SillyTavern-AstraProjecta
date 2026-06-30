@@ -3694,7 +3694,7 @@ describe("createMobileSendFormFeature", () => {
 		});
 		feature.mount();
 
-		const host = await waitForInputRowHost();
+		await waitForInputRowHost();
 
 		const leftControlsExtensionsButton = document.getElementById(
 			"astra-send-form-extension-shortcuts-button",

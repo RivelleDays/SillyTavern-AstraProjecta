@@ -209,6 +209,7 @@ export interface I18nMessages {
 	"chatMessageSearch.replace.one": string;
 	"chatMessageSearch.replace.placeholder": string;
 	"chatMessageSearch.replace.toggle": string;
+	"chatMessageSearch.search.clear": string;
 	"chatMessageSearch.search.label": string;
 	"chatMessageSearch.search.placeholder": string;
 	"chatMessageSearch.undo": string;

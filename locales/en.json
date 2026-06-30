@@ -206,6 +206,7 @@
 	"chatMessageSearch.replace.one": "Replace",
 	"chatMessageSearch.replace.placeholder": "Replace with",
 	"chatMessageSearch.replace.toggle": "Replace",
+	"chatMessageSearch.search.clear": "Clear search",
 	"chatMessageSearch.search.label": "Search chat messages",
 	"chatMessageSearch.search.placeholder": "Search messages",
 	"chatMessageSearch.undo": "Undo replace",
