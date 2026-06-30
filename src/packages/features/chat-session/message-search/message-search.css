@@ -223,11 +223,10 @@
 
 .astra-chat-message-search-highlight {
     border-radius: 2px;
-    color: var(--popover);
-    background: var(--popover-foreground);
+    color: black;
+    background: var(--color-amber-300);
 }
 
 .astra-chat-message-search-highlight--active {
-	outline: 1px solid var(--color-ring-t70);
-	background: var(--surface-primary-t80);
+    background: var(--color-amber-600);
 }
