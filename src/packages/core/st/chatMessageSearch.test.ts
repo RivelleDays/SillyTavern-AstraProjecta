@@ -146,6 +146,7 @@ describe("chat message search SillyTavern adapter", () => {
 		store.open();
 		store.setQuery("cat");
 		store.setReplaceText("dog");
+		store.setReplaceOpen(true);
 
 		await expect(store.replaceAll()).resolves.toBe(true);
 

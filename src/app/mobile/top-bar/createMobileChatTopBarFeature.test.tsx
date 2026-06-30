@@ -8,7 +8,10 @@ import {
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identity";
-import { createChatMessageSearchStore } from "@/packages/features/chat-session/message-search/store";
+import {
+	createChatMessageSearchStore,
+	type ChatMessageSearchStoreSaveTextEdits,
+} from "@/packages/features/chat-session/message-search/store";
 import {
 	ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID,
 	ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
@@ -609,15 +612,33 @@ describe("createMobileChatTopBarFeature", () => {
 	test("opens the chat message search panel from the top-bar action group", async () => {
 		document.body.innerHTML = '<div id="sheld"></div>';
 		const store = createIdentityStoreStub();
+		let messages = [
+			{ messageId: 0, mes: "Searchable message", swipeId: null },
+			{
+				messageId: 1,
+				mes: "Another Searchable message",
+				swipeId: null,
+			},
+		];
+		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
+			edits,
+		}) => {
+			messages = messages.map((message) => {
+				const edit = edits.find(
+					(item) => item.messageId === message.messageId,
+				);
+				return edit ? { ...message, mes: edit.messageText } : message;
+			});
+
+			return {
+				messageIds: edits.map((edit) => edit.messageId),
+				ok: true,
+			};
+		};
+		const saveTextEdits = vi.fn(saveTextEditsImpl);
 		const chatMessageSearchStore = createChatMessageSearchStore({
-			readMessages: () => [
-				{ messageId: 0, mes: "Searchable message", swipeId: null },
-				{
-					messageId: 1,
-					mes: "Another searchable message",
-					swipeId: null,
-				},
-			],
+			readMessages: () => messages,
+			saveTextEdits,
 		});
 		const feature = createMobileChatTopBarFeature({
 			chatMessageSearchStore,
@@ -675,9 +696,43 @@ describe("createMobileChatTopBarFeature", () => {
 			within(searchPanel).getByRole("button", { name: "Show replace" }),
 		);
 		expect(searchPanel).toHaveAttribute("data-replace-open", "true");
-		expect(
-			document.getElementById(ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID),
-		).toBeInstanceOf(HTMLInputElement);
+		const replaceInput = document.getElementById(
+			ASTRA_CHAT_MESSAGE_REPLACE_INPUT_ID,
+		);
+		expect(replaceInput).toBeInstanceOf(HTMLInputElement);
+		const replaceAllButton = within(searchPanel).getByRole("button", {
+			name: "Replace all",
+		});
+		expect(replaceAllButton).toBeDisabled();
+
+		fireEvent.change(searchInput as HTMLInputElement, {
+			target: { value: "Searchable" },
+		});
+		fireEvent.change(replaceInput as HTMLInputElement, {
+			target: { value: "Found" },
+		});
+		await waitFor(() => {
+			expect(replaceAllButton).toBeEnabled();
+		});
+
+		fireEvent.click(replaceAllButton);
+
+		await waitFor(() => {
+			expect(messages.map((message) => message.mes)).toEqual([
+				"Found message",
+				"Another Found message",
+			]);
+		});
+		expect(saveTextEdits).toHaveBeenLastCalledWith({
+			edits: [
+				{ messageId: 0, messageText: "Found message", swipeId: null },
+				{
+					messageId: 1,
+					messageText: "Another Found message",
+					swipeId: null,
+				},
+			],
+		});
 
 		act(() => {
 			feature.dispose();

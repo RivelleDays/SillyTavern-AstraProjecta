@@ -477,7 +477,7 @@ describe("chatMessageEdit", () => {
 		expect(saveChat).toHaveBeenCalledTimes(1);
 	});
 
-	test("batch edits emit update lifecycle before saving the chat", async () => {
+	test("batch edits save before best-effort update lifecycle", async () => {
 		const calls: string[] = [];
 		const eventSource = {
 			emit: vi.fn(async (eventName: string, messageId: number) => {
@@ -515,17 +515,17 @@ describe("chatMessageEdit", () => {
 		).resolves.toEqual({ messageIds: [0, 1], ok: true });
 
 		expect(calls).toEqual([
+			"save",
 			"message_edited:0",
 			"update:0",
 			"message_updated:0",
 			"message_edited:1",
 			"update:1",
 			"message_updated:1",
-			"save",
 		]);
 	});
 
-	test("batch edit restores original chat messages when update events fail", async () => {
+	test("batch edit keeps saved text when post-save events fail", async () => {
 		const chat: TestMessage[] = [
 			{
 				extra: { display_text: "Translated original" },
@@ -558,15 +558,47 @@ describe("chatMessageEdit", () => {
 			batchSaveChatMessageTextEdits({
 				edits: [{ messageId: 0, messageText: "Changed" }],
 			}),
-		).resolves.toEqual({
-			ok: false,
-			reason: "save-failed",
+		).resolves.toEqual({ messageIds: [0], ok: true });
+
+		expect(chat[0].mes).toBe("Changed");
+		expect(chat[0].swipes?.[0]).toBe("Changed");
+		expect(chat[0].extra?.display_text).toBeUndefined();
+		expect(saveChat).toHaveBeenCalledTimes(1);
+	});
+
+	test("batch edit falls back to rendered DOM when updateMessageBlock fails", async () => {
+		document.body.innerHTML = `
+			<div id="chat">
+				<div class="mes" mesid="0"><div class="mes_block"><div class="mes_text">Old cat</div></div></div>
+			</div>
+		`;
+		const chat: TestMessage[] = [
+			{
+				is_user: false,
+				mes: "Old cat",
+				name: "Assistant",
+			},
+		];
+		const saveChat = vi.fn(async () => undefined);
+		setSillyTavernContext({
+			chat,
+			messageFormatting: (value: string) => `<p>${value}</p>`,
+			saveChat,
+			updateMessageBlock: vi.fn(() => {
+				throw new Error("render failed");
+			}),
 		});
 
-		expect(chat[0].mes).toBe("Original");
-		expect(chat[0].swipes?.[0]).toBe("Original");
-		expect(chat[0].extra?.display_text).toBe("Translated original");
-		expect(saveChat).not.toHaveBeenCalled();
+		await expect(
+			batchSaveChatMessageTextEdits({
+				edits: [{ messageId: 0, messageText: "New dog" }],
+			}),
+		).resolves.toEqual({ messageIds: [0], ok: true });
+
+		expect(document.querySelector('.mes[mesid="0"] .mes_text')).toHaveTextContent(
+			"New dog",
+		);
+		expect(saveChat).toHaveBeenCalledTimes(1);
 	});
 
 	test("batch saves explicit hidden swipe text without mutating visible text", async () => {
@@ -633,6 +665,7 @@ describe("chatMessageEdit", () => {
 	test("batch edit restores original chat messages when save fails", async () => {
 		const chat: TestMessage[] = [
 			{
+				extra: { display_text: "Translated original" },
 				is_user: true,
 				mes: "Original",
 				swipe_id: 0,
@@ -656,6 +689,7 @@ describe("chatMessageEdit", () => {
 		expect(chat[0].mes).toBe("Original");
 		expect(chat[0].swipes?.[0]).toBe("Original");
 		expect(chat[0].swipes?.[1]).toBe("Hidden");
+		expect(chat[0].extra?.display_text).toBe("Translated original");
 		expect(saveChat).toHaveBeenCalledTimes(1);
 	});
 });

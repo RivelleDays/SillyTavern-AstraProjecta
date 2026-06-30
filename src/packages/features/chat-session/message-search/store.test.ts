@@ -72,6 +72,47 @@ describe("chat message search store", () => {
 		store.dispose();
 	});
 
+	test("replace mode forces exact literal matching", () => {
+		const store = createChatMessageSearchStore({
+			readMessages: () => [
+				{ mes: "Alpha alpha", messageId: 0, swipeId: null },
+			],
+			saveTextEdits: createSaveSuccess(),
+		});
+
+		store.open();
+		store.setQuery("alpha");
+		expect(store.getSnapshot()).toMatchObject({
+			caseSensitive: false,
+			isReplaceOpen: false,
+			matchCount: 2,
+			wholeWord: false,
+		});
+
+		store.setReplaceOpen(true);
+		expect(store.getSnapshot()).toMatchObject({
+			activeMatchIndex: 0,
+			caseSensitive: true,
+			isReplaceOpen: true,
+			matchCount: 1,
+			wholeWord: false,
+		});
+		expect(store.getSnapshot().activeMatch).toMatchObject({
+			start: 6,
+			text: "alpha",
+		});
+
+		store.setCaseSensitive(false);
+		store.setWholeWord(true);
+		expect(store.getSnapshot()).toMatchObject({
+			caseSensitive: true,
+			matchCount: 1,
+			wholeWord: false,
+		});
+
+		store.dispose();
+	});
+
 	test("replaces the active match and records a session undo step", async () => {
 		let messages = [
 			{ mes: "eat probiotic now", messageId: 0, swipeId: null },
@@ -123,9 +164,49 @@ describe("chat message search store", () => {
 		store.dispose();
 	});
 
+	test("replaces the active exact match in replace mode", async () => {
+		let messages = [
+			{ mes: "Cat cat", messageId: 0, swipeId: null },
+		];
+		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
+			edits,
+		}) => {
+			messages = messages.map((message) => {
+				const edit = edits.find(
+					(item) => item.messageId === message.messageId,
+				);
+				return edit ? { ...message, mes: edit.messageText } : message;
+			});
+			return {
+				messageIds: edits.map((edit) => edit.messageId),
+				ok: true,
+			};
+		};
+		const saveTextEdits = vi.fn(saveTextEditsImpl);
+		const store = createChatMessageSearchStore({
+			readMessages: () => messages,
+			saveTextEdits,
+		});
+
+		store.open();
+		store.setQuery("cat");
+		store.setReplaceText("dog");
+		store.setReplaceOpen(true);
+
+		await expect(store.replaceCurrent()).resolves.toBe(true);
+		expect(messages[0].mes).toBe("Cat dog");
+		expect(saveTextEdits).toHaveBeenLastCalledWith({
+			edits: [
+				{ messageId: 0, messageText: "Cat dog", swipeId: null },
+			],
+		});
+
+		store.dispose();
+	});
+
 	test("replaces all matches as one undoable operation and supports redo", async () => {
 		let messages = [
-			{ mes: "cat cat", messageId: 0, swipeId: null },
+			{ mes: "Cat cat cat", messageId: 0, swipeId: null },
 			{ mes: "cat", messageId: 1, swipeId: 2 },
 		];
 		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
@@ -151,35 +232,70 @@ describe("chat message search store", () => {
 		store.open();
 		store.setQuery("cat");
 		store.setReplaceText("dog");
+		store.setReplaceOpen(true);
 
 		await expect(store.replaceAll()).resolves.toBe(true);
 		expect(messages.map((message) => message.mes)).toEqual([
-			"dog dog",
+			"Cat dog dog",
 			"dog",
 		]);
 		expect(saveTextEdits).toHaveBeenLastCalledWith({
 			edits: [
-				{ messageId: 0, messageText: "dog dog", swipeId: null },
+				{ messageId: 0, messageText: "Cat dog dog", swipeId: null },
 				{ messageId: 1, messageText: "dog", swipeId: 2 },
 			],
 		});
 
 		await expect(store.undo()).resolves.toBe(true);
 		expect(messages.map((message) => message.mes)).toEqual([
-			"cat cat",
+			"Cat cat cat",
 			"cat",
 		]);
 
 		await expect(store.redo()).resolves.toBe(true);
 		expect(messages.map((message) => message.mes)).toEqual([
-			"dog dog",
+			"Cat dog dog",
 			"dog",
 		]);
 
 		store.dispose();
 	});
 
+	test("does not save replace all when replace mode has no exact matches", async () => {
+		const saveTextEdits = createSaveSuccess();
+		const store = createChatMessageSearchStore({
+			readMessages: () => [
+				{ mes: "Cat", messageId: 0, swipeId: null },
+			],
+			saveTextEdits,
+		});
+
+		store.open();
+		store.setQuery("cat");
+		expect(store.getSnapshot()).toMatchObject({
+			canReplace: true,
+			matchCount: 1,
+		});
+
+		store.setReplaceOpen(true);
+		expect(store.getSnapshot()).toMatchObject({
+			canReplace: false,
+			matchCount: 0,
+		});
+		await expect(store.replaceAll()).resolves.toBe(false);
+		expect(saveTextEdits).not.toHaveBeenCalled();
+		expect(store.getSnapshot()).toMatchObject({
+			canUndo: false,
+			isBusy: false,
+		});
+
+		store.dispose();
+	});
+
 	test("returns false and restores busy state when replace all save throws", async () => {
+		const warnSpy = vi
+			.spyOn(console, "warn")
+			.mockImplementation(() => undefined);
 		const saveTextEdits = vi.fn(async () => {
 			throw new Error("save failed");
 		});
@@ -193,19 +309,66 @@ describe("chat message search store", () => {
 		store.open();
 		store.setQuery("cat");
 		store.setReplaceText("dog");
+		store.setReplaceOpen(true);
 
 		await expect(store.replaceAll()).resolves.toBe(false);
 		expect(saveTextEdits).toHaveBeenCalledTimes(1);
 		expect(store.getSnapshot()).toMatchObject({
 			canUndo: false,
 			isBusy: false,
+			lastReplaceFailureReason: "exception",
 			matchCount: 1,
 		});
+		expect(warnSpy).toHaveBeenCalledWith(
+			"[AstraProjecta] Chat message replacement failed.",
+			"exception",
+		);
 
 		store.dispose();
+		warnSpy.mockRestore();
+	});
+
+	test("keeps undo history when replace all save returns a failure result", async () => {
+		const warnSpy = vi
+			.spyOn(console, "warn")
+			.mockImplementation(() => undefined);
+		const saveTextEdits = vi.fn(async () => ({
+			ok: false,
+			reason: "save-failed",
+		}) as const);
+		const store = createChatMessageSearchStore({
+			readMessages: () => [
+				{ mes: "cat", messageId: 0, swipeId: null },
+			],
+			saveTextEdits,
+		});
+
+		store.open();
+		store.setQuery("cat");
+		store.setReplaceText("dog");
+		store.setReplaceOpen(true);
+
+		await expect(store.replaceAll()).resolves.toBe(false);
+		expect(saveTextEdits).toHaveBeenCalledTimes(1);
+		expect(store.getSnapshot()).toMatchObject({
+			canUndo: false,
+			isBusy: false,
+			lastReplaceFailureReason: "save-failed",
+			matchCount: 1,
+		});
+		expect(warnSpy).toHaveBeenCalledWith(
+			"[AstraProjecta] Chat message replacement failed.",
+			"save-failed",
+		);
+
+		store.dispose();
+		warnSpy.mockRestore();
 	});
 
 	test("keeps undo and redo history when a save throws", async () => {
+		const warnSpy = vi
+			.spyOn(console, "warn")
+			.mockImplementation(() => undefined);
 		let shouldThrow = false;
 		let messages = [{ mes: "cat", messageId: 0, swipeId: null }];
 		const saveTextEditsImpl: ChatMessageSearchStoreSaveTextEdits = async ({
@@ -235,6 +398,7 @@ describe("chat message search store", () => {
 		store.open();
 		store.setQuery("cat");
 		store.setReplaceText("dog");
+		store.setReplaceOpen(true);
 		await expect(store.replaceAll()).resolves.toBe(true);
 
 		shouldThrow = true;
@@ -244,6 +408,7 @@ describe("chat message search store", () => {
 			canRedo: false,
 			canUndo: true,
 			isBusy: false,
+			lastReplaceFailureReason: "exception",
 		});
 
 		shouldThrow = false;
@@ -252,6 +417,7 @@ describe("chat message search store", () => {
 		expect(store.getSnapshot()).toMatchObject({
 			canRedo: true,
 			canUndo: false,
+			lastReplaceFailureReason: null,
 		});
 
 		shouldThrow = true;
@@ -261,9 +427,11 @@ describe("chat message search store", () => {
 			canRedo: true,
 			canUndo: false,
 			isBusy: false,
+			lastReplaceFailureReason: "exception",
 		});
 
 		store.dispose();
+		warnSpy.mockRestore();
 	});
 
 	test("resets search state when the active chat changes", () => {

@@ -29,6 +29,7 @@ function createSnapshot(
 		isBusy: false,
 		isOpen: true,
 		isReplaceOpen: false,
+		lastReplaceFailureReason: null,
 		matchCount: matches.length,
 		matches,
 		query: "cat",

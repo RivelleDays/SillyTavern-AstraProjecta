@@ -417,6 +417,19 @@ async function emitContextEvent(
 	await context.eventSource?.emit?.(eventName, messageId);
 }
 
+async function emitContextEventBestEffort(
+	context: StContextLike,
+	eventKey: keyof EventTypesLike,
+	messageId: number,
+): Promise<void> {
+	try {
+		await emitContextEvent(context, eventKey, messageId);
+	} catch {
+		// Message replacement has already been saved; third-party listeners
+		// must not roll back the persisted chat text.
+	}
+}
+
 async function saveChat(context: StContextLike): Promise<void> {
 	const save =
 		typeof context.saveChat === "function"
@@ -436,6 +449,36 @@ async function redrawChat(context: StContextLike): Promise<void> {
 	}
 
 	await (context.printMessages as () => unknown | Promise<unknown>)();
+}
+
+async function updateMessageBlockBestEffort({
+	context,
+	message,
+	messageId,
+}: {
+	context: StContextLike;
+	message: ChatMessageEditLike;
+	messageId: number;
+}): Promise<void> {
+	try {
+		updateMessageBlock({ context, message, messageId });
+		return;
+	} catch {
+		// Fall through to the plain rendered-text fallback below.
+	}
+
+	try {
+		updateMessageDomFallback({ context, message, messageId });
+		return;
+	} catch {
+		// Last resort: ask SillyTavern to redraw if that public hook exists.
+	}
+
+	try {
+		await redrawChat(context);
+	} catch {
+		// Rendering is best-effort after a successful save.
+	}
 }
 
 function cloneMessage(message: ChatMessageEditLike): ChatMessageEditLike {
@@ -589,16 +632,6 @@ export async function batchSaveChatMessageTextEdits({
 			});
 		}
 
-		for (const target of resolvedTargets) {
-			await emitContextEvent(context, "MESSAGE_EDITED", target.messageId);
-			updateMessageBlock({
-				context,
-				message: target.message,
-				messageId: target.messageId,
-			});
-			await emitContextEvent(context, "MESSAGE_UPDATED", target.messageId);
-		}
-
 		await saveChat(context);
 	} catch {
 		for (const [index, target] of resolvedTargets.entries()) {
@@ -609,6 +642,24 @@ export async function batchSaveChatMessageTextEdits({
 			ok: false,
 			reason: "save-failed",
 		};
+	}
+
+	for (const target of resolvedTargets) {
+		await emitContextEventBestEffort(
+			context,
+			"MESSAGE_EDITED",
+			target.messageId,
+		);
+		await updateMessageBlockBestEffort({
+			context,
+			message: target.message,
+			messageId: target.messageId,
+		});
+		await emitContextEventBestEffort(
+			context,
+			"MESSAGE_UPDATED",
+			target.messageId,
+		);
 	}
 
 	return {
