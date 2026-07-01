@@ -1815,6 +1815,124 @@ describe("MobileChatMainMenuDrawer", () => {
 		expect(characterManagementShell).toBeInTheDocument();
 	});
 
+	test("renders controlled extension shortcuts after the main tile grid", async () => {
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		setSillyTavernContext({
+			timestampToMoment: () => ({
+				format: () => "2026/04/23 06:30 PM",
+			}),
+			translate: (text: string) => text,
+		});
+
+		const onExtensionShortcutsExpandedChange = vi.fn();
+		const onRequestCharacterLibrary = vi.fn();
+		render(
+			<MobileChatMainMenuDrawer
+				chatContextUsageSnapshot={createContextUsageSnapshot()}
+				chatInfoSnapshot={createInfoSnapshot()}
+				extensionShortcutsExpanded={true}
+				onExtensionShortcutsExpandedChange={
+					onExtensionShortcutsExpandedChange
+				}
+				onOpenChange={() => {}}
+				onRequestCharacterLibrary={onRequestCharacterLibrary}
+				open={true}
+				snapshot={createIdentitySnapshot()}
+			/>,
+		);
+
+		const drawer = await screen.findByText("Hero");
+		const root = drawer.closest(".astra-chat-main-menu-drawer");
+		const tileGrid = root?.querySelector(
+			".astra-chat-main-menu-drawer__grid",
+		);
+		const section = document.getElementById(
+			"astra-chat-main-menu-extension-shortcuts",
+		);
+		const content = document.getElementById(
+			"astra-chat-main-menu-extension-shortcuts-content",
+		);
+
+		expect(section).toBeInTheDocument();
+		expect(content).toBeInTheDocument();
+		expect(tileGrid?.compareDocumentPosition(section as Node)).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING,
+		);
+		expect(section?.closest(".astra-chat-main-menu-drawer__content")).toBe(
+			root?.querySelector(".astra-chat-main-menu-drawer__content"),
+		);
+
+		const toggle = within(section as HTMLElement).getByRole("button", {
+			name: "Collapse extension shortcuts",
+		});
+		expect(toggle).toHaveAttribute("aria-expanded", "true");
+		expect(toggle).toHaveAttribute(
+			"aria-controls",
+			"astra-chat-main-menu-extension-shortcuts-content",
+		);
+
+		const characterLibraryButton = within(content as HTMLElement).getByRole(
+			"button",
+			{
+				name: "Character Library",
+			},
+		);
+		expect(characterLibraryButton).toHaveAttribute(
+			"id",
+			"astra-chat-main-menu-character-library-shortcut",
+		);
+		expect(
+			characterLibraryButton.querySelector(".fa-solid.fa-layer-group"),
+		).toBeInTheDocument();
+
+		fireEvent.click(characterLibraryButton);
+		expect(onRequestCharacterLibrary).toHaveBeenCalledTimes(1);
+
+		fireEvent.click(toggle);
+		expect(onExtensionShortcutsExpandedChange).toHaveBeenCalledWith(false);
+	});
+
+	test("keeps extension shortcuts collapsed when the controlled state is false", async () => {
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		setSillyTavernContext({
+			timestampToMoment: () => ({
+				format: () => "2026/04/23 06:30 PM",
+			}),
+			translate: (text: string) => text,
+		});
+
+		render(
+			<MobileChatMainMenuDrawer
+				chatContextUsageSnapshot={createContextUsageSnapshot()}
+				chatInfoSnapshot={createInfoSnapshot()}
+				extensionShortcutsExpanded={false}
+				onExtensionShortcutsExpandedChange={() => {}}
+				onOpenChange={() => {}}
+				onRequestCharacterLibrary={() => {}}
+				open={true}
+				snapshot={createIdentitySnapshot()}
+			/>,
+		);
+
+		const section = await waitFor(() => {
+			const element = document.getElementById(
+				"astra-chat-main-menu-extension-shortcuts",
+			);
+			expect(element).toBeInTheDocument();
+			return element as HTMLElement;
+		});
+		const toggle = within(section).getByRole("button", {
+			name: "Expand extension shortcuts",
+		});
+
+		expect(toggle).toHaveAttribute("aria-expanded", "false");
+		expect(
+			document.getElementById(
+				"astra-chat-main-menu-extension-shortcuts-content",
+			),
+		).not.toBeInTheDocument();
+	});
+
 	test("keeps the tile wrapper id attribute ahead of className in source", () => {
 		const source = readFileSync(
 			resolve(

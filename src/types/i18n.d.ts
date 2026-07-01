@@ -383,6 +383,15 @@ export interface I18nMessages {
 	"sendForm.mainMenu.details.less": string;
 	"sendForm.mainMenu.details.more": string;
 	"sendForm.mainMenu.empty": string;
+	"sendForm.mainMenu.extensionShortcuts.characterLibrary": string;
+	"sendForm.mainMenu.extensionShortcuts.collapse": string;
+	"sendForm.mainMenu.extensionShortcuts.expand": string;
+	"sendForm.mainMenu.extensionShortcuts.github": string;
+	"sendForm.mainMenu.extensionShortcuts.missing.close": string;
+	"sendForm.mainMenu.extensionShortcuts.missing.description": string;
+	"sendForm.mainMenu.extensionShortcuts.missing.title": string;
+	"sendForm.mainMenu.extensionShortcuts.region": string;
+	"sendForm.mainMenu.extensionShortcuts.title": string;
 	"sendForm.mainMenu.meta.api": string;
 	"sendForm.mainMenu.meta.fileSize": string;
 	"sendForm.mainMenu.meta.lastMessage": string;

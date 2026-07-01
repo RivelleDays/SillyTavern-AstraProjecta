@@ -60,6 +60,7 @@ import {
 	splitMobileChatMainMenuTileLabel,
 } from "@/packages/features/chat-session/send-form/main-menu/tiles";
 import { MobileChatMainMenuDrawerDetails } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawerDetails";
+import { MobileChatMainMenuExtensionShortcuts } from "@/packages/features/chat-session/send-form/main-menu/extension-shortcuts/MobileChatMainMenuExtensionShortcuts";
 
 const ASTRA_CHAT_MAIN_MENU_HEADER_ACTIONS = [
 	{
@@ -203,8 +204,11 @@ export function MobileChatMainMenuDrawer({
 	currentConnectionSnapshot,
 	currentPresetProfileControlsSnapshot,
 	currentUserSnapshot,
+	extensionShortcutsExpanded = true,
 	onConnectionProfileChange,
+	onExtensionShortcutsExpandedChange,
 	onSillyTavernInterfaceShortcutSelect,
+	onRequestCharacterLibrary,
 	onRequestChatSessionSettings,
 	onRequestChatSettingsOverride,
 	open,
@@ -221,8 +225,11 @@ export function MobileChatMainMenuDrawer({
 	currentConnectionSnapshot?: CurrentConnectionInfoSnapshot;
 	currentPresetProfileControlsSnapshot?: CurrentPresetProfileControlsSnapshot;
 	currentUserSnapshot?: CurrentUserAvatarSnapshot;
+	extensionShortcutsExpanded?: boolean;
 	onConnectionProfileChange?(profileId: string): void;
+	onExtensionShortcutsExpandedChange?(nextExpanded: boolean): void;
 	onOpenChange(nextValue: boolean): void;
+	onRequestCharacterLibrary?(): void;
 	onSillyTavernInterfaceShortcutSelect?(
 		pageKey: SillyTavernInterfaceRouteKey,
 	): void;
@@ -400,6 +407,12 @@ export function MobileChatMainMenuDrawer({
 	const handleExitComplete = React.useCallback(() => {
 		setIsDrawerHostMounted(false);
 	}, []);
+	const handleExtensionShortcutsExpandedChange = React.useCallback(
+		(nextExpanded: boolean) => {
+			onExtensionShortcutsExpandedChange?.(nextExpanded);
+		},
+		[onExtensionShortcutsExpandedChange],
+	);
 
 	const shouldRenderDrawer = open || isDrawerHostMounted;
 
@@ -600,6 +613,15 @@ export function MobileChatMainMenuDrawer({
 								),
 							)}
 						</div>
+						<MobileChatMainMenuExtensionShortcuts
+							expanded={extensionShortcutsExpanded}
+							onExpandedChange={
+								handleExtensionShortcutsExpandedChange
+							}
+							onRequestCharacterLibrary={() => {
+								onRequestCharacterLibrary?.();
+							}}
+						/>
 						{currentPresetProfileControlsSnapshot ? (
 							<MobileChatMainMenuDrawerControls
 								busy={controlsBusy}
