@@ -62,18 +62,28 @@
     align-items: center;
     flex: 1 1 auto;
     min-width: 0;
-    height: 32px;
+    height: 36px;
     border-radius: var(--radius-full);
     background: var(--surface-muted-t60);
 }
 
 .astra-chat-message-search-panel__options-trigger,
-.astra-chat-message-search-panel__replace-action,
-.astra-chat-message-search-controls__button {
+.astra-chat-message-search-panel__replace-action {
 	flex: 0 0 auto;
 	cursor: pointer;
 	border-radius: var(--radius-full);
 	color: var(--color-base);
+}
+
+.astra-chat-message-search-panel__options-trigger,
+.astra-chat-message-search-panel__replace-action {
+	min-width: 36px;
+	height: 36px;
+}
+
+.astra-chat-message-search-controls__button {
+	width: 32px;
+	height: 32px;
 }
 
 .astra-chat-message-search-panel__options-trigger {
