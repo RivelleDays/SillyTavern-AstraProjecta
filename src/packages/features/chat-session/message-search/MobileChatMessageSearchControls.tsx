@@ -233,10 +233,13 @@ export function MobileChatMessageSearchControls({
 								type="button"
 								onClick={() => {
 									store.setQuery("");
-									const searchInput = documentRef.getElementById(
-										ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
-									);
-									if (searchInput instanceof HTMLInputElement) {
+									const searchInput =
+										documentRef.getElementById(
+											ASTRA_CHAT_MESSAGE_SEARCH_INPUT_ID,
+										);
+									if (
+										searchInput instanceof HTMLInputElement
+									) {
 										searchInput.focus();
 									}
 								}}

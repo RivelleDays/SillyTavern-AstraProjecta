@@ -17,7 +17,7 @@
 ## Repository Workflow
 
 - Treat the repository root as the canonical active working tree for AstraProjecta implementation, testing, build, commit, and handoff.
-- Run agent tooling, `git status`, `npm run build`, commits, and pushes from the repository root only.
+- Run agent tooling, `git status`, `npm run format`, `npm run test:run`, `npm run build`, commits, and pushes from the repository root only.
 - For ordinary feature, bugfix, documentation, and refactor work, create or switch to a short-lived branch from the repository root before editing, typically with `git switch -c codex/<topic>` or `git switch <existing-branch>`.
 - Use the canonical repository root as the active working tree for that task branch; do not keep the root pinned to `main` merely to preserve isolation.
 - Do not maintain a second writable checkout for the same repository under another path. If another filesystem entry is needed for convenience, it must be a symlink or other pointer to this canonical working tree instead of a separate clone.
@@ -38,8 +38,8 @@
 - Before handoff, report the current branch, whether it is ahead of `main`, and whether it appears ready to merge back into `main`.
 - When the task appears complete, explicitly state whether the branch is a candidate to merge into `main` and whether it can be deleted after that merge. Reporting merge readiness is allowed; performing `git merge`, `git push`, opening pull requests, or deleting branches still requires explicit authorization.
 - Before handoff, run `git worktree list` when any auxiliary worktree was used, and confirm no worktree-owned branch remains checked out in a way that blocks later merge, switch, or cleanup from the canonical root.
-- Before any commit, run `npm run build` from this repository and treat any warning or error as a blocker.
-- Only proceed to `git add` and `git commit` after the build finishes with zero warnings and zero errors.
+- Before any commit, run `npm run format`, `npm run test:run`, and `npm run build` from this repository, and treat any warning or error as a blocker.
+- Only proceed to `git add` and `git commit` after formatting, tests, and build finish with zero warnings and zero errors.
 - Write the commit message on the user's behalf using a single-topic, readable conventional-style summary or concise imperative summary unless the user requests specific wording.
 - Do not push, merge, open pull requests, or delete branches on another contributor's behalf unless that action is explicitly authorized in the current collaboration context.
 
@@ -110,6 +110,7 @@ SillyTavern-AstraProjecta/
 - English for code, comments, TODOs, commit-facing repo docs, selectors, and user-facing copy during Alpha.
 - i18n-ready English strings: `locales/en.json` is the source of truth for Astra-owned English copy, using flat dotted keys instead of English text as keys.
 - Typed i18n usage: generate `src/types/i18n.d.ts` from `locales/en.json` via `scripts/manage-i18n.mjs`, fail the build pipeline on unused catalog keys, and prefer typed catalog keys over inline English literals in Astra-owned code.
+- Code formatting uses `npm run format`, which runs Prettier with `.prettierrc.json` as the formatting source of truth.
 - Production exports should expose domain inputs by default instead of test-only dependency injection parameters.
 - Keep fake clocks and fake storage seams in true store/cache layers when they protect time-sensitive or persistence behavior.
 - During the phased test-seam cleanup, `fetchImpl` may remain on store factories that own remote refresh behavior, but feature-facing action exports should use the runtime `fetch` contract.
@@ -140,7 +141,7 @@ SillyTavern-AstraProjecta/
 - Default to the vendored shadcn component library for UI work unless a child document explicitly says otherwise.
 - Keep upstream shadcn source isolated under `src/components/ui/shadcn`; do not modify those generated files directly.
 - Place AstraProjecta-specific wrappers, compositions, and CSS overrides in Astra-owned paths separate from upstream shadcn sources.
-- After every completed code change, personally run `npm run build` before claiming the work is done. Treat any build warning or error as a blocker that must be resolved or explicitly escalated.
+- After every completed code change, personally run `npm run format`, `npm run test:run`, and `npm run build` before claiming the work is done. Treat any warning or error from these commands as a blocker that must be resolved or explicitly escalated.
 - Performance, stability, compatibility, and maintainability take priority over novelty or shortcut-driven implementation.
 
 ## Forbidden Patterns
@@ -197,5 +198,5 @@ SillyTavern-AstraProjecta/
 - Confirm the repository root remains the canonical active working tree, ordinary work starts on a short-lived branch there, and any convenience path is only a symlink or pointer to that same checkout.
 - Confirm auxiliary worktrees remain limited to explicit parallel or isolation needs and do not replace the root short-lived-branch workflow as the default way to isolate work.
 - Confirm handoff language requires explicit reporting of the current branch, merge readiness, and post-merge branch deletion candidacy while preserving authorization gates for push, merge, PR, and branch deletion.
-- Confirm git workflow language keeps `git status` review and clean build-before-commit requirements.
-- After every completed code change, run `npm run build` yourself and confirm the build finishes with zero warnings and zero errors before declaring success.
+- Confirm git workflow language keeps `git status` review and clean format, test, and build-before-commit requirements.
+- After every completed code change, run `npm run format`, `npm run test:run`, and `npm run build` yourself and confirm they finish with zero warnings and zero errors before declaring success.
