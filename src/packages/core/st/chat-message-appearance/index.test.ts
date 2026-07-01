@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import {
 	CHAT_MESSAGE_APPEARANCE_CHANGE_EVENT,
 	CHAT_MESSAGE_LINE_HEIGHT_DEFAULT,
+	CHAT_MESSAGE_SHOW_TIMELINE_DEFAULT,
 	CHAT_MESSAGE_TEXT_ALIGN_DEFAULT,
 	createChatMessageAppearanceStore,
 } from "@/packages/core/st/chat-message-appearance";
@@ -36,6 +37,7 @@ describe("chat message appearance store", () => {
 		expect(store.getSnapshot()).toEqual(
 			expect.objectContaining({
 				lineHeight: CHAT_MESSAGE_LINE_HEIGHT_DEFAULT,
+				showTimeline: CHAT_MESSAGE_SHOW_TIMELINE_DEFAULT,
 				textAlign: CHAT_MESSAGE_TEXT_ALIGN_DEFAULT,
 			}),
 		);
@@ -48,6 +50,7 @@ describe("chat message appearance store", () => {
 					astra_projecta: {
 						chatMessageAppearance: {
 							lineHeight: "lg",
+							showTimeline: false,
 							textAlign: "center",
 							version: 1,
 						},
@@ -58,7 +61,11 @@ describe("chat message appearance store", () => {
 		const store = createChatMessageAppearanceStore();
 
 		expect(store.getSnapshot()).toEqual(
-			expect.objectContaining({ lineHeight: "lg", textAlign: "center" }),
+			expect.objectContaining({
+				lineHeight: "lg",
+				showTimeline: false,
+				textAlign: "center",
+			}),
 		);
 	});
 
@@ -69,6 +76,7 @@ describe("chat message appearance store", () => {
 					astra_projecta: {
 						chatMessageAppearance: {
 							lineHeight: "huge",
+							showTimeline: "nope",
 							textAlign: 42,
 						},
 					},
@@ -80,6 +88,7 @@ describe("chat message appearance store", () => {
 		expect(store.getSnapshot()).toEqual(
 			expect.objectContaining({
 				lineHeight: CHAT_MESSAGE_LINE_HEIGHT_DEFAULT,
+				showTimeline: CHAT_MESSAGE_SHOW_TIMELINE_DEFAULT,
 				textAlign: CHAT_MESSAGE_TEXT_ALIGN_DEFAULT,
 			}),
 		);
@@ -94,11 +103,16 @@ describe("chat message appearance store", () => {
 
 		store.setAppearance({
 			lineHeight: "sm",
+			showTimeline: false,
 			textAlign: "justify",
 		});
 
 		expect(store.getSnapshot()).toEqual(
-			expect.objectContaining({ lineHeight: "sm", textAlign: "justify" }),
+			expect.objectContaining({
+				lineHeight: "sm",
+				showTimeline: false,
+				textAlign: "justify",
+			}),
 		);
 		expect(context.saveSettingsDebounced).toHaveBeenCalledTimes(1);
 		expect(listener).toHaveBeenCalledTimes(1);
@@ -108,9 +122,13 @@ describe("chat message appearance store", () => {
 					string,
 					Record<string, unknown>
 				>
-			).astra_projecta.chatMessageAppearance,
+		).astra_projecta.chatMessageAppearance,
 		).toEqual(
-			expect.objectContaining({ lineHeight: "sm", textAlign: "justify" }),
+			expect.objectContaining({
+				lineHeight: "sm",
+				showTimeline: false,
+				textAlign: "justify",
+			}),
 		);
 	});
 
@@ -121,12 +139,14 @@ describe("chat message appearance store", () => {
 
 		store.setAppearance({
 			lineHeight: "nope" as never,
+			showTimeline: "hidden" as never,
 			textAlign: "diagonal" as never,
 		});
 
 		expect(store.getSnapshot()).toEqual(
 			expect.objectContaining({
 				lineHeight: CHAT_MESSAGE_LINE_HEIGHT_DEFAULT,
+				showTimeline: CHAT_MESSAGE_SHOW_TIMELINE_DEFAULT,
 				textAlign: CHAT_MESSAGE_TEXT_ALIGN_DEFAULT,
 			}),
 		);
@@ -139,7 +159,11 @@ describe("chat message appearance store", () => {
 		store.subscribe(listener);
 
 		store.dispose();
-		store.setAppearance({ lineHeight: "lg", textAlign: "end" });
+		store.setAppearance({
+			lineHeight: "lg",
+			showTimeline: false,
+			textAlign: "end",
+		});
 
 		expect(listener).not.toHaveBeenCalled();
 	});
@@ -152,11 +176,19 @@ describe("chat message appearance store", () => {
 		const listenerB = vi.fn();
 		storeB.subscribe(listenerB);
 
-		storeA.setAppearance({ lineHeight: "lg", textAlign: "end" });
+		storeA.setAppearance({
+			lineHeight: "lg",
+			showTimeline: false,
+			textAlign: "end",
+		});
 
 		expect(listenerB).toHaveBeenCalledTimes(1);
 		expect(storeB.getSnapshot()).toEqual(
-			expect.objectContaining({ lineHeight: "lg", textAlign: "end" }),
+			expect.objectContaining({
+				lineHeight: "lg",
+				showTimeline: false,
+				textAlign: "end",
+			}),
 		);
 
 		storeA.dispose();
@@ -172,7 +204,11 @@ describe("chat message appearance store", () => {
 		);
 		const store = createChatMessageAppearanceStore();
 
-		store.setAppearance({ lineHeight: "sm", textAlign: "center" });
+		store.setAppearance({
+			lineHeight: "sm",
+			showTimeline: false,
+			textAlign: "center",
+		});
 
 		expect(changeListener).toHaveBeenCalledTimes(1);
 		store.dispose();

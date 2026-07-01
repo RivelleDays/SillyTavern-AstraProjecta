@@ -23,6 +23,7 @@ export const CHAT_MESSAGE_TEXT_ALIGN_OPTIONS = [
 	"justify",
 ] as const;
 export const CHAT_MESSAGE_TEXT_ALIGN_DEFAULT = "start";
+export const CHAT_MESSAGE_SHOW_TIMELINE_DEFAULT = true;
 
 export type ChatMessageLineHeight =
 	(typeof CHAT_MESSAGE_LINE_HEIGHT_OPTIONS)[number];
@@ -31,18 +32,21 @@ export type ChatMessageTextAlign =
 
 type ChatMessageAppearanceRoot = {
 	lineHeight: ChatMessageLineHeight;
+	showTimeline: boolean;
 	textAlign: ChatMessageTextAlign;
 	version: 1;
 };
 
 export interface ChatMessageAppearanceSnapshot {
 	lineHeight: ChatMessageLineHeight;
+	showTimeline: boolean;
 	textAlign: ChatMessageTextAlign;
 	updatedAt: number;
 }
 
 export interface ChatMessageAppearanceInput {
 	lineHeight: ChatMessageLineHeight;
+	showTimeline: boolean;
 	textAlign: ChatMessageTextAlign;
 }
 
@@ -76,6 +80,10 @@ function normalizeRoot(raw: unknown): ChatMessageAppearanceRoot {
 			CHAT_MESSAGE_LINE_HEIGHT_OPTIONS,
 			CHAT_MESSAGE_LINE_HEIGHT_DEFAULT,
 		),
+		showTimeline:
+			typeof record.showTimeline === "boolean"
+				? record.showTimeline
+				: CHAT_MESSAGE_SHOW_TIMELINE_DEFAULT,
 		textAlign: normalizeOption(
 			record.textAlign,
 			CHAT_MESSAGE_TEXT_ALIGN_OPTIONS,
@@ -118,6 +126,7 @@ function resolveSettingsRoot(
 function createDefaultRoot(): ChatMessageAppearanceRoot {
 	return {
 		lineHeight: CHAT_MESSAGE_LINE_HEIGHT_DEFAULT,
+		showTimeline: CHAT_MESSAGE_SHOW_TIMELINE_DEFAULT,
 		textAlign: CHAT_MESSAGE_TEXT_ALIGN_DEFAULT,
 		version: 1,
 	};
@@ -234,6 +243,10 @@ export function createChatMessageAppearanceStore({
 				CHAT_MESSAGE_LINE_HEIGHT_OPTIONS,
 				CHAT_MESSAGE_LINE_HEIGHT_DEFAULT,
 			),
+			showTimeline:
+				typeof value.showTimeline === "boolean"
+					? value.showTimeline
+					: CHAT_MESSAGE_SHOW_TIMELINE_DEFAULT,
 			textAlign: normalizeOption(
 				value.textAlign,
 				CHAT_MESSAGE_TEXT_ALIGN_OPTIONS,
@@ -265,6 +278,7 @@ export function createChatMessageAppearanceStore({
 			const { root } = getRootAndContext();
 			snapshotCache = {
 				lineHeight: root.lineHeight,
+				showTimeline: root.showTimeline,
 				textAlign: root.textAlign,
 				updatedAt,
 			};

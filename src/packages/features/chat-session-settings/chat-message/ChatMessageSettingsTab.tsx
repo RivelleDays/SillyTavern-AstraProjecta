@@ -4,8 +4,14 @@ import {
 	AlignLeft,
 	AlignRight,
 } from "@/components/ui/shared/icons";
+import { Label } from "@/components/ui/shadcn/label";
+import { Switch } from "@/components/ui/shadcn/switch";
 import { translateAstra } from "@/packages/core/i18n";
 import { SettingsButtonGroupRow } from "@/packages/features/chat-session-settings/chat-message/SettingsButtonGroupRow";
+import {
+	CHAT_SESSION_SETTINGS_DRAWER_TIMELINE_TOGGLE_ID,
+	CHAT_SESSION_SETTINGS_DRAWER_TIMELINE_TOGGLE_SWITCH_ID,
+} from "@/packages/features/chat-session-settings/contracts/dom";
 import {
 	type ChatMessageAppearanceInput,
 	type ChatMessageLineHeight,
@@ -95,6 +101,37 @@ export function ChatMessageSettingsTab({
 					onAppearanceChange({ ...appearance, textAlign });
 				}}
 			/>
+			<div
+				className="chat-session-settings__toggle-row"
+				id={CHAT_SESSION_SETTINGS_DRAWER_TIMELINE_TOGGLE_ID}
+			>
+				<div className="chat-session-settings__toggle-row-header">
+					<Label
+						className="chat-session-settings__toggle-row-title"
+						htmlFor={
+							CHAT_SESSION_SETTINGS_DRAWER_TIMELINE_TOGGLE_SWITCH_ID
+						}
+					>
+						{translateAstra(
+							"chatSessionSettings.chatMessages.timeline.label",
+						)}
+					</Label>
+					<Switch
+						checked={appearance.showTimeline}
+						id={
+							CHAT_SESSION_SETTINGS_DRAWER_TIMELINE_TOGGLE_SWITCH_ID
+						}
+						size="default"
+						type="button"
+						onCheckedChange={(showTimeline) => {
+							onAppearanceChange({
+								...appearance,
+								showTimeline,
+							});
+						}}
+					/>
+				</div>
+			</div>
 		</div>
 	);
 }

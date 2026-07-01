@@ -10,6 +10,10 @@ export const CHAT_SESSION_SETTINGS_DRAWER_SCROLLABLE_CONTENT_ID =
 	"astra-chat-session-settings-drawer-scrollable-content";
 export const CHAT_SESSION_SETTINGS_DRAWER_CONTENT_ID =
 	"astra-chat-session-settings-drawer-content";
+export const CHAT_SESSION_SETTINGS_DRAWER_TIMELINE_TOGGLE_ID =
+	"astra-chat-session-settings-drawer-timeline-toggle";
+export const CHAT_SESSION_SETTINGS_DRAWER_TIMELINE_TOGGLE_SWITCH_ID =
+	"astra-chat-session-settings-drawer-timeline-toggle-switch";
 export const CHAT_SESSION_SETTINGS_DRAWER_SHORTCUTS_TOGGLE_ID =
 	"astra-chat-session-settings-drawer-shortcuts-toggle";
 export const CHAT_SESSION_SETTINGS_DRAWER_SHORTCUTS_TOGGLE_SWITCH_ID =

@@ -227,6 +227,7 @@ export interface I18nMessages {
 	"chatSessionSettings.chatMessages.textAlign.option.justify": string;
 	"chatSessionSettings.chatMessages.textAlign.option.start": string;
 	"chatSessionSettings.chatMessages.textAlign.title": string;
+	"chatSessionSettings.chatMessages.timeline.label": string;
 	"chatSessionSettings.drawer.cancel": string;
 	"chatSessionSettings.drawer.description": string;
 	"chatSessionSettings.drawer.save": string;

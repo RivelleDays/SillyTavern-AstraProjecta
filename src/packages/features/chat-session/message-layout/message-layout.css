@@ -149,6 +149,10 @@ body.astra-projecta-mobile-layout {
 		font-weight: var(--font-weight-medium);
 	}
 
+	&.astra-projecta-chat-timeline-hidden #chat .astra-mesDate {
+		display: none;
+	}
+
 	& #chat .astra-mesDate__line {
 		min-width: 0;
 		border-top: 1px solid var(--color-base-t10);
