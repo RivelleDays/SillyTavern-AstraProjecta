@@ -60,6 +60,7 @@ function isSameMessageAppearance(
 ) {
 	return (
 		left.lineHeight === right.lineHeight &&
+		left.showTimeline === right.showTimeline &&
 		left.textAlign === right.textAlign
 	);
 }
@@ -173,9 +174,14 @@ export function ChatSessionSettingsDrawer({
 		React.useMemo<ChatMessageAppearanceInput>(
 			() => ({
 				lineHeight: messageSnapshot.lineHeight,
+				showTimeline: messageSnapshot.showTimeline,
 				textAlign: messageSnapshot.textAlign,
 			}),
-			[messageSnapshot.lineHeight, messageSnapshot.textAlign],
+			[
+				messageSnapshot.lineHeight,
+				messageSnapshot.showTimeline,
+				messageSnapshot.textAlign,
+			],
 		);
 	const persistedShortcutsVisible = React.useSyncExternalStore(
 		shortcutsToolbarVisibilityStore.subscribe,

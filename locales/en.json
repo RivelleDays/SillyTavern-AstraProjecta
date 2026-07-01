@@ -224,6 +224,7 @@
 	"chatSessionSettings.chatMessages.textAlign.option.justify": "Justify",
 	"chatSessionSettings.chatMessages.textAlign.option.start": "Align left",
 	"chatSessionSettings.chatMessages.textAlign.title": "Message text alignment",
+	"chatSessionSettings.chatMessages.timeline.label": "Show chat timeline",
 	"chatSessionSettings.drawer.cancel": "Cancel",
 	"chatSessionSettings.drawer.description": "Adjust chat message, input, and background appearance.",
 	"chatSessionSettings.drawer.save": "Save",

@@ -39,7 +39,7 @@ function readMessageAppearance(context: Record<string, unknown>) {
 	return (
 		context.extensionSettings as Record<string, Record<string, unknown>>
 	).astra_projecta.chatMessageAppearance as
-		| { lineHeight: string; textAlign: string }
+		| { lineHeight: string; showTimeline: boolean; textAlign: string }
 		| undefined;
 }
 
@@ -47,11 +47,13 @@ function setupContextWithAppearance({
 	blurPx = 2,
 	lineHeight = "md",
 	opacityPercent = 80,
+	showTimeline = true,
 	textAlign = "start",
 }: {
 	blurPx?: number;
 	lineHeight?: string;
 	opacityPercent?: number;
+	showTimeline?: boolean;
 	textAlign?: string;
 } = {}) {
 	const context = createContext({
@@ -64,6 +66,7 @@ function setupContextWithAppearance({
 				},
 				chatMessageAppearance: {
 					lineHeight,
+					showTimeline,
 					textAlign,
 					version: 1,
 				},
@@ -161,6 +164,30 @@ describe("ChatSessionSettingsDrawer", () => {
 		});
 		expect(screen.getByText("Background blur")).toBeInTheDocument();
 		expect(screen.getByText("Background opacity")).toBeInTheDocument();
+		const chatMessagesSection =
+			screen.getByText("Chat Messages").closest("section");
+		expect(chatMessagesSection).toBeInTheDocument();
+		const timelineToggle = within(
+			chatMessagesSection as HTMLElement,
+		).getByRole("switch", {
+			name: "Show chat timeline",
+		});
+		const chatMessageControls = Array.from(
+			(chatMessagesSection as HTMLElement).querySelectorAll(
+				".chat-session-settings__button-row, .chat-session-settings__toggle-row",
+			),
+		);
+		expect(chatMessageControls.at(-1)).toContainElement(timelineToggle);
+		expect(timelineToggle).toHaveAttribute("aria-checked", "true");
+		expect(timelineToggle).toHaveAttribute(
+			"id",
+			"astra-chat-session-settings-drawer-timeline-toggle-switch",
+		);
+		expect(
+			document.getElementById(
+				"astra-chat-session-settings-drawer-timeline-toggle",
+			),
+		).toContainElement(timelineToggle);
 		const shortcutsToggle = screen.getByRole("switch", {
 			name: "Show shortcut toolbar",
 		});
@@ -240,9 +267,16 @@ describe("ChatSessionSettingsDrawer", () => {
 
 		fireEvent.click(screen.getByRole("radio", { name: "Large" }));
 		fireEvent.click(screen.getByRole("radio", { name: "Align center" }));
+		fireEvent.click(
+			screen.getByRole("switch", { name: "Show chat timeline" }),
+		);
 
 		expect(readMessageAppearance(context)).toEqual(
-			expect.objectContaining({ lineHeight: "md", textAlign: "start" }),
+			expect.objectContaining({
+				lineHeight: "md",
+				showTimeline: true,
+				textAlign: "start",
+			}),
 		);
 		expect(context.saveSettingsDebounced).not.toHaveBeenCalled();
 		expect(
@@ -251,11 +285,18 @@ describe("ChatSessionSettingsDrawer", () => {
 		expect(
 			document.body.style.getPropertyValue("--astra-mes-text-align"),
 		).toBe("center");
+		expect(document.body.classList).toContain(
+			"astra-projecta-chat-timeline-hidden",
+		);
 
 		fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
 		expect(readMessageAppearance(context)).toEqual(
-			expect.objectContaining({ lineHeight: "lg", textAlign: "center" }),
+			expect.objectContaining({
+				lineHeight: "lg",
+				showTimeline: false,
+				textAlign: "center",
+			}),
 		);
 		expect(context.saveSettingsDebounced).toHaveBeenCalledTimes(1);
 	});
@@ -302,6 +343,7 @@ describe("ChatSessionSettingsDrawer", () => {
 			blurPx: 1,
 			lineHeight: "sm",
 			opacityPercent: 60,
+			showTimeline: true,
 			textAlign: "end",
 		});
 		const { rerender } = render(
@@ -313,6 +355,9 @@ describe("ChatSessionSettingsDrawer", () => {
 		fireEvent.keyDown(sliders[0], { key: "ArrowRight" });
 		fireEvent.click(screen.getByRole("radio", { name: "Large" }));
 		fireEvent.click(screen.getByRole("radio", { name: "Align center" }));
+		fireEvent.click(
+			screen.getByRole("switch", { name: "Show chat timeline" }),
+		);
 
 		rerender(
 			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={false} />,
@@ -322,7 +367,11 @@ describe("ChatSessionSettingsDrawer", () => {
 			expect.objectContaining({ blurPx: 1, opacityPercent: 60 }),
 		);
 		expect(readMessageAppearance(context)).toEqual(
-			expect.objectContaining({ lineHeight: "sm", textAlign: "end" }),
+			expect.objectContaining({
+				lineHeight: "sm",
+				showTimeline: true,
+				textAlign: "end",
+			}),
 		);
 		expect(context.saveSettingsDebounced).not.toHaveBeenCalled();
 		expect(
@@ -334,6 +383,9 @@ describe("ChatSessionSettingsDrawer", () => {
 		expect(
 			document.body.style.getPropertyValue("--astra-mes-text-align"),
 		).toBe("end");
+		expect(document.body.classList).not.toContain(
+			"astra-projecta-chat-timeline-hidden",
+		);
 	});
 
 	test("previews the shortcuts toggle live but persists only when Save is clicked", () => {

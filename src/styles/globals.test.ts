@@ -585,6 +585,9 @@ describe("globals.css", () => {
 		expect(compactMessageLayoutCss).toContain(".astra-mesDate");
 		expect(compactMessageLayoutCss).toContain(".astra-mesDate__line");
 		expect(compactMessageLayoutCss).toContain(".astra-mesDate__label");
+		expect(compactMessageLayoutCss).toContain(
+			"&.astra-projecta-chat-timeline-hidden #chat .astra-mesDate",
+		);
 		expect(compactMessageLayoutCss).toContain("& #chat .mes.lastInContext");
 		expect(compactMessageLayoutCss).toContain(".astra-mesContextBoundary");
 		expect(compactMessageLayoutCss).toContain(

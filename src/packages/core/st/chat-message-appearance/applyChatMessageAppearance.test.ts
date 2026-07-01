@@ -11,6 +11,7 @@ import type {
 
 type FakeSnapshot = {
 	lineHeight: ChatMessageLineHeight;
+	showTimeline: boolean;
 	textAlign: ChatMessageTextAlign;
 };
 
@@ -43,6 +44,7 @@ describe("applyChatMessageAppearanceVariables", () => {
 		const documentRef = createFakeDocumentRef();
 		const store = createFakeStore({
 			lineHeight: "lg",
+			showTimeline: true,
 			textAlign: "center",
 		});
 
@@ -55,6 +57,32 @@ describe("applyChatMessageAppearanceVariables", () => {
 			documentRef.body.style.getPropertyValue("--astra-mes-text-align"),
 		).toBe("center");
 	});
+
+	test("toggles the chat timeline hidden body class from the snapshot", () => {
+		const documentRef = createFakeDocumentRef();
+		const store = createFakeStore({
+			lineHeight: "md",
+			showTimeline: false,
+			textAlign: "start",
+		});
+
+		applyChatMessageAppearanceVariables({ documentRef, store });
+
+		expect(documentRef.body.classList).toContain(
+			"astra-projecta-chat-timeline-hidden",
+		);
+
+		store.emitChange({
+			lineHeight: "md",
+			showTimeline: true,
+			textAlign: "start",
+		});
+		applyChatMessageAppearanceVariables({ documentRef, store });
+
+		expect(documentRef.body.classList).not.toContain(
+			"astra-projecta-chat-timeline-hidden",
+		);
+	});
 });
 
 describe("createChatMessageAppearanceRuntimeBridge", () => {
@@ -62,6 +90,7 @@ describe("createChatMessageAppearanceRuntimeBridge", () => {
 		const documentRef = createFakeDocumentRef();
 		const store = createFakeStore({
 			lineHeight: "sm",
+			showTimeline: true,
 			textAlign: "justify",
 		});
 
@@ -80,13 +109,21 @@ describe("createChatMessageAppearanceRuntimeBridge", () => {
 
 	test("re-applies variables when the store notifies a change", () => {
 		const documentRef = createFakeDocumentRef();
-		const store = createFakeStore({ lineHeight: "md", textAlign: "start" });
+		const store = createFakeStore({
+			lineHeight: "md",
+			showTimeline: true,
+			textAlign: "start",
+		});
 
 		createChatMessageAppearanceRuntimeBridge({
 			createStore: () => store,
 			documentRef,
 		});
-		store.emitChange({ lineHeight: "lg", textAlign: "end" });
+		store.emitChange({
+			lineHeight: "lg",
+			showTimeline: false,
+			textAlign: "end",
+		});
 
 		expect(
 			documentRef.body.style.getPropertyValue("--astra-mes-line-height"),
@@ -94,18 +131,29 @@ describe("createChatMessageAppearanceRuntimeBridge", () => {
 		expect(
 			documentRef.body.style.getPropertyValue("--astra-mes-text-align"),
 		).toBe("end");
+		expect(documentRef.body.classList).toContain(
+			"astra-projecta-chat-timeline-hidden",
+		);
 	});
 
 	test("dispose unsubscribes from the store and disposes it", () => {
 		const documentRef = createFakeDocumentRef();
-		const store = createFakeStore({ lineHeight: "md", textAlign: "start" });
+		const store = createFakeStore({
+			lineHeight: "md",
+			showTimeline: true,
+			textAlign: "start",
+		});
 
 		const bridge = createChatMessageAppearanceRuntimeBridge({
 			createStore: () => store,
 			documentRef,
 		});
 		bridge.dispose();
-		store.emitChange({ lineHeight: "lg", textAlign: "end" });
+		store.emitChange({
+			lineHeight: "lg",
+			showTimeline: false,
+			textAlign: "end",
+		});
 
 		expect(store.dispose).toHaveBeenCalledTimes(1);
 		expect(
