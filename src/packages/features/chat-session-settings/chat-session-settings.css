@@ -16,10 +16,10 @@
 }
 
 .chat-session-settings-drawer__heading {
-    display: flex;
-    min-width: 0;
-    padding: 8px var(--drawer-content-padding);
-    border-bottom: 1px solid var(--border);
+	display: flex;
+	min-width: 0;
+	padding: 8px var(--drawer-content-padding);
+	border-bottom: 1px solid var(--border);
 }
 
 .chat-session-settings-drawer__title {
@@ -86,21 +86,21 @@
 }
 
 .chat-session-settings__section-title {
-    margin: 0;
-    color: var(--color-muted-t80);
-    font-size: var(--text-xs);
-    font-weight: var(--font-weight-medium);
-    text-transform: uppercase;
+	margin: 0;
+	color: var(--color-muted-t80);
+	font-size: var(--text-xs);
+	font-weight: var(--font-weight-medium);
+	text-transform: uppercase;
 }
 
 .chat-session-settings__section-card {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    overflow: hidden;
-    border: 1px solid var(--border-color-base);
-    border-radius: var(--radius-xl);
-    background: var(--surface-muted-t20);
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	overflow: hidden;
+	border: 1px solid var(--border-color-base);
+	border-radius: var(--radius-xl);
+	background: var(--surface-muted-t20);
 }
 
 .chat-session-settings__section-card > * {
@@ -129,13 +129,16 @@
 
 .chat-session-settings__section-card
 	> .chat-session-settings__chat-background-tab
-	> * + *,
+	> *
+	+ *,
 .chat-session-settings__section-card
 	> .chat-session-settings__chat-message-tab
-	> * + *,
+	> *
+	+ *,
 .chat-session-settings__section-card
 	> .chat-session-settings__message-input-tab
-	> * + * {
+	> *
+	+ * {
 	border-top: 1px solid var(--border-color-base);
 }
 

@@ -11,9 +11,7 @@ import {
 } from "@/components/ui/astra/drawer";
 import { Button } from "@/components/ui/shadcn/button";
 import { UiIcon } from "@/components/ui/shared/icon";
-import {
-	Save,
-} from "@/components/ui/shared/icons";
+import { Save } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
 import { ChatBackgroundSettingsTab } from "@/packages/features/chat-session-settings/chat-background/ChatBackgroundSettingsTab";
 import { ChatMessageSettingsTab } from "@/packages/features/chat-session-settings/chat-message/ChatMessageSettingsTab";
