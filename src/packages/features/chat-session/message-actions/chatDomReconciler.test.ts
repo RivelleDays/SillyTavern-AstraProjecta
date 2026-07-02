@@ -8,10 +8,12 @@ import {
 function createMutation({
 	addedNodes = [],
 	removedNodes = [],
+	type = "childList",
 	target = document.body,
 }: {
 	addedNodes?: Node[];
 	removedNodes?: Node[];
+	type?: MutationRecord["type"];
 	target?: Node;
 }): MutationRecord {
 	return {
@@ -23,7 +25,7 @@ function createMutation({
 		previousSibling: null,
 		removedNodes: removedNodes as unknown as NodeList,
 		target,
-		type: "childList",
+		type,
 	} as MutationRecord;
 }
 
@@ -98,6 +100,70 @@ describe("createChatDomReconciler", () => {
 		).toBe(true);
 	});
 
+	test("reconciles structural message subtree additions and removals", () => {
+		const message = document.createElement("div");
+		message.className = "mes";
+		message.setAttribute("mesid", "0");
+		const messageBlock = document.createElement("div");
+		messageBlock.className = "mes_block";
+		const messageText = document.createElement("div");
+		messageText.className = "mes_text";
+		const unrelated = document.createElement("span");
+
+		expect(
+			shouldReconcileChatDomForMutations([
+				createMutation({
+					addedNodes: [messageBlock],
+					target: message,
+				}),
+			]),
+		).toBe(true);
+		expect(
+			shouldReconcileChatDomForMutations([
+				createMutation({
+					addedNodes: [messageText],
+					target: messageBlock,
+				}),
+			]),
+		).toBe(true);
+		expect(
+			shouldReconcileChatDomForMutations([
+				createMutation({
+					removedNodes: [messageText],
+					target: messageBlock,
+				}),
+			]),
+		).toBe(true);
+		expect(
+			shouldReconcileChatDomForMutations([
+				createMutation({
+					addedNodes: [unrelated],
+					target: message,
+				}),
+			]),
+		).toBe(false);
+	});
+
+	test("ignores ordinary streaming text churn", () => {
+		const messageText = document.createElement("div");
+		messageText.className = "mes_text";
+		const textChunk = document.createTextNode("streamed token");
+
+		expect(
+			shouldReconcileChatDomForMutations([
+				createMutation({
+					addedNodes: [textChunk],
+					target: messageText,
+				}),
+			]),
+		).toBe(false);
+		expect(
+			shouldReconcileChatDomForMutations([
+				createMutation({ target: textChunk, type: "characterData" }),
+			]),
+		).toBe(false);
+	});
+
 	test("coalesces chat child mutations into one reconcile frame", async () => {
 		const frame = installAnimationFrameQueue();
 		const onReconcile = vi.fn();
@@ -118,6 +184,37 @@ describe("createChatDomReconciler", () => {
 			secondMessage.setAttribute("mesid", "1");
 			document.getElementById("chat")!.append(firstMessage);
 			document.getElementById("chat")!.append(secondMessage);
+			await Promise.resolve();
+
+			expect(frame.requestAnimationFrame).toHaveBeenCalledTimes(1);
+			frame.flushFrames();
+			expect(onReconcile).toHaveBeenCalledTimes(1);
+
+			reconciler.stop();
+		} finally {
+			frame.restore();
+		}
+	});
+
+	test("observes structural subtree changes under existing messages", async () => {
+		const frame = installAnimationFrameQueue();
+		const onReconcile = vi.fn();
+		document.body.innerHTML = `
+			<div id="chat">
+				<div class="mes" mesid="0"></div>
+			</div>
+		`;
+
+		try {
+			const reconciler = createChatDomReconciler({
+				documentRef: document,
+				onReconcile,
+			});
+			reconciler.start();
+
+			const messageBlock = document.createElement("div");
+			messageBlock.className = "mes_block";
+			document.querySelector(".mes")!.append(messageBlock);
 			await Promise.resolve();
 
 			expect(frame.requestAnimationFrame).toHaveBeenCalledTimes(1);

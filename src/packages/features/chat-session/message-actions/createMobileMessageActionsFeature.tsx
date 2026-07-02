@@ -254,12 +254,19 @@ export function createMobileMessageActionsFeature({
 	let deferredNativeActionFrameId: number | null = null;
 	let selectedExtraActionsTarget: MessageActionsTarget | null = null;
 	let isMoreActionsDrawerOpen = false;
+	let wasFooterBlockedByGenerationActivity = false;
 	let unsubscribeGenerationActivity: (() => void) | null = null;
 	let unsubscribeHistory: (() => void) | null = null;
 	let unsubscribeRevision: (() => void) | null = null;
 	let unsubscribeSwipe: (() => void) | null = null;
 	const renderScheduler = createFrameScheduler({
 		callback: renderMessageActions,
+		documentRef,
+	});
+	const postGenerationSettleRefreshScheduler = createFrameScheduler({
+		callback: () => {
+			refreshMessageActionStores({ renderImmediately: true });
+		},
 		documentRef,
 	});
 	const chatDomReconciler = createChatDomReconciler({
@@ -1285,12 +1292,23 @@ export function createMobileMessageActionsFeature({
 	function handleGenerationActivityChange() {
 		const generationActivitySnapshot =
 			generationActivityStore?.getSnapshot();
-		if (isFooterBlockedByGenerationActivity(generationActivitySnapshot)) {
+		const isFooterBlocked = isFooterBlockedByGenerationActivity(
+			generationActivitySnapshot,
+		);
+		const shouldScheduleSettleRefresh =
+			wasFooterBlockedByGenerationActivity && !isFooterBlocked;
+		wasFooterBlockedByGenerationActivity = isFooterBlocked;
+
+		if (isFooterBlocked) {
+			postGenerationSettleRefreshScheduler.cancel();
 			renderMessageActionsImmediately();
 			return;
 		}
 
 		refreshMessageActionStores({ renderImmediately: true });
+		if (shouldScheduleSettleRefresh) {
+			postGenerationSettleRefreshScheduler.schedule();
+		}
 	}
 
 	function observeChatDom() {
@@ -1299,6 +1317,7 @@ export function createMobileMessageActionsFeature({
 
 	function stopObservingChatDom() {
 		chatDomReconciler.stop();
+		postGenerationSettleRefreshScheduler.cancel();
 		cancelScheduledMessageActionsRender();
 	}
 
@@ -1479,6 +1498,10 @@ export function createMobileMessageActionsFeature({
 			removeLegacyMessageActionHosts();
 			observeChatDom();
 			messageTextGestures.attach();
+			wasFooterBlockedByGenerationActivity =
+				isFooterBlockedByGenerationActivity(
+					generationActivityStore.getSnapshot(),
+				);
 			historyStore.refresh();
 			revisionStore.refresh();
 			swipeStore.refresh();
@@ -1493,6 +1516,10 @@ export function createMobileMessageActionsFeature({
 		historyStore = resolvedCreateHistoryStore();
 		revisionStore = createRevisionStore();
 		swipeStore = createSwipeStore();
+		wasFooterBlockedByGenerationActivity =
+			isFooterBlockedByGenerationActivity(
+				generationActivityStore.getSnapshot(),
+			);
 		unsubscribeGenerationActivity = generationActivityStore.subscribe(
 			handleGenerationActivityChange,
 		);

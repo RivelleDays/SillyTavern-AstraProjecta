@@ -214,6 +214,74 @@ describe("generation activity adapter", () => {
 		store.dispose();
 	});
 
+	test("post-generation rendered message probes clear busy state after the stop button hides", () => {
+		document.body.innerHTML = `<button id="mes_stop" style="display: none;"></button>`;
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			eventSource,
+			eventTypes: {
+				CHARACTER_MESSAGE_RENDERED: "character_message_rendered",
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_ENDED: "generation_ended",
+			},
+		});
+		const listener = vi.fn();
+		const store = createGenerationActivityStore({ documentRef: document });
+
+		store.subscribe(listener);
+		document
+			.getElementById("mes_stop")
+			?.setAttribute("style", "display: flex;");
+		eventSource.emit("generation_after_commands", "normal", {}, false);
+		eventSource.emit("generation_ended");
+
+		expect(store.getSnapshot()).toMatchObject({ isGenerating: true });
+
+		document
+			.getElementById("mes_stop")
+			?.setAttribute("style", "display: none;");
+		eventSource.emit("character_message_rendered", 0, "normal");
+
+		expect(store.getSnapshot()).toMatchObject({
+			isGenerating: false,
+			isGroupGenerating: false,
+			isStreaming: false,
+		});
+		expect(listener).toHaveBeenCalledTimes(2);
+
+		store.dispose();
+	});
+
+	test("post-generation probe events keep busy state while live evidence remains", () => {
+		document.body.innerHTML = `<button id="mes_stop" style="display: none;"></button>`;
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			eventSource,
+			eventTypes: {
+				CHARACTER_MESSAGE_RENDERED: "character_message_rendered",
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				MESSAGE_RECEIVED: "message_received",
+				MESSAGE_UPDATED: "message_updated",
+			},
+		});
+		const listener = vi.fn();
+		const store = createGenerationActivityStore({ documentRef: document });
+
+		store.subscribe(listener);
+		document
+			.getElementById("mes_stop")
+			?.setAttribute("style", "display: flex;");
+		eventSource.emit("generation_after_commands", "normal", {}, false);
+		eventSource.emit("message_received", 0, "normal");
+		eventSource.emit("character_message_rendered", 0, "normal");
+		eventSource.emit("message_updated", 0);
+
+		expect(store.getSnapshot()).toMatchObject({ isGenerating: true });
+		expect(listener).toHaveBeenCalledTimes(1);
+
+		store.dispose();
+	});
+
 	test("uses streaming and visible stop fallbacks without trusting stale body flags", () => {
 		document.body.innerHTML = `<button id="mes_stop" style="display: flex;"></button>`;
 		document.body.dataset.generating = "true";
