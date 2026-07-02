@@ -25,6 +25,7 @@ export interface GenerationActivitySnapshot {
 export interface GenerationActivityStore {
 	dispose(): void;
 	getSnapshot(): GenerationActivitySnapshot;
+	refresh(): void;
 	subscribe(listener: Listener): () => void;
 }
 
@@ -61,6 +62,10 @@ function hasVisibleStopButton(documentRef: Document): boolean {
 	return Array.from(documentRef.querySelectorAll(STOP_BUTTON_SELECTOR)).some(
 		(element) => isElementVisible(element),
 	);
+}
+
+function hasBodyGeneratingFlag(documentRef: Document): boolean {
+	return documentRef.body?.dataset.generating === "true";
 }
 
 function hasActiveStreamingProcessor(context: StContextLike | null): boolean {
@@ -252,6 +257,14 @@ export function createGenerationActivityStore({
 		}
 	}
 
+	function hasLiveGenerationEvidence(): boolean {
+		return (
+			hasBodyGeneratingFlag(documentRef) ||
+			hasVisibleStopButton(documentRef) ||
+			hasActiveStreamingProcessor(resolveContextSafe())
+		);
+	}
+
 	return {
 		dispose() {
 			if (disposed) {
@@ -271,6 +284,20 @@ export function createGenerationActivityStore({
 		},
 		getSnapshot() {
 			return snapshot;
+		},
+		refresh() {
+			if (disposed) {
+				return;
+			}
+
+			// SillyTavern only emits GENERATION_ENDED from hideStopButton()
+			// when the Stop control was visible; early-return generation paths
+			// (interrupted commands, failed server ping, blocked backends) end
+			// without any settle event, which would wedge this latch forever.
+			if (eventGenerationActive && !hasLiveGenerationEvidence()) {
+				eventGenerationActive = false;
+			}
+			updateSnapshot();
 		},
 		subscribe(listener) {
 			if (disposed) {

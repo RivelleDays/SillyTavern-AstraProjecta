@@ -1264,6 +1264,7 @@ export function createMobileMessageActionsFeature({
 	}: {
 		renderImmediately?: boolean;
 	} = {}) {
+		generationActivityStore?.refresh();
 		historyStore?.refresh();
 		revisionStore?.refresh();
 		swipeStore?.refresh();

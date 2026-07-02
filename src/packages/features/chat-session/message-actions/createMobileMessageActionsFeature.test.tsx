@@ -45,6 +45,7 @@ function createGenerationActivityStoreStub(initialSnapshot: {
 		store: {
 			dispose: vi.fn(),
 			getSnapshot: vi.fn(() => snapshot),
+			refresh: vi.fn(),
 			subscribe: vi.fn((nextListener: () => void) => {
 				listener = nextListener;
 				return () => {
@@ -229,6 +230,9 @@ describe("createMobileMessageActionsFeature", () => {
 			});
 			expect(swipeStore.store.refresh).toHaveBeenCalledTimes(1);
 			expect(revisionStore.store.refresh).toHaveBeenCalledTimes(1);
+			expect(
+				generationActivityStore.store.refresh,
+			).toHaveBeenCalledTimes(1);
 		} finally {
 			feature.dispose();
 		}

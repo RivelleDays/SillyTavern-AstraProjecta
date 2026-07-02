@@ -1528,7 +1528,7 @@ body.astra-projecta-mobile-layout {
 
 	.astra-chat-main-menu-tabs .astra-smooth-tabs__list-frame {
 		justify-content: center;
-		padding-bottom: 12px;
+		padding-bottom: 8px;
 	}
 
 	.astra-chat-main-menu-tabs .astra-smooth-tabs__viewport {
@@ -1547,58 +1547,19 @@ body.astra-projecta-mobile-layout {
 	}
 
 	.astra-chat-main-menu-drawer__shortcut-grid {
-		--astra-chat-main-menu-drawer-tile-gap: 10px;
-		--astra-chat-main-menu-drawer-min-columns: 3;
-		--astra-chat-main-menu-drawer-tile-max-size: 130px;
-		--astra-chat-main-menu-drawer-tile-size: min(
-			var(--astra-chat-main-menu-drawer-tile-max-size),
-			calc(
-				(
-						100% -
-							(
-								(
-										var(
-												--astra-chat-main-menu-drawer-min-columns
-											) -
-											1
-									) *
-									var(--astra-chat-main-menu-drawer-tile-gap)
-							)
-					) /
-					var(--astra-chat-main-menu-drawer-min-columns)
-			)
-		);
-		--astra-chat-main-menu-drawer-tile-padding: 12px;
-		--astra-chat-main-menu-drawer-tile-padding-bottom: 12px;
-		--astra-chat-main-menu-drawer-tile-title-size: 13px;
-		--astra-chat-main-menu-drawer-tile-deco-icon-size: 64px;
-		--astra-chat-main-menu-drawer-tile-deco-icon-top: 8px;
-		--astra-chat-main-menu-drawer-tile-deco-icon-right: 10px;
-		--astra-chat-main-menu-drawer-tile-glow-top: clamp(
-			6px,
-			calc(var(--astra-chat-main-menu-drawer-tile-size) * 0.07),
-			10px
-		);
-		--astra-chat-main-menu-drawer-tile-glow-width: clamp(
-			112px,
-			calc(var(--astra-chat-main-menu-drawer-tile-size) * 1.22),
-			160px
-		);
-		--astra-chat-main-menu-drawer-tile-glow-height: clamp(
-			68px,
-			calc(var(--astra-chat-main-menu-drawer-tile-size) * 0.73),
-			96px
-		);
+		--astra-chat-main-menu-drawer-tile-gap: 8px;
+		--astra-chat-main-menu-drawer-tile-min-height: 92px;
+		--astra-chat-main-menu-drawer-tile-padding-block: 12px;
+		--astra-chat-main-menu-drawer-tile-padding-inline: 12px;
+		--astra-chat-main-menu-drawer-tile-title-size: 12px;
+		--astra-chat-main-menu-drawer-tile-icon-size: 20px;
+		--astra-chat-main-menu-drawer-tile-deco-icon-size: 80px;
 		display: grid;
-		grid-template-columns: repeat(
-			auto-fit,
-			minmax(
-				var(--astra-chat-main-menu-drawer-tile-size),
-				var(--astra-chat-main-menu-drawer-tile-size)
-			)
-		);
-		justify-content: center;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: var(--astra-chat-main-menu-drawer-tile-gap);
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
 	}
 
 	.astra-chat-main-menu-extension-shortcuts {
@@ -1807,20 +1768,25 @@ body.astra-projecta-mobile-layout {
 		width: 100%;
 		max-width: 100%;
 		min-width: 0;
-		aspect-ratio: 1 / 0.8;
-		min-height: 80px;
+		aspect-ratio: 1.62 / 1;
+		min-height: var(--astra-chat-main-menu-drawer-tile-min-height);
 		flex-direction: column;
 		justify-content: flex-end;
 		overflow: hidden;
-		border: 1px solid var(--color-base-t5);
-		border-radius: var(--radius-xl);
-		background: color-mix(
-			in srgb,
-			var(--background) 96%,
-			var(--foreground) 4%
-		);
-		padding: var(--astra-chat-main-menu-drawer-tile-padding);
-		padding-bottom: var(--astra-chat-main-menu-drawer-tile-padding-bottom);
+		border: 1px solid var(--border-color-base-t70);
+		border-radius: var(--radius-2xl);
+		background:
+			linear-gradient(
+				180deg,
+				var(--surface-muted-t10),
+				var(--surface-background-t90)
+			),
+			var(--background);
+		box-shadow:
+			inset 0 1px 0 var(--color-base-t5),
+			inset 0 -36px 52px var(--surface-background-t60);
+		padding: var(--astra-chat-main-menu-drawer-tile-padding-block)
+			var(--astra-chat-main-menu-drawer-tile-padding-inline);
 		color: var(--foreground);
 		text-align: left;
 		cursor: pointer;
@@ -1834,71 +1800,89 @@ body.astra-projecta-mobile-layout {
 	.astra-chat-main-menu-drawer__tile:focus-visible {
 		outline: none;
 		box-shadow:
-			0 0 0 1px var(--border-color-base-t70),
-			0 0 0 3px var(--color-ring-t60);
+			0 0 0 1px var(--border-color-base-t90),
+			0 0 0 3px var(--color-ring-t60),
+			inset 0 1px 0 var(--color-base-t5),
+			inset 0 -36px 52px var(--surface-background-t60);
 	}
 
 	.astra-chat-main-menu-drawer__tile:active {
-		transform: scale(0.97);
+		transform: scale(0.985);
 	}
 
 	@media (hover: hover) and (pointer: fine) {
 		.astra-chat-main-menu-drawer__tile:hover {
-			transform: scale(1.03);
-			background: color-mix(
-				in srgb,
-				var(--background) 94%,
-				var(--foreground) 6%
-			);
-			border-color: var(--color-base-t10);
+			transform: translateY(-1px);
+			background:
+				linear-gradient(
+					180deg,
+					var(--surface-muted-t20),
+					var(--surface-background-t90)
+				),
+				var(--background);
+			border-color: var(--border-color-base-t90);
 		}
 	}
 
 	.astra-chat-main-menu-drawer__tile-title {
 		position: relative;
-		z-index: 4;
+		z-index: 5;
 		display: flex;
 		flex-direction: column;
-		gap: 1px;
-		font-size: var(--astra-chat-main-menu-drawer-tile-title-size);
+		gap: 0;
+		max-width: 100%;
+		font-size: 13px;
 		font-weight: var(--font-weight-bold);
 		line-height: 1.2;
-		letter-spacing: 0.02rem;
+		letter-spacing: 0;
 	}
 
 	.astra-chat-main-menu-drawer__tile-title-line {
 		display: block;
+		min-width: 0;
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.astra-chat-main-menu-drawer__tile-glow {
 		position: absolute;
-		top: var(--astra-chat-main-menu-drawer-tile-glow-top);
-		left: 50%;
 		z-index: 1;
-		width: var(--astra-chat-main-menu-drawer-tile-glow-width);
-		height: var(--astra-chat-main-menu-drawer-tile-glow-height);
+		inset-inline: 0;
+		top: 0;
+		height: 54%;
 		pointer-events: none;
-		transform: translateX(-50%);
-		background: radial-gradient(
-			ellipse,
-			color-mix(in srgb, var(--foreground) 9%, transparent) 0%,
-			transparent 60%
+		background: linear-gradient(
+			180deg,
+			var(--surface-muted-t10),
+			transparent
 		);
+	}
+
+	.astra-chat-main-menu-drawer__tile-icon {
+		position: absolute;
+		top: calc(var(--astra-chat-main-menu-drawer-tile-padding-block) + 4px);
+		left: var(--astra-chat-main-menu-drawer-tile-padding-inline);
+		z-index: 5;
+		width: var(--astra-chat-main-menu-drawer-tile-icon-size);
+		height: var(--astra-chat-main-menu-drawer-tile-icon-size);
+		pointer-events: none;
 	}
 
 	.astra-chat-main-menu-drawer__tile-deco-icon {
 		position: absolute;
-		top: var(--astra-chat-main-menu-drawer-tile-deco-icon-top);
-		right: var(--astra-chat-main-menu-drawer-tile-deco-icon-right);
+		right: -4px;
+		bottom: -20px;
 		z-index: 2;
 		width: var(--astra-chat-main-menu-drawer-tile-deco-icon-size);
 		height: var(--astra-chat-main-menu-drawer-tile-deco-icon-size);
 		pointer-events: none;
-		color: var(--color-base-t90);
-		opacity: 0.3;
-		transform: rotate(-12deg);
+		color: var(--color-base);
+		opacity: 0.1;
 	}
 
+	.astra-chat-main-menu-drawer__tile-icon svg,
 	.astra-chat-main-menu-drawer__tile-deco-icon svg {
 		display: block;
 		width: 100%;
@@ -1908,13 +1892,19 @@ body.astra-projecta-mobile-layout {
 	.astra-chat-main-menu-drawer__tile-fade {
 		position: absolute;
 		inset: 0;
-		z-index: 3;
+		z-index: 4;
 		pointer-events: none;
-		background: linear-gradient(
-			to bottom,
-			transparent 28%,
-			color-mix(in srgb, var(--background) 92%, transparent) 78%
-		);
+		background:
+			linear-gradient(
+				to bottom,
+				transparent 36%,
+				var(--surface-background-t70) 100%
+			),
+			linear-gradient(
+				to right,
+				var(--surface-background-t20),
+				transparent 46%
+			);
 	}
 
 	.astra-chat-library-dialog-content {

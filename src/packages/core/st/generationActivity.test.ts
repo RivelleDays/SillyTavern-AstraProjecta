@@ -158,6 +158,62 @@ describe("generation activity adapter", () => {
 		store.dispose();
 	});
 
+	test("refresh clears a wedged generation latch when no live evidence remains", () => {
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			eventSource,
+			eventTypes: {
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_ENDED: "generation_ended",
+			},
+		});
+		const listener = vi.fn();
+		const store = createGenerationActivityStore({ documentRef: document });
+
+		store.subscribe(listener);
+		eventSource.emit("generation_after_commands", "normal", {}, false);
+		expect(store.getSnapshot()).toMatchObject({ isGenerating: true });
+
+		// SillyTavern ended generation on an early-return path without
+		// emitting GENERATION_ENDED; a later reconcile refresh must self-heal.
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			isGenerating: false,
+			isGroupGenerating: false,
+			isStreaming: false,
+		});
+		expect(listener).toHaveBeenCalledTimes(2);
+
+		store.dispose();
+	});
+
+	test("refresh keeps the generation latch while live evidence remains", () => {
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			eventSource,
+			eventTypes: {
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_ENDED: "generation_ended",
+			},
+		});
+		const store = createGenerationActivityStore({ documentRef: document });
+
+		eventSource.emit("generation_after_commands", "normal", {}, false);
+		document.body.dataset.generating = "true";
+
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({ isGenerating: true });
+
+		delete document.body.dataset.generating;
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({ isGenerating: false });
+
+		store.dispose();
+	});
+
 	test("uses streaming and visible stop fallbacks without trusting stale body flags", () => {
 		document.body.innerHTML = `<button id="mes_stop" style="display: flex;"></button>`;
 		document.body.dataset.generating = "true";

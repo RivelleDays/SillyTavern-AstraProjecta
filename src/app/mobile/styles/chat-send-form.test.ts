@@ -432,6 +432,7 @@ describe("chat-send-form.css", () => {
 			".astra-chat-main-menu-drawer__tile",
 			".astra-chat-main-menu-drawer__tile-title",
 			".astra-chat-main-menu-drawer__tile-title-line",
+			".astra-chat-main-menu-drawer__tile-icon",
 			".astra-chat-main-menu-drawer__tile-glow",
 			".astra-chat-main-menu-drawer__tile-fade",
 			".astra-chat-main-menu-drawer__tile-deco-icon",

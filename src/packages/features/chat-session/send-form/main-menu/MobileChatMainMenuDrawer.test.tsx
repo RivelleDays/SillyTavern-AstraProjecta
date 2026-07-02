@@ -494,7 +494,7 @@ describe("MobileChatMainMenuDrawer", () => {
 		]);
 	});
 
-	test("renders drawer tiles with split labels and a single decorative icon container", async () => {
+	test("renders drawer tiles with split labels and foreground/decorative icon containers", async () => {
 		ensureAstraProjectaUiInfrastructure({ documentRef: document });
 		setSillyTavernContext({
 			timestampToMoment: () => ({
@@ -530,6 +530,11 @@ describe("MobileChatMainMenuDrawer", () => {
 			),
 		).toBeInTheDocument();
 		expect(
+			userSettingsButton.querySelectorAll(
+				".astra-chat-main-menu-drawer__tile-icon",
+			),
+		).toHaveLength(1);
+		expect(
 			userSettingsButton.querySelector(
 				".astra-chat-main-menu-drawer__tile-fade",
 			),
@@ -548,6 +553,11 @@ describe("MobileChatMainMenuDrawer", () => {
 				),
 			).map((line) => line.textContent),
 		).toEqual(["Lorebook"]);
+		expect(
+			lorebookButton.querySelectorAll(
+				".astra-chat-main-menu-drawer__tile-icon",
+			),
+		).toHaveLength(1);
 		expect(
 			lorebookButton.querySelectorAll(
 				".astra-chat-main-menu-drawer__tile-deco-icon",
