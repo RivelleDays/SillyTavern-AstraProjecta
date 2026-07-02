@@ -481,6 +481,11 @@ export function MobileChatMainMenuDrawer({
 									/>
 									{renderSillyTavernInterfaceRouteIcon({
 										className:
+											"astra-chat-main-menu-drawer__tile-icon",
+										iconKey,
+									})}
+									{renderSillyTavernInterfaceRouteIcon({
+										className:
 											"astra-chat-main-menu-drawer__tile-deco-icon",
 										iconKey,
 									})}
