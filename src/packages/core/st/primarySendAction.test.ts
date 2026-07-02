@@ -283,12 +283,39 @@ describe("primary send action", () => {
 		});
 	});
 
+	test("ignores a stale generating body flag when no generation is active", () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+    `;
+		document.body.dataset.generating = "true";
+
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+		});
+
+		expect(
+			readPrimarySendActionSnapshot({ documentRef: document }),
+		).toMatchObject({
+			disabled: false,
+			kind: "send",
+			label: "Send message",
+			visible: true,
+		});
+	});
+
 	test("keeps the stop action ahead of a css-hidden send button while generating", () => {
 		document.body.innerHTML = `
       <textarea id="send_textarea">hello</textarea>
       <input id="file_form_input" type="file" />
       <button id="send_but" class="displayNone" title="Send message"></button>
-      <button id="mes_stop" class="displayNone" title="Abort request"></button>
+      <button id="mes_stop" style="display: flex;" title="Abort request"></button>
       <div id="rightSendForm"></div>
     `;
 		document.body.dataset.generating = "true";
@@ -449,6 +476,51 @@ describe("primary send action", () => {
 		});
 		expect(store.trigger()).toBe(true);
 		expect(stopClicks).toBe(1);
+
+		store.dispose();
+	});
+
+	test("restores send after group generation finishes even if the body generating flag is stale", async () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: flex;" title="Abort request"></button>
+      </div>
+    `;
+		document.body.dataset.generating = "true";
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GROUP_WRAPPER_FINISHED: "group_wrapper_finished",
+				GROUP_WRAPPER_STARTED: "group_wrapper_started",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		expect(store.getSnapshot()).toMatchObject({
+			kind: "stop",
+			visible: true,
+		});
+
+		document
+			.getElementById("mes_stop")
+			?.setAttribute("style", "display: none;");
+		eventSource.emit("group_wrapper_finished");
+		await Promise.resolve();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: false,
+			kind: "send",
+			label: "Send message",
+			visible: true,
+		});
 
 		store.dispose();
 	});

@@ -56,6 +56,7 @@ const RIGHT_SEND_FORM_ID = "rightSendForm";
 const CONTINUE_ACTION_LABEL_KEY = "sendForm.primaryAction.continue";
 const SEND_ACTION_LABEL_KEY = "sendForm.primaryAction.send";
 const STOP_ACTION_LABEL_KEY = "sendForm.primaryAction.stop";
+const IGNORED_GENERATION_TYPES = new Set(["quiet", "impersonate"]);
 const RELEVANT_BODY_TARGET_SELECTOR = [
 	`#${RIGHT_SEND_FORM_ID}`,
 	`#${SEND_TEXTAREA_ID}`,
@@ -275,6 +276,18 @@ function shouldRefreshForBodyMutations(mutations: MutationRecord[]): boolean {
 	});
 }
 
+function isIgnoredGeneration(
+	type: unknown,
+	options: unknown,
+	dryRun: unknown,
+): boolean {
+	const generationType = typeof type === "string" ? type.toLowerCase() : "";
+	const isDryRun =
+		dryRun === true || (isRecord(options) && options.dryRun === true);
+
+	return isDryRun || IGNORED_GENERATION_TYPES.has(generationType);
+}
+
 function snapshotsEqual(
 	a: PrimarySendActionSnapshot,
 	b: PrimarySendActionSnapshot,
@@ -304,41 +317,46 @@ function resolvePrimarySendActionTarget(
 function readPrimarySendActionState({
 	documentRef,
 	generationLifecycle,
+	groupGenerationActive,
 }: {
 	documentRef: Document;
 	generationLifecycle: GenerationLifecycle;
+	groupGenerationActive: boolean;
 }): PrimarySendActionState {
 	const context = resolveContextSafe();
 	const sendButton = readNativeElement(documentRef, SEND_BUTTON_ID);
 	const stopButton = readNativeElement(documentRef, STOP_BUTTON_ID);
 	const continueOption = resolveContinueOption(documentRef);
 	const body = documentRef.body;
-	const isGenerating = body?.dataset.generating === "true";
-	const isSwiping = body?.dataset.swiping === "true";
-	const hasNativeBusyState =
-		isElementVisible(stopButton) || isGenerating || isSwiping;
+	const isNativeSwipeBusy = body?.dataset.swiping === "true";
+	const isStopVisible = isElementVisible(stopButton);
 	let nextGenerationLifecycle = generationLifecycle;
 
 	if (generationLifecycle === "unknown") {
 		nextGenerationLifecycle =
-			hasNativeBusyState && stopButton ? "active" : "idle";
+			isStopVisible && stopButton ? "active" : "idle";
 	} else if (generationLifecycle === "pending") {
-		if (hasNativeBusyState && stopButton) {
+		if (isStopVisible && stopButton) {
 			nextGenerationLifecycle = "active";
 		}
 	} else if (
 		generationLifecycle === "active" &&
-		(!hasNativeBusyState || !stopButton)
+		!isStopVisible &&
+		!groupGenerationActive
 	) {
 		nextGenerationLifecycle = "idle";
 	}
 
 	const isAbortableGeneration =
-		nextGenerationLifecycle === "active" &&
-		hasNativeBusyState &&
+		(nextGenerationLifecycle === "active" || groupGenerationActive) &&
+		isStopVisible &&
 		stopButton instanceof HTMLElement;
+	const isNativeInputLocked = isStopVisible && !isAbortableGeneration;
 	const isInputLocked =
-		hasNativeBusyState || nextGenerationLifecycle === "pending";
+		isNativeSwipeBusy ||
+		groupGenerationActive ||
+		nextGenerationLifecycle === "pending" ||
+		isNativeInputLocked;
 
 	if (isAbortableGeneration) {
 		return {
@@ -395,6 +413,7 @@ export function readPrimarySendActionSnapshot({
 	return readPrimarySendActionState({
 		documentRef,
 		generationLifecycle: "unknown",
+		groupGenerationActive: false,
 	}).snapshot;
 }
 
@@ -413,16 +432,45 @@ export function createPrimarySendActionStore({
 		scheduleRefresh();
 	};
 	const generationStartedHandler = (
-		_type?: unknown,
-		_options?: unknown,
+		type?: unknown,
+		options?: unknown,
 		dryRun?: unknown,
 	) => {
-		if (dryRun !== true) {
-			generationLifecycle = "pending";
+		if (isIgnoredGeneration(type, options, dryRun)) {
+			return;
 		}
+
+		generationLifecycle = "pending";
+		scheduleRefresh();
+	};
+	const generationAfterCommandsHandler = (
+		type?: unknown,
+		options?: unknown,
+		dryRun?: unknown,
+	) => {
+		if (isIgnoredGeneration(type, options, dryRun)) {
+			return;
+		}
+
+		generationLifecycle = "active";
 		scheduleRefresh();
 	};
 	const generationSettledHandler = () => {
+		generationLifecycle = "idle";
+		scheduleRefresh();
+	};
+	const groupWrapperStartedHandler = () => {
+		groupGenerationActive = true;
+		generationLifecycle = "active";
+		scheduleRefresh();
+	};
+	const groupWrapperFinishedHandler = () => {
+		groupGenerationActive = false;
+		generationLifecycle = "idle";
+		scheduleRefresh();
+	};
+	const contextResetHandler = () => {
+		groupGenerationActive = false;
 		generationLifecycle = "idle";
 		scheduleRefresh();
 	};
@@ -436,9 +484,11 @@ export function createPrimarySendActionStore({
 	let disposed = false;
 	let isRefreshQueued = false;
 	let generationLifecycle: GenerationLifecycle = "unknown";
+	let groupGenerationActive = false;
 	const initialState = readPrimarySendActionState({
 		documentRef,
 		generationLifecycle,
+		groupGenerationActive,
 	});
 	generationLifecycle = initialState.generationLifecycle;
 	let snapshot = initialState.snapshot;
@@ -569,6 +619,7 @@ export function createPrimarySendActionStore({
 		const nextState = readPrimarySendActionState({
 			documentRef,
 			generationLifecycle,
+			groupGenerationActive,
 		});
 		generationLifecycle = nextState.generationLifecycle;
 		const nextSnapshot = nextState.snapshot;
@@ -624,23 +675,35 @@ export function createPrimarySendActionStore({
 
 		for (const eventName of [
 			eventTypes.APP_READY,
-			eventTypes.CHAT_CHANGED,
-			eventTypes.CHAT_LOADED,
 			eventTypes.MESSAGE_SENT,
 			eventTypes.SETTINGS_UPDATED,
 			eventTypes.ONLINE_STATUS_CHANGED,
 		]) {
 			addEventBinding(eventName, eventRefreshHandler);
 		}
+		addEventBinding(eventTypes.CHAT_CHANGED, contextResetHandler);
+		addEventBinding(eventTypes.CHAT_LOADED, contextResetHandler);
 		addEventBinding(
 			eventTypes.GENERATION_STARTED,
 			generationStartedHandler,
+		);
+		addEventBinding(
+			eventTypes.GENERATION_AFTER_COMMANDS,
+			generationAfterCommandsHandler,
 		);
 		addEventBinding(
 			eventTypes.GENERATION_STOPPED,
 			generationSettledHandler,
 		);
 		addEventBinding(eventTypes.GENERATION_ENDED, generationSettledHandler);
+		addEventBinding(
+			eventTypes.GROUP_WRAPPER_STARTED,
+			groupWrapperStartedHandler,
+		);
+		addEventBinding(
+			eventTypes.GROUP_WRAPPER_FINISHED,
+			groupWrapperFinishedHandler,
+		);
 		addEventBinding(eventTypes.MESSAGE_EDITED, messageEditedHandler);
 
 		activeEventBindings = Array.from(
@@ -697,6 +760,7 @@ export function createPrimarySendActionStore({
 			const nextState = readPrimarySendActionState({
 				documentRef,
 				generationLifecycle,
+				groupGenerationActive,
 			});
 			generationLifecycle = nextState.generationLifecycle;
 			const nextSnapshot = nextState.snapshot;
