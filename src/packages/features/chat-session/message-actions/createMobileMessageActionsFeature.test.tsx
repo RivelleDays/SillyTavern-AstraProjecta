@@ -28,6 +28,33 @@ import {
 	waitForDrawerExitAnimation,
 } from "@/packages/features/chat-session/message-actions/createMobileMessageActionsFeature.test-utils";
 
+function createGenerationActivityStoreStub(initialSnapshot: {
+	isGenerating: boolean;
+	isGroupGenerating: boolean;
+	isStreaming: boolean;
+	updatedAt: number;
+}) {
+	let listener: (() => void) | null = null;
+	let snapshot = initialSnapshot;
+
+	return {
+		dispatch(nextSnapshot: typeof snapshot) {
+			snapshot = nextSnapshot;
+			listener?.();
+		},
+		store: {
+			dispose: vi.fn(),
+			getSnapshot: vi.fn(() => snapshot),
+			subscribe: vi.fn((nextListener: () => void) => {
+				listener = nextListener;
+				return () => {
+					listener = null;
+				};
+			}),
+		},
+	};
+}
+
 describe("createMobileMessageActionsFeature", () => {
 	beforeEach(() => {
 		window.localStorage.clear();
@@ -124,6 +151,138 @@ describe("createMobileMessageActionsFeature", () => {
 		expect(document.querySelector(".astra-revisionBar")).toBeNull();
 		expect(document.querySelector(".astra-swipePager")).toBeNull();
 		expect(document.querySelector(".astra-mesActions")).toBeNull();
+	});
+
+	test("hides footer actions during generation and restores them when generation settles", async () => {
+		document.body.innerHTML = `
+            <div id="chat">
+                <div class="mes" mesid="0">
+                    <div class="mes_block"></div>
+                </div>
+            </div>
+        `;
+		const generationActivityStore = createGenerationActivityStoreStub({
+			isGenerating: false,
+			isGroupGenerating: false,
+			isStreaming: false,
+			updatedAt: 0,
+		});
+		const swipeStore = createSwipeStoreStub({
+			canSwipeNext: true,
+			canSwipePrevious: false,
+			currentIndex: 0,
+			isNativeSwipeBusy: false,
+			messageId: 0,
+			status: "ready",
+			total: 1,
+			updatedAt: 0,
+		});
+		const revisionStore = createRevisionStoreStub({
+			canContinue: true,
+			canRegenerate: true,
+			canUndo: false,
+			isBusy: false,
+			messageId: 0,
+			status: "ready",
+			updatedAt: 0,
+		});
+		const feature = createMobileMessageActionsFeature({
+			createGenerationActivityStore: () => generationActivityStore.store,
+			createRevisionStore: () => revisionStore.store,
+			createSwipeStore: () => swipeStore.store,
+			documentRef: document,
+		});
+
+		try {
+			feature.mount();
+
+			await waitFor(() => {
+				expect(
+					document.querySelector(".astra-swipePager"),
+				).toBeInTheDocument();
+			});
+
+			generationActivityStore.dispatch({
+				isGenerating: true,
+				isGroupGenerating: false,
+				isStreaming: false,
+				updatedAt: 1,
+			});
+
+			await waitFor(() => {
+				expect(document.querySelector(".astra-mesActions")).toBeNull();
+			});
+
+			swipeStore.store.refresh.mockClear();
+			revisionStore.store.refresh.mockClear();
+			generationActivityStore.dispatch({
+				isGenerating: false,
+				isGroupGenerating: false,
+				isStreaming: false,
+				updatedAt: 2,
+			});
+
+			await waitFor(() => {
+				expect(
+					document.querySelector(".astra-swipePager"),
+				).toBeInTheDocument();
+			});
+			expect(swipeStore.store.refresh).toHaveBeenCalledTimes(1);
+			expect(revisionStore.store.refresh).toHaveBeenCalledTimes(1);
+		} finally {
+			feature.dispose();
+		}
+	});
+
+	test("hides footer actions while streaming is active", async () => {
+		document.body.innerHTML = `
+            <div id="chat">
+                <div class="mes" mesid="0">
+                    <div class="mes_block"></div>
+                </div>
+            </div>
+        `;
+		const generationActivityStore = createGenerationActivityStoreStub({
+			isGenerating: false,
+			isGroupGenerating: false,
+			isStreaming: true,
+			updatedAt: 0,
+		});
+		const swipeStore = createSwipeStoreStub({
+			canSwipeNext: true,
+			canSwipePrevious: false,
+			currentIndex: 0,
+			isNativeSwipeBusy: false,
+			messageId: 0,
+			status: "ready",
+			total: 1,
+			updatedAt: 0,
+		});
+		const revisionStore = createRevisionStoreStub({
+			canContinue: true,
+			canRegenerate: true,
+			canUndo: false,
+			isBusy: false,
+			messageId: 0,
+			status: "ready",
+			updatedAt: 0,
+		});
+		const feature = createMobileMessageActionsFeature({
+			createGenerationActivityStore: () => generationActivityStore.store,
+			createRevisionStore: () => revisionStore.store,
+			createSwipeStore: () => swipeStore.store,
+			documentRef: document,
+		});
+
+		try {
+			feature.mount();
+
+			await waitFor(() => {
+				expect(document.querySelector(".astra-mesActions")).toBeNull();
+			});
+		} finally {
+			feature.dispose();
+		}
 	});
 
 	test("does not create footer actions when the last loaded message is user-authored", async () => {

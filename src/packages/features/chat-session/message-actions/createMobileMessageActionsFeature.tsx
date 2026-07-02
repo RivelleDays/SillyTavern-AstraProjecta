@@ -15,6 +15,10 @@ import {
 	createChatMessageSwipeStore,
 } from "@/packages/core/st/chatMessageSwipe";
 import {
+	type GenerationActivityStore,
+	createGenerationActivityStore as createDefaultGenerationActivityStore,
+} from "@/packages/core/st/generationActivity";
+import {
 	type ChatMessageDeletionKind,
 	readChatMessageDeletionSupport,
 } from "@/packages/core/st/chatMessageDeletion";
@@ -106,6 +110,9 @@ export interface MobileMessageActionsFeature {
 
 type RevisionSnapshot = ReturnType<ChatMessageRevisionStore["getSnapshot"]>;
 type SwipeSnapshot = ReturnType<ChatMessageSwipeStore["getSnapshot"]>;
+type GenerationActivitySnapshot = ReturnType<
+	GenerationActivityStore["getSnapshot"]
+>;
 
 function MessageHeaderActions({
 	onEdit,
@@ -185,15 +192,18 @@ function MessageFooterActions({
 }
 
 export function createMobileMessageActionsFeature({
+	documentRef = document,
+	createGenerationActivityStore = () =>
+		createDefaultGenerationActivityStore({ documentRef }),
 	createHistoryStore,
 	createRevisionStore = () => createChatMessageRevisionStore(),
 	createSwipeStore = () => createChatMessageSwipeStore(),
-	documentRef = document,
 }: {
+	documentRef?: Document;
+	createGenerationActivityStore?: () => GenerationActivityStore;
 	createHistoryStore?: () => ChatMessageRevisionHistoryStore;
 	createRevisionStore?: () => ChatMessageRevisionStore;
 	createSwipeStore?: () => ChatMessageSwipeStore;
-	documentRef?: Document;
 } = {}): MobileMessageActionsFeature {
 	const resolvedCreateHistoryStore =
 		createHistoryStore ??
@@ -229,6 +239,7 @@ export function createMobileMessageActionsFeature({
 	});
 	let footerActionRoot: Root | null = null;
 	let footerActionRootHost: HTMLDivElement | null = null;
+	let generationActivityStore: GenerationActivityStore | null = null;
 	const moreActionsDrawerRoot = createAstraReactPortalRootManager({
 		documentRef,
 		id: "astra-message-more-actions-drawer-host",
@@ -243,6 +254,7 @@ export function createMobileMessageActionsFeature({
 	let deferredNativeActionFrameId: number | null = null;
 	let selectedExtraActionsTarget: MessageActionsTarget | null = null;
 	let isMoreActionsDrawerOpen = false;
+	let unsubscribeGenerationActivity: (() => void) | null = null;
 	let unsubscribeHistory: (() => void) | null = null;
 	let unsubscribeRevision: (() => void) | null = null;
 	let unsubscribeSwipe: (() => void) | null = null;
@@ -1263,6 +1275,23 @@ export function createMobileMessageActionsFeature({
 		scheduleMessageActionsRender();
 	}
 
+	function isFooterBlockedByGenerationActivity(
+		snapshot: GenerationActivitySnapshot | null | undefined,
+	): boolean {
+		return Boolean(snapshot?.isGenerating || snapshot?.isStreaming);
+	}
+
+	function handleGenerationActivityChange() {
+		const generationActivitySnapshot =
+			generationActivityStore?.getSnapshot();
+		if (isFooterBlockedByGenerationActivity(generationActivitySnapshot)) {
+			renderMessageActionsImmediately();
+			return;
+		}
+
+		refreshMessageActionStores({ renderImmediately: true });
+	}
+
 	function observeChatDom() {
 		chatDomReconciler.start();
 	}
@@ -1312,6 +1341,8 @@ export function createMobileMessageActionsFeature({
 	}
 
 	function renderMessageActions() {
+		const generationActivitySnapshot =
+			generationActivityStore?.getSnapshot();
 		const historySnapshot = historyStore?.getSnapshot() ?? [];
 		const revisionSnapshot = revisionStore?.getSnapshot();
 		const swipeSnapshot = swipeStore?.getSnapshot();
@@ -1325,6 +1356,11 @@ export function createMobileMessageActionsFeature({
 		headerActionRoots.render(loadedMessages);
 		syncOpenMessageActionTargets(validMessageIds);
 		syncHistoryDrawerSelection(historySnapshot);
+
+		if (isFooterBlockedByGenerationActivity(generationActivitySnapshot)) {
+			unmountFooterActionRoot();
+			return;
+		}
 
 		const targetMessage = resolveLastActionableFooterMessage({
 			context,
@@ -1433,7 +1469,12 @@ export function createMobileMessageActionsFeature({
 	}
 
 	function mount() {
-		if (historyStore && swipeStore && revisionStore) {
+		if (
+			generationActivityStore &&
+			historyStore &&
+			swipeStore &&
+			revisionStore
+		) {
 			removeLegacyMessageActionHosts();
 			observeChatDom();
 			messageTextGestures.attach();
@@ -1447,9 +1488,13 @@ export function createMobileMessageActionsFeature({
 		removeLegacyMessageActionHosts();
 		observeChatDom();
 		messageTextGestures.attach();
+		generationActivityStore = createGenerationActivityStore();
 		historyStore = resolvedCreateHistoryStore();
 		revisionStore = createRevisionStore();
 		swipeStore = createSwipeStore();
+		unsubscribeGenerationActivity = generationActivityStore.subscribe(
+			handleGenerationActivityChange,
+		);
 		unsubscribeHistory = historyStore.subscribe(
 			scheduleMessageActionsRender,
 		);
@@ -1467,6 +1512,8 @@ export function createMobileMessageActionsFeature({
 		stopObservingChatDom();
 		cancelDeferredNativeAction();
 		messageTextGestures.detach();
+		unsubscribeGenerationActivity?.();
+		unsubscribeGenerationActivity = null;
 		unsubscribeHistory?.();
 		unsubscribeHistory = null;
 		unsubscribeRevision?.();
@@ -1474,6 +1521,8 @@ export function createMobileMessageActionsFeature({
 		unsubscribeSwipe?.();
 		unsubscribeSwipe = null;
 		unmountRoots();
+		generationActivityStore?.dispose();
+		generationActivityStore = null;
 		historyStore?.dispose();
 		historyStore = null;
 		revisionStore?.dispose();

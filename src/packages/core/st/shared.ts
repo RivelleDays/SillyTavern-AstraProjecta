@@ -34,6 +34,8 @@ export type EventTypesLike = {
 	GENERATION_AFTER_COMMANDS?: string;
 	GENERATION_STARTED?: string;
 	GENERATION_STOPPED?: string;
+	GROUP_WRAPPER_FINISHED?: string;
+	GROUP_WRAPPER_STARTED?: string;
 	GROUP_CHAT_CREATED?: string;
 	GROUP_CHAT_DELETED?: string;
 	GROUP_UPDATED?: string;

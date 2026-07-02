@@ -347,8 +347,11 @@ describe("chat message swipe adapter", () => {
 				eventTypes: {
 					CHAT_CHANGED: "chat_changed",
 					CHARACTER_MESSAGE_RENDERED: "character_message_rendered",
-					GENERATION_STARTED: "generation_started",
+					GENERATION_AFTER_COMMANDS: "generation_after_commands",
+					GENERATION_ENDED: "generation_ended",
 					GENERATION_STOPPED: "generation_stopped",
+					GROUP_WRAPPER_FINISHED: "group_wrapper_finished",
+					GROUP_WRAPPER_STARTED: "group_wrapper_started",
 					MESSAGE_DELETED: "message_deleted",
 					MESSAGE_EDITED: "message_edited",
 					MESSAGE_SWIPE_DELETED: "message_swipe_deleted",
@@ -365,6 +368,9 @@ describe("chat message swipe adapter", () => {
 
 		store.subscribe(listener);
 		expect(eventSource.listenerCount("message_swiped")).toBe(1);
+		expect(eventSource.listenerCount("generation_after_commands")).toBe(1);
+		expect(eventSource.listenerCount("generation_ended")).toBe(1);
+		expect(eventSource.listenerCount("group_wrapper_finished")).toBe(1);
 
 		contextRef.current = {
 			...contextRef.current,
@@ -386,10 +392,34 @@ describe("chat message swipe adapter", () => {
 			total: 2,
 		});
 
+		contextRef.current = {
+			...contextRef.current,
+			chat: [
+				{
+					is_user: false,
+					swipe_id: 0,
+					swipes: ["first", "second", "third"],
+				},
+			],
+		};
+		eventSource.emit("group_wrapper_finished");
+
+		expect(listener).toHaveBeenCalledTimes(2);
+		expect(store.getSnapshot()).toMatchObject({
+			currentIndex: 0,
+			isNativeSwipeBusy: false,
+			status: "ready",
+			total: 3,
+		});
+
 		store.dispose();
 		expect(eventSource.listenerCount("message_swiped")).toBe(0);
+		expect(eventSource.listenerCount("generation_after_commands")).toBe(0);
+		expect(eventSource.listenerCount("generation_ended")).toBe(0);
+		expect(eventSource.listenerCount("group_wrapper_finished")).toBe(0);
 
 		eventSource.emit("message_swiped", 0);
-		expect(listener).toHaveBeenCalledTimes(1);
+		eventSource.emit("group_wrapper_finished");
+		expect(listener).toHaveBeenCalledTimes(2);
 	});
 });
