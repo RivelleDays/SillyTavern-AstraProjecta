@@ -6091,8 +6091,9 @@ body.astra-projecta-mobile-layout {
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    padding-inline: 4px;
-    color: var(--color-muted-t90);
+    padding-inline: 0;
+    color: var(--color-muted);
+    background: transparent;
     font-size: 12px;
     box-shadow: none;
   }
@@ -6134,7 +6135,7 @@ body.astra-projecta-mobile-layout {
     min-width: 0;
     height: 44px;
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-xl);
     background: var(--surface-muted-t10);
     color: var(--color-base);
     font: inherit;
@@ -6161,8 +6162,8 @@ body.astra-projecta-mobile-layout {
   }
   .astra-chat-main-menu-extension-shortcuts__label {
     display: block;
-    font-size: var(--text-sm);
-    font-weight: var(--font-weight-semibold);
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
