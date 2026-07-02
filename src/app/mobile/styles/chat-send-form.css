@@ -1548,7 +1548,7 @@ body.astra-projecta-mobile-layout {
 
 	.astra-chat-main-menu-drawer__shortcut-grid {
 		--astra-chat-main-menu-drawer-tile-gap: 8px;
-		--astra-chat-main-menu-drawer-tile-min-height: 92px;
+		--astra-chat-main-menu-drawer-tile-min-height: 96px;
 		--astra-chat-main-menu-drawer-tile-padding-block: 12px;
 		--astra-chat-main-menu-drawer-tile-padding-inline: 12px;
 		--astra-chat-main-menu-drawer-tile-title-size: 12px;
@@ -1872,7 +1872,7 @@ body.astra-projecta-mobile-layout {
 
 	.astra-chat-main-menu-drawer__tile-deco-icon {
 		position: absolute;
-		right: -4px;
+		right: 2px;
 		bottom: -20px;
 		z-index: 2;
 		width: var(--astra-chat-main-menu-drawer-tile-deco-icon-size);
