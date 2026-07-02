@@ -110,7 +110,7 @@ describe("primary send action", () => {
 			readPrimarySendActionSnapshot({ documentRef: document }),
 		).toMatchObject({
 			kind: "stop",
-			label: "sendForm.primaryAction.stop::Abort request",
+			label: "sendForm.primaryAction.stop::Stop generating message",
 			visible: true,
 		});
 
@@ -330,7 +330,7 @@ describe("primary send action", () => {
 			readPrimarySendActionSnapshot({ documentRef: document }),
 		).toMatchObject({
 			kind: "stop",
-			label: "Abort request",
+			label: "Stop generating message",
 			visible: true,
 		});
 	});
@@ -471,7 +471,58 @@ describe("primary send action", () => {
 		expect(store.getSnapshot()).toMatchObject({
 			disabled: false,
 			kind: "stop",
-			label: "Abort request",
+			label: "Stop generating message",
+			visible: true,
+		});
+		expect(store.trigger()).toBe(true);
+		expect(stopClicks).toBe(1);
+
+		store.dispose();
+	});
+
+	test("keeps generation active when the native stop button appears after generation events", async () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" disabled title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_ENDED: "generation_ended",
+				GENERATION_STOPPED: "generation_stopped",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+			streamingProcessor: null,
+			translate: (text: string, key: string) => `${key}::${text}`,
+		});
+
+		const stopButton = document.getElementById("mes_stop");
+		let stopClicks = 0;
+		stopButton?.addEventListener("click", () => {
+			stopClicks += 1;
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		eventSource.emit("generation_after_commands", "normal", {}, false);
+		await Promise.resolve();
+
+		document.body.dataset.generating = "true";
+		stopButton?.setAttribute("style", "display: flex;");
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: false,
+			kind: "stop",
+			label: "sendForm.primaryAction.stop::Stop generating message",
 			visible: true,
 		});
 		expect(store.trigger()).toBe(true);
@@ -631,7 +682,7 @@ describe("primary send action", () => {
 
 		expect(store.getSnapshot()).toMatchObject({
 			kind: "stop",
-			label: "Abort request",
+			label: "Stop generating message",
 			visible: true,
 		});
 

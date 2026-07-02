@@ -19,6 +19,7 @@ type StContextLike = Record<string, unknown> & {
 	groupId?: unknown;
 	onlineStatus?: unknown;
 	powerUserSettings?: unknown;
+	streamingProcessor?: unknown;
 };
 
 type GenerationLifecycle = "active" | "idle" | "pending" | "unknown";
@@ -50,6 +51,7 @@ const CONTINUE_OPTION_ID = "option_continue";
 const OPTIONS_ROOT_ID = "options";
 const SEND_BUTTON_ID = "send_but";
 const STOP_BUTTON_ID = "mes_stop";
+const STOP_BUTTON_SELECTOR = `#${STOP_BUTTON_ID}, .mes_stop`;
 const SEND_TEXTAREA_ID = "send_textarea";
 const FILE_INPUT_ID = "file_form_input";
 const RIGHT_SEND_FORM_ID = "rightSendForm";
@@ -62,6 +64,7 @@ const RELEVANT_BODY_TARGET_SELECTOR = [
 	`#${SEND_TEXTAREA_ID}`,
 	`#${FILE_INPUT_ID}`,
 	`#${CONTINUE_OPTION_ID}`,
+	STOP_BUTTON_SELECTOR,
 ].join(", ");
 
 function getElementConstructor(node: Node): typeof Element | null {
@@ -166,8 +169,31 @@ function readNativeElement(
 	return element instanceof HTMLElement ? element : null;
 }
 
+function readNativeStopButton(documentRef: Document): HTMLElement | null {
+	const stopButton = readNativeElement(documentRef, STOP_BUTTON_ID);
+	if (stopButton) {
+		return stopButton;
+	}
+
+	const element = documentRef.querySelector(STOP_BUTTON_SELECTOR);
+	return element instanceof HTMLElement ? element : null;
+}
+
 function resolveContinueOption(documentRef: Document): HTMLElement | null {
 	return readNativeElement(documentRef, CONTINUE_OPTION_ID);
+}
+
+function hasActiveStreamingProcessor(context: StContextLike | null): boolean {
+	const processor = context?.streamingProcessor;
+	if (!processor) {
+		return false;
+	}
+
+	if (!isRecord(processor)) {
+		return true;
+	}
+
+	return processor.isFinished !== true && processor.isStopped !== true;
 }
 
 function shouldUseContinueAction(
@@ -308,7 +334,7 @@ function resolvePrimarySendActionTarget(
 		case "continue":
 			return resolveContinueOption(documentRef);
 		case "stop":
-			return readNativeElement(documentRef, STOP_BUTTON_ID);
+			return readNativeStopButton(documentRef);
 		default:
 			return readNativeElement(documentRef, SEND_BUTTON_ID);
 	}
@@ -325,23 +351,26 @@ function readPrimarySendActionState({
 }): PrimarySendActionState {
 	const context = resolveContextSafe();
 	const sendButton = readNativeElement(documentRef, SEND_BUTTON_ID);
-	const stopButton = readNativeElement(documentRef, STOP_BUTTON_ID);
+	const stopButton = readNativeStopButton(documentRef);
 	const continueOption = resolveContinueOption(documentRef);
 	const body = documentRef.body;
 	const isNativeSwipeBusy = body?.dataset.swiping === "true";
 	const isStopVisible = isElementVisible(stopButton);
+	const isStreaming = hasActiveStreamingProcessor(context);
 	let nextGenerationLifecycle = generationLifecycle;
 
 	if (generationLifecycle === "unknown") {
 		nextGenerationLifecycle =
-			isStopVisible && stopButton ? "active" : "idle";
+			(isStopVisible || isStreaming) && stopButton ? "active" : "idle";
 	} else if (generationLifecycle === "pending") {
-		if (isStopVisible && stopButton) {
+		if ((isStopVisible || isStreaming) && stopButton) {
 			nextGenerationLifecycle = "active";
 		}
 	} else if (
 		generationLifecycle === "active" &&
+		!stopButton &&
 		!isStopVisible &&
+		!isStreaming &&
 		!groupGenerationActive
 	) {
 		nextGenerationLifecycle = "idle";
@@ -349,13 +378,13 @@ function readPrimarySendActionState({
 
 	const isAbortableGeneration =
 		(nextGenerationLifecycle === "active" || groupGenerationActive) &&
-		isStopVisible &&
 		stopButton instanceof HTMLElement;
 	const isNativeInputLocked = isStopVisible && !isAbortableGeneration;
 	const isInputLocked =
 		isNativeSwipeBusy ||
 		groupGenerationActive ||
 		nextGenerationLifecycle === "pending" ||
+		(nextGenerationLifecycle === "active" && !isAbortableGeneration) ||
 		isNativeInputLocked;
 
 	if (isAbortableGeneration) {
@@ -364,7 +393,7 @@ function readPrimarySendActionState({
 			snapshot: createSnapshot({
 				disabled: readIsDisabled(stopButton),
 				kind: "stop",
-				label: readNativeActionLabel(stopButton, STOP_ACTION_LABEL_KEY),
+				label: translateAstra(STOP_ACTION_LABEL_KEY),
 				visible: true,
 			}),
 		};

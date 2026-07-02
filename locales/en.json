@@ -447,7 +447,7 @@
 	"sendForm.options.trigger": "Menu",
 	"sendForm.primaryAction.continue": "Continue the last message",
 	"sendForm.primaryAction.send": "Send a message",
-	"sendForm.primaryAction.stop": "Abort request",
+	"sendForm.primaryAction.stop": "Stop generating message",
 	"sendForm.quickReply.hide": "Hide quick replies",
 	"sendForm.quickReply.show": "Show quick replies",
 	"sendForm.shortcuts.continue": "Continue the last message",
