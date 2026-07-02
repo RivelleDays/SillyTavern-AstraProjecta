@@ -4907,7 +4907,7 @@ body.astra-projecta-mobile-layout {
     flex: 0 0 100%;
     width: 100%;
     min-width: 0;
-    padding-inline: calc(var(--astra-chat-spacing) - 2px);
+    padding-inline: calc(var(--astra-chat-spacing));
     background: transparent !important;
   }
   .astra-chat-input__field > #astra-chat-quick-replies-host {
@@ -9755,6 +9755,7 @@ body.astra-projecta-mobile-layout {
     flex-direction: column;
     align-items: stretch;
     --avatar-base-width: 40px;
+    padding-inline: 8px;
   }
   & #chat .mes .avatar img {
     width: var(--avatar-base-width);
@@ -9769,7 +9770,7 @@ body.astra-projecta-mobile-layout {
     padding-left: 0;
   }
   & #chat .mes_text {
-    padding: 12px 4px;
+    padding: 12px 0;
   }
   & #chat .mes .mes_text {
     -webkit-touch-callout: none;
