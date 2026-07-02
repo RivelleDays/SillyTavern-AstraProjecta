@@ -13,10 +13,23 @@ function isMessageElement(node: Node): boolean {
 	);
 }
 
-function nodeContainsMessage(node: Node): boolean {
+function isMessageStructureElement(node: Node): boolean {
 	return (
-		isMessageElement(node) ||
-		(node instanceof Element && Boolean(node.querySelector(".mes[mesid]")))
+		node instanceof Element &&
+		(isMessageElement(node) ||
+			node.classList.contains("mes_block") ||
+			node.classList.contains("mes_text"))
+	);
+}
+
+function nodeContainsMessageStructure(node: Node): boolean {
+	if (!(node instanceof Element)) {
+		return false;
+	}
+
+	return (
+		isMessageStructureElement(node) ||
+		Boolean(node.querySelector(".mes[mesid], .mes_block, .mes_text"))
 	);
 }
 
@@ -29,7 +42,7 @@ export function shouldReconcileChatDomForMutations(
 		}
 
 		return [...mutation.addedNodes, ...mutation.removedNodes].some(
-			nodeContainsMessage,
+			nodeContainsMessageStructure,
 		);
 	});
 }
@@ -65,6 +78,7 @@ export function createChatDomReconciler({
 		});
 		observer.observe(chatRoot, {
 			childList: true,
+			subtree: true,
 		});
 	}
 

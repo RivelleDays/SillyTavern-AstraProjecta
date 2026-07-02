@@ -56,6 +56,31 @@ function createGenerationActivityStoreStub(initialSnapshot: {
 	};
 }
 
+function createEventSourceStub() {
+	const listeners = new Map<string, Set<(...args: unknown[]) => void>>();
+
+	return {
+		emit(eventName: string, ...args: unknown[]) {
+			for (const listener of listeners.get(eventName) ?? []) {
+				listener(...args);
+			}
+		},
+		on(eventName: string, listener: (...args: unknown[]) => void) {
+			const activeListeners =
+				listeners.get(eventName) ??
+				new Set<(...args: unknown[]) => void>();
+			activeListeners.add(listener);
+			listeners.set(eventName, activeListeners);
+		},
+		removeListener(
+			eventName: string,
+			listener: (...args: unknown[]) => void,
+		) {
+			listeners.get(eventName)?.delete(listener);
+		},
+	};
+}
+
 describe("createMobileMessageActionsFeature", () => {
 	beforeEach(() => {
 		window.localStorage.clear();
@@ -230,11 +255,117 @@ describe("createMobileMessageActionsFeature", () => {
 			});
 			expect(swipeStore.store.refresh).toHaveBeenCalledTimes(1);
 			expect(revisionStore.store.refresh).toHaveBeenCalledTimes(1);
-			expect(
-				generationActivityStore.store.refresh,
-			).toHaveBeenCalledTimes(1);
+			expect(generationActivityStore.store.refresh).toHaveBeenCalledTimes(
+				1,
+			);
 		} finally {
 			feature.dispose();
+		}
+	});
+
+	test("restores footer actions from a rendered-message generation probe after the chat snapshot settles", async () => {
+		const frame = installAnimationFrameQueue();
+		const eventSource = createEventSourceStub();
+		const contextRef = {
+			current: {
+				chat: [
+					{
+						is_system: false,
+						is_user: true,
+						mes: "Pending assistant reply",
+						name: "Assistant",
+						swipe_id: 0,
+						swipes: ["Pending assistant reply"],
+					},
+				],
+				eventSource,
+				eventTypes: {
+					CHARACTER_MESSAGE_RENDERED: "character_message_rendered",
+					GENERATION_AFTER_COMMANDS: "generation_after_commands",
+					GENERATION_ENDED: "generation_ended",
+				},
+				generate: vi.fn(),
+			},
+		};
+		setSillyTavernContext(contextRef);
+		document.body.innerHTML = `
+            <button id="mes_stop" style="display: none;"></button>
+            <div id="chat">
+                <div class="mes" mesid="0">
+                    <div class="mes_block"></div>
+                </div>
+            </div>
+        `;
+		const revisionStore = createRevisionStoreStub({
+			canContinue: true,
+			canRegenerate: true,
+			canUndo: false,
+			isBusy: false,
+			messageId: 0,
+			status: "ready",
+			updatedAt: 0,
+		});
+		const swipeStore = createSwipeStoreStub({
+			canSwipeNext: false,
+			canSwipePrevious: false,
+			currentIndex: 0,
+			isNativeSwipeBusy: false,
+			messageId: null,
+			status: "idle",
+			total: 1,
+			updatedAt: 0,
+		});
+		const feature = createMobileMessageActionsFeature({
+			createRevisionStore: () => revisionStore.store,
+			createSwipeStore: () => swipeStore.store,
+			documentRef: document,
+		});
+
+		try {
+			feature.mount();
+
+			expect(document.querySelector(".astra-mesActions")).toBeNull();
+
+			document
+				.getElementById("mes_stop")
+				?.setAttribute("style", "display: flex;");
+			eventSource.emit("generation_after_commands", "normal", {}, false);
+			eventSource.emit("generation_ended");
+			document
+				.getElementById("mes_stop")
+				?.setAttribute("style", "display: none;");
+			eventSource.emit("character_message_rendered", 0, "normal");
+			contextRef.current = {
+				...contextRef.current,
+				chat: [
+					{
+						is_system: false,
+						is_user: false,
+						mes: "Finished assistant reply",
+						name: "Assistant",
+						swipe_id: 0,
+						swipes: ["Finished assistant reply"],
+					},
+				],
+			};
+			frame.flushFrames();
+
+			await waitFor(() => {
+				expect(
+					document.querySelector(".astra-revisionBar"),
+				).toBeInTheDocument();
+			});
+			expect(
+				document
+					.querySelector(".astra-revisionBar")
+					?.closest(".astra-mesActions"),
+			).toBe(
+				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
+			);
+		} finally {
+			feature.dispose();
+			frame.restore();
+			delete (globalThis as { SillyTavern?: unknown }).SillyTavern;
 		}
 	});
 

@@ -151,6 +151,10 @@ export function createGenerationActivityStore({
 	const context = resolveContextSafe();
 	const eventSource = context?.eventSource ?? null;
 	const eventTypes = context ? resolveEventTypes(context) : {};
+	const canSubscribeToEvents =
+		eventSource &&
+		typeof eventSource.on === "function" &&
+		typeof eventSource.removeListener === "function";
 	const listeners = new Set<Listener>();
 	let disposed = false;
 	let eventGenerationActive = false;
@@ -234,7 +238,7 @@ export function createGenerationActivityStore({
 		eventBindingMap.set(eventName, listener);
 	};
 
-	if (eventSource) {
+	if (canSubscribeToEvents) {
 		addEventBinding(
 			eventTypes.GENERATION_AFTER_COMMANDS,
 			handleGenerationStarted,
@@ -249,6 +253,12 @@ export function createGenerationActivityStore({
 			eventTypes.GROUP_WRAPPER_FINISHED,
 			handleGroupWrapperFinished,
 		);
+		addEventBinding(
+			eventTypes.CHARACTER_MESSAGE_RENDERED,
+			handlePostGenerationProbe,
+		);
+		addEventBinding(eventTypes.MESSAGE_RECEIVED, handlePostGenerationProbe);
+		addEventBinding(eventTypes.MESSAGE_UPDATED, handlePostGenerationProbe);
 		addEventBinding(eventTypes.CHAT_CHANGED, handleContextReset);
 		addEventBinding(eventTypes.CHAT_LOADED, handleContextReset);
 
@@ -259,10 +269,22 @@ export function createGenerationActivityStore({
 
 	function hasLiveGenerationEvidence(): boolean {
 		return (
+			groupGenerationActive ||
 			hasBodyGeneratingFlag(documentRef) ||
 			hasVisibleStopButton(documentRef) ||
 			hasActiveStreamingProcessor(resolveContextSafe())
 		);
+	}
+
+	function refreshFromLiveGenerationEvidence() {
+		if (eventGenerationActive && !hasLiveGenerationEvidence()) {
+			eventGenerationActive = false;
+		}
+		updateSnapshot();
+	}
+
+	function handlePostGenerationProbe() {
+		refreshFromLiveGenerationEvidence();
 	}
 
 	return {
@@ -274,7 +296,7 @@ export function createGenerationActivityStore({
 			disposed = true;
 			listeners.clear();
 
-			if (!eventSource) {
+			if (!canSubscribeToEvents) {
 				return;
 			}
 
@@ -294,10 +316,7 @@ export function createGenerationActivityStore({
 			// when the Stop control was visible; early-return generation paths
 			// (interrupted commands, failed server ping, blocked backends) end
 			// without any settle event, which would wedge this latch forever.
-			if (eventGenerationActive && !hasLiveGenerationEvidence()) {
-				eventGenerationActive = false;
-			}
-			updateSnapshot();
+			refreshFromLiveGenerationEvidence();
 		},
 		subscribe(listener) {
 			if (disposed) {
