@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import {
 	createPrimarySendActionStore,
@@ -44,6 +44,10 @@ describe("primary send action", () => {
 		document.body.innerHTML = "";
 		delete document.body.dataset.generating;
 		delete document.body.dataset.swiping;
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
 	});
 
 	test("prefers the continue action when continue-on-send is available", () => {
@@ -527,6 +531,118 @@ describe("primary send action", () => {
 		});
 		expect(store.trigger()).toBe(true);
 		expect(stopClicks).toBe(1);
+
+		store.dispose();
+	});
+
+	test("releases the stop action when generation ends without a settle event", async () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_ENDED: "generation_ended",
+				GENERATION_STOPPED: "generation_stopped",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+			streamingProcessor: null,
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		eventSource.emit("generation_after_commands", "normal", {}, false);
+		await Promise.resolve();
+
+		// SillyTavern early-return paths (failed server ping, interrupted
+		// backends) unblock without ever showing #mes_stop, so hideStopButton
+		// suppresses GENERATION_ENDED and no settle event ever arrives.
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: false,
+			kind: "send",
+			label: "Send message",
+			visible: true,
+		});
+
+		store.dispose();
+	});
+
+	test("trusts the inline stop-control style over stale computed styles", async () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_ENDED: "generation_ended",
+				GENERATION_STOPPED: "generation_stopped",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+			streamingProcessor: null,
+		});
+
+		// WebKit returns stale computed styles for elements inside hidden
+		// subtrees (the Astra mobile layout hides #nonQRFormItems), so the
+		// computed display can stay "none" while the inline style says "flex".
+		const stopButton = document.getElementById("mes_stop");
+		const nativeGetComputedStyle = window.getComputedStyle.bind(window);
+		vi.spyOn(window, "getComputedStyle").mockImplementation(
+			(element, pseudo) => {
+				const style = nativeGetComputedStyle(
+					element as Element,
+					pseudo ?? undefined,
+				);
+				if (element === stopButton) {
+					return new Proxy(style, {
+						get(target, property) {
+							if (property === "display") {
+								return "none";
+							}
+							const value = Reflect.get(target, property);
+							return typeof value === "function"
+								? value.bind(target)
+								: value;
+						},
+					});
+				}
+				return style;
+			},
+		);
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		eventSource.emit("generation_after_commands", "normal", {}, false);
+		await Promise.resolve();
+
+		document.body.dataset.generating = "true";
+		stopButton?.setAttribute("style", "display: flex;");
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: false,
+			kind: "stop",
+			visible: true,
+		});
 
 		store.dispose();
 	});

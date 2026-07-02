@@ -342,10 +342,12 @@ function resolvePrimarySendActionTarget(
 
 function readPrimarySendActionState({
 	documentRef,
+	generationEventLatch,
 	generationLifecycle,
 	groupGenerationActive,
 }: {
 	documentRef: Document;
+	generationEventLatch: boolean;
 	generationLifecycle: GenerationLifecycle;
 	groupGenerationActive: boolean;
 }): PrimarySendActionState {
@@ -368,12 +370,24 @@ function readPrimarySendActionState({
 		}
 	} else if (
 		generationLifecycle === "active" &&
-		!stopButton &&
 		!isStopVisible &&
 		!isStreaming &&
 		!groupGenerationActive
 	) {
+		// SillyTavern can end a generation without emitting a settle event
+		// (early-return paths where the Stop control was never shown), so an
+		// event-latched "active" must release once no live evidence remains.
 		nextGenerationLifecycle = "idle";
+	} else if (
+		generationLifecycle === "idle" &&
+		generationEventLatch &&
+		(isStopVisible || isStreaming) &&
+		stopButton
+	) {
+		// The Stop control appears only after GENERATION_AFTER_COMMANDS, so a
+		// release that raced that window re-promotes while the event latch is
+		// still armed; DOM evidence alone must not (native quiet input locks).
+		nextGenerationLifecycle = "active";
 	}
 
 	const isAbortableGeneration =
@@ -441,6 +455,7 @@ export function readPrimarySendActionSnapshot({
 } = {}): PrimarySendActionSnapshot {
 	return readPrimarySendActionState({
 		documentRef,
+		generationEventLatch: false,
 		generationLifecycle: "unknown",
 		groupGenerationActive: false,
 	}).snapshot;
@@ -481,10 +496,12 @@ export function createPrimarySendActionStore({
 			return;
 		}
 
+		generationEventLatch = true;
 		generationLifecycle = "active";
 		scheduleRefresh();
 	};
 	const generationSettledHandler = () => {
+		generationEventLatch = false;
 		generationLifecycle = "idle";
 		scheduleRefresh();
 	};
@@ -495,11 +512,13 @@ export function createPrimarySendActionStore({
 	};
 	const groupWrapperFinishedHandler = () => {
 		groupGenerationActive = false;
+		generationEventLatch = false;
 		generationLifecycle = "idle";
 		scheduleRefresh();
 	};
 	const contextResetHandler = () => {
 		groupGenerationActive = false;
+		generationEventLatch = false;
 		generationLifecycle = "idle";
 		scheduleRefresh();
 	};
@@ -512,10 +531,12 @@ export function createPrimarySendActionStore({
 
 	let disposed = false;
 	let isRefreshQueued = false;
+	let generationEventLatch = false;
 	let generationLifecycle: GenerationLifecycle = "unknown";
 	let groupGenerationActive = false;
 	const initialState = readPrimarySendActionState({
 		documentRef,
+		generationEventLatch,
 		generationLifecycle,
 		groupGenerationActive,
 	});
@@ -647,6 +668,7 @@ export function createPrimarySendActionStore({
 		syncBindings();
 		const nextState = readPrimarySendActionState({
 			documentRef,
+			generationEventLatch,
 			generationLifecycle,
 			groupGenerationActive,
 		});
@@ -788,6 +810,7 @@ export function createPrimarySendActionStore({
 		trigger() {
 			const nextState = readPrimarySendActionState({
 				documentRef,
+				generationEventLatch,
 				generationLifecycle,
 				groupGenerationActive,
 			});
