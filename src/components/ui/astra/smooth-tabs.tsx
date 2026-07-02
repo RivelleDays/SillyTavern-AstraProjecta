@@ -14,6 +14,7 @@ export interface AstraSmoothTabItem<TValue extends string = string> {
 	disabled?: boolean;
 	icon?: LucideIcon;
 	label: React.ReactNode;
+	panelId?: string;
 	panelClassName?: string;
 	panelProps?: AstraSmoothTabPanelProps;
 	value: TValue;
@@ -30,12 +31,14 @@ export interface AstraSmoothTabsProps<TValue extends string = string> {
 	trackClassName?: string;
 	triggerClassName?: string;
 	value: TValue;
+	variant?: AstraSmoothTabsVariant;
 	viewportClassName?: string;
 	viewportMode?: AstraSmoothTabsViewportMode;
 }
 
 type DirectionLock = "horizontal" | "vertical" | null;
 type AstraSmoothTabsViewportMode = "auto-height" | "fill";
+type AstraSmoothTabsVariant = "line" | "segmented";
 
 interface IndicatorBounds {
 	left: number;
@@ -79,6 +82,10 @@ function shouldIgnoreSwipe(target: EventTarget | null) {
 		)
 	) {
 		return true;
+	}
+
+	if (target.closest("[data-astra-smooth-tabs-swipe-allow]")) {
+		return false;
 	}
 
 	if (
@@ -146,6 +153,7 @@ export function AstraSmoothTabs<TValue extends string = string>({
 	trackClassName,
 	triggerClassName,
 	value,
+	variant = "line",
 	viewportClassName,
 	viewportMode = "auto-height",
 }: AstraSmoothTabsProps<TValue>) {
@@ -580,7 +588,7 @@ export function AstraSmoothTabs<TValue extends string = string>({
 		>
 			{items.map((item, index) => {
 				const tabId = `${idBase}-${item.value}-tab`;
-				const panelId = `${idBase}-${item.value}-panel`;
+				const panelId = item.panelId ?? `${idBase}-${item.value}-panel`;
 				const isActive = index === activeIndex;
 
 				return (
@@ -640,6 +648,7 @@ export function AstraSmoothTabs<TValue extends string = string>({
 		<div
 			className={cn("astra-smooth-tabs", className)}
 			data-dragging={isDragging ? "true" : "false"}
+			data-variant={variant}
 			data-viewport-mode={viewportMode}
 		>
 			{listFrame}
@@ -665,7 +674,8 @@ export function AstraSmoothTabs<TValue extends string = string>({
 				>
 					{items.map((item, index) => {
 						const tabId = `${idBase}-${item.value}-tab`;
-						const panelId = `${idBase}-${item.value}-panel`;
+						const panelId =
+							item.panelId ?? `${idBase}-${item.value}-panel`;
 						const isActive = index === activeIndex;
 						const {
 							className: itemPanelClassName,

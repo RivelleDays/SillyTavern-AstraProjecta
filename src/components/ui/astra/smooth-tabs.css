@@ -41,7 +41,7 @@
 	flex: 0 0 auto;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
+	gap: 8px;
 	border: 0;
 	background: transparent;
 	color: var(--muted-foreground);
@@ -56,11 +56,47 @@
 
 .astra-smooth-tabs__trigger:disabled {
 	cursor: not-allowed;
-	opacity: 0.5;
+	opacity: 0.4;
 }
 
 .astra-smooth-tabs__trigger[data-state="active"] {
 	color: var(--foreground);
+}
+
+.astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__list-frame {
+	height: auto;
+	min-height: 40px;
+	border: 0;
+	padding: 0;
+}
+
+.astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__list {
+    width: fit-content;
+    width: -webkit-fill-available;
+    justify-content: center;
+    gap: 0;
+    border-radius: var(--radius-lg);
+    background: var(--surface-muted-t40);
+    padding: 2px;
+}
+
+.astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__trigger {
+	height: 32px;
+	flex: 1 1 0;
+	min-width: 72px;
+	border-radius: var(--radius-md);
+	color: var(--color-muted-t90);
+	padding: 0 12px;
+}
+
+.astra-smooth-tabs[data-variant="segmented"]
+	.astra-smooth-tabs__trigger[data-state="active"] {
+	background: var(--surface-background-t90);
+    color: var(--color-base);
+}
+
+.astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__indicator {
+	display: none;
 }
 
 .astra-smooth-tabs__trigger:focus-visible {
@@ -77,7 +113,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font-size: var(--text-sm);
+	font-size: var(--text-xs);
 	font-weight: var(--font-weight-semibold);
 }
 

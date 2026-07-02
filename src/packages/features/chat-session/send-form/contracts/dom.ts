@@ -49,8 +49,10 @@ export const ASTRA_CHAT_MAIN_MENU_DRAWER_FOOTER_ID =
 	"astra-chat-main-menu-drawer-footer";
 export const ASTRA_CHAT_MAIN_MENU_EXTENSION_SHORTCUTS_SECTION_ID =
 	"astra-chat-main-menu-extension-shortcuts";
-export const ASTRA_CHAT_MAIN_MENU_EXTENSION_SHORTCUTS_CONTENT_ID =
-	"astra-chat-main-menu-extension-shortcuts-content";
+export const ASTRA_CHAT_MAIN_MENU_SILLYTAVERN_PANEL_ID =
+	"astra-chat-main-menu-sillytavern-panel";
+export const ASTRA_CHAT_MAIN_MENU_EXTENSIONS_PANEL_ID =
+	"astra-chat-main-menu-extensions-panel";
 export const ASTRA_CHAT_MAIN_MENU_CHARACTER_LIBRARY_SHORTCUT_ID =
 	"astra-chat-main-menu-character-library-shortcut";
 export const ASTRA_CHAT_MAIN_MENU_CHARACTER_LIBRARY_MISSING_DIALOG_ID =
@@ -90,5 +92,3 @@ export const MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY =
 	"astra_projecta.mobile_send_form.shortcuts_visible";
 export const MOBILE_SEND_FORM_QUICK_REPLY_VISIBILITY_STORAGE_KEY =
 	"astra_projecta.mobile_send_form.quick_reply_visible";
-export const MOBILE_CHAT_MAIN_MENU_EXTENSION_SHORTCUTS_EXPANDED_STORAGE_KEY =
-	"astra_projecta.mobile_chat_main_menu.extension_shortcuts_expanded";

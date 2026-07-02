@@ -2130,7 +2130,7 @@ describe("createMobileSendFormFeature", () => {
 		).toBeInTheDocument();
 
 		const tileGrid = drawer.querySelector(
-			".astra-chat-main-menu-drawer__grid",
+			".astra-chat-main-menu-drawer__shortcut-grid",
 		);
 		expect(tileGrid).toBeInTheDocument();
 
@@ -2489,6 +2489,12 @@ describe("createMobileSendFormFeature", () => {
 
 		try {
 			const drawer = await openMainMenuFromCurrentUserAvatar();
+
+			fireEvent.click(
+				within(drawer).getByRole("tab", {
+					name: "Extensions",
+				}),
+			);
 
 			fireEvent.click(
 				within(drawer).getByRole("button", {

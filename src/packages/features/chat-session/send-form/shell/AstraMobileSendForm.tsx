@@ -47,10 +47,6 @@ import { CurrentChatRenameDialog } from "@/packages/features/chat-session/send-f
 import { MobileChatMainMenuDrawer } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawer";
 import { CharacterLibraryMissingDialog } from "@/packages/features/chat-session/send-form/main-menu/extension-shortcuts/CharacterLibraryMissingDialog";
 import { openCharacterLibrary } from "@/packages/features/chat-session/send-form/main-menu/extension-shortcuts/characterLibraryOpener";
-import {
-	persistStoredExtensionShortcutsExpanded,
-	readStoredExtensionShortcutsExpanded,
-} from "@/packages/features/chat-session/send-form/main-menu/extension-shortcuts/extensionShortcutsStorage";
 import { MobileChatInput } from "@/packages/features/chat-session/send-form/shell/MobileChatInput";
 import { MobileSendFormShortcutsToolbar } from "@/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar";
 import { shortcutsToolbarVisibilityStore } from "@/packages/features/chat-session/send-form/shell/shortcutsToolbarVisibilityStore";
@@ -327,12 +323,6 @@ export function AstraMobileSendForm({
 	const [showQuickReplyHost, setShowQuickReplyHost] = React.useState(() =>
 		readStoredQuickReplyHostVisibility(documentRef),
 	);
-	const [isExtensionShortcutsExpanded, setIsExtensionShortcutsExpanded] =
-		React.useState(() =>
-			readStoredExtensionShortcutsExpanded(
-				documentRef.defaultView?.localStorage,
-			),
-		);
 	const [isMainMenuOpen, setIsMainMenuOpen] = React.useState(false);
 	const [isChatSessionSettingsOpen, setIsChatSessionSettingsOpen] =
 		React.useState(false);
@@ -593,16 +583,6 @@ export function AstraMobileSendForm({
 			return nextValue;
 		});
 	}, [documentRef]);
-	const handleExtensionShortcutsExpandedChange = React.useCallback(
-		(nextExpanded: boolean) => {
-			setIsExtensionShortcutsExpanded(nextExpanded);
-			persistStoredExtensionShortcutsExpanded(
-				documentRef.defaultView?.localStorage,
-				nextExpanded,
-			);
-		},
-		[documentRef],
-	);
 	const primarySendActionIcon = resolvePrimarySendActionIcon(
 		primarySendActionSnapshot.kind,
 	);
@@ -1055,11 +1035,7 @@ export function AstraMobileSendForm({
 					currentPresetProfileControlsSnapshot
 				}
 				currentUserSnapshot={avatarSnapshot}
-				extensionShortcutsExpanded={isExtensionShortcutsExpanded}
 				onConnectionProfileChange={handleConnectionProfileChange}
-				onExtensionShortcutsExpandedChange={
-					handleExtensionShortcutsExpandedChange
-				}
 				onSillyTavernInterfaceShortcutSelect={
 					handleSillyTavernInterfaceShortcutSelect
 				}

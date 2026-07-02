@@ -1521,7 +1521,32 @@ body.astra-projecta-mobile-layout {
 		color: var(--color-muted-t90);
 	}
 
-	.astra-chat-main-menu-drawer__grid {
+	.astra-chat-main-menu-tabs {
+		width: 100%;
+		min-width: 0;
+	}
+
+	.astra-chat-main-menu-tabs .astra-smooth-tabs__list-frame {
+		justify-content: center;
+		padding-bottom: 12px;
+	}
+
+	.astra-chat-main-menu-tabs .astra-smooth-tabs__viewport {
+		min-width: 0;
+	}
+
+	.astra-chat-main-menu-tabs__panel {
+		box-sizing: border-box;
+		min-width: 0;
+		padding: 0;
+	}
+
+	.astra-chat-main-menu-tabs__panel--sillytavern,
+	.astra-chat-main-menu-tabs__panel--extensions {
+		min-width: 0;
+	}
+
+	.astra-chat-main-menu-drawer__shortcut-grid {
 		--astra-chat-main-menu-drawer-tile-gap: 10px;
 		--astra-chat-main-menu-drawer-min-columns: 3;
 		--astra-chat-main-menu-drawer-tile-max-size: 130px;
@@ -1584,40 +1609,6 @@ body.astra-projecta-mobile-layout {
 		max-width: 100%;
 		min-width: 0;
 		box-sizing: border-box;
-	}
-
-	.astra-chat-main-menu-extension-shortcuts__toggle {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		width: 100%;
-		max-width: 100%;
-		min-width: 0;
-		padding-inline: 0;
-		color: var(--color-muted);
-		background: transparent;
-		font-size: 12px;
-		box-shadow: none;
-	}
-
-	.astra-chat-main-menu-extension-shortcuts__toggle:not(:disabled) {
-		cursor: pointer;
-	}
-
-	.astra-chat-main-menu-extension-shortcuts__toggle:disabled {
-		cursor: not-allowed;
-	}
-
-	.astra-chat-main-menu-extension-shortcuts__title {
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.astra-chat-main-menu-extension-shortcuts__toggle-icon {
-		flex: 0 0 auto;
-		color: var(--color-muted-t90);
 	}
 
 	.astra-chat-main-menu-extension-shortcuts__content {

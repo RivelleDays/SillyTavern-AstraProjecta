@@ -26,6 +26,10 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/astra/drawer";
+import {
+	AstraSmoothTabs,
+	type AstraSmoothTabItem,
+} from "@/components/ui/astra/smooth-tabs";
 import { cn } from "@/lib/utils";
 import { translateAstra } from "@/packages/core/i18n";
 import type { CurrentChatIdentitySnapshot } from "@/packages/core/st/chat-identity";
@@ -48,6 +52,8 @@ import {
 	ASTRA_CHAT_MAIN_MENU_DRAWER_ID,
 	ASTRA_CHAT_MAIN_MENU_DRAWER_SCROLLABLE_CONTENT_ID,
 	ASTRA_CHAT_MAIN_MENU_DRAWER_TITLE_ID,
+	ASTRA_CHAT_MAIN_MENU_EXTENSIONS_PANEL_ID,
+	ASTRA_CHAT_MAIN_MENU_SILLYTAVERN_PANEL_ID,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import {
 	formatContextUsagePercent,
@@ -101,6 +107,11 @@ const ASTRA_CHAT_MAIN_MENU_CURRENT_USER_ACTIONS = [
 		sillyTavernInterfacePageKey: undefined,
 	},
 ] as const;
+
+type MobileChatMainMenuTabValue = "sillytavern" | "extensions";
+
+const DEFAULT_MOBILE_CHAT_MAIN_MENU_TAB: MobileChatMainMenuTabValue =
+	"sillytavern";
 
 function getContextUsageSummaryText(
 	snapshot: ChatContextUsageSnapshot,
@@ -204,9 +215,7 @@ export function MobileChatMainMenuDrawer({
 	currentConnectionSnapshot,
 	currentPresetProfileControlsSnapshot,
 	currentUserSnapshot,
-	extensionShortcutsExpanded = true,
 	onConnectionProfileChange,
-	onExtensionShortcutsExpandedChange,
 	onSillyTavernInterfaceShortcutSelect,
 	onRequestCharacterLibrary,
 	onRequestChatSessionSettings,
@@ -225,9 +234,7 @@ export function MobileChatMainMenuDrawer({
 	currentConnectionSnapshot?: CurrentConnectionInfoSnapshot;
 	currentPresetProfileControlsSnapshot?: CurrentPresetProfileControlsSnapshot;
 	currentUserSnapshot?: CurrentUserAvatarSnapshot;
-	extensionShortcutsExpanded?: boolean;
 	onConnectionProfileChange?(profileId: string): void;
-	onExtensionShortcutsExpandedChange?(nextExpanded: boolean): void;
 	onOpenChange(nextValue: boolean): void;
 	onRequestCharacterLibrary?(): void;
 	onSillyTavernInterfaceShortcutSelect?(
@@ -243,6 +250,10 @@ export function MobileChatMainMenuDrawer({
 	snapshot: CurrentChatIdentitySnapshot;
 }) {
 	const [isDrawerHostMounted, setIsDrawerHostMounted] = React.useState(open);
+	const [activeTab, setActiveTab] =
+		React.useState<MobileChatMainMenuTabValue>(
+			DEFAULT_MOBILE_CHAT_MAIN_MENU_TAB,
+		);
 	const title = translateAstra("sendForm.mainMenu.title");
 	const description = translateAstra("sendForm.mainMenu.description");
 	const avatarLabel = translateAstra("sendForm.mainMenu.avatar");
@@ -401,18 +412,98 @@ export function MobileChatMainMenuDrawer({
 	React.useEffect(() => {
 		if (open) {
 			setIsDrawerHostMounted(true);
+			setActiveTab(DEFAULT_MOBILE_CHAT_MAIN_MENU_TAB);
 		}
 	}, [open]);
 
 	const handleExitComplete = React.useCallback(() => {
 		setIsDrawerHostMounted(false);
 	}, []);
-	const handleExtensionShortcutsExpandedChange = React.useCallback(
-		(nextExpanded: boolean) => {
-			onExtensionShortcutsExpandedChange?.(nextExpanded);
+
+	const mainMenuTabItems: Array<
+		AstraSmoothTabItem<MobileChatMainMenuTabValue>
+	> = [
+		{
+			content: (
+				<div
+					aria-label={translateAstra("sendForm.mainMenu.tileGrid")}
+					className="astra-chat-main-menu-drawer__shortcut-grid"
+					data-astra-smooth-tabs-swipe-allow={true}
+				>
+					{tiles.map(
+						({
+							iconKey,
+							key,
+							label,
+							lines,
+							sillyTavernInterfacePageKey,
+							wrapperId,
+						}) => (
+							<div
+								id={wrapperId}
+								className="astra-chat-main-menu-drawer__tile-shell"
+								key={key}
+							>
+								<button
+									aria-label={label}
+									className="astra-chat-main-menu-drawer__tile"
+									type="button"
+									onClick={() => {
+										onSillyTavernInterfaceShortcutSelect?.(
+											sillyTavernInterfacePageKey,
+										);
+									}}
+								>
+									<span
+										aria-hidden={true}
+										className="astra-chat-main-menu-drawer__tile-glow"
+									/>
+									{renderSillyTavernInterfaceRouteIcon({
+										className:
+											"astra-chat-main-menu-drawer__tile-deco-icon",
+										iconKey,
+									})}
+									<span
+										aria-hidden={true}
+										className="astra-chat-main-menu-drawer__tile-fade"
+									/>
+									<span className="astra-chat-main-menu-drawer__tile-title">
+										{lines.map((line, index) => (
+											<span
+												className="astra-chat-main-menu-drawer__tile-title-line"
+												key={`${key}-${index}`}
+											>
+												{line}
+											</span>
+										))}
+									</span>
+								</button>
+							</div>
+						),
+					)}
+				</div>
+			),
+			label: translateAstra("sendForm.mainMenu.tabs.sillyTavern"),
+			panelClassName:
+				"astra-chat-main-menu-tabs__panel astra-chat-main-menu-tabs__panel--sillytavern",
+			panelId: ASTRA_CHAT_MAIN_MENU_SILLYTAVERN_PANEL_ID,
+			value: "sillytavern",
 		},
-		[onExtensionShortcutsExpandedChange],
-	);
+		{
+			content: (
+				<MobileChatMainMenuExtensionShortcuts
+					onRequestCharacterLibrary={() => {
+						onRequestCharacterLibrary?.();
+					}}
+				/>
+			),
+			label: translateAstra("sendForm.mainMenu.tabs.extensions"),
+			panelClassName:
+				"astra-chat-main-menu-tabs__panel astra-chat-main-menu-tabs__panel--extensions",
+			panelId: ASTRA_CHAT_MAIN_MENU_EXTENSIONS_PANEL_ID,
+			value: "extensions",
+		},
+	];
 
 	const shouldRenderDrawer = open || isDrawerHostMounted;
 
@@ -553,74 +644,15 @@ export function MobileChatMainMenuDrawer({
 								rows={detailRows}
 							/>
 						) : null}
-						<div
-							aria-label={translateAstra(
-								"sendForm.mainMenu.tileGrid",
+						<AstraSmoothTabs
+							ariaLabel={translateAstra(
+								"sendForm.mainMenu.tabs.label",
 							)}
-							className="astra-chat-main-menu-drawer__grid"
-						>
-							{tiles.map(
-								({
-									iconKey,
-									key,
-									label,
-									lines,
-									sillyTavernInterfacePageKey,
-									wrapperId,
-								}) => (
-									<div
-										id={wrapperId}
-										className="astra-chat-main-menu-drawer__tile-shell"
-										key={key}
-									>
-										<button
-											aria-label={label}
-											className="astra-chat-main-menu-drawer__tile"
-											type="button"
-											onClick={() => {
-												onSillyTavernInterfaceShortcutSelect?.(
-													sillyTavernInterfacePageKey,
-												);
-											}}
-										>
-											<span
-												aria-hidden={true}
-												className="astra-chat-main-menu-drawer__tile-glow"
-											/>
-											{renderSillyTavernInterfaceRouteIcon(
-												{
-													className:
-														"astra-chat-main-menu-drawer__tile-deco-icon",
-													iconKey,
-												},
-											)}
-											<span
-												aria-hidden={true}
-												className="astra-chat-main-menu-drawer__tile-fade"
-											/>
-											<span className="astra-chat-main-menu-drawer__tile-title">
-												{lines.map((line, index) => (
-													<span
-														className="astra-chat-main-menu-drawer__tile-title-line"
-														key={`${key}-${index}`}
-													>
-														{line}
-													</span>
-												))}
-											</span>
-										</button>
-									</div>
-								),
-							)}
-						</div>
-						<MobileChatMainMenuExtensionShortcuts
-							expanded={extensionShortcutsExpanded}
-							onExpandedChange={
-								handleExtensionShortcutsExpandedChange
-							}
-							onRequestCharacterLibrary={() => {
-								onRequestCharacterLibrary?.();
-							}}
+							className="astra-chat-main-menu-tabs"
+							items={mainMenuTabItems}
+							value={activeTab}
+							variant="segmented"
+							onValueChange={setActiveTab}
 						/>
 						{currentPresetProfileControlsSnapshot ? (
 							<MobileChatMainMenuDrawerControls
