@@ -1,3 +1,4 @@
+import { CHAT_TIMELINE_HIDDEN_BODY_CLASS } from "@/packages/core/constants";
 import {
 	createChatMessageAppearanceStore,
 	type ChatMessageLineHeight,
@@ -16,6 +17,7 @@ const LINE_HEIGHT_VALUE: Record<ChatMessageLineHeight, string> = {
 interface ChatMessageAppearanceStoreLike {
 	getSnapshot(): {
 		lineHeight: ChatMessageLineHeight;
+		showTimeline: boolean;
 		textAlign: ChatMessageTextAlign;
 	};
 }
@@ -43,6 +45,10 @@ export function applyChatMessageAppearanceVariables({
 		LINE_HEIGHT_VALUE[snapshot.lineHeight],
 	);
 	documentRef.body?.style.setProperty(TEXT_ALIGN_CSS_VAR, snapshot.textAlign);
+	documentRef.body?.classList.toggle(
+		CHAT_TIMELINE_HIDDEN_BODY_CLASS,
+		!snapshot.showTimeline,
+	);
 }
 
 export function createChatMessageAppearanceRuntimeBridge({

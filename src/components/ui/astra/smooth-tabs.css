@@ -71,13 +71,13 @@
 }
 
 .astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__list {
-    width: fit-content;
-    width: -webkit-fill-available;
-    justify-content: center;
-    gap: 0;
-    border-radius: var(--radius-lg);
-    background: var(--surface-muted-t40);
-    padding: 2px;
+	width: fit-content;
+	width: -webkit-fill-available;
+	justify-content: center;
+	gap: 0;
+	border-radius: var(--radius-lg);
+	background: var(--surface-muted-t40);
+	padding: 2px;
 }
 
 .astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__trigger {
@@ -92,7 +92,7 @@
 .astra-smooth-tabs[data-variant="segmented"]
 	.astra-smooth-tabs__trigger[data-state="active"] {
 	background: var(--surface-background-t90);
-    color: var(--color-base);
+	color: var(--color-base);
 }
 
 .astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__indicator {
