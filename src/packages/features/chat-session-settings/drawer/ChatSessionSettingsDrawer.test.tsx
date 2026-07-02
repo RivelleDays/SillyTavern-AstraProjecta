@@ -164,8 +164,9 @@ describe("ChatSessionSettingsDrawer", () => {
 		});
 		expect(screen.getByText("Background blur")).toBeInTheDocument();
 		expect(screen.getByText("Background opacity")).toBeInTheDocument();
-		const chatMessagesSection =
-			screen.getByText("Chat Messages").closest("section");
+		const chatMessagesSection = screen
+			.getByText("Chat Messages")
+			.closest("section");
 		expect(chatMessagesSection).toBeInTheDocument();
 		const timelineToggle = within(
 			chatMessagesSection as HTMLElement,

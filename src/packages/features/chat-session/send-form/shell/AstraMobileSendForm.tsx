@@ -45,6 +45,8 @@ import { CurrentChatCategoryDrawer } from "@/packages/features/chat-session/send
 import { CurrentChatDeleteDialog } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatDeleteDialog";
 import { CurrentChatRenameDialog } from "@/packages/features/chat-session/send-form/main-menu/CurrentChatRenameDialog";
 import { MobileChatMainMenuDrawer } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawer";
+import { CharacterLibraryMissingDialog } from "@/packages/features/chat-session/send-form/main-menu/extension-shortcuts/CharacterLibraryMissingDialog";
+import { openCharacterLibrary } from "@/packages/features/chat-session/send-form/main-menu/extension-shortcuts/characterLibraryOpener";
 import { MobileChatInput } from "@/packages/features/chat-session/send-form/shell/MobileChatInput";
 import { MobileSendFormShortcutsToolbar } from "@/packages/features/chat-session/send-form/shell/MobileSendFormShortcutsToolbar";
 import { shortcutsToolbarVisibilityStore } from "@/packages/features/chat-session/send-form/shell/shortcutsToolbarVisibilityStore";
@@ -324,6 +326,10 @@ export function AstraMobileSendForm({
 	const [isMainMenuOpen, setIsMainMenuOpen] = React.useState(false);
 	const [isChatSessionSettingsOpen, setIsChatSessionSettingsOpen] =
 		React.useState(false);
+	const [
+		isCharacterLibraryMissingDialogOpen,
+		setIsCharacterLibraryMissingDialogOpen,
+	] = React.useState(false);
 	const [currentChatActionDialog, setCurrentChatActionDialog] =
 		React.useState<CurrentChatActionDialogState>(null);
 	const [isConnectionProfileBusy, setIsConnectionProfileBusy] =
@@ -669,6 +675,15 @@ export function AstraMobileSendForm({
 		},
 		[sillyTavernInterface, handleMainMenuOpenChange],
 	);
+
+	const handleCharacterLibraryRequest = React.useCallback(() => {
+		handleMainMenuOpenChange(false);
+
+		const result = openCharacterLibrary({ documentRef });
+		if (result.kind === "missing") {
+			setIsCharacterLibraryMissingDialogOpen(true);
+		}
+	}, [documentRef, handleMainMenuOpenChange]);
 
 	const handleChatSettingsOverrideRequest = React.useCallback(() => {
 		const chatKind = currentChatIdentitySnapshot.kind;
@@ -1024,6 +1039,7 @@ export function AstraMobileSendForm({
 				onSillyTavernInterfaceShortcutSelect={
 					handleSillyTavernInterfaceShortcutSelect
 				}
+				onRequestCharacterLibrary={handleCharacterLibraryRequest}
 				onRequestChatSettingsOverride={
 					handleChatSettingsOverrideRequest
 				}
@@ -1037,6 +1053,10 @@ export function AstraMobileSendForm({
 					sillyTavernInterface.renderRouteIcon
 				}
 				snapshot={currentChatIdentitySnapshot}
+			/>
+			<CharacterLibraryMissingDialog
+				open={isCharacterLibraryMissingDialogOpen}
+				onOpenChange={setIsCharacterLibraryMissingDialogOpen}
 			/>
 			<ChatSessionSettingsDrawer
 				open={isChatSessionSettingsOpen}

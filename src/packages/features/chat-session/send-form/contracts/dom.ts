@@ -47,6 +47,16 @@ export const ASTRA_CHAT_MAIN_MENU_DRAWER_CONTENT_ID =
 	"astra-chat-main-menu-drawer-content";
 export const ASTRA_CHAT_MAIN_MENU_DRAWER_FOOTER_ID =
 	"astra-chat-main-menu-drawer-footer";
+export const ASTRA_CHAT_MAIN_MENU_EXTENSION_SHORTCUTS_SECTION_ID =
+	"astra-chat-main-menu-extension-shortcuts";
+export const ASTRA_CHAT_MAIN_MENU_SILLYTAVERN_PANEL_ID =
+	"astra-chat-main-menu-sillytavern-panel";
+export const ASTRA_CHAT_MAIN_MENU_EXTENSIONS_PANEL_ID =
+	"astra-chat-main-menu-extensions-panel";
+export const ASTRA_CHAT_MAIN_MENU_CHARACTER_LIBRARY_SHORTCUT_ID =
+	"astra-chat-main-menu-character-library-shortcut";
+export const ASTRA_CHAT_MAIN_MENU_CHARACTER_LIBRARY_MISSING_DIALOG_ID =
+	"astra-chat-main-menu-character-library-missing-dialog";
 export const ASTRA_CHAT_MAIN_MENU_RENAME_DIALOG_ID =
 	"astra-chat-main-menu-rename-dialog";
 export const ASTRA_CHAT_MAIN_MENU_RENAME_DIALOG_INPUT_ID =

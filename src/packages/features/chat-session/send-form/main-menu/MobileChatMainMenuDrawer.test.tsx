@@ -171,6 +171,28 @@ function renderTestRouteIcon({
 	);
 }
 
+function mockElementSize(element: HTMLElement, width: number, height = 0) {
+	Object.defineProperty(element, "offsetWidth", {
+		configurable: true,
+		value: width,
+	});
+	Object.defineProperty(element, "scrollHeight", {
+		configurable: true,
+		value: height,
+	});
+	element.getBoundingClientRect = vi.fn(() => ({
+		bottom: height,
+		height,
+		left: 0,
+		right: width,
+		top: 0,
+		width,
+		x: 0,
+		y: 0,
+		toJSON: () => ({}),
+	}));
+}
+
 function ControlledMainMenuDrawer(
 	props: Omit<
 		React.ComponentProps<typeof MobileChatMainMenuDrawer>,
@@ -311,7 +333,7 @@ describe("MobileChatMainMenuDrawer", () => {
 			".astra-chat-main-menu-drawer__detail-section",
 		);
 		const tileGrid = root?.querySelector(
-			".astra-chat-main-menu-drawer__grid",
+			".astra-chat-main-menu-drawer__shortcut-grid",
 		) as HTMLElement | null;
 		expect(detailSection).toBeInTheDocument();
 		expect(tileGrid).toBeInTheDocument();
@@ -974,7 +996,7 @@ describe("MobileChatMainMenuDrawer", () => {
 			".astra-chat-main-menu-drawer__controls-section",
 		) as HTMLElement | null;
 		const tileGrid = root?.querySelector(
-			".astra-chat-main-menu-drawer__grid",
+			".astra-chat-main-menu-drawer__shortcut-grid",
 		) as HTMLElement | null;
 
 		if (
@@ -1813,6 +1835,192 @@ describe("MobileChatMainMenuDrawer", () => {
 
 		expect(userSettingsShell).toBeInTheDocument();
 		expect(characterManagementShell).toBeInTheDocument();
+	});
+
+	test("renders SillyTavern shortcuts as the default segmented tab and extension shortcuts in the second tab", async () => {
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		setSillyTavernContext({
+			timestampToMoment: () => ({
+				format: () => "2026/04/23 06:30 PM",
+			}),
+			translate: (text: string) => text,
+		});
+
+		const onRequestCharacterLibrary = vi.fn();
+		const { rerender } = render(
+			<MobileChatMainMenuDrawer
+				chatContextUsageSnapshot={createContextUsageSnapshot()}
+				chatInfoSnapshot={createInfoSnapshot()}
+				onOpenChange={() => {}}
+				onRequestCharacterLibrary={onRequestCharacterLibrary}
+				open={true}
+				snapshot={createIdentitySnapshot()}
+			/>,
+		);
+
+		const drawer = await screen.findByText("Hero");
+		const root = drawer.closest(".astra-chat-main-menu-drawer");
+		const tabs = root?.querySelector(".astra-chat-main-menu-tabs");
+		const tablist = within(root as HTMLElement).getByRole("tablist", {
+			name: "Main menu sections",
+		});
+		const sillyTavernTab = within(tablist).getByRole("tab", {
+			name: "SillyTavern",
+		});
+		const extensionsTab = within(tablist).getByRole("tab", {
+			name: "Extensions",
+		});
+		const shortcutGrid = root?.querySelector(
+			".astra-chat-main-menu-drawer__shortcut-grid",
+		);
+		const sillyTavernPanel = document.getElementById(
+			"astra-chat-main-menu-sillytavern-panel",
+		);
+		const extensionsPanel = document.getElementById(
+			"astra-chat-main-menu-extensions-panel",
+		);
+
+		expect(tabs).toHaveAttribute("data-variant", "segmented");
+		expect(sillyTavernTab).toHaveAttribute("data-state", "active");
+		expect(sillyTavernTab).toHaveAttribute(
+			"aria-controls",
+			"astra-chat-main-menu-sillytavern-panel",
+		);
+		expect(extensionsTab).toHaveAttribute("data-state", "inactive");
+		expect(extensionsTab).toHaveAttribute(
+			"aria-controls",
+			"astra-chat-main-menu-extensions-panel",
+		);
+		expect(shortcutGrid).toBeInTheDocument();
+		expect(shortcutGrid?.closest(".astra-smooth-tabs__panel")).toBe(
+			sillyTavernPanel,
+		);
+		expect(sillyTavernPanel).toHaveAttribute("data-state", "active");
+		expect(extensionsPanel).toHaveAttribute("data-state", "inactive");
+		expect(extensionsPanel).toHaveAttribute("aria-hidden", "true");
+		expect(
+			within(root as HTMLElement).queryByRole("button", {
+				name: "Collapse extension shortcuts",
+			}),
+		).not.toBeInTheDocument();
+		expect(
+			within(root as HTMLElement).queryByRole("button", {
+				name: "Expand extension shortcuts",
+			}),
+		).not.toBeInTheDocument();
+
+		fireEvent.click(extensionsTab);
+
+		expect(extensionsTab).toHaveAttribute("data-state", "active");
+		expect(sillyTavernTab).toHaveAttribute("data-state", "inactive");
+		expect(extensionsPanel).toHaveAttribute("data-state", "active");
+		const characterLibraryButton = within(
+			extensionsPanel as HTMLElement,
+		).getByRole("button", {
+			name: "Character Library",
+		});
+		expect(characterLibraryButton).toHaveAttribute(
+			"id",
+			"astra-chat-main-menu-character-library-shortcut",
+		);
+		expect(
+			characterLibraryButton.querySelector(".fa-solid.fa-layer-group"),
+		).toBeInTheDocument();
+
+		fireEvent.click(characterLibraryButton);
+		expect(onRequestCharacterLibrary).toHaveBeenCalledTimes(1);
+
+		rerender(
+			<MobileChatMainMenuDrawer
+				chatContextUsageSnapshot={createContextUsageSnapshot()}
+				chatInfoSnapshot={createInfoSnapshot()}
+				onOpenChange={() => {}}
+				onRequestCharacterLibrary={onRequestCharacterLibrary}
+				open={false}
+				snapshot={createIdentitySnapshot()}
+			/>,
+		);
+		rerender(
+			<MobileChatMainMenuDrawer
+				chatContextUsageSnapshot={createContextUsageSnapshot()}
+				chatInfoSnapshot={createInfoSnapshot()}
+				onOpenChange={() => {}}
+				onRequestCharacterLibrary={onRequestCharacterLibrary}
+				open={true}
+				snapshot={createIdentitySnapshot()}
+			/>,
+		);
+
+		expect(sillyTavernTab).toHaveAttribute("data-state", "active");
+		expect(extensionsTab).toHaveAttribute("data-state", "inactive");
+	});
+
+	test("switches from SillyTavern shortcuts to extension shortcuts by swiping the shortcut grid", async () => {
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		setSillyTavernContext({
+			timestampToMoment: () => ({
+				format: () => "2026/04/23 06:30 PM",
+			}),
+			translate: (text: string) => text,
+		});
+
+		render(
+			<MobileChatMainMenuDrawer
+				chatContextUsageSnapshot={createContextUsageSnapshot()}
+				chatInfoSnapshot={createInfoSnapshot()}
+				onOpenChange={() => {}}
+				onRequestCharacterLibrary={() => {}}
+				open={true}
+				snapshot={createIdentitySnapshot()}
+			/>,
+		);
+
+		const drawer = await screen.findByText("Hero");
+		const root = drawer.closest(".astra-chat-main-menu-drawer");
+		const tablist = within(root as HTMLElement).getByRole("tablist", {
+			name: "Main menu sections",
+		});
+		const extensionsTab = within(tablist).getByRole("tab", {
+			name: "Extensions",
+		});
+		const viewport = root?.querySelector(
+			".astra-smooth-tabs__viewport",
+		) as HTMLElement | null;
+		const shortcutGrid = root?.querySelector(
+			".astra-chat-main-menu-drawer__shortcut-grid",
+		) as HTMLElement | null;
+
+		if (!viewport || !shortcutGrid) {
+			throw new Error(
+				"Expected main-menu tabs viewport and shortcut grid.",
+			);
+		}
+
+		mockElementSize(viewport, 320);
+
+		fireEvent.touchStart(shortcutGrid, {
+			changedTouches: [{ clientX: 260, clientY: 40 }],
+			touches: [{ clientX: 260, clientY: 40 }],
+		});
+		fireEvent.touchMove(shortcutGrid, {
+			cancelable: true,
+			changedTouches: [{ clientX: 190, clientY: 42 }],
+			touches: [{ clientX: 190, clientY: 42 }],
+		});
+		fireEvent.touchEnd(shortcutGrid, {
+			changedTouches: [{ clientX: 190, clientY: 42 }],
+		});
+
+		expect(extensionsTab).toHaveAttribute("data-state", "active");
+		expect(
+			within(
+				document.getElementById(
+					"astra-chat-main-menu-extensions-panel",
+				) as HTMLElement,
+			).getByRole("button", {
+				name: "Character Library",
+			}),
+		).toBeInTheDocument();
 	});
 
 	test("keeps the tile wrapper id attribute ahead of className in source", () => {

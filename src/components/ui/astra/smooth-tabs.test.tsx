@@ -127,8 +127,9 @@ function readSmoothTabsCss() {
 function getCssRule(css: string, selector: string) {
 	const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 	return (
-		css.match(new RegExp(`${escapedSelector}\\s*\\{[^}]*\\}`, "s"))?.[0] ??
-		""
+		css.match(
+			new RegExp(`(?:^|\\n)${escapedSelector}\\s*\\{[^}]*\\}`, "s"),
+		)?.[0] ?? ""
 	);
 }
 
@@ -181,6 +182,72 @@ describe("AstraSmoothTabs", () => {
 		expect(inactivePanel).toHaveAttribute("aria-hidden", "true");
 		expect(inactivePanel).toHaveAttribute("data-state", "inactive");
 		expect(inactivePanel).toHaveAttribute("inert");
+	});
+
+	test("defaults to line variant and exposes the segmented variant contract", () => {
+		const { container, rerender } = render(
+			<AstraSmoothTabs
+				ariaLabel="Global sections"
+				items={SMOOTH_TAB_ITEMS}
+				value="chats"
+				onValueChange={vi.fn()}
+			/>,
+		);
+		const root = container.querySelector(
+			".astra-smooth-tabs",
+		) as HTMLElement;
+
+		expect(root).toHaveAttribute("data-variant", "line");
+
+		rerender(
+			<AstraSmoothTabs
+				ariaLabel="Global sections"
+				items={SMOOTH_TAB_ITEMS}
+				value="chats"
+				variant="segmented"
+				onValueChange={vi.fn()}
+			/>,
+		);
+
+		expect(root).toHaveAttribute("data-variant", "segmented");
+	});
+
+	test("uses caller-provided panel ids for tab aria controls", () => {
+		const items: AstraSmoothTabItem[] = [
+			{
+				...SMOOTH_TAB_ITEMS[0],
+				panelId: "custom-chats-panel",
+			},
+			{
+				...SMOOTH_TAB_ITEMS[1],
+				panelId: "custom-categories-panel",
+			},
+		];
+
+		render(
+			<AstraSmoothTabs
+				ariaLabel="Global sections"
+				items={items}
+				value="chats"
+				onValueChange={vi.fn()}
+			/>,
+		);
+
+		const tablist = screen.getByRole("tablist", {
+			name: "Global sections",
+		});
+		const chatsTab = within(tablist).getByRole("tab", { name: "Chats" });
+
+		expect(chatsTab).toHaveAttribute("aria-controls", "custom-chats-panel");
+		expect(screen.getByRole("tabpanel", { name: "Chats" })).toHaveAttribute(
+			"id",
+			"custom-chats-panel",
+		);
+		expect(
+			screen
+				.getByText("No categories yet")
+				.closest(".astra-smooth-tabs__panel"),
+		).toHaveAttribute("id", "custom-categories-panel");
 	});
 
 	test("renders an isolated list frame and moves the active underline to the selected trigger", async () => {
@@ -297,6 +364,27 @@ describe("AstraSmoothTabs", () => {
 		expect(indicatorRule).toContain("will-change:");
 	});
 
+	test("keeps segmented variant styling selectors addressable", () => {
+		const css = readSmoothTabsCss();
+		const searchableCss = css.replace(/\s+/gu, " ");
+
+		expect(searchableCss).toContain(
+			'.astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__list-frame',
+		);
+		expect(searchableCss).toContain(
+			'.astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__list',
+		);
+		expect(searchableCss).toContain(
+			'.astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__trigger',
+		);
+		expect(searchableCss).toContain(
+			'.astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__trigger[data-state="active"]',
+		);
+		expect(searchableCss).toContain(
+			'.astra-smooth-tabs[data-variant="segmented"] .astra-smooth-tabs__indicator',
+		);
+	});
+
 	test("calls value changes from enabled tab clicks and ignores disabled tabs", () => {
 		const onValueChange = vi.fn();
 
@@ -384,6 +472,52 @@ describe("AstraSmoothTabs", () => {
 		fireEvent.touchEnd(openChatButton);
 
 		expect(onValueChange).not.toHaveBeenCalled();
+	});
+
+	test("allows opted-in interactive targets to start swipe navigation", () => {
+		const onValueChange = vi.fn();
+		const items: AstraSmoothTabItem[] = [
+			{
+				content: (
+					<button data-astra-smooth-tabs-swipe-allow type="button">
+						Swipe from action
+					</button>
+				),
+				label: "Chats",
+				value: "chats",
+			},
+			{
+				content: <div>Categories panel content</div>,
+				label: "Categories",
+				value: "categories",
+			},
+		];
+		const { container } = render(
+			<AstraSmoothTabs
+				ariaLabel="Global sections"
+				items={items}
+				value="chats"
+				onValueChange={onValueChange}
+			/>,
+		);
+		const viewport = container.querySelector(
+			".astra-smooth-tabs__viewport",
+		) as HTMLElement;
+		mockElementSize(viewport, 320);
+		const swipeAllowedButton = screen.getByRole("button", {
+			name: "Swipe from action",
+		});
+
+		fireEvent.touchStart(swipeAllowedButton, {
+			touches: [{ clientX: 260, clientY: 40 }],
+		});
+		fireEvent.touchMove(swipeAllowedButton, {
+			cancelable: true,
+			touches: [{ clientX: 190, clientY: 42 }],
+		});
+		fireEvent.touchEnd(swipeAllowedButton);
+
+		expect(onValueChange).toHaveBeenCalledWith("categories");
 	});
 
 	test("keeps swipe-ignored scroll content from switching tabs", () => {

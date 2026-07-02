@@ -273,6 +273,10 @@ async function mountMainMenuFocusFixture() {
 			Authorization: "Bearer test-token",
 		}),
 		powerUserSettings: { continue_on_send: false },
+		timestampToMoment: vi.fn(() => ({
+			format: vi.fn(() => "2026/04/23 06:30 PM"),
+		})),
+		translate: (text: string) => text,
 	});
 	vi.stubGlobal(
 		"fetch",
@@ -2126,7 +2130,7 @@ describe("createMobileSendFormFeature", () => {
 		).toBeInTheDocument();
 
 		const tileGrid = drawer.querySelector(
-			".astra-chat-main-menu-drawer__grid",
+			".astra-chat-main-menu-drawer__shortcut-grid",
 		);
 		expect(tileGrid).toBeInTheDocument();
 
@@ -2478,6 +2482,48 @@ describe("createMobileSendFormFeature", () => {
 		});
 
 		feature.dispose();
+	});
+
+	test("opens the Character Library missing dialog from the main menu when the extension is unavailable", async () => {
+		const { feature } = await mountMainMenuFocusFixture();
+
+		try {
+			const drawer = await openMainMenuFromCurrentUserAvatar();
+
+			fireEvent.click(
+				within(drawer).getByRole("tab", {
+					name: "Extensions",
+				}),
+			);
+
+			fireEvent.click(
+				within(drawer).getByRole("button", {
+					name: "Character Library",
+				}),
+			);
+
+			await waitFor(() => {
+				expect(drawer).toHaveAttribute("data-state", "closed");
+			});
+
+			const dialog = await screen.findByRole("dialog", {
+				name: "Character Library is not available",
+			});
+			expect(dialog).toHaveAttribute(
+				"id",
+				"astra-chat-main-menu-character-library-missing-dialog",
+			);
+			expect(
+				within(dialog).getByRole("link", {
+					name: "Open GitHub repository",
+				}),
+			).toHaveAttribute(
+				"href",
+				"https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary",
+			);
+		} finally {
+			feature.dispose();
+		}
 	});
 
 	test("routes the current user chat settings override button to the character dropdown after closing the main menu", async () => {

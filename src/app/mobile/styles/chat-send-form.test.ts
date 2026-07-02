@@ -416,7 +416,18 @@ describe("chat-send-form.css", () => {
 			".astra-chat-main-menu-drawer__control-option-label",
 			".astra-chat-main-menu-drawer__control-helper",
 			".astra-chat-main-menu-drawer__empty-state",
-			".astra-chat-main-menu-drawer__grid",
+			".astra-chat-main-menu-tabs",
+			".astra-chat-main-menu-tabs__panel",
+			".astra-chat-main-menu-tabs__panel--sillytavern",
+			".astra-chat-main-menu-tabs__panel--extensions",
+			".astra-chat-main-menu-drawer__shortcut-grid",
+			".astra-chat-main-menu-extension-shortcuts",
+			".astra-chat-main-menu-extension-shortcuts__content",
+			".astra-chat-main-menu-extension-shortcuts__grid",
+			".astra-chat-main-menu-extension-shortcuts__button",
+			".astra-chat-main-menu-extension-shortcuts__icon",
+			".astra-chat-main-menu-extension-shortcuts__label",
+			".astra-chat-main-menu-extension-shortcuts__placeholder",
 			".astra-chat-main-menu-drawer__tile-shell",
 			".astra-chat-main-menu-drawer__tile",
 			".astra-chat-main-menu-drawer__tile-title",
@@ -522,6 +533,13 @@ describe("chat-send-form.css", () => {
 		expect(css).not.toContain(".astra-chat-main-menu-drawer__detail-table");
 		expect(css).not.toContain(
 			".astra-chat-main-menu-drawer__detail-usage-fallback",
+		);
+		expect(css).not.toContain(".astra-chat-main-menu-drawer__grid");
+		expect(css).not.toContain(
+			".astra-chat-main-menu-extension-shortcuts__toggle",
+		);
+		expect(css).not.toContain(
+			".astra-chat-main-menu-extension-shortcuts__toggle-icon",
 		);
 	});
 });

@@ -122,7 +122,7 @@ describe("chat message appearance store", () => {
 					string,
 					Record<string, unknown>
 				>
-		).astra_projecta.chatMessageAppearance,
+			).astra_projecta.chatMessageAppearance,
 		).toEqual(
 			expect.objectContaining({
 				lineHeight: "sm",
