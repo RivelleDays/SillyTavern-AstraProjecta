@@ -110,8 +110,21 @@ const ASTRA_CHAT_MAIN_MENU_CURRENT_USER_ACTIONS = [
 
 type MobileChatMainMenuTabValue = "sillytavern" | "extensions";
 
+const MOBILE_CHAT_MAIN_MENU_TAB_VALUES = [
+	"sillytavern",
+	"extensions",
+] as const satisfies readonly MobileChatMainMenuTabValue[];
+
 const DEFAULT_MOBILE_CHAT_MAIN_MENU_TAB: MobileChatMainMenuTabValue =
 	"sillytavern";
+
+function isMobileChatMainMenuTabValue(
+	value: string,
+): value is MobileChatMainMenuTabValue {
+	return MOBILE_CHAT_MAIN_MENU_TAB_VALUES.includes(
+		value as MobileChatMainMenuTabValue,
+	);
+}
 
 function getContextUsageSummaryText(
 	snapshot: ChatContextUsageSnapshot,
@@ -420,6 +433,14 @@ export function MobileChatMainMenuDrawer({
 		setIsDrawerHostMounted(false);
 	}, []);
 
+	const handleActiveTabChange = React.useCallback((nextValue: string) => {
+		if (!isMobileChatMainMenuTabValue(nextValue)) {
+			return;
+		}
+
+		setActiveTab(nextValue);
+	}, []);
+
 	const mainMenuTabItems: Array<
 		AstraSmoothTabItem<MobileChatMainMenuTabValue>
 	> = [
@@ -652,7 +673,7 @@ export function MobileChatMainMenuDrawer({
 							items={mainMenuTabItems}
 							value={activeTab}
 							variant="segmented"
-							onValueChange={setActiveTab}
+							onValueChange={handleActiveTabChange}
 						/>
 						{currentPresetProfileControlsSnapshot ? (
 							<MobileChatMainMenuDrawerControls

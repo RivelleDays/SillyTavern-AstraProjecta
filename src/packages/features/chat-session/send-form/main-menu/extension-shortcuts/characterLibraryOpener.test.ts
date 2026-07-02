@@ -6,10 +6,9 @@ import {
 } from "@/packages/features/chat-session/send-form/main-menu/extension-shortcuts/characterLibraryOpener";
 
 function setSillyTavernContext(context: Record<string, unknown>) {
-	(globalThis as typeof globalThis & { SillyTavern?: unknown }).SillyTavern =
-		{
-			getContext: () => context,
-		};
+	(globalThis as { SillyTavern?: unknown }).SillyTavern = {
+		getContext: () => context,
+	};
 }
 
 describe("Character Library opener", () => {
