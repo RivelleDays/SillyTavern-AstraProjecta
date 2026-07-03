@@ -1838,11 +1838,15 @@ body.astra-projecta-mobile-layout {
 	}
 
 	.astra-chat-main-menu-drawer__tile-icon.fa-solid {
-		font-size: calc(var(--astra-chat-main-menu-drawer-tile-icon-size) - 4px);
+		font-size: calc(
+			var(--astra-chat-main-menu-drawer-tile-icon-size) - 4px
+		);
 	}
 
 	.astra-chat-main-menu-drawer__tile-deco-icon.fa-solid {
-		font-size: calc(var(--astra-chat-main-menu-drawer-tile-icon-size) - 4px);
+		font-size: calc(
+			var(--astra-chat-main-menu-drawer-tile-icon-size) - 4px
+		);
 	}
 
 	.astra-chat-main-menu-drawer__tile-icon svg,
@@ -1874,6 +1878,93 @@ body.astra-projecta-mobile-layout {
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-3);
+	}
+
+	.astra-chat-library-missing-dialog__empty {
+		padding: 0;
+	}
+
+	.astra-chat-library-missing-dialog__repository-field {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		width: 100%;
+		min-width: 0;
+		text-align: left;
+	}
+
+	.astra-chat-library-missing-dialog__repository-label {
+		color: var(--color-muted);
+		font-size: var(--text-xs);
+		font-weight: var(--font-weight-medium);
+	}
+
+	.astra-chat-library-missing-dialog__repository-control {
+		position: relative;
+		width: 100%;
+		min-width: 0;
+	}
+
+	.astra-chat-library-missing-dialog__repository-input {
+		padding-inline-end: 40px;
+		font-size: var(--text-xs);
+	}
+
+	.astra-chat-library-missing-dialog__copy-button {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-end: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		border: 0;
+		border-start-end-radius: var(--radius-md);
+		border-end-end-radius: var(--radius-md);
+		background: transparent;
+		color: var(--color-muted);
+	}
+
+	.astra-chat-library-missing-dialog__copy-button:not(:disabled) {
+		cursor: pointer;
+	}
+
+	.astra-chat-library-missing-dialog__copy-button:disabled {
+		cursor: not-allowed;
+	}
+
+	.astra-chat-library-missing-dialog__copy-button:hover:not(:disabled),
+	.astra-chat-library-missing-dialog__copy-button:focus-visible {
+		color: var(--color-base);
+	}
+
+	.astra-chat-library-missing-dialog__copy-button:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px var(--color-ring-t50);
+	}
+
+	.astra-chat-library-missing-dialog__copy-icon {
+		position: absolute;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		transition:
+			opacity 140ms ease,
+			transform 140ms ease;
+	}
+
+	.astra-chat-library-missing-dialog__copy-icon[data-visible="false"] {
+		opacity: 0;
+		transform: scale(0.8);
+	}
+
+	.astra-chat-library-missing-dialog__copy-icon[data-visible="true"] {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	.astra-chat-library-missing-dialog__copy-icon--copied {
+		color: var(--color-base);
 	}
 
 	.astra-chat-library-dialog-meta {

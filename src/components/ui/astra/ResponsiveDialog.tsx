@@ -35,6 +35,7 @@ export interface ResponsiveDialogProps {
 	footer?: React.ReactNode;
 	forceMountContent?: boolean;
 	headerContent?: React.ReactNode;
+	hideHeader?: boolean;
 	hideHeading?: boolean;
 	icon?: React.ReactNode;
 	identity?: ResponsiveDialogIdentity | null;
@@ -275,6 +276,7 @@ export function ResponsiveDialog({
 	footer,
 	forceMountContent = false,
 	headerContent,
+	hideHeader = false,
 	hideHeading = false,
 	id,
 	icon,
@@ -366,7 +368,7 @@ export function ResponsiveDialog({
 			{icon}
 		</span>
 	) : null;
-	const header = (
+	const header = hideHeader ? null : (
 		<div className="astra-dialog-header">
 			{headerContent ?? <DialogIdentity identity={identity} />}
 		</div>
