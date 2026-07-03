@@ -31,6 +31,47 @@ describe("Character Library opener", () => {
 		expect(click).toHaveBeenCalledTimes(1);
 	});
 
+	test("clicks the launcher dropdown library item when the top-bar button is absent", () => {
+		const click = vi.fn();
+		const dropdown = document.createElement("div");
+		dropdown.id = "charlib-launcher-dropdown";
+		const item = document.createElement("div");
+		item.dataset.action = "library";
+		item.addEventListener("click", click);
+		dropdown.append(item);
+		document.body.append(dropdown);
+
+		expect(openCharacterLibrary({ documentRef: document })).toEqual({
+			kind: "opened",
+			method: "launcher-dropdown-item",
+		} satisfies CharacterLibraryOpenResult);
+		expect(click).toHaveBeenCalledTimes(1);
+	});
+
+	test("prefers the top-bar button over the launcher dropdown item", () => {
+		const buttonClick = vi.fn();
+		const button = document.createElement("button");
+		button.id = "st-gallery-btn";
+		button.addEventListener("click", buttonClick);
+		document.body.append(button);
+
+		const itemClick = vi.fn();
+		const dropdown = document.createElement("div");
+		dropdown.id = "charlib-launcher-dropdown";
+		const item = document.createElement("div");
+		item.dataset.action = "library";
+		item.addEventListener("click", itemClick);
+		dropdown.append(item);
+		document.body.append(dropdown);
+
+		expect(openCharacterLibrary({ documentRef: document })).toEqual({
+			kind: "opened",
+			method: "top-bar-button",
+		} satisfies CharacterLibraryOpenResult);
+		expect(buttonClick).toHaveBeenCalledTimes(1);
+		expect(itemClick).not.toHaveBeenCalled();
+	});
+
 	test("falls back to the registered gallery slash command callback", () => {
 		const galleryCallback = vi.fn();
 		const executeSlashCommandsWithOptions = vi.fn();

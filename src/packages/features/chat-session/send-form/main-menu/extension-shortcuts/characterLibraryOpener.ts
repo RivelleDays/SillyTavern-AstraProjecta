@@ -6,6 +6,7 @@ export type CharacterLibraryOpenResult =
 			kind: "opened";
 			method:
 				| "execute-slash-command"
+				| "launcher-dropdown-item"
 				| "slash-command-callback"
 				| "top-bar-button";
 	  }
@@ -44,6 +45,18 @@ function getCharacterLibraryTopBarButton(
 	return button instanceof HTMLElement ? button : null;
 }
 
+// With Character Library's "Show launcher dropdown" enabled, the standalone
+// top-bar button is removed and CL is reached through its launcher dropdown's
+// library item instead; clicking that item is CL's own user-facing entry point.
+function getCharacterLibraryLauncherDropdownItem(
+	documentRef: Document | undefined,
+): HTMLElement | null {
+	const item = documentRef?.querySelector(
+		"#charlib-launcher-dropdown [data-action='library']",
+	);
+	return item instanceof HTMLElement ? item : null;
+}
+
 function getGallerySlashCommand(
 	context: StContextLike | null,
 ): GallerySlashCommand | null {
@@ -60,6 +73,16 @@ export function openCharacterLibrary({
 		return {
 			kind: "opened",
 			method: "top-bar-button",
+		};
+	}
+
+	const launcherDropdownItem =
+		getCharacterLibraryLauncherDropdownItem(documentRef);
+	if (launcherDropdownItem) {
+		launcherDropdownItem.click();
+		return {
+			kind: "opened",
+			method: "launcher-dropdown-item",
 		};
 	}
 
