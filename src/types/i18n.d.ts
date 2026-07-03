@@ -387,7 +387,10 @@ export interface I18nMessages {
 	"sendForm.mainMenu.extensionShortcuts.characterLibrary": string;
 	"sendForm.mainMenu.extensionShortcuts.github": string;
 	"sendForm.mainMenu.extensionShortcuts.missing.close": string;
+	"sendForm.mainMenu.extensionShortcuts.missing.copied": string;
+	"sendForm.mainMenu.extensionShortcuts.missing.copyRepositoryUrl": string;
 	"sendForm.mainMenu.extensionShortcuts.missing.description": string;
+	"sendForm.mainMenu.extensionShortcuts.missing.repositoryUrlLabel": string;
 	"sendForm.mainMenu.extensionShortcuts.missing.title": string;
 	"sendForm.mainMenu.extensionShortcuts.region": string;
 	"sendForm.mainMenu.meta.api": string;

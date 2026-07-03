@@ -360,6 +360,12 @@ describe("chat-send-form.css", () => {
 			".astra-chat-context-usage-shortcut__explainer",
 			".astra-chat-context-usage-shortcut__explainer-icon",
 			".astra-chat-context-usage-shortcut__helper.is-alert",
+			".astra-chat-library-missing-dialog__empty",
+			".astra-chat-library-missing-dialog__repository-field",
+			".astra-chat-library-missing-dialog__repository-input",
+			".astra-chat-library-missing-dialog__copy-button:not(:disabled)",
+			".astra-chat-library-missing-dialog__copy-button:disabled",
+			".astra-chat-library-missing-dialog__copy-icon",
 			".astra-chat-library-dialog-action--confirm:disabled",
 			".astra-chat-library-dialog-action--confirm[disabled]",
 			".astra-chat-library-dialog-footer--delete",
@@ -368,6 +374,9 @@ describe("chat-send-form.css", () => {
 		expect(css).not.toContain("var(--SmartThemeBodyColor)");
 		expect(css).not.toContain(
 			".astra-chat-context-usage-shortcut__summary",
+		);
+		expect(css).not.toContain(
+			".astra-chat-library-missing-dialog__repository-link",
 		);
 	});
 

@@ -2515,7 +2515,7 @@ describe("createMobileSendFormFeature", () => {
 			);
 			expect(
 				within(dialog).getByRole("link", {
-					name: "Open GitHub repository",
+					name: "GitHub repository",
 				}),
 			).toHaveAttribute(
 				"href",
