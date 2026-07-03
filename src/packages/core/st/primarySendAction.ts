@@ -59,6 +59,12 @@ const CONTINUE_ACTION_LABEL_KEY = "sendForm.primaryAction.continue";
 const SEND_ACTION_LABEL_KEY = "sendForm.primaryAction.send";
 const STOP_ACTION_LABEL_KEY = "sendForm.primaryAction.stop";
 const IGNORED_GENERATION_TYPES = new Set(["quiet", "impersonate"]);
+// SillyTavern only emits GENERATION_ENDED from hideStopButton() while the
+// Stop control is visible, so generations that die before showing it
+// (interrupted slash commands, failed server ping, blocked backends) never
+// emit any settle event. Event-armed state must therefore decay once no
+// live generation evidence corroborates it within this grace window.
+const GENERATION_EVIDENCE_GRACE_MS = 10_000;
 const RELEVANT_BODY_TARGET_SELECTOR = [
 	`#${RIGHT_SEND_FORM_ID}`,
 	`#${SEND_TEXTAREA_ID}`,
@@ -495,6 +501,7 @@ export function createPrimarySendActionStore({
 		}
 
 		generationLifecycle = "pending";
+		armGenerationWatchdog();
 		scheduleRefresh();
 	};
 	const generationAfterCommandsHandler = (
@@ -508,28 +515,33 @@ export function createPrimarySendActionStore({
 
 		generationEventLatch = true;
 		generationLifecycle = "active";
+		armGenerationWatchdog();
 		scheduleRefresh();
 	};
 	const generationSettledHandler = () => {
 		generationEventLatch = false;
 		generationLifecycle = "idle";
+		clearGenerationWatchdog();
 		scheduleRefresh();
 	};
 	const groupWrapperStartedHandler = () => {
 		groupGenerationActive = true;
 		generationLifecycle = "active";
+		armGenerationWatchdog();
 		scheduleRefresh();
 	};
 	const groupWrapperFinishedHandler = () => {
 		groupGenerationActive = false;
 		generationEventLatch = false;
 		generationLifecycle = "idle";
+		clearGenerationWatchdog();
 		scheduleRefresh();
 	};
 	const contextResetHandler = () => {
 		groupGenerationActive = false;
 		generationEventLatch = false;
 		generationLifecycle = "idle";
+		clearGenerationWatchdog();
 		scheduleRefresh();
 	};
 	const messageEditedHandler = () => {
@@ -543,6 +555,7 @@ export function createPrimarySendActionStore({
 	let isRefreshQueued = false;
 	let generationEventLatch = false;
 	let generationLifecycle: GenerationLifecycle = "unknown";
+	let generationWatchdogHandle: ReturnType<typeof setTimeout> | null = null;
 	let groupGenerationActive = false;
 	const initialState = readPrimarySendActionState({
 		documentRef,
@@ -704,6 +717,46 @@ export function createPrimarySendActionStore({
 		});
 	}
 
+	function hasLiveGenerationEvidence(): boolean {
+		return (
+			documentRef.body?.dataset.generating === "true" ||
+			isElementVisible(readNativeStopButton(documentRef)) ||
+			hasActiveStreamingProcessor(resolveContextSafe())
+		);
+	}
+
+	function clearGenerationWatchdog() {
+		if (generationWatchdogHandle != null) {
+			clearTimeout(generationWatchdogHandle);
+			generationWatchdogHandle = null;
+		}
+	}
+
+	// Generations that never show the Stop control also never emit a settle
+	// event (see GENERATION_EVIDENCE_GRACE_MS), so the event-armed lifecycle
+	// and latch would otherwise wedge the send action forever. Group wrapper
+	// state is excluded: GROUP_WRAPPER_FINISHED is emitted from a finally.
+	function armGenerationWatchdog() {
+		clearGenerationWatchdog();
+		generationWatchdogHandle = setTimeout(() => {
+			generationWatchdogHandle = null;
+			if (disposed) {
+				return;
+			}
+
+			if (hasLiveGenerationEvidence()) {
+				armGenerationWatchdog();
+				return;
+			}
+
+			generationEventLatch = false;
+			if (!groupGenerationActive) {
+				generationLifecycle = "idle";
+			}
+			refresh();
+		}, GENERATION_EVIDENCE_GRACE_MS);
+	}
+
 	const body = documentRef.body;
 	if (body instanceof HTMLBodyElement) {
 		bodyObserver = new MutationObserver((mutations) => {
@@ -789,6 +842,7 @@ export function createPrimarySendActionStore({
 			}
 
 			disposed = true;
+			clearGenerationWatchdog();
 			textareaElement?.removeEventListener("focus", eventRefreshHandler);
 			textareaElement?.removeEventListener("input", eventRefreshHandler);
 			fileInputElement?.removeEventListener(

@@ -47,6 +47,7 @@ describe("primary send action", () => {
 	});
 
 	afterEach(() => {
+		vi.useRealTimers();
 		vi.restoreAllMocks();
 	});
 
@@ -771,6 +772,156 @@ describe("primary send action", () => {
 			disabled: false,
 			kind: "send",
 			label: "Send message",
+			visible: true,
+		});
+
+		store.dispose();
+	});
+
+	test("releases a wedged pending generation start when no settle event arrives", () => {
+		vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_ENDED: "generation_ended",
+				GENERATION_STARTED: "generation_started",
+				GENERATION_STOPPED: "generation_stopped",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+			streamingProcessor: null,
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		// SillyTavern can interrupt Generate() between GENERATION_STARTED and
+		// GENERATION_AFTER_COMMANDS (slash-command interception) and unblock
+		// without ever showing #mes_stop, so no settle event ever arrives.
+		eventSource.emit("generation_started", "normal", {}, false);
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: true,
+			kind: "send",
+		});
+
+		vi.advanceTimersByTime(15_000);
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: false,
+			kind: "send",
+			label: "Send message",
+			visible: true,
+		});
+
+		store.dispose();
+	});
+
+	test("drops a stale event latch so later background locks stay on send", () => {
+		vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_ENDED: "generation_ended",
+				GENERATION_STARTED: "generation_started",
+				GENERATION_STOPPED: "generation_stopped",
+				MESSAGE_EDITED: "message_edited",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+			streamingProcessor: null,
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		// A generation that dies after GENERATION_AFTER_COMMANDS but before
+		// the Stop control is shown (failed server ping, blocked backend)
+		// leaves the event latch armed with no settle event to release it.
+		eventSource.emit("generation_started", "normal", {}, false);
+		eventSource.emit("generation_after_commands", "normal", {}, false);
+		store.refresh();
+		vi.advanceTimersByTime(15_000);
+
+		// A later message edit plus a background quiet-generation lock must
+		// stay a disabled send action, not re-promote to stop.
+		eventSource.emit("message_edited", 0);
+		document.body.dataset.generating = "true";
+		document
+			.getElementById("mes_stop")
+			?.setAttribute("style", "display: flex;");
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: true,
+			kind: "send",
+			label: "Send message",
+			visible: true,
+		});
+
+		store.dispose();
+	});
+
+	test("keeps a live generation on stop across the evidence grace window", () => {
+		vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="rightSendForm">
+        <button id="send_but" title="Send message"></button>
+        <button id="mes_stop" style="display: none;" title="Abort request"></button>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_ENDED: "generation_ended",
+				GENERATION_STARTED: "generation_started",
+				GENERATION_STOPPED: "generation_stopped",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+			streamingProcessor: null,
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		eventSource.emit("generation_started", "normal", {}, false);
+		eventSource.emit("generation_after_commands", "normal", {}, false);
+		document.body.dataset.generating = "true";
+		document
+			.getElementById("mes_stop")
+			?.setAttribute("style", "display: flex;");
+		store.refresh();
+		vi.advanceTimersByTime(60_000);
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			kind: "stop",
 			visible: true,
 		});
 
