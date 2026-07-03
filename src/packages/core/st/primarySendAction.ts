@@ -115,6 +115,16 @@ function isElementVisible(element: HTMLElement | null): boolean {
 		return false;
 	}
 
+	const inlineDisplay = element.style.display.trim();
+	const inlineVisibility = element.style.visibility.trim();
+	if (inlineDisplay === "none" || inlineVisibility === "hidden") {
+		return false;
+	}
+
+	if (inlineDisplay) {
+		return true;
+	}
+
 	const view = element.ownerDocument.defaultView ?? window;
 	const style = view.getComputedStyle(element);
 	return style.display !== "none" && style.visibility !== "hidden";

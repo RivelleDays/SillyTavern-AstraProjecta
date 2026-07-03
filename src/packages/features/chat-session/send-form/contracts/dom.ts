@@ -92,3 +92,5 @@ export const MOBILE_SEND_FORM_SHORTCUTS_VISIBILITY_STORAGE_KEY =
 	"astra_projecta.mobile_send_form.shortcuts_visible";
 export const MOBILE_SEND_FORM_QUICK_REPLY_VISIBILITY_STORAGE_KEY =
 	"astra_projecta.mobile_send_form.quick_reply_visible";
+export const MOBILE_CHAT_MAIN_MENU_ACTIVE_TAB_STORAGE_KEY =
+	"astra_projecta.mobile_chat_main_menu.active_tab";
