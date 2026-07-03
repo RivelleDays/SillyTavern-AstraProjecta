@@ -928,6 +928,82 @@ describe("primary send action", () => {
 		store.dispose();
 	});
 
+	test("releases a stale hidden stop control after mobile generation settles", async () => {
+		document.body.innerHTML = `
+      <textarea id="send_textarea">hello</textarea>
+      <input id="file_form_input" type="file" />
+      <div id="nonQRFormItems" style="display: none;">
+        <div id="rightSendForm">
+          <button id="send_but" title="Send message"></button>
+          <button id="mes_stop" style="display: none;" title="Abort request"></button>
+        </div>
+      </div>
+    `;
+
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [{ is_system: false, is_user: true }],
+			eventSource,
+			eventTypes: {
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_STOPPED: "generation_stopped",
+			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
+			streamingProcessor: null,
+		});
+
+		const sendButton = document.getElementById("send_but");
+		const stopButton = document.getElementById("mes_stop");
+		let sendClicks = 0;
+		let stopClicks = 0;
+		sendButton?.addEventListener("click", () => {
+			sendClicks += 1;
+		});
+		stopButton?.addEventListener("click", () => {
+			stopClicks += 1;
+		});
+
+		const store = createPrimarySendActionStore({ documentRef: document });
+		eventSource.emit("generation_after_commands", "normal", {}, false);
+		await Promise.resolve();
+
+		document.body.dataset.generating = "true";
+		stopButton?.setAttribute("style", "display: flex;");
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: false,
+			kind: "stop",
+			visible: true,
+		});
+
+		delete document.body.dataset.generating;
+		store.refresh();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: false,
+			kind: "send",
+			label: "Send message",
+			visible: true,
+		});
+
+		eventSource.emit("generation_stopped");
+		await Promise.resolve();
+
+		expect(store.getSnapshot()).toMatchObject({
+			disabled: false,
+			kind: "send",
+			label: "Send message",
+			visible: true,
+		});
+		expect(store.trigger()).toBe(true);
+		expect(sendClicks).toBe(1);
+		expect(stopClicks).toBe(0);
+
+		store.dispose();
+	});
+
 	test("keeps the stop fallback when mounted during an existing generation", () => {
 		document.body.innerHTML = `
       <textarea id="send_textarea">hello</textarea>

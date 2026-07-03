@@ -136,6 +136,45 @@ function isElementVisible(element: HTMLElement | null): boolean {
 	return style.display !== "none" && style.visibility !== "hidden";
 }
 
+function isElementVisibleInLayout(element: HTMLElement | null): boolean {
+	if (!(element instanceof HTMLElement) || !element.isConnected) {
+		return false;
+	}
+
+	const view = element.ownerDocument.defaultView ?? window;
+	let currentElement: HTMLElement | null = element;
+	while (currentElement) {
+		if (
+			currentElement.classList.contains("displayNone") ||
+			currentElement.hasAttribute("hidden")
+		) {
+			return false;
+		}
+
+		const inlineDisplay = currentElement.style.display.trim();
+		const inlineVisibility = currentElement.style.visibility.trim();
+		if (inlineDisplay === "none" || inlineVisibility === "hidden") {
+			return false;
+		}
+
+		const style = view.getComputedStyle(currentElement);
+		const isTargetElement = currentElement === element;
+		if (!(isTargetElement && inlineDisplay) && style.display === "none") {
+			return false;
+		}
+		if (
+			!(isTargetElement && inlineVisibility) &&
+			style.visibility === "hidden"
+		) {
+			return false;
+		}
+
+		currentElement = currentElement.parentElement;
+	}
+
+	return true;
+}
+
 function readIsDisabled(element: HTMLElement | null): boolean {
 	if (!(element instanceof HTMLElement)) {
 		return true;
@@ -185,6 +224,10 @@ function readNativeElement(
 	return element instanceof HTMLElement ? element : null;
 }
 
+function hasBodyGeneratingFlag(documentRef: Document): boolean {
+	return documentRef.body?.dataset.generating === "true";
+}
+
 function readNativeStopButton(documentRef: Document): HTMLElement | null {
 	const stopButton = readNativeElement(documentRef, STOP_BUTTON_ID);
 	if (stopButton) {
@@ -210,6 +253,27 @@ function hasActiveStreamingProcessor(context: StContextLike | null): boolean {
 	}
 
 	return processor.isFinished !== true && processor.isStopped !== true;
+}
+
+function hasNativeStopGenerationEvidence({
+	documentRef,
+	isStopVisible,
+	isStopVisibleInLayout,
+	stopButton,
+}: {
+	documentRef: Document;
+	isStopVisible: boolean;
+	isStopVisibleInLayout: boolean;
+	stopButton: HTMLElement | null;
+}): boolean {
+	if (!(stopButton instanceof HTMLElement)) {
+		return false;
+	}
+
+	return (
+		isStopVisibleInLayout ||
+		(isStopVisible && hasBodyGeneratingFlag(documentRef))
+	);
 }
 
 function shouldUseContinueAction(
@@ -374,22 +438,26 @@ function readPrimarySendActionState({
 	const body = documentRef.body;
 	const isNativeSwipeBusy = body?.dataset.swiping === "true";
 	const isStopVisible = isElementVisible(stopButton);
+	const isStopVisibleInLayout = isElementVisibleInLayout(stopButton);
 	const isStreaming = hasActiveStreamingProcessor(context);
+	const hasStopGenerationEvidence = hasNativeStopGenerationEvidence({
+		documentRef,
+		isStopVisible,
+		isStopVisibleInLayout,
+		stopButton,
+	});
+	const hasLiveGenerationEvidence =
+		hasStopGenerationEvidence || isStreaming || groupGenerationActive;
 	let nextGenerationLifecycle = generationLifecycle;
 
 	if (generationLifecycle === "unknown") {
 		nextGenerationLifecycle =
-			(isStopVisible || isStreaming) && stopButton ? "active" : "idle";
+			hasLiveGenerationEvidence && stopButton ? "active" : "idle";
 	} else if (generationLifecycle === "pending") {
-		if ((isStopVisible || isStreaming) && stopButton) {
+		if (hasLiveGenerationEvidence && stopButton) {
 			nextGenerationLifecycle = "active";
 		}
-	} else if (
-		generationLifecycle === "active" &&
-		!isStopVisible &&
-		!isStreaming &&
-		!groupGenerationActive
-	) {
+	} else if (generationLifecycle === "active" && !hasLiveGenerationEvidence) {
 		// SillyTavern can end a generation without emitting a settle event
 		// (early-return paths where the Stop control was never shown), so an
 		// event-latched "active" must release once no live evidence remains.
@@ -397,7 +465,7 @@ function readPrimarySendActionState({
 	} else if (
 		generationLifecycle === "idle" &&
 		generationEventLatch &&
-		(isStopVisible || isStreaming) &&
+		hasLiveGenerationEvidence &&
 		stopButton
 	) {
 		// The Stop control appears only after GENERATION_AFTER_COMMANDS, so a
@@ -409,7 +477,7 @@ function readPrimarySendActionState({
 	const isAbortableGeneration =
 		(nextGenerationLifecycle === "active" || groupGenerationActive) &&
 		stopButton instanceof HTMLElement;
-	const isNativeInputLocked = isStopVisible && !isAbortableGeneration;
+	const isNativeInputLocked = isStopVisibleInLayout && !isAbortableGeneration;
 	const isInputLocked =
 		isNativeSwipeBusy ||
 		groupGenerationActive ||
@@ -718,10 +786,16 @@ export function createPrimarySendActionStore({
 	}
 
 	function hasLiveGenerationEvidence(): boolean {
+		const stopButton = readNativeStopButton(documentRef);
+		const isStopVisible = isElementVisible(stopButton);
+		const isStopVisibleInLayout = isElementVisibleInLayout(stopButton);
 		return (
-			documentRef.body?.dataset.generating === "true" ||
-			isElementVisible(readNativeStopButton(documentRef)) ||
-			hasActiveStreamingProcessor(resolveContextSafe())
+			hasNativeStopGenerationEvidence({
+				documentRef,
+				isStopVisible,
+				isStopVisibleInLayout,
+				stopButton,
+			}) || hasActiveStreamingProcessor(resolveContextSafe())
 		);
 	}
 
