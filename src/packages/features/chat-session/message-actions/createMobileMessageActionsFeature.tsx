@@ -1329,11 +1329,33 @@ export function createMobileMessageActionsFeature({
 		void action().finally(refreshMessageActionStores);
 	}
 
+	function setFooterGenerationBlocked(
+		actionHost: HTMLDivElement,
+		isBlocked: boolean,
+	) {
+		if (isBlocked) {
+			actionHost.dataset.astraGenerationBlocked = "true";
+			return;
+		}
+
+		delete actionHost.dataset.astraGenerationBlocked;
+	}
+
 	function unmountFooterActionRoot() {
 		footerActionRoot?.unmount();
 		footerActionRoot = null;
 		cleanupMessageActionSlots(footerActionRootHost);
 		footerActionRootHost = null;
+	}
+
+	function ensureFooterActionRoot(actionHost: HTMLDivElement): Root {
+		if (!footerActionRoot || footerActionRootHost !== actionHost) {
+			unmountFooterActionRoot();
+			footerActionRoot = createRoot(actionHost);
+			footerActionRootHost = actionHost;
+		}
+
+		return footerActionRoot;
 	}
 
 	function unmountRoots() {
@@ -1377,17 +1399,29 @@ export function createMobileMessageActionsFeature({
 		syncOpenMessageActionTargets(validMessageIds);
 		syncHistoryDrawerSelection(historySnapshot);
 
-		if (isFooterBlockedByGenerationActivity(generationActivitySnapshot)) {
-			unmountFooterActionRoot();
-			return;
-		}
-
 		const targetMessage = resolveLastActionableFooterMessage({
 			context,
 			loadedMessages,
 		});
 		if (!targetMessage) {
 			unmountFooterActionRoot();
+			return;
+		}
+
+		const isFooterBlocked = isFooterBlockedByGenerationActivity(
+			generationActivitySnapshot,
+		);
+		if (isFooterBlocked) {
+			const slots = ensureMessageActionSlots(
+				targetMessage.messageElement,
+			);
+			if (!slots) {
+				unmountRoots();
+				return;
+			}
+
+			setFooterGenerationBlocked(slots.container, true);
+			ensureFooterActionRoot(slots.container).render(null);
 			return;
 		}
 
@@ -1427,14 +1461,9 @@ export function createMobileMessageActionsFeature({
 			unmountRoots();
 			return;
 		}
+		setFooterGenerationBlocked(slots.container, false);
 
-		if (!footerActionRoot || footerActionRootHost !== slots.container) {
-			unmountFooterActionRoot();
-			footerActionRoot = createRoot(slots.container);
-			footerActionRootHost = slots.container;
-		}
-
-		footerActionRoot.render(
+		ensureFooterActionRoot(slots.container).render(
 			withAstraErrorBoundary({
 				children: (
 					<MessageFooterActions

@@ -27,6 +27,8 @@ import {
 import { MobileChatMainMenuDrawer } from "@/packages/features/chat-session/send-form/main-menu/MobileChatMainMenuDrawer";
 
 const ST_MERIDIEM_TIMESTAMP_MS = Date.parse("2025-05-04T14:20:00.000Z");
+const MOBILE_CHAT_MAIN_MENU_ACTIVE_TAB_STORAGE_KEY =
+	"astra_projecta.mobile_chat_main_menu.active_tab";
 
 function setSillyTavernContext(context: unknown) {
 	(globalThis as { SillyTavern?: unknown }).SillyTavern = {
@@ -1857,7 +1859,7 @@ describe("MobileChatMainMenuDrawer", () => {
 		});
 
 		const onRequestCharacterLibrary = vi.fn();
-		const { rerender } = render(
+		const { unmount } = render(
 			<MobileChatMainMenuDrawer
 				chatContextUsageSnapshot={createContextUsageSnapshot()}
 				chatInfoSnapshot={createInfoSnapshot()}
@@ -1924,33 +1926,62 @@ describe("MobileChatMainMenuDrawer", () => {
 		expect(extensionsTab).toHaveAttribute("data-state", "active");
 		expect(sillyTavernTab).toHaveAttribute("data-state", "inactive");
 		expect(extensionsPanel).toHaveAttribute("data-state", "active");
+		expect(
+			window.localStorage.getItem(
+				MOBILE_CHAT_MAIN_MENU_ACTIVE_TAB_STORAGE_KEY,
+			),
+		).toBe("extensions");
 		const characterLibraryButton = within(
 			extensionsPanel as HTMLElement,
 		).getByRole("button", {
 			name: "Character Library",
 		});
+		const characterLibraryShell = characterLibraryButton.closest(
+			".astra-chat-main-menu-drawer__tile-shell",
+		);
 		expect(characterLibraryButton).toHaveAttribute(
 			"id",
 			"astra-chat-main-menu-character-library-shortcut",
 		);
+		expect(characterLibraryButton).toHaveAttribute(
+			"aria-label",
+			"Character Library",
+		);
+		expect(characterLibraryShell).toBeInTheDocument();
+		expect(characterLibraryButton).toHaveClass(
+			"astra-chat-main-menu-drawer__tile",
+		);
 		expect(
 			characterLibraryButton.querySelector(".fa-solid.fa-layer-group"),
+		).toBeInTheDocument();
+		expect(
+			characterLibraryButton.querySelector(
+				".astra-chat-main-menu-drawer__tile-glow",
+			),
+		).toBeInTheDocument();
+		expect(
+			characterLibraryButton.querySelector(
+				".astra-chat-main-menu-drawer__tile-title",
+			),
+		).toBeInTheDocument();
+		expect(
+			Array.from(
+				characterLibraryButton.querySelectorAll(
+					".astra-chat-main-menu-drawer__tile-title-line",
+				),
+			).map((line) => line.textContent),
+		).toEqual(["Character", "Library"]);
+		expect(
+			characterLibraryButton.querySelector(
+				".astra-chat-main-menu-drawer__tile-fade",
+			),
 		).toBeInTheDocument();
 
 		fireEvent.click(characterLibraryButton);
 		expect(onRequestCharacterLibrary).toHaveBeenCalledTimes(1);
 
-		rerender(
-			<MobileChatMainMenuDrawer
-				chatContextUsageSnapshot={createContextUsageSnapshot()}
-				chatInfoSnapshot={createInfoSnapshot()}
-				onOpenChange={() => {}}
-				onRequestCharacterLibrary={onRequestCharacterLibrary}
-				open={false}
-				snapshot={createIdentitySnapshot()}
-			/>,
-		);
-		rerender(
+		unmount();
+		render(
 			<MobileChatMainMenuDrawer
 				chatContextUsageSnapshot={createContextUsageSnapshot()}
 				chatInfoSnapshot={createInfoSnapshot()}
@@ -1961,8 +1992,111 @@ describe("MobileChatMainMenuDrawer", () => {
 			/>,
 		);
 
-		expect(sillyTavernTab).toHaveAttribute("data-state", "active");
-		expect(extensionsTab).toHaveAttribute("data-state", "inactive");
+		const nextDrawer = await screen.findByText("Hero");
+		const nextRoot = nextDrawer.closest(".astra-chat-main-menu-drawer");
+		const nextTablist = within(nextRoot as HTMLElement).getByRole(
+			"tablist",
+			{
+				name: "Main menu sections",
+			},
+		);
+		expect(
+			within(nextTablist).getByRole("tab", {
+				name: "Extensions",
+			}),
+		).toHaveAttribute("data-state", "active");
+		expect(
+			within(nextTablist).getByRole("tab", {
+				name: "SillyTavern",
+			}),
+		).toHaveAttribute("data-state", "inactive");
+	});
+
+	test("falls back to the SillyTavern main-menu tab when stored tab state is invalid", async () => {
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		window.localStorage.setItem(
+			MOBILE_CHAT_MAIN_MENU_ACTIVE_TAB_STORAGE_KEY,
+			"missing",
+		);
+		setSillyTavernContext({
+			timestampToMoment: () => ({
+				format: () => "2026/04/23 06:30 PM",
+			}),
+			translate: (text: string) => text,
+		});
+
+		render(
+			<MobileChatMainMenuDrawer
+				chatContextUsageSnapshot={createContextUsageSnapshot()}
+				chatInfoSnapshot={createInfoSnapshot()}
+				onOpenChange={() => {}}
+				open={true}
+				snapshot={createIdentitySnapshot()}
+			/>,
+		);
+
+		const drawer = await screen.findByText("Hero");
+		const root = drawer.closest(".astra-chat-main-menu-drawer");
+		const tablist = within(root as HTMLElement).getByRole("tablist", {
+			name: "Main menu sections",
+		});
+
+		expect(
+			within(tablist).getByRole("tab", {
+				name: "SillyTavern",
+			}),
+		).toHaveAttribute("data-state", "active");
+		expect(
+			within(tablist).getByRole("tab", {
+				name: "Extensions",
+			}),
+		).toHaveAttribute("data-state", "inactive");
+	});
+
+	test("falls back to the SillyTavern main-menu tab when browser storage is unavailable", async () => {
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		const getItemSpy = vi
+			.spyOn(Storage.prototype, "getItem")
+			.mockImplementationOnce(() => {
+				throw new Error("storage unavailable");
+			});
+		setSillyTavernContext({
+			timestampToMoment: () => ({
+				format: () => "2026/04/23 06:30 PM",
+			}),
+			translate: (text: string) => text,
+		});
+
+		try {
+			render(
+				<MobileChatMainMenuDrawer
+					chatContextUsageSnapshot={createContextUsageSnapshot()}
+					chatInfoSnapshot={createInfoSnapshot()}
+					onOpenChange={() => {}}
+					open={true}
+					snapshot={createIdentitySnapshot()}
+				/>,
+			);
+
+			const drawer = await screen.findByText("Hero");
+			const root = drawer.closest(".astra-chat-main-menu-drawer");
+			const tablist = within(root as HTMLElement).getByRole("tablist", {
+				name: "Main menu sections",
+			});
+
+			expect(
+				within(tablist).getByRole("tab", {
+					name: "SillyTavern",
+				}),
+			).toHaveAttribute("data-state", "active");
+			expect(
+				within(tablist).getByRole("tab", {
+					name: "Extensions",
+				}),
+			).toHaveAttribute("data-state", "inactive");
+		} finally {
+			getItemSpy.mockRestore();
+		}
 	});
 
 	test("switches from SillyTavern shortcuts to extension shortcuts by swiping the shortcut grid", async () => {

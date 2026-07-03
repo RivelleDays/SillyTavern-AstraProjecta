@@ -54,6 +54,7 @@ import {
 	ASTRA_CHAT_MAIN_MENU_DRAWER_TITLE_ID,
 	ASTRA_CHAT_MAIN_MENU_EXTENSIONS_PANEL_ID,
 	ASTRA_CHAT_MAIN_MENU_SILLYTAVERN_PANEL_ID,
+	MOBILE_CHAT_MAIN_MENU_ACTIVE_TAB_STORAGE_KEY,
 } from "@/packages/features/chat-session/send-form/contracts/dom";
 import {
 	formatContextUsagePercent,
@@ -124,6 +125,40 @@ function isMobileChatMainMenuTabValue(
 	return MOBILE_CHAT_MAIN_MENU_TAB_VALUES.includes(
 		value as MobileChatMainMenuTabValue,
 	);
+}
+
+function getLocalStorage(): Storage | null {
+	try {
+		return globalThis.localStorage ?? null;
+	} catch {
+		return null;
+	}
+}
+
+function readStoredMobileChatMainMenuTab(): MobileChatMainMenuTabValue {
+	let storedValue: string | null | undefined;
+	try {
+		storedValue = getLocalStorage()?.getItem(
+			MOBILE_CHAT_MAIN_MENU_ACTIVE_TAB_STORAGE_KEY,
+		);
+	} catch {
+		storedValue = null;
+	}
+
+	return storedValue && isMobileChatMainMenuTabValue(storedValue)
+		? storedValue
+		: DEFAULT_MOBILE_CHAT_MAIN_MENU_TAB;
+}
+
+function writeStoredMobileChatMainMenuTab(value: MobileChatMainMenuTabValue) {
+	try {
+		getLocalStorage()?.setItem(
+			MOBILE_CHAT_MAIN_MENU_ACTIVE_TAB_STORAGE_KEY,
+			value,
+		);
+	} catch {
+		// Browser storage is a best-effort UI preference.
+	}
 }
 
 function getContextUsageSummaryText(
@@ -265,7 +300,7 @@ export function MobileChatMainMenuDrawer({
 	const [isDrawerHostMounted, setIsDrawerHostMounted] = React.useState(open);
 	const [activeTab, setActiveTab] =
 		React.useState<MobileChatMainMenuTabValue>(
-			DEFAULT_MOBILE_CHAT_MAIN_MENU_TAB,
+			readStoredMobileChatMainMenuTab,
 		);
 	const title = translateAstra("sendForm.mainMenu.title");
 	const description = translateAstra("sendForm.mainMenu.description");
@@ -425,7 +460,6 @@ export function MobileChatMainMenuDrawer({
 	React.useEffect(() => {
 		if (open) {
 			setIsDrawerHostMounted(true);
-			setActiveTab(DEFAULT_MOBILE_CHAT_MAIN_MENU_TAB);
 		}
 	}, [open]);
 
@@ -439,6 +473,7 @@ export function MobileChatMainMenuDrawer({
 		}
 
 		setActiveTab(nextValue);
+		writeStoredMobileChatMainMenuTab(nextValue);
 	}, []);
 
 	const mainMenuTabItems: Array<

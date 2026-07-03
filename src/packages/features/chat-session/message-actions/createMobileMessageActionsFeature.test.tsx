@@ -236,8 +236,22 @@ describe("createMobileMessageActionsFeature", () => {
 			});
 
 			await waitFor(() => {
-				expect(document.querySelector(".astra-mesActions")).toBeNull();
+				expect(
+					document.querySelector(
+						'.mes[mesid="0"] > .astra-mesActions',
+					),
+				).toBeInTheDocument();
 			});
+			const blockedHost = document.querySelector(
+				'.mes[mesid="0"] > .astra-mesActions',
+			);
+			expect(blockedHost).toHaveAttribute(
+				"data-astra-generation-blocked",
+				"true",
+			);
+			expect(blockedHost?.childElementCount).toBe(0);
+			expect(document.querySelector(".astra-revisionBar")).toBeNull();
+			expect(document.querySelector(".astra-swipePager")).toBeNull();
 
 			swipeStore.store.refresh.mockClear();
 			revisionStore.store.refresh.mockClear();
@@ -253,6 +267,9 @@ describe("createMobileMessageActionsFeature", () => {
 					document.querySelector(".astra-swipePager"),
 				).toBeInTheDocument();
 			});
+			expect(
+				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
+			).not.toHaveAttribute("data-astra-generation-blocked");
 			expect(swipeStore.store.refresh).toHaveBeenCalledTimes(1);
 			expect(revisionStore.store.refresh).toHaveBeenCalledTimes(1);
 			expect(generationActivityStore.store.refresh).toHaveBeenCalledTimes(
@@ -413,8 +430,22 @@ describe("createMobileMessageActionsFeature", () => {
 			feature.mount();
 
 			await waitFor(() => {
-				expect(document.querySelector(".astra-mesActions")).toBeNull();
+				expect(
+					document.querySelector(
+						'.mes[mesid="0"] > .astra-mesActions',
+					),
+				).toBeInTheDocument();
 			});
+			const blockedHost = document.querySelector(
+				'.mes[mesid="0"] > .astra-mesActions',
+			);
+			expect(blockedHost).toHaveAttribute(
+				"data-astra-generation-blocked",
+				"true",
+			);
+			expect(blockedHost?.childElementCount).toBe(0);
+			expect(document.querySelector(".astra-revisionBar")).toBeNull();
+			expect(document.querySelector(".astra-swipePager")).toBeNull();
 		} finally {
 			feature.dispose();
 		}
