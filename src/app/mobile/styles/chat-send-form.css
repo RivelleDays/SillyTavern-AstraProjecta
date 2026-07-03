@@ -1844,9 +1844,7 @@ body.astra-projecta-mobile-layout {
 	}
 
 	.astra-chat-main-menu-drawer__tile-deco-icon.fa-solid {
-		font-size: calc(
-			var(--astra-chat-main-menu-drawer-tile-icon-size) - 4px
-		);
+		font-size: calc(var(--astra-chat-main-menu-drawer-tile-deco-icon-size) - 8px);
 	}
 
 	.astra-chat-main-menu-drawer__tile-icon svg,
