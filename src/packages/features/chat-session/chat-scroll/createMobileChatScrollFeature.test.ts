@@ -256,6 +256,136 @@ describe("createMobileChatScrollFeature", () => {
 		expect(resizeObserver.disconnect).toHaveBeenCalledTimes(1);
 	});
 
+	test("subscribes to generation settled events and removes listeners on dispose", () => {
+		document.body.innerHTML = '<div id="chat"></div>';
+		const eventSource = new EventSourceStub();
+		vi.stubGlobal("SillyTavern", {
+			getContext: () => ({
+				eventSource,
+				eventTypes: {
+					CHAT_CHANGED: "chat_changed",
+					CHAT_LOADED: "chat_loaded",
+					GENERATION_ENDED: "generation_ended",
+					GENERATION_STOPPED: "generation_stopped",
+				},
+			}),
+		});
+		const feature = createMobileChatScrollFeature({
+			documentRef: document,
+		});
+
+		feature.mount();
+
+		expect(eventSource.listenerCount("generation_ended")).toBe(1);
+		expect(eventSource.listenerCount("generation_stopped")).toBe(1);
+
+		feature.dispose();
+
+		expect(eventSource.listenerCount("generation_ended")).toBe(0);
+		expect(eventSource.listenerCount("generation_stopped")).toBe(0);
+	});
+
+	test.each(["generation_ended", "generation_stopped"])(
+		"keeps #chat pinned to the bottom on %s when the user is already at the bottom",
+		(generationEventName) => {
+			vi.useFakeTimers();
+			document.body.innerHTML =
+				'<div id="chat"><div class="mes"></div></div>';
+			const chat = document.getElementById("chat") as HTMLElement;
+			const lastMessage = chat.lastElementChild as HTMLElement;
+			let scrollHeight = 1000;
+			installChatMetrics(chat, () => scrollHeight);
+			const eventSource = new EventSourceStub();
+			const frame = installAnimationFrame();
+			let resizeCallback: ResizeObserverCallback | null = null;
+			const resizeObserver = {
+				disconnect: vi.fn(),
+				observe: vi.fn(),
+				unobserve: vi.fn(),
+			};
+			const ResizeObserverStub = vi.fn(
+				(callback: ResizeObserverCallback) => {
+					resizeCallback = callback;
+					return resizeObserver;
+				},
+			);
+			vi.stubGlobal("SillyTavern", {
+				getContext: () => ({
+					eventSource,
+					eventTypes: {
+						CHAT_CHANGED: "chat_changed",
+						CHAT_LOADED: "chat_loaded",
+						GENERATION_ENDED: "generation_ended",
+						GENERATION_STOPPED: "generation_stopped",
+					},
+				}),
+			});
+			const feature = createMobileChatScrollFeature({
+				cancelAnimationFrame: frame.cancelAnimationFrame,
+				documentRef: document,
+				requestAnimationFrame: frame.requestAnimationFrame,
+				ResizeObserver: ResizeObserverStub,
+				settleDurationMs: 120,
+			});
+
+			feature.mount();
+			chat.scrollTop = 680;
+			eventSource.emit(generationEventName);
+
+			expect(resizeObserver.observe).toHaveBeenCalledWith(chat);
+			expect(resizeObserver.observe).toHaveBeenCalledWith(lastMessage);
+
+			scrollHeight = 1046;
+			frame.flushFrames();
+
+			expect(chat.scrollTop).toBe(1046);
+
+			scrollHeight = 1100;
+			const observedResizeCallback =
+				resizeCallback as unknown as ResizeObserverCallback;
+			observedResizeCallback(
+				[],
+				resizeObserver as unknown as ResizeObserver,
+			);
+			frame.flushFrames();
+
+			expect(chat.scrollTop).toBe(1100);
+		},
+	);
+
+	test("leaves the scroll position alone after generation when reading earlier messages", () => {
+		document.body.innerHTML = '<div id="chat"><div class="mes"></div></div>';
+		const chat = document.getElementById("chat") as HTMLElement;
+		let scrollHeight = 1000;
+		installChatMetrics(chat, () => scrollHeight);
+		const eventSource = new EventSourceStub();
+		const frame = installAnimationFrame();
+		vi.stubGlobal("SillyTavern", {
+			getContext: () => ({
+				eventSource,
+				eventTypes: {
+					CHAT_CHANGED: "chat_changed",
+					CHAT_LOADED: "chat_loaded",
+					GENERATION_ENDED: "generation_ended",
+					GENERATION_STOPPED: "generation_stopped",
+				},
+			}),
+		});
+		const feature = createMobileChatScrollFeature({
+			cancelAnimationFrame: frame.cancelAnimationFrame,
+			documentRef: document,
+			requestAnimationFrame: frame.requestAnimationFrame,
+		});
+
+		feature.mount();
+		chat.scrollTop = 200;
+		eventSource.emit("generation_ended");
+		scrollHeight = 1046;
+		frame.flushFrames();
+
+		expect(chat.scrollTop).toBe(200);
+	});
+
 	test("does not throw when #chat or SillyTavern context is unavailable", () => {
 		const feature = createMobileChatScrollFeature({
 			documentRef: document,

@@ -28,6 +28,11 @@ const CHAT_SCROLL_EDGE_EPSILON = 0.5;
 const DEFAULT_SETTLE_DURATION_MS = 240;
 const FALLBACK_CHAT_CHANGED_EVENT = "chat_id_changed";
 const FALLBACK_CHAT_LOADED_EVENT = "chatLoaded";
+const FALLBACK_GENERATION_ENDED_EVENT = "generation_ended";
+const FALLBACK_GENERATION_STOPPED_EVENT = "generation_stopped";
+// Distance from the bottom edge still treated as "reading the latest message";
+// larger gaps mean the user scrolled up on purpose and must not be yanked down.
+const GENERATION_STICK_BOTTOM_THRESHOLD_PX = 48;
 
 function resolveChatElement(documentRef: Document): HTMLElement | null {
 	return documentRef.getElementById("chat");
@@ -169,7 +174,10 @@ export function createMobileChatScrollFeature({
 	});
 	const ResizeObserverCtor = resolveResizeObserver(ResizeObserverOverride);
 
-	let activeEventNames: string[] = [];
+	let activeEventBindings: Array<{
+		eventName: string;
+		handler: () => void;
+	}> = [];
 	let animationFrameId: number | null = null;
 	let fadeAnimationFrameId: number | null = null;
 	let boundChatElement: HTMLElement | null = null;
@@ -301,6 +309,13 @@ export function createMobileChatScrollFeature({
 		if (ResizeObserverCtor) {
 			resizeObserver = new ResizeObserverCtor(scheduleScrollToBottom);
 			resizeObserver.observe(chatElement);
+			// The container box stays fixed while late content (message action
+			// footers, final message formatting) grows the last message, so
+			// watch that node too while the settle window is open.
+			const lastChatChild = chatElement.lastElementChild;
+			if (lastChatChild) {
+				resizeObserver.observe(lastChatChild);
+			}
 		}
 
 		settleTimeoutId = globalThis.setTimeout(
@@ -315,6 +330,25 @@ export function createMobileChatScrollFeature({
 		scheduleScrollToBottom();
 	}
 
+	function isChatNearBottom(chatElement: HTMLElement): boolean {
+		return (
+			chatElement.scrollHeight -
+				chatElement.scrollTop -
+				chatElement.clientHeight <=
+			GENERATION_STICK_BOTTOM_THRESHOLD_PX
+		);
+	}
+
+	function handleGenerationSettled() {
+		const chatElement = attachChatElement();
+		if (!chatElement || !isChatNearBottom(chatElement)) {
+			return;
+		}
+
+		startSettleWindow();
+		scheduleScrollToBottom();
+	}
+
 	function subscribeChatEvents() {
 		const context = resolveStContextSafe();
 		eventSource = resolveEventSource(context);
@@ -323,26 +357,43 @@ export function createMobileChatScrollFeature({
 		}
 
 		const eventTypes = resolveEventTypes(context);
-		activeEventNames = [
-			eventTypes.CHAT_CHANGED ?? FALLBACK_CHAT_CHANGED_EVENT,
-			eventTypes.CHAT_LOADED ?? FALLBACK_CHAT_LOADED_EVENT,
-		].filter((eventName): eventName is string => Boolean(eventName));
+		activeEventBindings = [
+			{
+				eventName: eventTypes.CHAT_CHANGED ?? FALLBACK_CHAT_CHANGED_EVENT,
+				handler: handleChatChanged,
+			},
+			{
+				eventName: eventTypes.CHAT_LOADED ?? FALLBACK_CHAT_LOADED_EVENT,
+				handler: handleChatChanged,
+			},
+			{
+				eventName:
+					eventTypes.GENERATION_ENDED ?? FALLBACK_GENERATION_ENDED_EVENT,
+				handler: handleGenerationSettled,
+			},
+			{
+				eventName:
+					eventTypes.GENERATION_STOPPED ??
+					FALLBACK_GENERATION_STOPPED_EVENT,
+				handler: handleGenerationSettled,
+			},
+		].filter((binding) => Boolean(binding.eventName));
 
-		for (const eventName of activeEventNames) {
-			eventSource.on(eventName, handleChatChanged);
+		for (const { eventName, handler } of activeEventBindings) {
+			eventSource.on(eventName, handler);
 		}
 	}
 
 	function unsubscribeChatEvents() {
 		if (!eventSource) {
-			activeEventNames = [];
+			activeEventBindings = [];
 			return;
 		}
 
-		for (const eventName of activeEventNames) {
-			eventSource.removeListener(eventName, handleChatChanged);
+		for (const { eventName, handler } of activeEventBindings) {
+			eventSource.removeListener(eventName, handler);
 		}
-		activeEventNames = [];
+		activeEventBindings = [];
 		eventSource = null;
 	}
 
