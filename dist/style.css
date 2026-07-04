@@ -7579,7 +7579,7 @@ body.astra-projecta-mobile-layout {
   min-height: 116px;
   align-items: center;
   padding: 16px;
-  background: linear-gradient(135deg, var(--color-ring-t10), transparent 62%),	var(--color-base-t5);
+  background: var(--color-base-t5);
   border: 1px solid var(--border-color-base);
 }
 .astra-main-interface-home__carousel-copy {
