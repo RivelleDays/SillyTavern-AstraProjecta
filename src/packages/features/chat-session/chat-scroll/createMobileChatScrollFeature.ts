@@ -14,10 +14,12 @@ export interface MobileChatScrollFeature {
 type RequestAnimationFrame = (callback: FrameRequestCallback) => number;
 type CancelAnimationFrame = (handle: number) => void;
 type ResizeObserverConstructor = typeof ResizeObserver;
+type MutationObserverConstructor = typeof MutationObserver;
 type ChatScrollWindowLike = {
 	cancelAnimationFrame?: CancelAnimationFrame;
 	requestAnimationFrame?: RequestAnimationFrame;
 };
+type SettleWindowMode = "chat-change" | "generation-stick-bottom";
 
 const CHAT_SCROLL_ATTRIBUTE = "data-astra-projecta-chat-scroll";
 const CHAT_SCROLL_ATTRIBUTE_VALUE = "native";
@@ -149,6 +151,17 @@ function resolveResizeObserver(
 	return typeof ResizeObserver === "function" ? ResizeObserver : null;
 }
 
+function resolveMutationObserver(
+	documentRef: Document,
+): MutationObserverConstructor | null {
+	const MutationObserverCtor = documentRef.defaultView?.MutationObserver;
+	if (MutationObserverCtor) {
+		return MutationObserverCtor;
+	}
+
+	return typeof MutationObserver === "function" ? MutationObserver : null;
+}
+
 export function createMobileChatScrollFeature({
 	cancelAnimationFrame,
 	documentRef = document,
@@ -173,6 +186,7 @@ export function createMobileChatScrollFeature({
 		windowRef,
 	});
 	const ResizeObserverCtor = resolveResizeObserver(ResizeObserverOverride);
+	const MutationObserverCtor = resolveMutationObserver(documentRef);
 
 	let activeEventBindings: Array<{
 		eventName: string;
@@ -183,7 +197,9 @@ export function createMobileChatScrollFeature({
 	let boundChatElement: HTMLElement | null = null;
 	let eventSource: EventSourceLike | null = null;
 	let isMounted = false;
+	let mutationObserver: MutationObserver | null = null;
 	let resizeObserver: ResizeObserver | null = null;
+	let settleWindowMode: SettleWindowMode | null = null;
 	let settleTimeoutId: ReturnType<typeof globalThis.setTimeout> | null = null;
 
 	function markChatElement(chatElement: HTMLElement) {
@@ -233,6 +249,15 @@ export function createMobileChatScrollFeature({
 	}
 
 	function handleNativeChatScroll() {
+		if (
+			settleWindowMode === "generation-stick-bottom" &&
+			boundChatElement &&
+			!isChatNearBottom(boundChatElement)
+		) {
+			stopSettleWindow();
+			cancelScheduledScroll();
+		}
+
 		scheduleChatScrollFadeSync();
 	}
 
@@ -294,17 +319,22 @@ export function createMobileChatScrollFeature({
 			settleTimeoutId = null;
 		}
 
+		mutationObserver?.disconnect();
+		mutationObserver = null;
 		resizeObserver?.disconnect();
 		resizeObserver = null;
+		settleWindowMode = null;
 	}
 
-	function startSettleWindow() {
+	function startSettleWindow(mode: SettleWindowMode) {
 		stopSettleWindow();
 
 		const chatElement = attachChatElement();
 		if (!chatElement) {
 			return;
 		}
+
+		settleWindowMode = mode;
 
 		if (ResizeObserverCtor) {
 			resizeObserver = new ResizeObserverCtor(scheduleScrollToBottom);
@@ -318,6 +348,14 @@ export function createMobileChatScrollFeature({
 			}
 		}
 
+		if (MutationObserverCtor) {
+			mutationObserver = new MutationObserverCtor(scheduleScrollToBottom);
+			mutationObserver.observe(chatElement, {
+				childList: true,
+				subtree: true,
+			});
+		}
+
 		settleTimeoutId = globalThis.setTimeout(
 			stopSettleWindow,
 			settleDurationMs,
@@ -326,7 +364,7 @@ export function createMobileChatScrollFeature({
 
 	function handleChatChanged() {
 		attachChatElement();
-		startSettleWindow();
+		startSettleWindow("chat-change");
 		scheduleScrollToBottom();
 	}
 
@@ -345,7 +383,7 @@ export function createMobileChatScrollFeature({
 			return;
 		}
 
-		startSettleWindow();
+		startSettleWindow("generation-stick-bottom");
 		scheduleScrollToBottom();
 	}
 
@@ -359,7 +397,8 @@ export function createMobileChatScrollFeature({
 		const eventTypes = resolveEventTypes(context);
 		activeEventBindings = [
 			{
-				eventName: eventTypes.CHAT_CHANGED ?? FALLBACK_CHAT_CHANGED_EVENT,
+				eventName:
+					eventTypes.CHAT_CHANGED ?? FALLBACK_CHAT_CHANGED_EVENT,
 				handler: handleChatChanged,
 			},
 			{
@@ -368,7 +407,8 @@ export function createMobileChatScrollFeature({
 			},
 			{
 				eventName:
-					eventTypes.GENERATION_ENDED ?? FALLBACK_GENERATION_ENDED_EVENT,
+					eventTypes.GENERATION_ENDED ??
+					FALLBACK_GENERATION_ENDED_EVENT,
 				handler: handleGenerationSettled,
 			},
 			{

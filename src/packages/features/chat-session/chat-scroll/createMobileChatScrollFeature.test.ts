@@ -65,6 +65,11 @@ function installAnimationFrame() {
 	};
 }
 
+async function flushMutationObservers() {
+	await Promise.resolve();
+	await Promise.resolve();
+}
+
 describe("createMobileChatScrollFeature", () => {
 	afterEach(() => {
 		vi.useRealTimers();
@@ -353,8 +358,62 @@ describe("createMobileChatScrollFeature", () => {
 		},
 	);
 
+	test("keeps bottom alignment when message actions render into an existing footer host after generation settles", async () => {
+		vi.useFakeTimers();
+		document.body.innerHTML = `
+			<div id="chat">
+				<div class="mes">
+					<div class="mes_block"></div>
+					<div class="astra-mesActions" data-astra-component="mes-actions" data-astra-slot="footer"></div>
+				</div>
+			</div>
+		`;
+		const chat = document.getElementById("chat") as HTMLElement;
+		const actionHost = document.querySelector(
+			".astra-mesActions",
+		) as HTMLElement;
+		let isActionRendered = false;
+		installChatMetrics(chat, () => (isActionRendered ? 1120 : 1000));
+		const eventSource = new EventSourceStub();
+		const frame = installAnimationFrame();
+		vi.stubGlobal("SillyTavern", {
+			getContext: () => ({
+				eventSource,
+				eventTypes: {
+					CHAT_CHANGED: "chat_changed",
+					CHAT_LOADED: "chat_loaded",
+					GENERATION_ENDED: "generation_ended",
+					GENERATION_STOPPED: "generation_stopped",
+				},
+			}),
+		});
+		const feature = createMobileChatScrollFeature({
+			cancelAnimationFrame: frame.cancelAnimationFrame,
+			documentRef: document,
+			requestAnimationFrame: frame.requestAnimationFrame,
+			settleDurationMs: 120,
+		});
+
+		feature.mount();
+		chat.scrollTop = 680;
+		eventSource.emit("generation_ended");
+		frame.flushFrames();
+
+		expect(chat.scrollTop).toBe(1000);
+
+		isActionRendered = true;
+		actionHost.append(document.createElement("button"));
+		await flushMutationObservers();
+		frame.flushFrames();
+
+		expect(chat.scrollTop).toBe(1120);
+
+		feature.dispose();
+	});
+
 	test("leaves the scroll position alone after generation when reading earlier messages", () => {
-		document.body.innerHTML = '<div id="chat"><div class="mes"></div></div>';
+		document.body.innerHTML =
+			'<div id="chat"><div class="mes"></div></div>';
 		const chat = document.getElementById("chat") as HTMLElement;
 		let scrollHeight = 1000;
 		installChatMetrics(chat, () => scrollHeight);
@@ -384,6 +443,117 @@ describe("createMobileChatScrollFeature", () => {
 		frame.flushFrames();
 
 		expect(chat.scrollTop).toBe(200);
+	});
+
+	test("does not restore bottom alignment from late footer mutations after the user scrolls up during generation settle", async () => {
+		vi.useFakeTimers();
+		document.body.innerHTML = `
+			<div id="chat">
+				<div class="mes">
+					<div class="mes_block"></div>
+					<div class="astra-mesActions" data-astra-component="mes-actions" data-astra-slot="footer"></div>
+				</div>
+			</div>
+		`;
+		const chat = document.getElementById("chat") as HTMLElement;
+		const actionHost = document.querySelector(
+			".astra-mesActions",
+		) as HTMLElement;
+		let isActionRendered = false;
+		installChatMetrics(chat, () => (isActionRendered ? 1120 : 1000));
+		const eventSource = new EventSourceStub();
+		const frame = installAnimationFrame();
+		vi.stubGlobal("SillyTavern", {
+			getContext: () => ({
+				eventSource,
+				eventTypes: {
+					CHAT_CHANGED: "chat_changed",
+					CHAT_LOADED: "chat_loaded",
+					GENERATION_ENDED: "generation_ended",
+					GENERATION_STOPPED: "generation_stopped",
+				},
+			}),
+		});
+		const feature = createMobileChatScrollFeature({
+			cancelAnimationFrame: frame.cancelAnimationFrame,
+			documentRef: document,
+			requestAnimationFrame: frame.requestAnimationFrame,
+			settleDurationMs: 120,
+		});
+
+		feature.mount();
+		chat.scrollTop = 680;
+		eventSource.emit("generation_ended");
+		chat.scrollTop = 200;
+		chat.dispatchEvent(new Event("scroll"));
+
+		isActionRendered = true;
+		actionHost.append(document.createElement("button"));
+		await flushMutationObservers();
+		frame.flushFrames();
+
+		expect(chat.scrollTop).toBe(200);
+
+		feature.dispose();
+	});
+
+	test("disconnects the settle mutation observer on dispose", () => {
+		vi.useFakeTimers();
+		document.body.innerHTML =
+			'<div id="chat"><div class="mes"></div></div>';
+		const chat = document.getElementById("chat") as HTMLElement;
+		installChatMetrics(chat, 1000);
+		const eventSource = new EventSourceStub();
+		const disconnect = vi.fn();
+		const observe = vi.fn();
+		const MutationObserverStub = vi.fn(() => ({
+			disconnect,
+			observe,
+			takeRecords: vi.fn(),
+		}));
+		const originalMutationObserver = window.MutationObserver;
+		Object.defineProperty(window, "MutationObserver", {
+			configurable: true,
+			value: MutationObserverStub,
+			writable: true,
+		});
+		vi.stubGlobal("SillyTavern", {
+			getContext: () => ({
+				eventSource,
+				eventTypes: {
+					CHAT_CHANGED: "chat_changed",
+					CHAT_LOADED: "chat_loaded",
+					GENERATION_ENDED: "generation_ended",
+					GENERATION_STOPPED: "generation_stopped",
+				},
+			}),
+		});
+		const feature = createMobileChatScrollFeature({
+			documentRef: document,
+			settleDurationMs: 120,
+		});
+
+		try {
+			feature.mount();
+			chat.scrollTop = 680;
+			eventSource.emit("generation_ended");
+
+			expect(MutationObserverStub).toHaveBeenCalledTimes(1);
+			expect(observe).toHaveBeenCalledWith(chat, {
+				childList: true,
+				subtree: true,
+			});
+
+			feature.dispose();
+
+			expect(disconnect).toHaveBeenCalledTimes(1);
+		} finally {
+			Object.defineProperty(window, "MutationObserver", {
+				configurable: true,
+				value: originalMutationObserver,
+				writable: true,
+			});
+		}
 	});
 
 	test("does not throw when #chat or SillyTavern context is unavailable", () => {
