@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import type { SillyTavernInterfaceRouteKey } from "@/app/shared/sillytavern-interface";
 import { translateAstra } from "@/packages/core/i18n";
 import type { ActivateChatEntity } from "@/packages/core/st/chat-catalog";
 import {
@@ -49,6 +50,7 @@ import {
 	getFavoriteContextRoutes,
 	type FavoriteContextTabValue,
 } from "@/packages/features/astra-main-interface/favorite-context/FavoriteContextPage";
+import type { SendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 
 export type AstraMainInterfaceSectionValue = AstraMainInterfaceScopeValue;
 
@@ -60,6 +62,10 @@ export interface AstraMainInterfaceProps
 	currentChatIdentityStore?: CurrentChatIdentityStore;
 	favoriteChatEntitiesStore?: FavoriteChatEntitiesStore | null;
 	onActiveSectionChange?(value: AstraMainInterfaceSectionValue): void;
+	onSillyTavernInterfaceRouteOpen?: (
+		routeKey: SillyTavernInterfaceRouteKey,
+	) => void;
+	renderSillyTavernInterfaceRouteIcon?: SendFormSillyTavernInterfaceAdapter["renderRouteIcon"];
 	secondaryTabsListFramePortalTarget?: HTMLElement | null;
 	showSectionTabs?: boolean;
 	scopedChatCatalogStore?: ScopedChatCatalogStore | null;

@@ -77,6 +77,20 @@ describe("astra-main-interface.css", () => {
 		);
 		expect(css).toContain(".astra-main-interface__secondary-tabs");
 		expect(css).toContain(".astra-main-interface__global-tabs");
+		for (const selector of [
+			".astra-main-interface-home",
+			".astra-main-interface-home__shortcut-row",
+			".astra-main-interface-home__shortcut",
+			".astra-main-interface-home__shortcut-separator",
+			".astra-main-interface-home__carousel-slot",
+			".astra-main-interface-home__section-header",
+			".astra-main-interface-home__recent-list",
+			".astra-main-interface-home__recent-row",
+			".astra-main-interface-home__recent-view-all",
+			".astra-main-interface-home__links",
+		]) {
+			expect(css).toContain(selector);
+		}
 		expect(css).toContain(".astra-main-interface__current-context-tabs");
 		expect(css).toContain(".astra-main-interface__favorite-tabs");
 		expect(css).toContain(
@@ -96,6 +110,10 @@ describe("astra-main-interface.css", () => {
 		);
 		expect(css).toContain(
 			".astra-main-interface__secondary-tabs .astra-smooth-tabs__panel",
+		);
+		expectStyleContains(
+			css,
+			'.astra-main-interface__secondary-tabs .astra-smooth-tabs__panel[data-route="global-home"]',
 		);
 		expect(css).toContain(".astra-main-interface__category-tab-panel");
 		expect(css).toContain(
@@ -707,6 +725,24 @@ describe("astra-main-interface.css", () => {
 		);
 		expect(css).toMatch(
 			/\.astra-main-interface__load-more-button:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__shortcut:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__shortcut:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__recent-view-all:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__recent-view-all:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__recent-row:not\(\[aria-disabled=["']true["']\]\)\s*\{[^}]*cursor:\s*pointer;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__recent-row\[aria-disabled=["']true["']\]\s*\{[^}]*cursor:\s*not-allowed;/,
 		);
 	});
 

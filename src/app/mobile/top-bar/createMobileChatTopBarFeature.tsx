@@ -50,6 +50,7 @@ import {
 	type ChatMessageSearchStore,
 	useChatMessageSearchSnapshot,
 } from "@/packages/features/chat-session/message-search";
+import type { SendFormSillyTavernInterfaceAdapter } from "@/packages/features/chat-session/send-form/contracts/sillyTavernInterface";
 
 const NATIVE_SHELD_ID = "sheld";
 
@@ -101,11 +102,13 @@ function MobileChatTopBar({
 	chatMessageSearchStore,
 	currentChatIdentityStore,
 	documentRef,
+	sillyTavernInterface,
 	snapshot,
 }: {
 	chatMessageSearchStore: ChatMessageSearchStore;
 	currentChatIdentityStore: CurrentChatIdentityStore;
 	documentRef: Document;
+	sillyTavernInterface?: SendFormSillyTavernInterfaceAdapter;
 	snapshot: CurrentChatIdentitySnapshot;
 }) {
 	const [isMainInterfaceOpen, setIsMainInterfaceOpen] = React.useState(false);
@@ -299,6 +302,9 @@ function MobileChatTopBar({
 								? secondaryTabsListFramePortalTarget
 								: null
 						}
+						renderSillyTavernInterfaceRouteIcon={
+							sillyTavernInterface?.renderRouteIcon
+						}
 						showSectionTabs={false}
 						scopedChatCatalogStore={
 							mainInterfaceStores?.scopedChatCatalogStore
@@ -307,6 +313,9 @@ function MobileChatTopBar({
 						onRequestClose={() => {
 							handleMainInterfaceOpenChange(false);
 						}}
+						onSillyTavernInterfaceRouteOpen={
+							sillyTavernInterface?.openRoute
+						}
 					/>
 				) : null}
 			</MobileAstraMainInterfacePanel>
@@ -318,10 +327,12 @@ function MobileChatTopBarRoot({
 	chatMessageSearchStore,
 	currentChatIdentityStore,
 	documentRef,
+	sillyTavernInterface,
 }: {
 	chatMessageSearchStore: ChatMessageSearchStore;
 	currentChatIdentityStore: CurrentChatIdentityStore;
 	documentRef: Document;
+	sillyTavernInterface?: SendFormSillyTavernInterfaceAdapter;
 }) {
 	const snapshot = React.useSyncExternalStore(
 		currentChatIdentityStore.subscribe,
@@ -334,6 +345,7 @@ function MobileChatTopBarRoot({
 			chatMessageSearchStore={chatMessageSearchStore}
 			currentChatIdentityStore={currentChatIdentityStore}
 			documentRef={documentRef}
+			sillyTavernInterface={sillyTavernInterface}
 			snapshot={snapshot}
 		/>
 	);
@@ -344,12 +356,14 @@ export function createMobileChatTopBarFeature({
 	createCurrentChatIdentityStore:
 		createIdentityStore = createCurrentChatIdentityStore,
 	documentRef = document,
+	sillyTavernInterface,
 }: {
 	chatMessageSearchStore?: ChatMessageSearchStore;
 	createCurrentChatIdentityStore?: (args?: {
 		documentRef?: Document;
 	}) => CurrentChatIdentityStore;
 	documentRef?: Document;
+	sillyTavernInterface?: SendFormSillyTavernInterfaceAdapter;
 } = {}): MobileChatTopBarFeature {
 	const resolvedChatMessageSearchStore =
 		chatMessageSearchStore ??
@@ -410,6 +424,7 @@ export function createMobileChatTopBarFeature({
 						chatMessageSearchStore={resolvedChatMessageSearchStore}
 						currentChatIdentityStore={currentChatIdentityStore}
 						documentRef={documentRef}
+						sillyTavernInterface={sillyTavernInterface}
 					/>
 				),
 				source: "mobile-chat-top-bar",

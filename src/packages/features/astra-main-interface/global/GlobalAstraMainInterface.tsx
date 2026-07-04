@@ -16,15 +16,24 @@ import {
 	GlobalChatListPage,
 	type GlobalChatListPageProps,
 } from "@/packages/features/astra-main-interface/global/GlobalChatListPage";
+import {
+	GlobalHomePage,
+	type GlobalHomePageProps,
+} from "@/packages/features/astra-main-interface/global/GlobalHomePage";
 import type { AstraMainInterfaceRouteDescriptor } from "@/packages/features/astra-main-interface/routes";
 import type { I18nKey } from "@/types/i18n";
 
-export type GlobalAstraMainInterfaceTabValue = "categories" | "chats";
+export type GlobalAstraMainInterfaceTabValue = "categories" | "chats" | "home";
 
 export const DEFAULT_GLOBAL_ASTRA_MAIN_INTERFACE_TAB_VALUE: GlobalAstraMainInterfaceTabValue =
-	"chats";
+	"home";
 
 const GLOBAL_ASTRA_MAIN_INTERFACE_ROUTE_DESCRIPTORS = [
+	{
+		key: "global-home",
+		tabValue: "home",
+		titleKey: "astraMainInterface.global.tabs.home" as I18nKey,
+	},
 	{
 		key: "global-chats",
 		tabValue: "chats",
@@ -43,13 +52,15 @@ export interface GlobalAstraMainInterfaceProps extends GlobalChatListPageProps {
 	activeTab: GlobalAstraMainInterfaceTabValue;
 	chatCategoryStore: ChatCategoryStore;
 	listFramePortalTarget?: HTMLElement | null;
+	onSillyTavernInterfaceRouteOpen?: GlobalHomePageProps["onSillyTavernInterfaceRouteOpen"];
+	renderSillyTavernInterfaceRouteIcon?: GlobalHomePageProps["renderSillyTavernInterfaceRouteIcon"];
 	onActiveTabChange(value: GlobalAstraMainInterfaceTabValue): void;
 }
 
 function isGlobalAstraMainInterfaceTabValue(
 	value: string,
 ): value is GlobalAstraMainInterfaceTabValue {
-	return value === "categories" || value === "chats";
+	return value === "categories" || value === "chats" || value === "home";
 }
 
 export function getGlobalAstraMainInterfaceRoutes(): AstraMainInterfaceRouteDescriptor[] {
@@ -180,6 +191,8 @@ export function GlobalAstraMainInterface({
 	activeTab,
 	chatCategoryStore,
 	listFramePortalTarget,
+	onSillyTavernInterfaceRouteOpen,
+	renderSillyTavernInterfaceRouteIcon,
 	onActiveTabChange,
 	...chatListProps
 }: GlobalAstraMainInterfaceProps) {
@@ -191,6 +204,36 @@ export function GlobalAstraMainInterface({
 		chatCatalogStore,
 	});
 	const items: AstraSmoothTabItem<GlobalAstraMainInterfaceTabValue>[] = [
+		{
+			content: (
+				<GlobalTabPanelScroll>
+					<div
+						className="astra-main-interface__tab-panel"
+						data-route="global-home"
+					>
+						<GlobalHomePage
+							chatCatalogStore={chatCatalogStore}
+							openChat={chatListProps.openChat}
+							renderSillyTavernInterfaceRouteIcon={
+								renderSillyTavernInterfaceRouteIcon
+							}
+							onRequestChatsTab={() => {
+								onActiveTabChange("chats");
+							}}
+							onRequestClose={chatListProps.onRequestClose}
+							onSillyTavernInterfaceRouteOpen={
+								onSillyTavernInterfaceRouteOpen
+							}
+						/>
+					</div>
+				</GlobalTabPanelScroll>
+			),
+			label: translateAstra("astraMainInterface.global.tabs.home"),
+			panelProps: {
+				"data-route": "global-home",
+			},
+			value: "home",
+		},
 		{
 			content: (
 				<GlobalTabPanelScroll>

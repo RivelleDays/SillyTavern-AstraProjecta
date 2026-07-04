@@ -2557,33 +2557,37 @@ describe("createMobileSendFormFeature", () => {
 	});
 
 	test("routes the current user chat settings override button to the group scenario button after closing the main menu", async () => {
+		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 		const { feature, nativeGroupButton } =
 			setupChatSettingsOverrideFixture("group");
 		let clickCount = 0;
 		let drawerStateWhenNativeTriggered: string | null = null;
 
-		nativeGroupButton?.addEventListener("click", () => {
-			clickCount += 1;
-			drawerStateWhenNativeTriggered =
-				document
-					.getElementById("astra-chat-main-menu-drawer")
-					?.getAttribute("data-state") ?? null;
-		});
+		try {
+			nativeGroupButton?.addEventListener("click", () => {
+				clickCount += 1;
+				drawerStateWhenNativeTriggered =
+					document
+						.getElementById("astra-chat-main-menu-drawer")
+						?.getAttribute("data-state") ?? null;
+			});
 
-		const drawer = await openMainMenuFromCurrentUserAvatar();
+			const drawer = await openMainMenuFromCurrentUserAvatar();
 
-		fireEvent.click(
-			within(drawer).getByRole("button", {
-				name: "Chat settings override",
-			}),
-		);
+			fireEvent.click(
+				within(drawer).getByRole("button", {
+					name: "Chat settings override",
+				}),
+			);
 
-		await waitFor(() => {
-			expect(clickCount).toBe(1);
-		});
-		expect(drawerStateWhenNativeTriggered).toBe("closed");
-
-		feature.dispose();
+			await waitFor(() => {
+				expect(clickCount).toBe(1);
+			});
+			expect(drawerStateWhenNativeTriggered).toBe("closed");
+		} finally {
+			feature.dispose();
+			warnSpy.mockRestore();
+		}
 	});
 
 	test("opens chat settings as a sibling drawer after closing the main menu drawer", async () => {

@@ -14,6 +14,7 @@ import {
 	AstraMainInterface,
 	getAstraMainInterfaceRoutes,
 } from "@/packages/features/astra-main-interface";
+import { SILLYTAVERN_INTERFACE_ROUTES } from "@/app/shared/sillytavern-interface";
 import {
 	CHAT_MENU_PREVIEW_LINE_COUNT_STORAGE_KEY,
 	CHAT_MENU_SHOW_AVATARS_STORAGE_KEY,
@@ -328,7 +329,26 @@ function createSeededChatCategoryStore({ ids }: { ids: string[] }): {
 	};
 }
 
+function openGlobalChatsTab() {
+	const chatsPanel = document.querySelector(
+		".astra-smooth-tabs__panel[data-route='global-chats']",
+	);
+	if (chatsPanel?.getAttribute("data-state") === "active") {
+		return;
+	}
+
+	const globalTabList = screen.queryByRole("tablist", {
+		name: "Global sections",
+	});
+	if (!globalTabList) {
+		return;
+	}
+
+	fireEvent.click(within(globalTabList).getByRole("tab", { name: "Chats" }));
+}
+
 function openControlsDrawer() {
+	openGlobalChatsTab();
 	fireEvent.click(
 		screen.getByRole("button", {
 			name: "Chat menu controls",
@@ -351,9 +371,17 @@ function openDropdownTrigger(name: string) {
 	});
 }
 
+function getGlobalChatsPanel() {
+	openGlobalChatsTab();
+
+	return document.querySelector(
+		".astra-smooth-tabs__panel[data-route='global-chats']",
+	) as HTMLElement;
+}
+
 function getChatRowButtons() {
 	return Array.from(
-		document.querySelectorAll<HTMLElement>(
+		getGlobalChatsPanel().querySelectorAll<HTMLElement>(
 			".astra-main-interface-chat-row",
 		),
 	);
@@ -431,6 +459,10 @@ describe("AstraMainInterface", () => {
 	test("exposes the visible main interface routes", () => {
 		expect(getAstraMainInterfaceRoutes()).toEqual([
 			{
+				key: "global-home",
+				titleKey: "astraMainInterface.global.tabs.home",
+			},
+			{
 				key: "global-chats",
 				titleKey: "astraMainInterface.global.tabs.chats",
 			},
@@ -465,7 +497,7 @@ describe("AstraMainInterface", () => {
 		]);
 	});
 
-	test("renders global chat tabs by default", () => {
+	test("renders global home tabs by default", () => {
 		const storeStub = createStoreStub(
 			createSnapshot({
 				entries: [
@@ -493,18 +525,267 @@ describe("AstraMainInterface", () => {
 			name: "Global sections",
 		});
 		expect(
-			within(globalTabs).getByRole("tab", { name: "Chats" }),
+			within(globalTabs)
+				.getAllByRole("tab")
+				.map((tab) => tab.textContent),
+		).toEqual(["Home", "Chats", "Categories"]);
+		expect(
+			within(globalTabs).getByRole("tab", { name: "Home" }),
 		).toHaveAttribute("data-state", "active");
+		expect(
+			within(globalTabs).getByRole("tab", { name: "Chats" }),
+		).toHaveAttribute("data-state", "inactive");
 		expect(
 			within(globalTabs).getByRole("tab", { name: "Categories" }),
 		).toHaveAttribute("data-state", "inactive");
 		expect(
 			globalTabs.querySelector(".astra-smooth-tabs__trigger-icon"),
 		).not.toBeInTheDocument();
-		expect(screen.getByText("Default Hero")).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: "Chat menu controls" }),
+			within(
+				document.querySelector(
+					".astra-main-interface-home__recent-list",
+				) as HTMLElement,
+			).getByText("Default Hero"),
 		).toBeInTheDocument();
+		expect(
+			screen.queryByRole("button", { name: "Chat menu controls" }),
+		).not.toBeInTheDocument();
+		expect(screen.getByText("Recent Chats")).toBeInTheDocument();
+		expect(document.querySelector(".astra-main-interface")).toHaveAttribute(
+			"data-route",
+			"global-home",
+		);
+	});
+
+	test("renders home shortcuts with route icons and opens SillyTavern interface routes", () => {
+		const storeStub = createStoreStub(createSnapshot());
+		const openRoute = vi.fn();
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				renderSillyTavernInterfaceRouteIcon={({
+					className,
+					iconKey,
+				}) => <span className={className} data-route-icon={iconKey} />}
+				onSillyTavernInterfaceRouteOpen={openRoute}
+			/>,
+		);
+
+		const shortcutRow = document.querySelector(
+			".astra-main-interface-home__shortcut-row",
+		);
+		expect(shortcutRow).toBeInTheDocument();
+		expect(
+			shortcutRow?.querySelectorAll(
+				".astra-main-interface-home__shortcut-separator[data-orientation='vertical']",
+			),
+		).toHaveLength(4);
+
+		const shortcuts = [
+			{
+				iconKey: "ai-settings",
+				label: "AI Settings",
+				route: SILLYTAVERN_INTERFACE_ROUTES.aiSettings,
+			},
+			{
+				iconKey: "user-settings",
+				label: "User Settings",
+				route: SILLYTAVERN_INTERFACE_ROUTES.userSettings,
+			},
+			{
+				iconKey: "lorebook",
+				label: "Lorebook",
+				route: SILLYTAVERN_INTERFACE_ROUTES.lorebook,
+			},
+			{
+				iconKey: "extensions",
+				label: "Extensions",
+				route: SILLYTAVERN_INTERFACE_ROUTES.extensions,
+			},
+			{
+				iconKey: "character-management",
+				label: "Character Management",
+				route: SILLYTAVERN_INTERFACE_ROUTES.characterManagement,
+			},
+		] as const;
+
+		for (const shortcut of shortcuts) {
+			const button = screen.getByRole("button", {
+				name: shortcut.label,
+			});
+
+			expect(
+				button.querySelector(`[data-route-icon="${shortcut.iconKey}"]`),
+			).toBeInTheDocument();
+			fireEvent.click(button);
+			expect(openRoute).toHaveBeenLastCalledWith(shortcut.route);
+		}
+		expect(openRoute).toHaveBeenCalledTimes(shortcuts.length);
+	});
+
+	test("shows at most three recent chats in most-recent order and opens through the global chat contract", async () => {
+		const entries = [
+			createEntry({
+				chatId: "oldest",
+				entityName: "Old Hero",
+				key: "character:0:oldest",
+				lastMessageAt: Date.parse("2026-05-01T10:00:00.000Z"),
+				lastMessageLabel: "May 1",
+				lastMessagePreview: "Old preview",
+			}),
+			createEntry({
+				chatId: "newest",
+				entityName: "Hero",
+				key: "character:0:newest",
+				lastMessageAt: Date.parse("2026-05-04T10:00:00.000Z"),
+				lastMessageLabel: "May 4",
+				lastMessagePreview: "Newest preview",
+			}),
+			createEntry({
+				chatId: "middle",
+				entityName: "Mage",
+				entityId: "1",
+				key: "character:1:middle",
+				lastMessageAt: Date.parse("2026-05-03T10:00:00.000Z"),
+				lastMessageLabel: "May 3",
+				lastMessagePreview: "Middle preview",
+			}),
+			createEntry({
+				chatId: "older",
+				entityName: "Party",
+				entityId: "party",
+				key: "group:party:older",
+				kind: "group",
+				lastMessageAt: Date.parse("2026-05-02T10:00:00.000Z"),
+				lastMessageLabel: "May 2",
+				lastMessagePreview: "Older preview",
+			}),
+		];
+		const storeStub = createStoreStub(createSnapshot({ entries }));
+		const openChat = vi.fn(async () => ({ ok: true as const }));
+		const onRequestClose = vi.fn();
+
+		render(
+			<AstraMainInterface
+				chatCatalogStore={storeStub.store}
+				openChat={openChat}
+				onRequestClose={onRequestClose}
+			/>,
+		);
+
+		const recentList = document.querySelector(
+			".astra-main-interface-home__recent-list",
+		);
+		expect(recentList).toBeInTheDocument();
+		expect(
+			within(recentList as HTMLElement)
+				.getAllByRole("button")
+				.map((row) => row.textContent),
+		).toEqual([
+			expect.stringContaining("newest"),
+			expect.stringContaining("middle"),
+			expect.stringContaining("older"),
+		]);
+		expect(
+			within(recentList as HTMLElement).queryByText("oldest"),
+		).not.toBeInTheDocument();
+		expect(
+			within(recentList as HTMLElement).getByText("Newest preview"),
+		).toBeInTheDocument();
+		expect(
+			within(recentList as HTMLElement).getByText("Hero"),
+		).toBeInTheDocument();
+		expect(
+			within(recentList as HTMLElement).getByText("May 4"),
+		).toBeInTheDocument();
+		expect(
+			recentList?.querySelector(
+				".astra-main-interface-chat-row__action-button--menu",
+			),
+		).not.toBeInTheDocument();
+		expect(
+			recentList?.querySelector(".astra-main-interface-chat-row__footer"),
+		).not.toBeInTheDocument();
+
+		fireEvent.click(
+			screen.getByRole("button", {
+				name: "Open Hero newest",
+			}),
+		);
+
+		await waitFor(() => {
+			expect(openChat).toHaveBeenCalledWith(entries[1]);
+		});
+		expect(onRequestClose).toHaveBeenCalledTimes(1);
+
+		fireEvent.click(screen.getByRole("button", { name: "View all chats" }));
+		expect(
+			within(
+				screen.getByRole("tablist", {
+					name: "Global sections",
+				}),
+			).getByRole("tab", { name: "Chats" }),
+		).toBeInTheDocument();
+		expect(
+			within(
+				screen.getByRole("tablist", {
+					name: "Global sections",
+				}),
+			).getByRole("tab", { name: "Chats" }),
+		).toHaveAttribute("data-state", "active");
+	});
+
+	test("renders home external resources with safe links and third-party disclaimer", () => {
+		const storeStub = createStoreStub(createSnapshot());
+
+		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+		expect(
+			screen.getByText(
+				"AstraProjecta is a third-party SillyTavern extension. These AstraProjecta links are not official SillyTavern channels.",
+			),
+		).toBeInTheDocument();
+		for (const { name, url } of [
+			{
+				name: "GitHub Source repository",
+				url: "https://github.com/SillyTavern/SillyTavern",
+			},
+			{
+				name: "Docs Official documentation",
+				url: "https://docs.sillytavern.app/",
+			},
+			{
+				name: "Discord Official community",
+				url: "https://discord.gg/sillytavern",
+			},
+			{
+				name: "Reddit r/SillyTavernAI",
+				url: "https://www.reddit.com/r/SillyTavernAI/",
+			},
+			{
+				name: "GitHub Extension repository",
+				url: "https://github.com/RivelleDays/SillyTavern-AstraProjecta",
+			},
+			{
+				name: "Discord Community server",
+				url: "https://discord.gg/bb35eB5Zgr",
+			},
+			{
+				name: "Rivelle Author profile",
+				url: "https://bio.site/rivelle",
+			},
+			{
+				name: "Character Library Browse and import characters",
+				url: "https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary#sillytavern-character-library",
+			},
+		]) {
+			const link = screen.getByRole("link", { name });
+			expect(link).toHaveAttribute("href", url);
+			expect(link).toHaveAttribute("target", "_blank");
+			expect(link).toHaveAttribute("rel", "noreferrer");
+		}
 	});
 
 	test("labels the current section tab from the active chat identity when available", () => {
@@ -877,9 +1158,9 @@ describe("AstraMainInterface", () => {
 			".astra-main-interface__tab-scrollbar",
 		);
 
-		expect(scrollAreas).toHaveLength(2);
-		expect(scrollViewports).toHaveLength(2);
-		expect(scrollContents).toHaveLength(2);
+		expect(scrollAreas).toHaveLength(3);
+		expect(scrollViewports).toHaveLength(3);
+		expect(scrollContents).toHaveLength(3);
 		for (const content of Array.from(scrollContents ?? [])) {
 			expect(content).toHaveAttribute(
 				"data-astra-scroll-content-width",
@@ -900,12 +1181,16 @@ describe("AstraMainInterface", () => {
 				"data-astra-smooth-tabs-swipe-ignore",
 			);
 		}
-		const globalChatsPanel = screen
-			.getByText("Scrollable Hero")
+		const globalHomePanel = screen
+			.getByText("Carousel reserved")
 			.closest(".astra-smooth-tabs__panel");
+		const globalChatsPanel = document.querySelector(
+			".astra-smooth-tabs__panel[data-route='global-chats']",
+		);
 		const globalCategoriesPanel = screen
 			.getByText("No global chat categories yet")
 			.closest(".astra-smooth-tabs__panel");
+		expect(globalHomePanel).toHaveAttribute("data-route", "global-home");
 		expect(globalChatsPanel).toHaveAttribute("data-route", "global-chats");
 		expect(globalCategoriesPanel).toHaveAttribute(
 			"data-route",
@@ -926,7 +1211,11 @@ describe("AstraMainInterface", () => {
 		expect(globalChatsPanel).not.toHaveClass(
 			"astra-main-interface__global-tabs-panel--chats",
 		);
-		expect(screen.getByText("Scrollable Hero")).toBeInTheDocument();
+		expect(
+			within(globalChatsPanel as HTMLElement).getByText(
+				"Scrollable Hero",
+			),
+		).toBeInTheDocument();
 		expect(
 			screen.getByText("No global chat categories yet"),
 		).toBeInTheDocument();
@@ -963,7 +1252,13 @@ describe("AstraMainInterface", () => {
 			within(globalTabs).getByRole("tab", { name: "Categories" }),
 		);
 
-		expect(screen.getByText("Category Hero")).toBeInTheDocument();
+		expect(
+			within(
+				document.querySelector(
+					".astra-smooth-tabs__panel[data-route='global-chats']",
+				) as HTMLElement,
+			).getByText("Category Hero"),
+		).toBeInTheDocument();
 		expect(
 			screen.queryByRole("button", { name: "Chat menu controls" }),
 		).not.toBeInTheDocument();
@@ -973,9 +1268,9 @@ describe("AstraMainInterface", () => {
 		expect(
 			screen.queryByText("Global chat categories"),
 		).not.toBeInTheDocument();
-		const inactiveChatPanel = screen
-			.getByText("Category Hero")
-			.closest(".astra-smooth-tabs__panel");
+		const inactiveChatPanel = document.querySelector(
+			".astra-smooth-tabs__panel[data-route='global-chats']",
+		);
 		expect(inactiveChatPanel).toHaveAttribute("data-state", "inactive");
 		expect(inactiveChatPanel).toHaveAttribute("aria-hidden", "true");
 		expect(inactiveChatPanel).toHaveAttribute("inert");
@@ -3644,14 +3939,17 @@ describe("AstraMainInterface", () => {
 		);
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+		openGlobalChatsTab();
 
 		fireEvent.change(screen.getByLabelText("Search chats"), {
 			target: {
 				value: "Preserved",
 			},
 		});
-		expect(screen.getByText("Preserved Hero")).toBeInTheDocument();
-		expect(screen.queryByText("Other Hero")).not.toBeInTheDocument();
+		expect(screen.getAllByText("Preserved Hero").length).toBeGreaterThan(0);
+		expect(
+			within(getGlobalChatsPanel()).queryByText("Other Hero"),
+		).not.toBeInTheDocument();
 
 		const globalTabs = screen.getByRole("tablist", {
 			name: "Global sections",
@@ -3666,8 +3964,10 @@ describe("AstraMainInterface", () => {
 		fireEvent.click(within(globalTabs).getByRole("tab", { name: "Chats" }));
 
 		expect(screen.getByLabelText("Search chats")).toHaveValue("Preserved");
-		expect(screen.getByText("Preserved Hero")).toBeInTheDocument();
-		expect(screen.queryByText("Other Hero")).not.toBeInTheDocument();
+		expect(screen.getAllByText("Preserved Hero").length).toBeGreaterThan(0);
+		expect(
+			within(getGlobalChatsPanel()).queryByText("Other Hero"),
+		).not.toBeInTheDocument();
 	});
 
 	test("does not auto-load full history while global chats is active", () => {
@@ -3883,12 +4183,18 @@ describe("AstraMainInterface", () => {
 			name: "Global sections",
 		});
 		expect(
-			within(globalTabs).getByRole("tab", { name: "Categories" }),
+			within(globalTabs).getByRole("tab", { name: "Chats" }),
 		).toHaveAttribute("data-state", "active");
 		expect(
-			screen.getByText("No global chat categories yet"),
+			within(globalTabs).getByRole("tab", { name: "Categories" }),
+		).toHaveAttribute("data-state", "inactive");
+		expect(
+			within(
+				document.querySelector(
+					".astra-smooth-tabs__panel[data-route='global-chats']",
+				) as HTMLElement,
+			).getByText("Swipe Hero"),
 		).toBeInTheDocument();
-		expect(screen.getByText("Swipe Hero")).toBeInTheDocument();
 	});
 
 	test("switches global tabs from a horizontal touch inside tab scroll content", () => {
@@ -3925,7 +4231,9 @@ describe("AstraMainInterface", () => {
 		expect(
 			within(globalTabs).getByRole("tab", { name: "Categories" }),
 		).toHaveAttribute("data-state", "active");
-		expect(screen.getByText("Scroll Gesture Hero")).toBeInTheDocument();
+		expect(
+			screen.getAllByText("Scroll Gesture Hero").length,
+		).toBeGreaterThan(0);
 		expect(
 			screen.getByText("No global chat categories yet"),
 		).toBeInTheDocument();
@@ -3940,6 +4248,7 @@ describe("AstraMainInterface", () => {
 		const { container, rerender } = render(
 			<AstraMainInterface chatCatalogStore={storeStub.store} />,
 		);
+		openGlobalChatsTab();
 
 		expect(screen.queryByText("Loading chats")).not.toBeInTheDocument();
 		expect(
@@ -3971,7 +4280,9 @@ describe("AstraMainInterface", () => {
 		rerender(<AstraMainInterface chatCatalogStore={storeStub.store} />);
 
 		expect(screen.queryByText("Refreshing chats")).not.toBeInTheDocument();
-		expect(screen.getByText("Cached Hero")).toBeInTheDocument();
+		expect(
+			within(getGlobalChatsPanel()).getByText("Cached Hero"),
+		).toBeInTheDocument();
 
 		storeStub.dispatch(createSnapshot());
 		rerender(<AstraMainInterface chatCatalogStore={storeStub.store} />);
@@ -4051,8 +4362,12 @@ describe("AstraMainInterface", () => {
 			},
 		});
 
-		expect(screen.getByText("Party")).toBeInTheDocument();
-		expect(screen.queryByText("Zed")).not.toBeInTheDocument();
+		expect(
+			within(getGlobalChatsPanel()).getByText("Party"),
+		).toBeInTheDocument();
+		expect(
+			within(getGlobalChatsPanel()).queryByText("Zed"),
+		).not.toBeInTheDocument();
 
 		fireEvent.change(screen.getByLabelText("Search chats"), {
 			target: {
@@ -4086,6 +4401,7 @@ describe("AstraMainInterface", () => {
 		const { container } = render(
 			<AstraMainInterface chatCatalogStore={storeStub.store} />,
 		);
+		openGlobalChatsTab();
 
 		expect(screen.getByLabelText("Search chats")).toBeInTheDocument();
 		expect(
@@ -4119,6 +4435,7 @@ describe("AstraMainInterface", () => {
 		);
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+		openGlobalChatsTab();
 
 		const searchInput = screen.getByLabelText("Search chats");
 		expect(searchInput).toHaveAttribute("type", "text");
@@ -4161,6 +4478,7 @@ describe("AstraMainInterface", () => {
 		);
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+		openGlobalChatsTab();
 
 		fireEvent.change(screen.getByLabelText("Search chats"), {
 			target: {
@@ -4187,7 +4505,9 @@ describe("AstraMainInterface", () => {
 		fireEvent.click(clearSearchButton);
 
 		expect(screen.getByLabelText("Search chats")).toHaveValue("");
-		expect(screen.getByText("Hero")).toBeInTheDocument();
+		expect(
+			within(getGlobalChatsPanel()).getByText("Hero"),
+		).toBeInTheDocument();
 	});
 
 	test("closes the main interface from the empty state action", () => {
@@ -4200,6 +4520,7 @@ describe("AstraMainInterface", () => {
 				onRequestClose={onRequestClose}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const currentChatButton = screen.getByRole("button", {
 			name: "Current chat",
@@ -4740,6 +5061,7 @@ describe("AstraMainInterface", () => {
 		const { container } = render(
 			<AstraMainInterface chatCatalogStore={storeStub.store} />,
 		);
+		openGlobalChatsTab();
 
 		const avatar = container.querySelector(
 			".astra-main-interface-chat-row__avatar--collage",
@@ -4774,6 +5096,7 @@ describe("AstraMainInterface", () => {
 				onRequestClose={onRequestClose}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const row = screen.getByRole("button", {
 			name: "Open Hero chapter-1",
@@ -4892,6 +5215,7 @@ describe("AstraMainInterface", () => {
 				openChat={openChat}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const partyRow = screen.getByRole("button", {
 			name: "Open Party campfire",
@@ -5075,6 +5399,7 @@ describe("AstraMainInterface", () => {
 		);
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+		openGlobalChatsTab();
 
 		fireEvent.click(
 			within(
@@ -5127,6 +5452,7 @@ describe("AstraMainInterface", () => {
 				onRequestClose={onRequestClose}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		fireEvent.click(
 			within(
@@ -5190,6 +5516,7 @@ describe("AstraMainInterface", () => {
 				onRequestClose={onRequestClose}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		fireEvent.click(
 			within(
@@ -5249,6 +5576,7 @@ describe("AstraMainInterface", () => {
 				onRequestClose={onRequestClose}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		fireEvent.click(
 			within(
@@ -5339,6 +5667,7 @@ describe("AstraMainInterface", () => {
 				openChat={openChat}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const partyRow = screen.getByRole("button", {
 			name: "Open Party campfire",
@@ -5604,6 +5933,7 @@ describe("AstraMainInterface", () => {
 				openChat={openChat}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const row = screen.getByRole("button", {
 			name: "Open Party campfire",
@@ -5691,6 +6021,7 @@ describe("AstraMainInterface", () => {
 				chatCategoryStore={categoryStoreStub.store}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const partyRow = screen.getByRole("button", {
 			name: "Open Party campfire",
@@ -5804,6 +6135,7 @@ describe("AstraMainInterface", () => {
 		);
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+		openGlobalChatsTab();
 
 		const row = screen.getByRole("button", {
 			name: "Open Party campfire",
@@ -5870,6 +6202,7 @@ describe("AstraMainInterface", () => {
 				openChat={openChat}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const row = screen.getByRole("button", {
 			name: "Open Hero chapter-1",
@@ -5934,6 +6267,7 @@ describe("AstraMainInterface", () => {
 				openChat={openChat}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const row = screen.getByRole("button", {
 			name: "Open Hero chapter-1",
@@ -6010,6 +6344,7 @@ describe("AstraMainInterface", () => {
 				chatCategoryStore={categoryStoreStub.store}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const partyRow = screen.getByRole("button", {
 			name: "Open Party campfire",
@@ -6134,6 +6469,7 @@ describe("AstraMainInterface", () => {
 		);
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+		openGlobalChatsTab();
 
 		const partyRow = screen.getByRole("button", {
 			name: "Open Party campfire",
@@ -6207,6 +6543,7 @@ describe("AstraMainInterface", () => {
 		);
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+		openGlobalChatsTab();
 
 		const partyRow = screen.getByRole("button", {
 			name: "Open Party campfire",
@@ -6267,6 +6604,7 @@ describe("AstraMainInterface", () => {
 				exportChat={exportChat}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const row = screen.getByRole("button", {
 			name: "Open Party campfire",
@@ -6375,6 +6713,7 @@ describe("AstraMainInterface", () => {
 				exportChat={exportChat}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const heroRow = screen.getByRole("button", {
 			name: "Open Hero chapter-1",
@@ -6393,7 +6732,7 @@ describe("AstraMainInterface", () => {
 			}),
 		);
 
-		const partyRow = screen.getByRole("button", {
+		const partyRow = within(getGlobalChatsPanel()).getByRole("button", {
 			hidden: true,
 			name: "Open Party campfire",
 		});
@@ -6446,6 +6785,7 @@ describe("AstraMainInterface", () => {
 				exportChat={exportChat}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		fireEvent.click(
 			screen.getByRole("button", {
@@ -6504,6 +6844,7 @@ describe("AstraMainInterface", () => {
 				renameChat={renameChat}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const partyRow = screen.getByRole("button", {
 			name: "Open Party campfire",
@@ -6586,6 +6927,7 @@ describe("AstraMainInterface", () => {
 				openChat={openChat}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const row = screen.getByRole("button", {
 			name: "Open Hero chapter-1",
@@ -6653,6 +6995,7 @@ describe("AstraMainInterface", () => {
 		);
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+		openGlobalChatsTab();
 
 		const row = screen.getByRole("button", {
 			name: "Open Hero chapter-1",
@@ -6702,6 +7045,7 @@ describe("AstraMainInterface", () => {
 				renameChat={renameChat}
 			/>,
 		);
+		openGlobalChatsTab();
 
 		const row = screen.getByRole("button", {
 			name: "Open Hero chapter-1",
@@ -6757,6 +7101,7 @@ describe("AstraMainInterface", () => {
 		);
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+		openGlobalChatsTab();
 
 		const currentRow = screen.getByRole("button", {
 			name: "Open Hero current-chat",
@@ -6821,6 +7166,7 @@ describe("AstraMainInterface", () => {
 		);
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+		openGlobalChatsTab();
 
 		expect(screen.getAllByRole("button", { name: /^Open / })).toHaveLength(
 			50,
@@ -6868,6 +7214,7 @@ describe("AstraMainInterface", () => {
 		);
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+		openGlobalChatsTab();
 
 		expect(observerOptions).toContainEqual(
 			expect.objectContaining({
