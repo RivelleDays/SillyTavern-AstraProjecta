@@ -515,6 +515,11 @@ describe("AstraMainInterface", () => {
 		expect(
 			within(sectionTabs).getByRole("tab", { name: "Global" }),
 		).toHaveAttribute("data-state", "active");
+		const globalScopeFrame = within(sectionTabs)
+			.getByRole("tab", { name: "Global" })
+			.querySelector(".astra-main-interface__scope-button-frame");
+		expect(globalScopeFrame).toHaveTextContent("ST");
+		expect(globalScopeFrame?.querySelector("svg")).not.toBeInTheDocument();
 		expect(
 			within(sectionTabs).getByRole("tab", {
 				name: "Current Character/Group",
@@ -711,6 +716,62 @@ describe("AstraMainInterface", () => {
 		expect(
 			within(recentList as HTMLElement).getByText("May 4"),
 		).toBeInTheDocument();
+		const newestRow = screen.getByRole("button", {
+			name: "Open Hero newest",
+		});
+		const recentMeta = newestRow.querySelector(
+			".astra-main-interface-home__recent-meta",
+		);
+		const recentIdentity = newestRow.querySelector(
+			".astra-main-interface-home__recent-identity",
+		);
+		const recentAvatar = newestRow.querySelector(
+			".astra-main-interface-home__recent-avatar",
+		);
+		expect(recentAvatar).toHaveClass("astra-chat-avatar");
+		expect(recentIdentity?.tagName).toBe("DIV");
+		expect(recentMeta?.firstElementChild).toBe(recentIdentity);
+		expect(recentIdentity?.firstElementChild).toBe(recentAvatar);
+		expect(
+			newestRow.querySelector(".astra-main-interface-home__recent-entity")
+				?.tagName,
+		).toBe("DIV");
+		expect(
+			newestRow.querySelector(".astra-main-interface-home__recent-time")
+				?.tagName,
+		).toBe("DIV");
+		expect(
+			recentAvatar?.querySelector(
+				".astra-main-interface-home__recent-avatar-image",
+			),
+		).toBeInTheDocument();
+		expect(
+			newestRow.querySelector(
+				".astra-main-interface-home__recent-meta-separator",
+			),
+		).toBeInTheDocument();
+		const messageCountStat = newestRow.querySelector(
+			".astra-main-interface-home__recent-stat",
+		);
+		expect(messageCountStat?.tagName).toBe("DIV");
+		expect(recentMeta).toContainElement(messageCountStat);
+		expect(messageCountStat).toHaveClass(
+			"astra-main-interface-chat-row__stat",
+		);
+		expect(messageCountStat).toHaveAttribute(
+			"aria-label",
+			"Message count: 4",
+		);
+		expect(
+			messageCountStat?.querySelector(
+				".astra-main-interface-chat-row__stat-icon .lucide-message-circle-more",
+			),
+		).toBeInTheDocument();
+		expect(
+			messageCountStat?.querySelector(
+				".astra-main-interface-chat-row__stat-value",
+			),
+		).toHaveTextContent("4");
 		expect(
 			recentList?.querySelector(
 				".astra-main-interface-chat-row__action-button--menu",
@@ -759,7 +820,7 @@ describe("AstraMainInterface", () => {
 				url: "https://github.com/SillyTavern/SillyTavern",
 			},
 			{
-				name: "Docs Official documentation",
+				name: "Docs Guides",
 				url: "https://docs.sillytavern.app/",
 			},
 			{
@@ -783,7 +844,7 @@ describe("AstraMainInterface", () => {
 				url: "https://bio.site/rivelle",
 			},
 			{
-				name: "Character Library Browse and import characters",
+				name: "Character Library Import characters",
 				url: "https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary#sillytavern-character-library",
 			},
 		]) {

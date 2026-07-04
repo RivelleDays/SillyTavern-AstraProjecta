@@ -71,6 +71,7 @@ describe("astra-main-interface.css", () => {
 		expect(css).toContain(".astra-main-interface__scope-strip");
 		expect(css).toContain(".astra-main-interface__scope-pinned");
 		expect(css).toContain(".astra-main-interface__scope-button");
+		expect(css).toContain(".astra-main-interface__scope-text-mark");
 		expect(css).toContain(".astra-main-interface__scope-favorites");
 		expect(css).toContain(
 			".astra-main-interface__scope-favorites-scrollbar",
@@ -86,6 +87,14 @@ describe("astra-main-interface.css", () => {
 			".astra-main-interface-home__section-header",
 			".astra-main-interface-home__recent-list",
 			".astra-main-interface-home__recent-row",
+			".astra-main-interface-home__recent-identity",
+			".astra-main-interface-home__recent-avatar",
+			".astra-main-interface-home__recent-avatar-image",
+			".astra-main-interface-home__recent-avatar--collage",
+			".astra-main-interface-home__recent-avatar-collage-image",
+			".astra-main-interface-home__recent-avatar-fallback",
+			".astra-main-interface-home__recent-meta-separator",
+			".astra-main-interface-home__recent-stat",
 			".astra-main-interface-home__recent-view-all",
 			".astra-main-interface-home__links",
 		]) {

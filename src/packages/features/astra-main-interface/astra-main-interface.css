@@ -110,6 +110,14 @@
 	opacity: 0.82;
 }
 
+.astra-main-interface__scope-text-mark {
+	color: var(--foreground);
+	font-size: var(--text-xs);
+	font-weight: var(--font-weight-semibold);
+	line-height: 1;
+	letter-spacing: 0;
+}
+
 .astra-main-interface__scope-avatar {
 	display: grid;
 	width: var(--astra-main-interface-scope-avatar-size);
@@ -542,18 +550,18 @@
 }
 
 .astra-main-interface-home__shortcut-deco-icon {
-    position: absolute;
-    right: 4px;
-    bottom: -12px;
-    z-index: 1;
-    display: inline-flex;
-    width: 72px;
-    height: 72px;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-base);
-    opacity: 0.12;
-    pointer-events: none;
+	position: absolute;
+	right: 4px;
+	bottom: -12px;
+	z-index: 1;
+	display: inline-flex;
+	width: 72px;
+	height: 72px;
+	align-items: center;
+	justify-content: center;
+	color: var(--color-base);
+	opacity: 0.12;
+	pointer-events: none;
 }
 
 .astra-main-interface-home__shortcut-deco-icon-svg {
@@ -724,9 +732,9 @@
 	display: flex;
 	min-width: 0;
 	flex-direction: column;
-	gap: 8px;
+	gap: 6px;
 	border: 1px solid var(--border-color-base-t60);
-	border-radius: var(--radius-md);
+	border-radius: var(--radius-lg);
 	background: var(--color-base-t5);
 	padding: 12px;
 	color: var(--color-base);
@@ -794,9 +802,18 @@
 	display: flex;
 	min-width: 0;
 	align-items: center;
-	gap: 8px;
+	justify-content: flex-start;
+	gap: 2px;
 	color: var(--color-muted);
 	font-size: var(--text-xs);
+}
+
+.astra-main-interface-home__recent-identity {
+	display: flex;
+	min-width: 0;
+	flex: 0 1 auto;
+	align-items: center;
+	gap: 8px;
 }
 
 .astra-main-interface-home__recent-avatar {
@@ -851,13 +868,28 @@
 	font-weight: var(--font-weight-semibold);
 }
 
+.astra-main-interface-home__recent-meta-separator {
+	flex: 0 0 auto;
+	color: var(--color-muted);
+	opacity: 0.72;
+}
+
+.astra-main-interface-home__recent-stat {
+	flex: 0 0 auto;
+	margin-left: auto;
+}
+
 .astra-main-interface-home__recent-entity {
-	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	flex: 0 1 auto;
 	font-weight: var(--font-weight-semibold);
+	text-overflow: ellipsis;
 }
 
 .astra-main-interface-home__recent-time {
 	flex: 0 0 auto;
+	font-weight: var(--font-weight-medium);
 	opacity: 0.6;
 }
 

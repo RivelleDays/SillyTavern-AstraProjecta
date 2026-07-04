@@ -10,8 +10,10 @@ import { UiIcon } from "@/components/ui/shared/icon";
 import {
 	BookOpen,
 	ChevronRight,
+	Dot,
 	LibraryBig,
 	Link,
+	MessageCircleMore,
 	MessagesSquare,
 	UserRound,
 	type LucideIcon,
@@ -143,6 +145,10 @@ function getChatCatalogRowChatId(entry: ChatCatalogEntry) {
 		entry.chatId ||
 		translateAstra("astraMainInterface.chatMenu.untitledChat")
 	);
+}
+
+function formatMessageCount(count: number | null) {
+	return count === null ? "-" : String(count);
 }
 
 function getEntryFallbackInitial(entry: ChatCatalogEntry) {
@@ -279,6 +285,10 @@ function GlobalHomeRecentChatRow({
 	const lastMessageLabel =
 		entry.lastMessageLabel ||
 		translateAstra("astraMainInterface.chatMenu.unknownDate");
+	const messageCountLabel = translateAstra(
+		"astraMainInterface.chatMenu.meta.messageCount",
+	);
+	const messageCount = formatMessageCount(entry.messageCount);
 
 	const handleOpen = React.useCallback(() => {
 		if (disabled) return;
@@ -323,30 +333,54 @@ function GlobalHomeRecentChatRow({
 				</span>
 			</div>
 			<div className="astra-main-interface-home__recent-meta">
-				<AstraChatAvatar
+				<div className="astra-main-interface-home__recent-identity">
+					<AstraChatAvatar
+						aria-hidden={true}
+						alt={entry.entityName}
+						avatarUrl={entry.avatarUrl}
+						className="astra-main-interface-home__recent-avatar"
+						collageClassName="astra-main-interface-home__recent-avatar--collage"
+						collageImageClassName="astra-main-interface-home__recent-avatar-collage-image"
+						fallbackClassName="astra-main-interface-home__recent-avatar-fallback"
+						fallbackText={getEntryFallbackInitial(entry)}
+						groupAvatarUrls={
+							entry.kind === "group"
+								? entry.groupAvatarUrls
+								: undefined
+						}
+						imageClassName="astra-main-interface-home__recent-avatar-image"
+					/>
+					<div
+						className="astra-main-interface-home__recent-entity"
+						title={entry.entityName}
+					>
+						{entry.entityName}
+					</div>
+				</div>
+				<UiIcon
 					aria-hidden={true}
-					avatarUrl={entry.avatarUrl}
-					className="astra-main-interface-home__recent-avatar"
-					collageClassName="astra-main-interface-home__recent-avatar--collage"
-					collageImageClassName="astra-main-interface-home__recent-avatar-collage-image"
-					fallbackClassName="astra-main-interface-home__recent-avatar-fallback"
-					fallbackText={getEntryFallbackInitial(entry)}
-					groupAvatarUrls={
-						entry.kind === "group"
-							? entry.groupAvatarUrls
-							: undefined
-					}
-					imageClassName="astra-main-interface-home__recent-avatar-image"
+					className="astra-main-interface-home__recent-meta-separator"
+					icon={Dot}
+					size="xs"
 				/>
-				<span
-					className="astra-main-interface-home__recent-entity"
-					title={entry.entityName}
-				>
-					{entry.entityName}
-				</span>
-				<span className="astra-main-interface-home__recent-time">
+				<div className="astra-main-interface-home__recent-time">
 					{lastMessageLabel}
-				</span>
+				</div>
+				<div
+					aria-label={`${messageCountLabel}: ${messageCount}`}
+					className="astra-main-interface-home__recent-stat astra-main-interface-chat-row__stat"
+				>
+					<div className="astra-main-interface-chat-row__stat-icon">
+						<UiIcon
+							aria-hidden={true}
+							icon={MessageCircleMore}
+							size="xs"
+						/>
+					</div>
+					<div className="astra-main-interface-chat-row__stat-value">
+						{messageCount}
+					</div>
+				</div>
 			</div>
 		</div>
 	);

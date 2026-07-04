@@ -7307,6 +7307,13 @@ body.astra-projecta-mobile-layout {
   color: var(--foreground);
   opacity: 0.82;
 }
+.astra-main-interface__scope-text-mark {
+  color: var(--foreground);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  letter-spacing: 0;
+}
 .astra-main-interface__scope-avatar {
   display: grid;
   width: var(--astra-main-interface-scope-avatar-size);
@@ -7745,9 +7752,9 @@ body.astra-projecta-mobile-layout {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   border: 1px solid var(--border-color-base-t60);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--color-base-t5);
   padding: 12px;
   color: var(--color-base);
@@ -7798,9 +7805,17 @@ body.astra-projecta-mobile-layout {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 8px;
+  justify-content: flex-start;
+  gap: 2px;
   color: var(--color-muted);
   font-size: var(--text-xs);
+}
+.astra-main-interface-home__recent-identity {
+  display: flex;
+  min-width: 0;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: 8px;
 }
 .astra-main-interface-home__recent-avatar {
   --astra-main-interface-chat-row-avatar-size: 24px;
@@ -7845,12 +7860,25 @@ body.astra-projecta-mobile-layout {
   font-size: var(--text-xs);
   font-weight: var(--font-weight-semibold);
 }
+.astra-main-interface-home__recent-meta-separator {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+  opacity: 0.72;
+}
+.astra-main-interface-home__recent-stat {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
 .astra-main-interface-home__recent-entity {
-  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  flex: 0 1 auto;
   font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
 }
 .astra-main-interface-home__recent-time {
   flex: 0 0 auto;
+  font-weight: var(--font-weight-medium);
   opacity: 0.6;
 }
 .astra-main-interface-home__links {
