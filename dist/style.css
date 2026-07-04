@@ -10291,7 +10291,7 @@ body.astra-projecta-mobile-layout {
 .astra-mesActions[data-astra-slot="footer"] {
   align-self: stretch;
 }
-.astra-mesActions[data-astra-slot="footer"][data-astra-generation-blocked="true"] {
+.astra-mesActions[data-astra-slot="footer"][data-astra-generation-blocked="true"], .astra-mesActions[data-astra-slot="footer"][data-astra-footer-settling="true"] {
   min-height: calc(var(--astra-button-min-size) + 2px);
 }
 .astra-revisionBar svg, .astra-swipePager svg {

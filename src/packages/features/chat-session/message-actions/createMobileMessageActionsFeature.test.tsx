@@ -81,6 +81,58 @@ function createEventSourceStub() {
 	};
 }
 
+function setupIdlePostGenerationFooterHarness(
+	initialGenerationSnapshot: Parameters<
+		typeof createGenerationActivityStoreStub
+	>[0],
+) {
+	document.body.innerHTML = `
+            <div id="chat">
+                <div class="mes" mesid="0">
+                    <div class="mes_block"></div>
+                </div>
+            </div>
+        `;
+	const generationActivityStore = createGenerationActivityStoreStub(
+		initialGenerationSnapshot,
+	);
+	const historyStore = createHistoryStoreStub([]);
+	const revisionStore = createRevisionStoreStub({
+		canContinue: false,
+		canRegenerate: false,
+		canUndo: false,
+		isBusy: false,
+		messageId: null,
+		status: "idle",
+		updatedAt: 0,
+	});
+	const swipeStore = createSwipeStoreStub({
+		canSwipeNext: false,
+		canSwipePrevious: false,
+		currentIndex: 0,
+		isNativeSwipeBusy: false,
+		messageId: null,
+		status: "idle",
+		total: 1,
+		updatedAt: 0,
+	});
+	const feature = createMobileMessageActionsFeature({
+		createGenerationActivityStore: () => generationActivityStore.store,
+		createHistoryStore: () => historyStore.store,
+		createRevisionStore: () => revisionStore.store,
+		createSwipeStore: () => swipeStore.store,
+		documentRef: document,
+	});
+
+	return {
+		feature,
+		generationActivityStore,
+		historyStore,
+		revisionStore,
+		swipeStore,
+	};
+}
+
 describe("createMobileMessageActionsFeature", () => {
 	beforeEach(() => {
 		window.localStorage.clear();
@@ -275,6 +327,207 @@ describe("createMobileMessageActionsFeature", () => {
 			expect(generationActivityStore.store.refresh).toHaveBeenCalledTimes(
 				1,
 			);
+		} finally {
+			feature.dispose();
+		}
+	});
+
+	test("keeps the blocked footer host while post-generation actions are still settling", async () => {
+		const { feature, generationActivityStore } =
+			setupIdlePostGenerationFooterHarness({
+				isGenerating: true,
+				isGroupGenerating: false,
+				isStreaming: false,
+				updatedAt: 0,
+			});
+
+		try {
+			feature.mount();
+
+			await waitFor(() => {
+				expect(
+					document.querySelector(
+						'.mes[mesid="0"] > .astra-mesActions',
+					),
+				).toBeInTheDocument();
+			});
+			const blockedHost = document.querySelector(
+				'.mes[mesid="0"] > .astra-mesActions',
+			);
+
+			generationActivityStore.dispatch({
+				isGenerating: false,
+				isGroupGenerating: false,
+				isStreaming: false,
+				updatedAt: 1,
+			});
+
+			await waitFor(() => {
+				expect(blockedHost).toBeInTheDocument();
+			});
+			expect(blockedHost).toBe(
+				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
+			);
+			expect(blockedHost).not.toHaveAttribute(
+				"data-astra-generation-blocked",
+			);
+			expect(blockedHost).toHaveAttribute(
+				"data-astra-footer-settling",
+				"true",
+			);
+			expect(blockedHost?.childElementCount).toBe(0);
+			expect(document.querySelector(".astra-revisionBar")).toBeNull();
+			expect(document.querySelector(".astra-swipePager")).toBeNull();
+		} finally {
+			feature.dispose();
+		}
+	});
+
+	test("renders post-generation actions into the same settling footer host", async () => {
+		const { feature, generationActivityStore, revisionStore, swipeStore } =
+			setupIdlePostGenerationFooterHarness({
+				isGenerating: true,
+				isGroupGenerating: false,
+				isStreaming: false,
+				updatedAt: 0,
+			});
+
+		try {
+			feature.mount();
+
+			await waitFor(() => {
+				expect(
+					document.querySelector(
+						'.mes[mesid="0"] > .astra-mesActions',
+					),
+				).toBeInTheDocument();
+			});
+			const blockedHost = document.querySelector(
+				'.mes[mesid="0"] > .astra-mesActions',
+			);
+
+			generationActivityStore.dispatch({
+				isGenerating: false,
+				isGroupGenerating: false,
+				isStreaming: false,
+				updatedAt: 1,
+			});
+
+			await waitFor(() => {
+				expect(blockedHost).toHaveAttribute(
+					"data-astra-footer-settling",
+					"true",
+				);
+			});
+
+			revisionStore.dispatch({
+				canContinue: true,
+				canRegenerate: true,
+				canUndo: false,
+				isBusy: false,
+				messageId: 0,
+				status: "ready",
+				updatedAt: 2,
+			});
+			swipeStore.dispatch({
+				canSwipeNext: true,
+				canSwipePrevious: false,
+				currentIndex: 0,
+				isNativeSwipeBusy: false,
+				messageId: 0,
+				status: "ready",
+				total: 2,
+				updatedAt: 2,
+			});
+
+			await waitFor(() => {
+				expect(
+					document.querySelector(".astra-swipePager"),
+				).toBeInTheDocument();
+			});
+			expect(
+				document.querySelector(".astra-revisionBar"),
+			).toBeInTheDocument();
+			expect(blockedHost).toBe(
+				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
+			);
+			expect(blockedHost).not.toHaveAttribute(
+				"data-astra-footer-settling",
+			);
+			expect(blockedHost).not.toHaveAttribute(
+				"data-astra-generation-blocked",
+			);
+		} finally {
+			feature.dispose();
+		}
+	});
+
+	test("removes an empty post-generation settling footer after the settle timeout", async () => {
+		vi.useFakeTimers();
+		const { feature, generationActivityStore } =
+			setupIdlePostGenerationFooterHarness({
+				isGenerating: true,
+				isGroupGenerating: false,
+				isStreaming: false,
+				updatedAt: 0,
+			});
+
+		try {
+			feature.mount();
+			const blockedHost = document.querySelector(
+				'.mes[mesid="0"] > .astra-mesActions',
+			);
+			expect(blockedHost).toBeInTheDocument();
+
+			generationActivityStore.dispatch({
+				isGenerating: false,
+				isGroupGenerating: false,
+				isStreaming: false,
+				updatedAt: 1,
+			});
+
+			expect(blockedHost).toHaveAttribute(
+				"data-astra-footer-settling",
+				"true",
+			);
+
+			await act(async () => {
+				vi.advanceTimersByTime(750);
+			});
+
+			expect(
+				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
+			).toBeNull();
+		} finally {
+			feature.dispose();
+		}
+	});
+
+	test("does not create a blank settling footer without a previous blocked host", async () => {
+		const { feature, generationActivityStore, revisionStore } =
+			setupIdlePostGenerationFooterHarness({
+				isGenerating: false,
+				isGroupGenerating: false,
+				isStreaming: false,
+				updatedAt: 0,
+			});
+
+		try {
+			feature.mount();
+
+			await waitFor(() => {
+				expect(revisionStore.store.refresh).toHaveBeenCalled();
+			});
+			expect(document.querySelector(".astra-mesActions")).toBeNull();
+
+			generationActivityStore.dispatch({
+				isGenerating: false,
+				isGroupGenerating: false,
+				isStreaming: false,
+				updatedAt: 1,
+			});
+
+			expect(document.querySelector(".astra-mesActions")).toBeNull();
 		} finally {
 			feature.dispose();
 		}
