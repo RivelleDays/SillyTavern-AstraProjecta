@@ -1728,7 +1728,7 @@ body.astra-projecta-mobile-layout {
 		flex-direction: column;
 		justify-content: flex-end;
 		overflow: hidden;
-		border: 1px solid var(--border-color-base-t70);
+		border: 1px solid var(--border);
 		border-radius: var(--radius-2xl);
 		background:
 			linear-gradient(
