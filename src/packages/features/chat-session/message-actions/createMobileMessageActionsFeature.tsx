@@ -20,6 +20,7 @@ import {
 } from "@/packages/core/st/primarySendAction";
 import {
 	createChatMessageInteractionStore,
+	type ChatMessageLongPressAction,
 	type ChatMessageInteractionStore,
 } from "@/packages/core/st/chat-message-interaction";
 import {
@@ -114,6 +115,9 @@ export interface MobileMessageActionsFeature {
 
 type RevisionSnapshot = ReturnType<ChatMessageRevisionStore["getSnapshot"]>;
 type SwipeSnapshot = ReturnType<ChatMessageSwipeStore["getSnapshot"]>;
+
+const MESSAGE_TEXT_LONG_PRESS_ACTION_ATTRIBUTE =
+	"data-astra-message-text-long-press-action";
 
 function MessageHeaderActions({
 	onEdit,
@@ -257,6 +261,7 @@ export function createMobileMessageActionsFeature({
 	let selectedExtraActionsTarget: MessageActionsTarget | null = null;
 	let isMoreActionsDrawerOpen = false;
 	let unsubscribeHistory: (() => void) | null = null;
+	let unsubscribeMessageInteraction: (() => void) | null = null;
 	let unsubscribePrimarySendAction: (() => void) | null = null;
 	let unsubscribeRevision: (() => void) | null = null;
 	let unsubscribeSwipe: (() => void) | null = null;
@@ -285,6 +290,25 @@ export function createMobileMessageActionsFeature({
 		onOpenEdit: openEditDrawerForMessage,
 		onOpenMore: openMoreActionsForMessage,
 	});
+
+	function readMessageTextLongPressAction(): ChatMessageLongPressAction {
+		return (
+			messageInteractionStore?.getSnapshot().longPressAction ?? "disabled"
+		);
+	}
+
+	function syncMessageTextLongPressActionAttribute() {
+		documentRef.body?.setAttribute(
+			MESSAGE_TEXT_LONG_PRESS_ACTION_ATTRIBUTE,
+			readMessageTextLongPressAction(),
+		);
+	}
+
+	function clearMessageTextLongPressActionAttribute() {
+		documentRef.body?.removeAttribute(
+			MESSAGE_TEXT_LONG_PRESS_ACTION_ATTRIBUTE,
+		);
+	}
 
 	function renderHistoryDrawer() {
 		if (!selectedHistoryItem && !historyDrawerRoot.getHost()) {
@@ -1479,6 +1503,7 @@ export function createMobileMessageActionsFeature({
 			removeLegacyMessageActionHosts();
 			observeChatDom();
 			messageTextGestures.attach();
+			syncMessageTextLongPressActionAttribute();
 			historyStore.refresh();
 			primarySendActionStore.refresh();
 			revisionStore.refresh();
@@ -1497,8 +1522,12 @@ export function createMobileMessageActionsFeature({
 		primarySendActionStore = createPrimarySendActionStore();
 		revisionStore = createRevisionStore();
 		swipeStore = createSwipeStore();
+		syncMessageTextLongPressActionAttribute();
 		unsubscribeHistory = historyStore.subscribe(
 			scheduleMessageActionsRender,
+		);
+		unsubscribeMessageInteraction = messageInteractionStore.subscribe(
+			syncMessageTextLongPressActionAttribute,
 		);
 		unsubscribePrimarySendAction = primarySendActionStore.subscribe(
 			scheduleMessageActionsRender,
@@ -1520,12 +1549,15 @@ export function createMobileMessageActionsFeature({
 		messageTextGestures.detach();
 		unsubscribeHistory?.();
 		unsubscribeHistory = null;
+		unsubscribeMessageInteraction?.();
+		unsubscribeMessageInteraction = null;
 		unsubscribePrimarySendAction?.();
 		unsubscribePrimarySendAction = null;
 		unsubscribeRevision?.();
 		unsubscribeRevision = null;
 		unsubscribeSwipe?.();
 		unsubscribeSwipe = null;
+		clearMessageTextLongPressActionAttribute();
 		unmountRoots();
 		historyStore?.dispose();
 		historyStore = null;

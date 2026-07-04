@@ -554,12 +554,20 @@ describe("globals.css", () => {
 		expect(compactMessageLayoutCss).not.toContain(
 			"body.astra-projecta-theme #chat .mes",
 		);
-		expect(compactMessageLayoutCss).toContain("& #chat .mes .mes_text {");
+		const messageTextRule =
+			compactMessageLayoutCss.match(
+				/& #chat \.mes \.mes_text \{[^}]*\}/,
+			)?.[0] ?? "";
+		expect(messageTextRule).toContain("& #chat .mes .mes_text {");
+		expect(messageTextRule).not.toContain("-webkit-touch-callout: none;");
+		expect(messageTextRule).not.toContain("-webkit-user-select: none;");
+		expect(messageTextRule).not.toContain("user-select: none;");
 		expect(compactMessageLayoutCss).toContain(
-			"-webkit-touch-callout: none;",
+			"&[data-astra-message-text-long-press-action='message-actions'] #chat .mes .mes_text,",
 		);
-		expect(compactMessageLayoutCss).toContain("-webkit-user-select: none;");
-		expect(compactMessageLayoutCss).toContain("user-select: none;");
+		expect(compactMessageLayoutCss).toContain(
+			"&[data-astra-message-text-long-press-action='edit-message'] #chat .mes .mes_text {",
+		);
 		expect(compactMessageLayoutCss).toContain(
 			".mes[data-astra-message-prompt-excluded='true']",
 		);

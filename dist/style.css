@@ -9806,10 +9806,10 @@ body.astra-projecta-mobile-layout {
     width: 100%;
     padding-left: 0;
   }
-  & #chat .mes_text {
+  & #chat .mes .mes_text {
     padding: 12px 0;
   }
-  & #chat .mes .mes_text {
+  &[data-astra-message-text-long-press-action="message-actions"]	#chat	.mes	.mes_text,	&[data-astra-message-text-long-press-action="edit-message"]	#chat	.mes	.mes_text {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;

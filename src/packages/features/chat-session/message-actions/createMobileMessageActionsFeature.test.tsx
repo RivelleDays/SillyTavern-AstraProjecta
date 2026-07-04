@@ -62,6 +62,9 @@ describe("createMobileMessageActionsFeature", () => {
 	afterEach(() => {
 		vi.useRealTimers();
 		vi.unstubAllGlobals();
+		document.body.removeAttribute(
+			"data-astra-message-text-long-press-action",
+		);
 	});
 
 	test("renders revision and swipe controls directly into the last message action footer and cleans up on unmount", async () => {
@@ -610,6 +613,91 @@ describe("createMobileMessageActionsFeature", () => {
 			resetDefaultLayoutModeStoreForTests();
 			setDefaultLayoutModePreferenceReader(() => "auto");
 		}
+	});
+
+	test("syncs the persisted long-press action to a reversible body attribute", async () => {
+		document.body.innerHTML = `
+            <div id="chat">
+                <div class="mes" mesid="0" is_user="false" is_system="false">
+                    <div class="mes_block">
+                        <div class="ch_name">Assistant</div>
+                        <div class="mes_text"><p>Selection mode target</p></div>
+                    </div>
+                </div>
+            </div>
+        `;
+		setSillyTavernContext({
+			chat: [
+				{
+					is_system: false,
+					is_user: false,
+					mes: "Selection mode target",
+					name: "Assistant",
+					swipe_id: 0,
+					swipes: ["Selection mode target"],
+				},
+			],
+			extensionSettings: {
+				astra_projecta: {},
+			},
+		});
+		const feature = createMobileMessageActionsFeature({
+			createHistoryStore: () => createHistoryStoreStub([]).store,
+			createRevisionStore: () =>
+				createRevisionStoreStub({
+					canContinue: false,
+					canRegenerate: false,
+					canUndo: false,
+					isBusy: false,
+					messageId: null,
+					status: "idle",
+					updatedAt: 0,
+				}).store,
+			createSwipeStore: () =>
+				createSwipeStoreStub({
+					canSwipeNext: false,
+					canSwipePrevious: false,
+					currentIndex: 0,
+					isNativeSwipeBusy: false,
+					messageId: null,
+					status: "idle",
+					total: 1,
+					updatedAt: 0,
+				}).store,
+			documentRef: document,
+		});
+
+		try {
+			feature.mount();
+
+			expect(document.body).toHaveAttribute(
+				"data-astra-message-text-long-press-action",
+				"disabled",
+			);
+
+			setMessageLongPressActionPreferenceForTests("message-actions");
+			await waitFor(() => {
+				expect(document.body).toHaveAttribute(
+					"data-astra-message-text-long-press-action",
+					"message-actions",
+				);
+			});
+
+			setMessageLongPressActionPreferenceForTests("edit-message");
+			await waitFor(() => {
+				expect(document.body).toHaveAttribute(
+					"data-astra-message-text-long-press-action",
+					"edit-message",
+				);
+			});
+		} finally {
+			feature.unmount();
+			delete (globalThis as { SillyTavern?: unknown }).SillyTavern;
+		}
+
+		expect(document.body).not.toHaveAttribute(
+			"data-astra-message-text-long-press-action",
+		);
 	});
 
 	test("opens more actions from a 360ms message-actions long press on live message text only", async () => {
