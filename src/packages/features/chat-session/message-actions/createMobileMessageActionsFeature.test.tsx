@@ -24,6 +24,7 @@ import {
 	openMoreActionsDrawerForMessage,
 	openRevisionHistoryDrawerForMessage,
 	readAstraRevisionRoots,
+	setMessageLongPressActionPreferenceForTests,
 	setSillyTavernContext,
 	waitForDrawerExitAnimation,
 } from "@/packages/features/chat-session/message-actions/createMobileMessageActionsFeature.test-utils";
@@ -535,7 +536,83 @@ describe("createMobileMessageActionsFeature", () => {
 		expect(document.querySelector(".astra-mesActions")).toBeNull();
 	});
 
-	test("opens more actions from a 240ms long press on live message text only", async () => {
+	test("does not open a message drawer from long press when the preference is disabled", async () => {
+		resetDefaultLayoutModeStoreForTests();
+		setDefaultLayoutModePreferenceReader(() => "auto");
+		mockMatchMedia(true);
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		document.body.innerHTML += `
+            <div id="chat">
+                <div class="mes" mesid="0" is_user="false" is_system="false">
+                    <div class="mes_block">
+                        <div class="ch_name">Assistant</div>
+                        <div class="mes_text"><p>Default disabled target</p></div>
+                    </div>
+                </div>
+            </div>
+        `;
+		setSillyTavernContext({
+			chat: [
+				{
+					is_system: false,
+					is_user: false,
+					mes: "Default disabled target",
+					name: "Assistant",
+					swipe_id: 0,
+					swipes: ["Default disabled target"],
+				},
+			],
+			extensionSettings: {
+				astra_projecta: {},
+			},
+		});
+		const feature = createMobileMessageActionsFeature({
+			createHistoryStore: () => createHistoryStoreStub([]).store,
+			createRevisionStore: () =>
+				createRevisionStoreStub({
+					canContinue: false,
+					canRegenerate: false,
+					canUndo: false,
+					isBusy: false,
+					messageId: null,
+					status: "idle",
+					updatedAt: 0,
+				}).store,
+			createSwipeStore: () =>
+				createSwipeStoreStub({
+					canSwipeNext: false,
+					canSwipePrevious: false,
+					currentIndex: 0,
+					isNativeSwipeBusy: false,
+					messageId: null,
+					status: "idle",
+					total: 1,
+					updatedAt: 0,
+				}).store,
+			documentRef: document,
+		});
+
+		try {
+			feature.mount();
+			await fireMessageTextLongPress(
+				document.querySelector(".mes") as HTMLElement,
+			);
+
+			expect(
+				screen.queryByRole("dialog", { name: "Message Actions" }),
+			).toBeNull();
+			expect(
+				screen.queryByRole("dialog", { name: "Edit Message" }),
+			).toBeNull();
+		} finally {
+			feature.unmount();
+			delete (globalThis as { SillyTavern?: unknown }).SillyTavern;
+			resetDefaultLayoutModeStoreForTests();
+			setDefaultLayoutModePreferenceReader(() => "auto");
+		}
+	});
+
+	test("opens more actions from a 360ms message-actions long press on live message text only", async () => {
 		resetDefaultLayoutModeStoreForTests();
 		setDefaultLayoutModePreferenceReader(() => "auto");
 		mockMatchMedia(true);
@@ -613,6 +690,7 @@ describe("createMobileMessageActionsFeature", () => {
 
 		try {
 			feature.mount();
+			setMessageLongPressActionPreferenceForTests("message-actions");
 			const assistantMessage = document.querySelector(
 				'.mes[mesid="0"]',
 			) as HTMLElement;
@@ -621,7 +699,7 @@ describe("createMobileMessageActionsFeature", () => {
 			) as HTMLElement;
 
 			await fireMessageTextLongPress(assistantMessage, {
-				durationMs: 239,
+				durationMs: 359,
 			});
 			expect(
 				screen.queryByRole("dialog", { name: "Message Actions" }),
@@ -650,6 +728,135 @@ describe("createMobileMessageActionsFeature", () => {
 			).toBeNull();
 		} finally {
 			feature.unmount();
+			delete (globalThis as { SillyTavern?: unknown }).SillyTavern;
+			resetDefaultLayoutModeStoreForTests();
+			setDefaultLayoutModePreferenceReader(() => "auto");
+		}
+	});
+
+	test("opens the edit drawer from a 360ms edit-message long press on live message text", async () => {
+		resetDefaultLayoutModeStoreForTests();
+		setDefaultLayoutModePreferenceReader(() => "auto");
+		mockMatchMedia(true);
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		const frame = installAnimationFrameQueue();
+		document.body.innerHTML += `
+            <div id="chat">
+                <div class="mes" mesid="0" is_user="false" is_system="false">
+                    <div class="mesAvatarWrapper">
+                        <div class="avatar"><img src="/assistant-avatar.png" /></div>
+                        <div class="mesIDDisplay">#0</div>
+                    </div>
+                    <div class="mes_block">
+                        <div class="ch_name">Assistant</div>
+                        <div class="mes_buttons">
+                            <button type="button" class="mes_edit"></button>
+                        </div>
+                        <div class="mes_text"><p>Long press edit body</p></div>
+                    </div>
+                </div>
+            </div>
+        `;
+		setSillyTavernContext({
+			chat: [
+				{
+					extra: {
+						reasoning: "Long press edit reasoning",
+					},
+					is_system: false,
+					is_user: false,
+					mes: "Long press edit body",
+					name: "Assistant",
+					swipe_id: 0,
+					swipes: ["Long press edit body"],
+				},
+			],
+			eventSource: { emit: vi.fn() },
+			eventTypes: {},
+			extensionSettings: {
+				astra_projecta: {
+					chatMessageInteraction: {
+						longPressAction: "edit-message",
+						version: 1,
+					},
+				},
+			},
+			messageFormatting: vi.fn((value: string) => `<p>${value}</p>`),
+			powerUserSettings: {
+				trim_spaces: true,
+			},
+			saveChat: vi.fn(),
+			substituteParams: vi.fn((value: string) => value),
+		});
+		const feature = createMobileMessageActionsFeature({
+			createHistoryStore: () => createHistoryStoreStub([]).store,
+			createRevisionStore: () =>
+				createRevisionStoreStub({
+					canContinue: false,
+					canRegenerate: false,
+					canUndo: false,
+					isBusy: false,
+					messageId: null,
+					status: "idle",
+					updatedAt: 0,
+				}).store,
+			createSwipeStore: () =>
+				createSwipeStoreStub({
+					canSwipeNext: false,
+					canSwipePrevious: false,
+					currentIndex: 0,
+					isNativeSwipeBusy: false,
+					messageId: null,
+					status: "idle",
+					total: 1,
+					updatedAt: 0,
+				}).store,
+			documentRef: document,
+		});
+
+		try {
+			feature.mount();
+			const messageText = getMessageText(
+				document.querySelector(".mes") as HTMLElement,
+			);
+			fireEvent.pointerDown(messageText, {
+				clientX: 8,
+				clientY: 12,
+				pointerId: 1,
+				pointerType: "touch",
+			});
+			await act(async () => {
+				await new Promise((resolve) => {
+					window.setTimeout(resolve, 370);
+				});
+			});
+			fireEvent.pointerUp(messageText, {
+				clientX: 8,
+				clientY: 12,
+				pointerId: 1,
+				pointerType: "touch",
+			});
+			frame.flushFrames();
+
+			const editDialog = await screen.findByRole("dialog", {
+				name: "Edit Message",
+			});
+			expect(editDialog).toHaveAttribute(
+				"id",
+				"astra-message-edit-drawer",
+			);
+			expect(
+				screen.queryByRole("dialog", { name: "Message Actions" }),
+			).toBeNull();
+			expect(
+				within(editDialog).getByLabelText("Message text"),
+			).toHaveValue("Long press edit body");
+			expect(within(editDialog).getByLabelText("Reasoning")).toHaveValue(
+				"Long press edit reasoning",
+			);
+		} finally {
+			feature.unmount();
+			frame.restore();
 			delete (globalThis as { SillyTavern?: unknown }).SillyTavern;
 			resetDefaultLayoutModeStoreForTests();
 			setDefaultLayoutModePreferenceReader(() => "auto");
@@ -1588,6 +1795,7 @@ describe("createMobileMessageActionsFeature", () => {
 
 		try {
 			feature.mount();
+			setMessageLongPressActionPreferenceForTests("message-actions");
 			const message = document.querySelector(
 				'.mes[mesid="0"]',
 			) as HTMLElement;
@@ -1612,7 +1820,7 @@ describe("createMobileMessageActionsFeature", () => {
 			});
 			feature.unmount();
 			await act(async () => {
-				vi.advanceTimersByTime(240);
+				vi.advanceTimersByTime(360);
 			});
 			vi.useRealTimers();
 
@@ -5777,6 +5985,19 @@ describe("createMobileMessageActionsFeature", () => {
                 </div>
             </div>
         `;
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		setSillyTavernContext({
+			chat: [
+				{
+					is_system: false,
+					is_user: false,
+					mes: "Root",
+					name: "Assistant",
+					swipe_id: 0,
+					swipes: ["Root"],
+				},
+			],
+		});
 		const historyItem = {
 			avatarUrl: "",
 			hasHistory: true,

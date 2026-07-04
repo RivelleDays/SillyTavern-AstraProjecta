@@ -19,6 +19,10 @@ import {
 	type PrimarySendActionStore,
 } from "@/packages/core/st/primarySendAction";
 import {
+	createChatMessageInteractionStore,
+	type ChatMessageInteractionStore,
+} from "@/packages/core/st/chat-message-interaction";
+import {
 	type ChatMessageDeletionKind,
 	readChatMessageDeletionSupport,
 } from "@/packages/core/st/chatMessageDeletion";
@@ -240,6 +244,7 @@ export function createMobileMessageActionsFeature({
 		documentRef,
 		id: "astra-message-more-actions-drawer-host",
 	});
+	let messageInteractionStore: ChatMessageInteractionStore | null = null;
 	let primarySendActionStore: PrimarySendActionStore | null = null;
 	let revisionStore: ChatMessageRevisionStore | null = null;
 	let selectedHistoryItem: ChatMessageRevisionHistoryItem | null = null;
@@ -273,6 +278,9 @@ export function createMobileMessageActionsFeature({
 	});
 	const messageTextGestures = createMessageTextGestureController({
 		documentRef,
+		getLongPressAction: () =>
+			messageInteractionStore?.getSnapshot().longPressAction ??
+			"disabled",
 		isClickToEditEnabled,
 		onOpenEdit: openEditDrawerForMessage,
 		onOpenMore: openMoreActionsForMessage,
@@ -1463,6 +1471,7 @@ export function createMobileMessageActionsFeature({
 	function mount() {
 		if (
 			historyStore &&
+			messageInteractionStore &&
 			primarySendActionStore &&
 			swipeStore &&
 			revisionStore
@@ -1482,6 +1491,9 @@ export function createMobileMessageActionsFeature({
 		observeChatDom();
 		messageTextGestures.attach();
 		historyStore = resolvedCreateHistoryStore();
+		messageInteractionStore = createChatMessageInteractionStore({
+			eventTarget: documentRef.defaultView ?? undefined,
+		});
 		primarySendActionStore = createPrimarySendActionStore();
 		revisionStore = createRevisionStore();
 		swipeStore = createSwipeStore();
@@ -1517,6 +1529,8 @@ export function createMobileMessageActionsFeature({
 		unmountRoots();
 		historyStore?.dispose();
 		historyStore = null;
+		messageInteractionStore?.dispose();
+		messageInteractionStore = null;
 		primarySendActionStore?.dispose();
 		primarySendActionStore = null;
 		revisionStore?.dispose();
