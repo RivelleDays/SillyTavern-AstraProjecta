@@ -27,7 +27,8 @@ const CHAT_TRANSCRIPT_CLASS = "mobile-chat-transcript";
 const CHAT_SCROLL_Y_START_ATTRIBUTE = "data-astra-projecta-chat-scroll-y-start";
 const CHAT_SCROLL_Y_END_ATTRIBUTE = "data-astra-projecta-chat-scroll-y-end";
 const CHAT_SCROLL_EDGE_EPSILON = 0.5;
-const DEFAULT_SETTLE_DURATION_MS = 240;
+const DEFAULT_CHAT_SETTLE_DURATION_MS = 240;
+const GENERATION_SETTLE_DURATION_MS = 900;
 const FALLBACK_CHAT_CHANGED_EVENT = "chat_id_changed";
 const FALLBACK_CHAT_LOADED_EVENT = "chatLoaded";
 const FALLBACK_GENERATION_ENDED_EVENT = "generation_ended";
@@ -167,7 +168,7 @@ export function createMobileChatScrollFeature({
 	documentRef = document,
 	requestAnimationFrame,
 	ResizeObserver: ResizeObserverOverride,
-	settleDurationMs = DEFAULT_SETTLE_DURATION_MS,
+	settleDurationMs = DEFAULT_CHAT_SETTLE_DURATION_MS,
 	windowRef = window,
 }: {
 	cancelAnimationFrame?: CancelAnimationFrame;
@@ -358,7 +359,9 @@ export function createMobileChatScrollFeature({
 
 		settleTimeoutId = globalThis.setTimeout(
 			stopSettleWindow,
-			settleDurationMs,
+			mode === "generation-stick-bottom"
+				? GENERATION_SETTLE_DURATION_MS
+				: settleDurationMs,
 		);
 	}
 

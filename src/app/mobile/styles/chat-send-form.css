@@ -1724,7 +1724,7 @@ body.astra-projecta-mobile-layout {
 		max-width: 100%;
 		min-width: 0;
 		aspect-ratio: 1.62 / 1;
-		min-height: var(--astra-chat-main-menu-drawer-tile-min-height);
+		height: var(--astra-chat-main-menu-drawer-tile-min-height);
 		flex-direction: column;
 		justify-content: flex-end;
 		overflow: hidden;
@@ -1844,7 +1844,9 @@ body.astra-projecta-mobile-layout {
 	}
 
 	.astra-chat-main-menu-drawer__tile-deco-icon.fa-solid {
-		font-size: calc(var(--astra-chat-main-menu-drawer-tile-deco-icon-size) - 8px);
+		font-size: calc(
+			var(--astra-chat-main-menu-drawer-tile-deco-icon-size) - 8px
+		);
 	}
 
 	.astra-chat-main-menu-drawer__tile-icon svg,

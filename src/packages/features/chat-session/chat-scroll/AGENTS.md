@@ -6,7 +6,7 @@
 ## Owned Paths / Responsibilities
 
 - `createMobileChatScrollFeature.ts`: lifecycle bridge that marks `#chat` with `mobile-chat-transcript` and `data-astra-projecta-chat-scroll`, tracks native scroll edge state, subscribes to chat load/change and generation-settled events, scrolls the native container to bottom after chat switches, and keeps it pinned to the bottom after generation settles when the user was already at the bottom.
-- Generation and chat-switch settle windows may use short-lived resize and mutation observers on `#chat`; resize observation covers size-only shifts, while mutation observation covers late child insertion such as React rendering into an existing `.astra-mesActions` footer host.
+- Generation and chat-switch settle windows may use short-lived resize and mutation observers on `#chat`; resize observation covers size-only shifts, while mutation observation covers late child insertion such as React rendering into an existing `.astra-mesActions` footer host. Keep chat-switch settling short, but generation settling may stay longer to cover post-generation footer layout on iOS Safari.
 - `chat-scroll.css`: mobile-only native scrollbar styling and opacity-mask edge-fade styling for `#chat[data-astra-projecta-chat-scroll='native']`.
 
 ## SillyTavern Touchpoints

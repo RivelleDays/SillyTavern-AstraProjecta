@@ -90,6 +90,7 @@ function createAvatarStoreStub() {
 function createPrimarySendActionStoreStub() {
 	const snapshot = {
 		disabled: true,
+		isGenerating: false,
 		kind: "send" as const,
 		label: "Send message",
 		updatedAt: 0,

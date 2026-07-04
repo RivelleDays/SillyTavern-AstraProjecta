@@ -15,9 +15,9 @@ import {
 	createChatMessageSwipeStore,
 } from "@/packages/core/st/chatMessageSwipe";
 import {
-	type GenerationActivityStore,
-	createGenerationActivityStore as createDefaultGenerationActivityStore,
-} from "@/packages/core/st/generationActivity";
+	createPrimarySendActionStore as createDefaultPrimarySendActionStore,
+	type PrimarySendActionStore,
+} from "@/packages/core/st/primarySendAction";
 import {
 	type ChatMessageDeletionKind,
 	readChatMessageDeletionSupport,
@@ -110,9 +110,6 @@ export interface MobileMessageActionsFeature {
 
 type RevisionSnapshot = ReturnType<ChatMessageRevisionStore["getSnapshot"]>;
 type SwipeSnapshot = ReturnType<ChatMessageSwipeStore["getSnapshot"]>;
-type GenerationActivitySnapshot = ReturnType<
-	GenerationActivityStore["getSnapshot"]
->;
 
 function MessageHeaderActions({
 	onEdit,
@@ -193,15 +190,15 @@ function MessageFooterActions({
 
 export function createMobileMessageActionsFeature({
 	documentRef = document,
-	createGenerationActivityStore = () =>
-		createDefaultGenerationActivityStore({ documentRef }),
 	createHistoryStore,
+	createPrimarySendActionStore = () =>
+		createDefaultPrimarySendActionStore({ documentRef }),
 	createRevisionStore = () => createChatMessageRevisionStore(),
 	createSwipeStore = () => createChatMessageSwipeStore(),
 }: {
 	documentRef?: Document;
-	createGenerationActivityStore?: () => GenerationActivityStore;
 	createHistoryStore?: () => ChatMessageRevisionHistoryStore;
+	createPrimarySendActionStore?: () => PrimarySendActionStore;
 	createRevisionStore?: () => ChatMessageRevisionStore;
 	createSwipeStore?: () => ChatMessageSwipeStore;
 } = {}): MobileMessageActionsFeature {
@@ -239,11 +236,11 @@ export function createMobileMessageActionsFeature({
 	});
 	let footerActionRoot: Root | null = null;
 	let footerActionRootHost: HTMLDivElement | null = null;
-	let generationActivityStore: GenerationActivityStore | null = null;
 	const moreActionsDrawerRoot = createAstraReactPortalRootManager({
 		documentRef,
 		id: "astra-message-more-actions-drawer-host",
 	});
+	let primarySendActionStore: PrimarySendActionStore | null = null;
 	let revisionStore: ChatMessageRevisionStore | null = null;
 	let selectedHistoryItem: ChatMessageRevisionHistoryItem | null = null;
 	let selectedDeletionConfirmation: MessageDeleteConfirmationDrawerState | null =
@@ -254,19 +251,12 @@ export function createMobileMessageActionsFeature({
 	let deferredNativeActionFrameId: number | null = null;
 	let selectedExtraActionsTarget: MessageActionsTarget | null = null;
 	let isMoreActionsDrawerOpen = false;
-	let wasFooterBlockedByGenerationActivity = false;
-	let unsubscribeGenerationActivity: (() => void) | null = null;
 	let unsubscribeHistory: (() => void) | null = null;
+	let unsubscribePrimarySendAction: (() => void) | null = null;
 	let unsubscribeRevision: (() => void) | null = null;
 	let unsubscribeSwipe: (() => void) | null = null;
 	const renderScheduler = createFrameScheduler({
 		callback: renderMessageActions,
-		documentRef,
-	});
-	const postGenerationSettleRefreshScheduler = createFrameScheduler({
-		callback: () => {
-			refreshMessageActionStores({ renderImmediately: true });
-		},
 		documentRef,
 	});
 	const postEditSettleRefreshScheduler = createFrameScheduler({
@@ -1278,8 +1268,8 @@ export function createMobileMessageActionsFeature({
 	}: {
 		renderImmediately?: boolean;
 	} = {}) {
-		generationActivityStore?.refresh();
 		historyStore?.refresh();
+		primarySendActionStore?.refresh();
 		revisionStore?.refresh();
 		swipeStore?.refresh();
 		if (renderImmediately) {
@@ -1290,41 +1280,12 @@ export function createMobileMessageActionsFeature({
 		scheduleMessageActionsRender();
 	}
 
-	function isFooterBlockedByGenerationActivity(
-		snapshot: GenerationActivitySnapshot | null | undefined,
-	): boolean {
-		return Boolean(snapshot?.isGenerating || snapshot?.isStreaming);
-	}
-
-	function handleGenerationActivityChange() {
-		const generationActivitySnapshot =
-			generationActivityStore?.getSnapshot();
-		const isFooterBlocked = isFooterBlockedByGenerationActivity(
-			generationActivitySnapshot,
-		);
-		const shouldScheduleSettleRefresh =
-			wasFooterBlockedByGenerationActivity && !isFooterBlocked;
-		wasFooterBlockedByGenerationActivity = isFooterBlocked;
-
-		if (isFooterBlocked) {
-			postGenerationSettleRefreshScheduler.cancel();
-			renderMessageActionsImmediately();
-			return;
-		}
-
-		refreshMessageActionStores({ renderImmediately: true });
-		if (shouldScheduleSettleRefresh) {
-			postGenerationSettleRefreshScheduler.schedule();
-		}
-	}
-
 	function observeChatDom() {
 		chatDomReconciler.start();
 	}
 
 	function stopObservingChatDom() {
 		chatDomReconciler.stop();
-		postGenerationSettleRefreshScheduler.cancel();
 		postEditSettleRefreshScheduler.cancel();
 		cancelScheduledMessageActionsRender();
 	}
@@ -1335,18 +1296,6 @@ export function createMobileMessageActionsFeature({
 		}
 
 		void action().finally(refreshMessageActionStores);
-	}
-
-	function setFooterGenerationBlocked(
-		actionHost: HTMLDivElement,
-		isBlocked: boolean,
-	) {
-		if (isBlocked) {
-			actionHost.dataset.astraGenerationBlocked = "true";
-			return;
-		}
-
-		delete actionHost.dataset.astraGenerationBlocked;
 	}
 
 	function unmountFooterActionRoot() {
@@ -1391,9 +1340,9 @@ export function createMobileMessageActionsFeature({
 	}
 
 	function renderMessageActions() {
-		const generationActivitySnapshot =
-			generationActivityStore?.getSnapshot();
 		const historySnapshot = historyStore?.getSnapshot() ?? [];
+		const isGenerating =
+			primarySendActionStore?.getSnapshot().isGenerating === true;
 		const revisionSnapshot = revisionStore?.getSnapshot();
 		const swipeSnapshot = swipeStore?.getSnapshot();
 		const context = resolveContextSafe();
@@ -1416,25 +1365,9 @@ export function createMobileMessageActionsFeature({
 			return;
 		}
 
-		const isFooterBlocked = isFooterBlockedByGenerationActivity(
-			generationActivitySnapshot,
-		);
-		if (isFooterBlocked) {
-			const slots = ensureMessageActionSlots(
-				targetMessage.messageElement,
-			);
-			if (!slots) {
-				unmountRoots();
-				return;
-			}
-
-			setFooterGenerationBlocked(slots.container, true);
-			ensureFooterActionRoot(slots.container).render(null);
-			return;
-		}
-
 		const targetMessageId = targetMessage.messageId;
 		const revisionActionsSnapshot =
+			!isGenerating &&
 			revisionSnapshot?.status === "ready" &&
 			revisionSnapshot.messageId === targetMessageId &&
 			(revisionSnapshot.canContinue ||
@@ -1443,6 +1376,7 @@ export function createMobileMessageActionsFeature({
 				? revisionSnapshot
 				: null;
 		const swipeActionsSnapshot =
+			!isGenerating &&
 			swipeSnapshot?.status === "ready" &&
 			swipeSnapshot.messageId === targetMessageId &&
 			(swipeSnapshot.canSwipeNext ||
@@ -1450,10 +1384,12 @@ export function createMobileMessageActionsFeature({
 				swipeSnapshot.isNativeSwipeBusy)
 				? swipeSnapshot
 				: null;
-		const inlineHistoryItem = resolveInlineHistoryItem({
-			historySnapshot,
-			messageId: targetMessageId,
-		});
+		const inlineHistoryItem = isGenerating
+			? null
+			: resolveInlineHistoryItem({
+					historySnapshot,
+					messageId: targetMessageId,
+				});
 
 		if (
 			!revisionActionsSnapshot &&
@@ -1469,7 +1405,6 @@ export function createMobileMessageActionsFeature({
 			unmountRoots();
 			return;
 		}
-		setFooterGenerationBlocked(slots.container, false);
 
 		ensureFooterActionRoot(slots.container).render(
 			withAstraErrorBoundary({
@@ -1527,19 +1462,16 @@ export function createMobileMessageActionsFeature({
 
 	function mount() {
 		if (
-			generationActivityStore &&
 			historyStore &&
+			primarySendActionStore &&
 			swipeStore &&
 			revisionStore
 		) {
 			removeLegacyMessageActionHosts();
 			observeChatDom();
 			messageTextGestures.attach();
-			wasFooterBlockedByGenerationActivity =
-				isFooterBlockedByGenerationActivity(
-					generationActivityStore.getSnapshot(),
-				);
 			historyStore.refresh();
+			primarySendActionStore.refresh();
 			revisionStore.refresh();
 			swipeStore.refresh();
 			renderMessageActions();
@@ -1549,18 +1481,14 @@ export function createMobileMessageActionsFeature({
 		removeLegacyMessageActionHosts();
 		observeChatDom();
 		messageTextGestures.attach();
-		generationActivityStore = createGenerationActivityStore();
 		historyStore = resolvedCreateHistoryStore();
+		primarySendActionStore = createPrimarySendActionStore();
 		revisionStore = createRevisionStore();
 		swipeStore = createSwipeStore();
-		wasFooterBlockedByGenerationActivity =
-			isFooterBlockedByGenerationActivity(
-				generationActivityStore.getSnapshot(),
-			);
-		unsubscribeGenerationActivity = generationActivityStore.subscribe(
-			handleGenerationActivityChange,
-		);
 		unsubscribeHistory = historyStore.subscribe(
+			scheduleMessageActionsRender,
+		);
+		unsubscribePrimarySendAction = primarySendActionStore.subscribe(
 			scheduleMessageActionsRender,
 		);
 		unsubscribeRevision = revisionStore.subscribe(
@@ -1568,6 +1496,7 @@ export function createMobileMessageActionsFeature({
 		);
 		unsubscribeSwipe = swipeStore.subscribe(scheduleMessageActionsRender);
 		historyStore.refresh();
+		primarySendActionStore.refresh();
 		revisionStore.refresh();
 		swipeStore.refresh();
 		renderMessageActions();
@@ -1577,19 +1506,19 @@ export function createMobileMessageActionsFeature({
 		stopObservingChatDom();
 		cancelDeferredNativeAction();
 		messageTextGestures.detach();
-		unsubscribeGenerationActivity?.();
-		unsubscribeGenerationActivity = null;
 		unsubscribeHistory?.();
 		unsubscribeHistory = null;
+		unsubscribePrimarySendAction?.();
+		unsubscribePrimarySendAction = null;
 		unsubscribeRevision?.();
 		unsubscribeRevision = null;
 		unsubscribeSwipe?.();
 		unsubscribeSwipe = null;
 		unmountRoots();
-		generationActivityStore?.dispose();
-		generationActivityStore = null;
 		historyStore?.dispose();
 		historyStore = null;
+		primarySendActionStore?.dispose();
+		primarySendActionStore = null;
 		revisionStore?.dispose();
 		revisionStore = null;
 		swipeStore?.dispose();
