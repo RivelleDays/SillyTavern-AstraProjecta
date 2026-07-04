@@ -187,7 +187,7 @@
 .chat-session-settings__dropdown-trigger {
 	justify-content: space-between;
 	min-width: 0;
-	max-width: 100%;
+	max-width: 162px;
 	font-size: var(--text-sm);
 }
 
@@ -207,7 +207,7 @@
 }
 
 .chat-session-settings__dropdown {
-	min-width: 12rem;
+	min-width: 162px;
 }
 
 .chat-session-settings__dropdown-item {
