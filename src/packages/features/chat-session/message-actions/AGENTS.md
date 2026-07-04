@@ -26,8 +26,9 @@
 - Footer target host: direct Astra-owned `.astra-mesActions[data-astra-component="mes-actions"][data-astra-slot="footer"]` under the target message `.mes`, placed immediately after `.mes_block`.
 - Header target host: direct Astra-owned `.astra-mesHeaderActions[data-astra-component="mes-header-actions"]` inside the target message `.astra-mesHeader`, rendered only when the message header bridge has provided that header node.
 - The revision bar and swipe pager render directly inside the footer action container; do not add per-action wrapper hosts or mount these controls into a top/header action slot.
-- Footer actions are driven only by revision, swipe, and inline history snapshots. Do not hide, reserve, or create an empty `.astra-mesActions` footer based only on generation or streaming activity.
+- Footer actions are driven by revision, swipe, and inline history snapshots, with generation activity consumed through `packages/core/st/primarySendAction` only to suppress the revision bar, inline history affordance, and swipe pager while a message is generating. Do not reserve or create an empty `.astra-mesActions` footer based only on generation or streaming activity.
 - Native swipe behavior must be triggered through `packages/core/st/chatMessageSwipe`; revision/continue behavior must be coordinated through `packages/core/st/chatMessageRevision`; all-message history availability must be read through `packages/core/st/chatMessageRevisionHistory`; feature code must not mutate SillyTavern chat data directly.
+- Generation-in-progress detection must reuse `packages/core/st/primarySendAction`; feature code must not duplicate SillyTavern generation event, stop-button, streaming processor, or group wrapper detection.
 - Missing chat/message nodes must no-op and unmount any stale Astra root.
 
 ## Rules

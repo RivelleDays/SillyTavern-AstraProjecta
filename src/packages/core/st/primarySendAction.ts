@@ -33,6 +33,7 @@ export type PrimarySendActionKind = "continue" | "send" | "stop";
 
 export interface PrimarySendActionSnapshot {
 	disabled: boolean;
+	isGenerating: boolean;
 	kind: PrimarySendActionKind;
 	label: string;
 	updatedAt: number;
@@ -316,12 +317,16 @@ function shouldUseContinueAction(
 
 function createSnapshot({
 	disabled,
+	isGenerating = false,
 	kind,
 	label,
 	visible,
-}: Omit<PrimarySendActionSnapshot, "updatedAt">): PrimarySendActionSnapshot {
+}: Omit<PrimarySendActionSnapshot, "isGenerating" | "updatedAt"> & {
+	isGenerating?: boolean;
+}): PrimarySendActionSnapshot {
 	return {
 		disabled,
+		isGenerating,
 		kind,
 		label,
 		updatedAt: Date.now(),
@@ -331,9 +336,11 @@ function createSnapshot({
 
 function createHiddenSendSnapshot(
 	sendButton: HTMLElement | null,
+	isGenerating = false,
 ): PrimarySendActionSnapshot {
 	return createSnapshot({
 		disabled: true,
+		isGenerating,
 		kind: "send",
 		label: readNativeActionLabel(sendButton, SEND_ACTION_LABEL_KEY),
 		visible: false,
@@ -400,6 +407,7 @@ function snapshotsEqual(
 ): boolean {
 	return (
 		a.disabled === b.disabled &&
+		a.isGenerating === b.isGenerating &&
 		a.kind === b.kind &&
 		a.label === b.label &&
 		a.visible === b.visible
@@ -477,6 +485,10 @@ function readPrimarySendActionState({
 	const isAbortableGeneration =
 		(nextGenerationLifecycle === "active" || groupGenerationActive) &&
 		stopButton instanceof HTMLElement;
+	const isGenerating =
+		groupGenerationActive ||
+		nextGenerationLifecycle === "pending" ||
+		nextGenerationLifecycle === "active";
 	const isNativeInputLocked = isStopVisibleInLayout && !isAbortableGeneration;
 	const isInputLocked =
 		isNativeSwipeBusy ||
@@ -490,6 +502,7 @@ function readPrimarySendActionState({
 			generationLifecycle: nextGenerationLifecycle,
 			snapshot: createSnapshot({
 				disabled: readIsDisabled(stopButton),
+				isGenerating,
 				kind: "stop",
 				label: translateAstra(STOP_ACTION_LABEL_KEY),
 				visible: true,
@@ -502,6 +515,7 @@ function readPrimarySendActionState({
 			generationLifecycle: nextGenerationLifecycle,
 			snapshot: createHiddenSendSnapshot(
 				sendButton instanceof HTMLElement ? sendButton : null,
+				isGenerating,
 			),
 		};
 	}
@@ -511,6 +525,7 @@ function readPrimarySendActionState({
 			generationLifecycle: nextGenerationLifecycle,
 			snapshot: createSnapshot({
 				disabled: isInputLocked || readIsDisabled(sendButton),
+				isGenerating,
 				kind: "continue",
 				label: readNativeActionLabel(
 					continueOption,
@@ -525,6 +540,7 @@ function readPrimarySendActionState({
 		generationLifecycle: nextGenerationLifecycle,
 		snapshot: createSnapshot({
 			disabled: isInputLocked || readIsDisabled(sendButton),
+			isGenerating,
 			kind: "send",
 			label: readNativeActionLabel(sendButton, SEND_ACTION_LABEL_KEY),
 			visible: true,
@@ -849,7 +865,11 @@ export function createPrimarySendActionStore({
 		});
 	}
 
-	if (eventSource) {
+	if (
+		eventSource &&
+		typeof eventSource.on === "function" &&
+		typeof eventSource.removeListener === "function"
+	) {
 		const eventBindingMap = new Map<string, (...args: unknown[]) => void>();
 		const addEventBinding = (
 			eventName: string | undefined,

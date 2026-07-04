@@ -15,6 +15,10 @@ import {
 	createChatMessageSwipeStore,
 } from "@/packages/core/st/chatMessageSwipe";
 import {
+	createPrimarySendActionStore as createDefaultPrimarySendActionStore,
+	type PrimarySendActionStore,
+} from "@/packages/core/st/primarySendAction";
+import {
 	type ChatMessageDeletionKind,
 	readChatMessageDeletionSupport,
 } from "@/packages/core/st/chatMessageDeletion";
@@ -187,11 +191,14 @@ function MessageFooterActions({
 export function createMobileMessageActionsFeature({
 	documentRef = document,
 	createHistoryStore,
+	createPrimarySendActionStore = () =>
+		createDefaultPrimarySendActionStore({ documentRef }),
 	createRevisionStore = () => createChatMessageRevisionStore(),
 	createSwipeStore = () => createChatMessageSwipeStore(),
 }: {
 	documentRef?: Document;
 	createHistoryStore?: () => ChatMessageRevisionHistoryStore;
+	createPrimarySendActionStore?: () => PrimarySendActionStore;
 	createRevisionStore?: () => ChatMessageRevisionStore;
 	createSwipeStore?: () => ChatMessageSwipeStore;
 } = {}): MobileMessageActionsFeature {
@@ -233,6 +240,7 @@ export function createMobileMessageActionsFeature({
 		documentRef,
 		id: "astra-message-more-actions-drawer-host",
 	});
+	let primarySendActionStore: PrimarySendActionStore | null = null;
 	let revisionStore: ChatMessageRevisionStore | null = null;
 	let selectedHistoryItem: ChatMessageRevisionHistoryItem | null = null;
 	let selectedDeletionConfirmation: MessageDeleteConfirmationDrawerState | null =
@@ -244,6 +252,7 @@ export function createMobileMessageActionsFeature({
 	let selectedExtraActionsTarget: MessageActionsTarget | null = null;
 	let isMoreActionsDrawerOpen = false;
 	let unsubscribeHistory: (() => void) | null = null;
+	let unsubscribePrimarySendAction: (() => void) | null = null;
 	let unsubscribeRevision: (() => void) | null = null;
 	let unsubscribeSwipe: (() => void) | null = null;
 	const renderScheduler = createFrameScheduler({
@@ -1260,6 +1269,7 @@ export function createMobileMessageActionsFeature({
 		renderImmediately?: boolean;
 	} = {}) {
 		historyStore?.refresh();
+		primarySendActionStore?.refresh();
 		revisionStore?.refresh();
 		swipeStore?.refresh();
 		if (renderImmediately) {
@@ -1331,6 +1341,8 @@ export function createMobileMessageActionsFeature({
 
 	function renderMessageActions() {
 		const historySnapshot = historyStore?.getSnapshot() ?? [];
+		const isGenerating =
+			primarySendActionStore?.getSnapshot().isGenerating === true;
 		const revisionSnapshot = revisionStore?.getSnapshot();
 		const swipeSnapshot = swipeStore?.getSnapshot();
 		const context = resolveContextSafe();
@@ -1355,6 +1367,7 @@ export function createMobileMessageActionsFeature({
 
 		const targetMessageId = targetMessage.messageId;
 		const revisionActionsSnapshot =
+			!isGenerating &&
 			revisionSnapshot?.status === "ready" &&
 			revisionSnapshot.messageId === targetMessageId &&
 			(revisionSnapshot.canContinue ||
@@ -1363,6 +1376,7 @@ export function createMobileMessageActionsFeature({
 				? revisionSnapshot
 				: null;
 		const swipeActionsSnapshot =
+			!isGenerating &&
 			swipeSnapshot?.status === "ready" &&
 			swipeSnapshot.messageId === targetMessageId &&
 			(swipeSnapshot.canSwipeNext ||
@@ -1370,10 +1384,12 @@ export function createMobileMessageActionsFeature({
 				swipeSnapshot.isNativeSwipeBusy)
 				? swipeSnapshot
 				: null;
-		const inlineHistoryItem = resolveInlineHistoryItem({
-			historySnapshot,
-			messageId: targetMessageId,
-		});
+		const inlineHistoryItem = isGenerating
+			? null
+			: resolveInlineHistoryItem({
+					historySnapshot,
+					messageId: targetMessageId,
+				});
 
 		if (
 			!revisionActionsSnapshot &&
@@ -1445,11 +1461,17 @@ export function createMobileMessageActionsFeature({
 	}
 
 	function mount() {
-		if (historyStore && swipeStore && revisionStore) {
+		if (
+			historyStore &&
+			primarySendActionStore &&
+			swipeStore &&
+			revisionStore
+		) {
 			removeLegacyMessageActionHosts();
 			observeChatDom();
 			messageTextGestures.attach();
 			historyStore.refresh();
+			primarySendActionStore.refresh();
 			revisionStore.refresh();
 			swipeStore.refresh();
 			renderMessageActions();
@@ -1460,9 +1482,13 @@ export function createMobileMessageActionsFeature({
 		observeChatDom();
 		messageTextGestures.attach();
 		historyStore = resolvedCreateHistoryStore();
+		primarySendActionStore = createPrimarySendActionStore();
 		revisionStore = createRevisionStore();
 		swipeStore = createSwipeStore();
 		unsubscribeHistory = historyStore.subscribe(
+			scheduleMessageActionsRender,
+		);
+		unsubscribePrimarySendAction = primarySendActionStore.subscribe(
 			scheduleMessageActionsRender,
 		);
 		unsubscribeRevision = revisionStore.subscribe(
@@ -1470,6 +1496,7 @@ export function createMobileMessageActionsFeature({
 		);
 		unsubscribeSwipe = swipeStore.subscribe(scheduleMessageActionsRender);
 		historyStore.refresh();
+		primarySendActionStore.refresh();
 		revisionStore.refresh();
 		swipeStore.refresh();
 		renderMessageActions();
@@ -1481,6 +1508,8 @@ export function createMobileMessageActionsFeature({
 		messageTextGestures.detach();
 		unsubscribeHistory?.();
 		unsubscribeHistory = null;
+		unsubscribePrimarySendAction?.();
+		unsubscribePrimarySendAction = null;
 		unsubscribeRevision?.();
 		unsubscribeRevision = null;
 		unsubscribeSwipe?.();
@@ -1488,6 +1517,8 @@ export function createMobileMessageActionsFeature({
 		unmountRoots();
 		historyStore?.dispose();
 		historyStore = null;
+		primarySendActionStore?.dispose();
+		primarySendActionStore = null;
 		revisionStore?.dispose();
 		revisionStore = null;
 		swipeStore?.dispose();

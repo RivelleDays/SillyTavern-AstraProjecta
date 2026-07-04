@@ -151,7 +151,7 @@ describe("createMobileMessageActionsFeature", () => {
 		expect(document.querySelector(".astra-mesActions")).toBeNull();
 	});
 
-	test("keeps footer actions visible when SillyTavern generation events fire", async () => {
+	test("hides footer actions while SillyTavern is generating and restores them after generation settles", async () => {
 		const eventSource = createEventSourceStub();
 		setSillyTavernContext({
 			chat: [
@@ -166,11 +166,20 @@ describe("createMobileMessageActionsFeature", () => {
 			],
 			eventSource,
 			eventTypes: {
-				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_STARTED: "generation_started",
 				GENERATION_ENDED: "generation_ended",
+				GENERATION_STOPPED: "generation_stopped",
 			},
+			onlineStatus: "connected",
+			powerUserSettings: { continue_on_send: false },
 		});
 		document.body.innerHTML = `
+            <textarea id="send_textarea">hello</textarea>
+            <input id="file_form_input" type="file" />
+            <div id="rightSendForm">
+                <button id="send_but" title="Send message"></button>
+                <button id="mes_stop" style="display: none;" title="Abort request"></button>
+            </div>
             <div id="chat">
                 <div class="mes" mesid="0" is_user="false" is_system="false">
                     <div class="mes_block"></div>
@@ -211,23 +220,24 @@ describe("createMobileMessageActionsFeature", () => {
 				).toBeInTheDocument();
 			});
 
-			eventSource.emit("generation_after_commands", "normal", {}, false);
+			eventSource.emit("generation_started", "normal", {}, false);
 
-			expect(
-				document.querySelector(".astra-revisionBar"),
-			).toBeInTheDocument();
-			expect(
-				document.querySelector(".astra-swipePager"),
-			).toBeInTheDocument();
-			expect(
-				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
-			).not.toHaveAttribute("data-astra-generation-blocked");
+			await waitFor(() => {
+				expect(document.querySelector(".astra-revisionBar")).toBeNull();
+			});
+			expect(document.querySelector(".astra-swipePager")).toBeNull();
+			expect(document.querySelector(".astra-mesActions")).toBeNull();
 
 			eventSource.emit("generation_ended");
 
+			await waitFor(() => {
+				expect(
+					document.querySelector(".astra-revisionBar"),
+				).toBeInTheDocument();
+			});
 			expect(
-				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
-			).not.toHaveAttribute("data-astra-footer-settling");
+				document.querySelector(".astra-swipePager"),
+			).toBeInTheDocument();
 		} finally {
 			feature.dispose();
 		}

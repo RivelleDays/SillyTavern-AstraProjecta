@@ -71,6 +71,7 @@ describe("primary send action", () => {
 		expect(
 			readPrimarySendActionSnapshot({ documentRef: document }),
 		).toMatchObject({
+			isGenerating: false,
 			kind: "continue",
 			label: "Continue reply",
 			visible: true,
@@ -475,6 +476,7 @@ describe("primary send action", () => {
 
 		expect(store.getSnapshot()).toMatchObject({
 			disabled: false,
+			isGenerating: true,
 			kind: "stop",
 			label: "Stop generating message",
 			visible: true,
@@ -813,6 +815,7 @@ describe("primary send action", () => {
 
 		expect(store.getSnapshot()).toMatchObject({
 			disabled: true,
+			isGenerating: true,
 			kind: "send",
 		});
 
@@ -820,6 +823,7 @@ describe("primary send action", () => {
 
 		expect(store.getSnapshot()).toMatchObject({
 			disabled: false,
+			isGenerating: false,
 			kind: "send",
 			label: "Send message",
 			visible: true,
