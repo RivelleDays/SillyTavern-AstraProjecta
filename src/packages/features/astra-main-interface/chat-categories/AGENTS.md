@@ -7,6 +7,12 @@
 ## Owned Paths / Responsibilities
 
 - Category create rows, scope selectors, category accordion/tree rendering, category chat rows, and assignment drawer staging.
+- `ChatCategoryUi.tsx` owns the compatibility facade for existing external imports and composes the category manager page.
+- `categoryModel.ts` owns UI-only category scope/group helpers, shared category UI types, public constants, and shared React hooks used by this folder.
+- `ChatCategoryCreateRow.tsx` owns category creation input UI and scope selector behavior.
+- `CategoryTree.tsx` owns category tree, accordion, category row, chat row, empty state, and incremental load-more rendering.
+- `CategoryActionDrawer.tsx` owns category rename/delete drawer behavior and copy selection.
+- `ChatCategoryAssignmentDrawer.tsx` owns chat-row category assignment staging, save/cancel behavior, and drawer-local create-category composition.
 - Cross-section category UI behavior shared by `global/`, `current-context/`, and `favorite-context/`.
 - UI-only helpers for deriving owner/global category groups from `ChatCategoryStore` snapshots and `ChatCatalogEntry` lists.
 - Future category and category-chat reorder controls, while persistence and normalization remain in `ChatCategoryStore`.
