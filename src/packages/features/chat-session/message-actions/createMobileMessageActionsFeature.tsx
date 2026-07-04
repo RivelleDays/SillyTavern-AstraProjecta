@@ -15,10 +15,6 @@ import {
 	createChatMessageSwipeStore,
 } from "@/packages/core/st/chatMessageSwipe";
 import {
-	type GenerationActivityStore,
-	createGenerationActivityStore as createDefaultGenerationActivityStore,
-} from "@/packages/core/st/generationActivity";
-import {
 	type ChatMessageDeletionKind,
 	readChatMessageDeletionSupport,
 } from "@/packages/core/st/chatMessageDeletion";
@@ -110,11 +106,6 @@ export interface MobileMessageActionsFeature {
 
 type RevisionSnapshot = ReturnType<ChatMessageRevisionStore["getSnapshot"]>;
 type SwipeSnapshot = ReturnType<ChatMessageSwipeStore["getSnapshot"]>;
-type GenerationActivitySnapshot = ReturnType<
-	GenerationActivityStore["getSnapshot"]
->;
-
-const POST_GENERATION_FOOTER_SETTLE_MS = 750;
 
 function MessageHeaderActions({
 	onEdit,
@@ -195,14 +186,11 @@ function MessageFooterActions({
 
 export function createMobileMessageActionsFeature({
 	documentRef = document,
-	createGenerationActivityStore = () =>
-		createDefaultGenerationActivityStore({ documentRef }),
 	createHistoryStore,
 	createRevisionStore = () => createChatMessageRevisionStore(),
 	createSwipeStore = () => createChatMessageSwipeStore(),
 }: {
 	documentRef?: Document;
-	createGenerationActivityStore?: () => GenerationActivityStore;
 	createHistoryStore?: () => ChatMessageRevisionHistoryStore;
 	createRevisionStore?: () => ChatMessageRevisionStore;
 	createSwipeStore?: () => ChatMessageSwipeStore;
@@ -241,7 +229,6 @@ export function createMobileMessageActionsFeature({
 	});
 	let footerActionRoot: Root | null = null;
 	let footerActionRootHost: HTMLDivElement | null = null;
-	let generationActivityStore: GenerationActivityStore | null = null;
 	const moreActionsDrawerRoot = createAstraReactPortalRootManager({
 		documentRef,
 		id: "astra-message-more-actions-drawer-host",
@@ -256,23 +243,11 @@ export function createMobileMessageActionsFeature({
 	let deferredNativeActionFrameId: number | null = null;
 	let selectedExtraActionsTarget: MessageActionsTarget | null = null;
 	let isMoreActionsDrawerOpen = false;
-	let wasFooterBlockedByGenerationActivity = false;
-	let isFooterInPostGenerationSettle = false;
-	let postGenerationFooterSettleTimeoutId: ReturnType<
-		typeof globalThis.setTimeout
-	> | null = null;
-	let unsubscribeGenerationActivity: (() => void) | null = null;
 	let unsubscribeHistory: (() => void) | null = null;
 	let unsubscribeRevision: (() => void) | null = null;
 	let unsubscribeSwipe: (() => void) | null = null;
 	const renderScheduler = createFrameScheduler({
 		callback: renderMessageActions,
-		documentRef,
-	});
-	const postGenerationSettleRefreshScheduler = createFrameScheduler({
-		callback: () => {
-			refreshMessageActionStores({ renderImmediately: true });
-		},
 		documentRef,
 	});
 	const postEditSettleRefreshScheduler = createFrameScheduler({
@@ -1284,7 +1259,6 @@ export function createMobileMessageActionsFeature({
 	}: {
 		renderImmediately?: boolean;
 	} = {}) {
-		generationActivityStore?.refresh();
 		historyStore?.refresh();
 		revisionStore?.refresh();
 		swipeStore?.refresh();
@@ -1296,75 +1270,13 @@ export function createMobileMessageActionsFeature({
 		scheduleMessageActionsRender();
 	}
 
-	function isFooterBlockedByGenerationActivity(
-		snapshot: GenerationActivitySnapshot | null | undefined,
-	): boolean {
-		return Boolean(snapshot?.isGenerating || snapshot?.isStreaming);
-	}
-
-	function clearPostGenerationFooterSettleTimer() {
-		if (postGenerationFooterSettleTimeoutId === null) {
-			return;
-		}
-
-		globalThis.clearTimeout(postGenerationFooterSettleTimeoutId);
-		postGenerationFooterSettleTimeoutId = null;
-	}
-
-	function stopPostGenerationFooterSettle() {
-		isFooterInPostGenerationSettle = false;
-		clearPostGenerationFooterSettleTimer();
-	}
-
-	function startPostGenerationFooterSettle() {
-		isFooterInPostGenerationSettle = true;
-		clearPostGenerationFooterSettleTimer();
-		postGenerationFooterSettleTimeoutId = globalThis.setTimeout(() => {
-			postGenerationFooterSettleTimeoutId = null;
-			if (!isFooterInPostGenerationSettle) {
-				return;
-			}
-
-			isFooterInPostGenerationSettle = false;
-			renderMessageActionsImmediately();
-		}, POST_GENERATION_FOOTER_SETTLE_MS);
-	}
-
-	function handleGenerationActivityChange() {
-		const generationActivitySnapshot =
-			generationActivityStore?.getSnapshot();
-		const isFooterBlocked = isFooterBlockedByGenerationActivity(
-			generationActivitySnapshot,
-		);
-		const shouldScheduleSettleRefresh =
-			wasFooterBlockedByGenerationActivity && !isFooterBlocked;
-		wasFooterBlockedByGenerationActivity = isFooterBlocked;
-
-		if (isFooterBlocked) {
-			stopPostGenerationFooterSettle();
-			postGenerationSettleRefreshScheduler.cancel();
-			renderMessageActionsImmediately();
-			return;
-		}
-
-		if (shouldScheduleSettleRefresh) {
-			startPostGenerationFooterSettle();
-		}
-		refreshMessageActionStores({ renderImmediately: true });
-		if (shouldScheduleSettleRefresh) {
-			postGenerationSettleRefreshScheduler.schedule();
-		}
-	}
-
 	function observeChatDom() {
 		chatDomReconciler.start();
 	}
 
 	function stopObservingChatDom() {
 		chatDomReconciler.stop();
-		postGenerationSettleRefreshScheduler.cancel();
 		postEditSettleRefreshScheduler.cancel();
-		stopPostGenerationFooterSettle();
 		cancelScheduledMessageActionsRender();
 	}
 
@@ -1376,48 +1288,7 @@ export function createMobileMessageActionsFeature({
 		void action().finally(refreshMessageActionStores);
 	}
 
-	function setFooterGenerationBlocked(
-		actionHost: HTMLDivElement,
-		isBlocked: boolean,
-	) {
-		if (isBlocked) {
-			actionHost.dataset.astraGenerationBlocked = "true";
-			return;
-		}
-
-		delete actionHost.dataset.astraGenerationBlocked;
-	}
-
-	function setFooterPostGenerationSettling(
-		actionHost: HTMLDivElement,
-		isSettling: boolean,
-	) {
-		if (isSettling) {
-			actionHost.dataset.astraFooterSettling = "true";
-			return;
-		}
-
-		delete actionHost.dataset.astraFooterSettling;
-	}
-
-	function canPreserveFooterDuringPostGenerationSettle({
-		messageElement,
-	}: {
-		messageElement: Element;
-	}): boolean {
-		return Boolean(
-			isFooterInPostGenerationSettle &&
-			footerActionRootHost?.isConnected &&
-			footerActionRootHost.parentElement === messageElement,
-		);
-	}
-
 	function unmountFooterActionRoot() {
-		stopPostGenerationFooterSettle();
-		if (footerActionRootHost) {
-			setFooterGenerationBlocked(footerActionRootHost, false);
-			setFooterPostGenerationSettling(footerActionRootHost, false);
-		}
 		footerActionRoot?.unmount();
 		footerActionRoot = null;
 		cleanupMessageActionSlots(footerActionRootHost);
@@ -1459,8 +1330,6 @@ export function createMobileMessageActionsFeature({
 	}
 
 	function renderMessageActions() {
-		const generationActivitySnapshot =
-			generationActivityStore?.getSnapshot();
 		const historySnapshot = historyStore?.getSnapshot() ?? [];
 		const revisionSnapshot = revisionStore?.getSnapshot();
 		const swipeSnapshot = swipeStore?.getSnapshot();
@@ -1481,24 +1350,6 @@ export function createMobileMessageActionsFeature({
 		});
 		if (!targetMessage) {
 			unmountFooterActionRoot();
-			return;
-		}
-
-		const isFooterBlocked = isFooterBlockedByGenerationActivity(
-			generationActivitySnapshot,
-		);
-		if (isFooterBlocked) {
-			const slots = ensureMessageActionSlots(
-				targetMessage.messageElement,
-			);
-			if (!slots) {
-				unmountRoots();
-				return;
-			}
-
-			setFooterPostGenerationSettling(slots.container, false);
-			setFooterGenerationBlocked(slots.container, true);
-			ensureFooterActionRoot(slots.container).render(null);
 			return;
 		}
 
@@ -1529,37 +1380,15 @@ export function createMobileMessageActionsFeature({
 			!swipeActionsSnapshot &&
 			!inlineHistoryItem
 		) {
-			if (
-				canPreserveFooterDuringPostGenerationSettle({
-					messageElement: targetMessage.messageElement,
-				})
-			) {
-				const slots = ensureMessageActionSlots(
-					targetMessage.messageElement,
-				);
-				if (!slots) {
-					unmountRoots();
-					return;
-				}
-
-				setFooterGenerationBlocked(slots.container, false);
-				setFooterPostGenerationSettling(slots.container, true);
-				ensureFooterActionRoot(slots.container).render(null);
-				return;
-			}
-
 			unmountFooterActionRoot();
 			return;
 		}
 
-		stopPostGenerationFooterSettle();
 		const slots = ensureMessageActionSlots(targetMessage.messageElement);
 		if (!slots) {
 			unmountRoots();
 			return;
 		}
-		setFooterGenerationBlocked(slots.container, false);
-		setFooterPostGenerationSettling(slots.container, false);
 
 		ensureFooterActionRoot(slots.container).render(
 			withAstraErrorBoundary({
@@ -1616,19 +1445,10 @@ export function createMobileMessageActionsFeature({
 	}
 
 	function mount() {
-		if (
-			generationActivityStore &&
-			historyStore &&
-			swipeStore &&
-			revisionStore
-		) {
+		if (historyStore && swipeStore && revisionStore) {
 			removeLegacyMessageActionHosts();
 			observeChatDom();
 			messageTextGestures.attach();
-			wasFooterBlockedByGenerationActivity =
-				isFooterBlockedByGenerationActivity(
-					generationActivityStore.getSnapshot(),
-				);
 			historyStore.refresh();
 			revisionStore.refresh();
 			swipeStore.refresh();
@@ -1639,17 +1459,9 @@ export function createMobileMessageActionsFeature({
 		removeLegacyMessageActionHosts();
 		observeChatDom();
 		messageTextGestures.attach();
-		generationActivityStore = createGenerationActivityStore();
 		historyStore = resolvedCreateHistoryStore();
 		revisionStore = createRevisionStore();
 		swipeStore = createSwipeStore();
-		wasFooterBlockedByGenerationActivity =
-			isFooterBlockedByGenerationActivity(
-				generationActivityStore.getSnapshot(),
-			);
-		unsubscribeGenerationActivity = generationActivityStore.subscribe(
-			handleGenerationActivityChange,
-		);
 		unsubscribeHistory = historyStore.subscribe(
 			scheduleMessageActionsRender,
 		);
@@ -1667,8 +1479,6 @@ export function createMobileMessageActionsFeature({
 		stopObservingChatDom();
 		cancelDeferredNativeAction();
 		messageTextGestures.detach();
-		unsubscribeGenerationActivity?.();
-		unsubscribeGenerationActivity = null;
 		unsubscribeHistory?.();
 		unsubscribeHistory = null;
 		unsubscribeRevision?.();
@@ -1676,8 +1486,6 @@ export function createMobileMessageActionsFeature({
 		unsubscribeSwipe?.();
 		unsubscribeSwipe = null;
 		unmountRoots();
-		generationActivityStore?.dispose();
-		generationActivityStore = null;
 		historyStore?.dispose();
 		historyStore = null;
 		revisionStore?.dispose();

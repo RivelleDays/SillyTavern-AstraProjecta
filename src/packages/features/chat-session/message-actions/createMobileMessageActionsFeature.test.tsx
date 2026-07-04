@@ -28,34 +28,6 @@ import {
 	waitForDrawerExitAnimation,
 } from "@/packages/features/chat-session/message-actions/createMobileMessageActionsFeature.test-utils";
 
-function createGenerationActivityStoreStub(initialSnapshot: {
-	isGenerating: boolean;
-	isGroupGenerating: boolean;
-	isStreaming: boolean;
-	updatedAt: number;
-}) {
-	let listener: (() => void) | null = null;
-	let snapshot = initialSnapshot;
-
-	return {
-		dispatch(nextSnapshot: typeof snapshot) {
-			snapshot = nextSnapshot;
-			listener?.();
-		},
-		store: {
-			dispose: vi.fn(),
-			getSnapshot: vi.fn(() => snapshot),
-			refresh: vi.fn(),
-			subscribe: vi.fn((nextListener: () => void) => {
-				listener = nextListener;
-				return () => {
-					listener = null;
-				};
-			}),
-		},
-	};
-}
-
 function createEventSourceStub() {
 	const listeners = new Map<string, Set<(...args: unknown[]) => void>>();
 
@@ -78,58 +50,6 @@ function createEventSourceStub() {
 		) {
 			listeners.get(eventName)?.delete(listener);
 		},
-	};
-}
-
-function setupIdlePostGenerationFooterHarness(
-	initialGenerationSnapshot: Parameters<
-		typeof createGenerationActivityStoreStub
-	>[0],
-) {
-	document.body.innerHTML = `
-            <div id="chat">
-                <div class="mes" mesid="0">
-                    <div class="mes_block"></div>
-                </div>
-            </div>
-        `;
-	const generationActivityStore = createGenerationActivityStoreStub(
-		initialGenerationSnapshot,
-	);
-	const historyStore = createHistoryStoreStub([]);
-	const revisionStore = createRevisionStoreStub({
-		canContinue: false,
-		canRegenerate: false,
-		canUndo: false,
-		isBusy: false,
-		messageId: null,
-		status: "idle",
-		updatedAt: 0,
-	});
-	const swipeStore = createSwipeStoreStub({
-		canSwipeNext: false,
-		canSwipePrevious: false,
-		currentIndex: 0,
-		isNativeSwipeBusy: false,
-		messageId: null,
-		status: "idle",
-		total: 1,
-		updatedAt: 0,
-	});
-	const feature = createMobileMessageActionsFeature({
-		createGenerationActivityStore: () => generationActivityStore.store,
-		createHistoryStore: () => historyStore.store,
-		createRevisionStore: () => revisionStore.store,
-		createSwipeStore: () => swipeStore.store,
-		documentRef: document,
-	});
-
-	return {
-		feature,
-		generationActivityStore,
-		historyStore,
-		revisionStore,
-		swipeStore,
 	};
 }
 
@@ -231,20 +151,32 @@ describe("createMobileMessageActionsFeature", () => {
 		expect(document.querySelector(".astra-mesActions")).toBeNull();
 	});
 
-	test("hides footer actions during generation and restores them when generation settles", async () => {
+	test("keeps footer actions visible when SillyTavern generation events fire", async () => {
+		const eventSource = createEventSourceStub();
+		setSillyTavernContext({
+			chat: [
+				{
+					is_system: false,
+					is_user: false,
+					mes: "Assistant reply",
+					name: "Assistant",
+					swipe_id: 0,
+					swipes: ["Assistant reply"],
+				},
+			],
+			eventSource,
+			eventTypes: {
+				GENERATION_AFTER_COMMANDS: "generation_after_commands",
+				GENERATION_ENDED: "generation_ended",
+			},
+		});
 		document.body.innerHTML = `
             <div id="chat">
-                <div class="mes" mesid="0">
+                <div class="mes" mesid="0" is_user="false" is_system="false">
                     <div class="mes_block"></div>
                 </div>
             </div>
         `;
-		const generationActivityStore = createGenerationActivityStoreStub({
-			isGenerating: false,
-			isGroupGenerating: false,
-			isStreaming: false,
-			updatedAt: 0,
-		});
 		const swipeStore = createSwipeStoreStub({
 			canSwipeNext: true,
 			canSwipePrevious: false,
@@ -252,7 +184,7 @@ describe("createMobileMessageActionsFeature", () => {
 			isNativeSwipeBusy: false,
 			messageId: 0,
 			status: "ready",
-			total: 1,
+			total: 2,
 			updatedAt: 0,
 		});
 		const revisionStore = createRevisionStoreStub({
@@ -265,7 +197,6 @@ describe("createMobileMessageActionsFeature", () => {
 			updatedAt: 0,
 		});
 		const feature = createMobileMessageActionsFeature({
-			createGenerationActivityStore: () => generationActivityStore.store,
 			createRevisionStore: () => revisionStore.store,
 			createSwipeStore: () => swipeStore.store,
 			documentRef: document,
@@ -280,262 +211,30 @@ describe("createMobileMessageActionsFeature", () => {
 				).toBeInTheDocument();
 			});
 
-			generationActivityStore.dispatch({
-				isGenerating: true,
-				isGroupGenerating: false,
-				isStreaming: false,
-				updatedAt: 1,
-			});
+			eventSource.emit("generation_after_commands", "normal", {}, false);
 
-			await waitFor(() => {
-				expect(
-					document.querySelector(
-						'.mes[mesid="0"] > .astra-mesActions',
-					),
-				).toBeInTheDocument();
-			});
-			const blockedHost = document.querySelector(
-				'.mes[mesid="0"] > .astra-mesActions',
-			);
-			expect(blockedHost).toHaveAttribute(
-				"data-astra-generation-blocked",
-				"true",
-			);
-			expect(blockedHost?.childElementCount).toBe(0);
-			expect(document.querySelector(".astra-revisionBar")).toBeNull();
-			expect(document.querySelector(".astra-swipePager")).toBeNull();
-
-			swipeStore.store.refresh.mockClear();
-			revisionStore.store.refresh.mockClear();
-			generationActivityStore.dispatch({
-				isGenerating: false,
-				isGroupGenerating: false,
-				isStreaming: false,
-				updatedAt: 2,
-			});
-
-			await waitFor(() => {
-				expect(
-					document.querySelector(".astra-swipePager"),
-				).toBeInTheDocument();
-			});
-			expect(
-				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
-			).not.toHaveAttribute("data-astra-generation-blocked");
-			expect(swipeStore.store.refresh).toHaveBeenCalledTimes(1);
-			expect(revisionStore.store.refresh).toHaveBeenCalledTimes(1);
-			expect(generationActivityStore.store.refresh).toHaveBeenCalledTimes(
-				1,
-			);
-		} finally {
-			feature.dispose();
-		}
-	});
-
-	test("keeps the blocked footer host while post-generation actions are still settling", async () => {
-		const { feature, generationActivityStore } =
-			setupIdlePostGenerationFooterHarness({
-				isGenerating: true,
-				isGroupGenerating: false,
-				isStreaming: false,
-				updatedAt: 0,
-			});
-
-		try {
-			feature.mount();
-
-			await waitFor(() => {
-				expect(
-					document.querySelector(
-						'.mes[mesid="0"] > .astra-mesActions',
-					),
-				).toBeInTheDocument();
-			});
-			const blockedHost = document.querySelector(
-				'.mes[mesid="0"] > .astra-mesActions',
-			);
-
-			generationActivityStore.dispatch({
-				isGenerating: false,
-				isGroupGenerating: false,
-				isStreaming: false,
-				updatedAt: 1,
-			});
-
-			await waitFor(() => {
-				expect(blockedHost).toBeInTheDocument();
-			});
-			expect(blockedHost).toBe(
-				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
-			);
-			expect(blockedHost).not.toHaveAttribute(
-				"data-astra-generation-blocked",
-			);
-			expect(blockedHost).toHaveAttribute(
-				"data-astra-footer-settling",
-				"true",
-			);
-			expect(blockedHost?.childElementCount).toBe(0);
-			expect(document.querySelector(".astra-revisionBar")).toBeNull();
-			expect(document.querySelector(".astra-swipePager")).toBeNull();
-		} finally {
-			feature.dispose();
-		}
-	});
-
-	test("renders post-generation actions into the same settling footer host", async () => {
-		const { feature, generationActivityStore, revisionStore, swipeStore } =
-			setupIdlePostGenerationFooterHarness({
-				isGenerating: true,
-				isGroupGenerating: false,
-				isStreaming: false,
-				updatedAt: 0,
-			});
-
-		try {
-			feature.mount();
-
-			await waitFor(() => {
-				expect(
-					document.querySelector(
-						'.mes[mesid="0"] > .astra-mesActions',
-					),
-				).toBeInTheDocument();
-			});
-			const blockedHost = document.querySelector(
-				'.mes[mesid="0"] > .astra-mesActions',
-			);
-
-			generationActivityStore.dispatch({
-				isGenerating: false,
-				isGroupGenerating: false,
-				isStreaming: false,
-				updatedAt: 1,
-			});
-
-			await waitFor(() => {
-				expect(blockedHost).toHaveAttribute(
-					"data-astra-footer-settling",
-					"true",
-				);
-			});
-
-			revisionStore.dispatch({
-				canContinue: true,
-				canRegenerate: true,
-				canUndo: false,
-				isBusy: false,
-				messageId: 0,
-				status: "ready",
-				updatedAt: 2,
-			});
-			swipeStore.dispatch({
-				canSwipeNext: true,
-				canSwipePrevious: false,
-				currentIndex: 0,
-				isNativeSwipeBusy: false,
-				messageId: 0,
-				status: "ready",
-				total: 2,
-				updatedAt: 2,
-			});
-
-			await waitFor(() => {
-				expect(
-					document.querySelector(".astra-swipePager"),
-				).toBeInTheDocument();
-			});
 			expect(
 				document.querySelector(".astra-revisionBar"),
 			).toBeInTheDocument();
-			expect(blockedHost).toBe(
+			expect(
+				document.querySelector(".astra-swipePager"),
+			).toBeInTheDocument();
+			expect(
 				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
-			);
-			expect(blockedHost).not.toHaveAttribute(
-				"data-astra-footer-settling",
-			);
-			expect(blockedHost).not.toHaveAttribute(
-				"data-astra-generation-blocked",
-			);
-		} finally {
-			feature.dispose();
-		}
-	});
+			).not.toHaveAttribute("data-astra-generation-blocked");
 
-	test("removes an empty post-generation settling footer after the settle timeout", async () => {
-		vi.useFakeTimers();
-		const { feature, generationActivityStore } =
-			setupIdlePostGenerationFooterHarness({
-				isGenerating: true,
-				isGroupGenerating: false,
-				isStreaming: false,
-				updatedAt: 0,
-			});
-
-		try {
-			feature.mount();
-			const blockedHost = document.querySelector(
-				'.mes[mesid="0"] > .astra-mesActions',
-			);
-			expect(blockedHost).toBeInTheDocument();
-
-			generationActivityStore.dispatch({
-				isGenerating: false,
-				isGroupGenerating: false,
-				isStreaming: false,
-				updatedAt: 1,
-			});
-
-			expect(blockedHost).toHaveAttribute(
-				"data-astra-footer-settling",
-				"true",
-			);
-
-			await act(async () => {
-				vi.advanceTimersByTime(750);
-			});
+			eventSource.emit("generation_ended");
 
 			expect(
 				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
-			).toBeNull();
+			).not.toHaveAttribute("data-astra-footer-settling");
 		} finally {
 			feature.dispose();
 		}
 	});
 
-	test("does not create a blank settling footer without a previous blocked host", async () => {
-		const { feature, generationActivityStore, revisionStore } =
-			setupIdlePostGenerationFooterHarness({
-				isGenerating: false,
-				isGroupGenerating: false,
-				isStreaming: false,
-				updatedAt: 0,
-			});
-
-		try {
-			feature.mount();
-
-			await waitFor(() => {
-				expect(revisionStore.store.refresh).toHaveBeenCalled();
-			});
-			expect(document.querySelector(".astra-mesActions")).toBeNull();
-
-			generationActivityStore.dispatch({
-				isGenerating: false,
-				isGroupGenerating: false,
-				isStreaming: false,
-				updatedAt: 1,
-			});
-
-			expect(document.querySelector(".astra-mesActions")).toBeNull();
-		} finally {
-			feature.dispose();
-		}
-	});
-
-	test("restores footer actions from a rendered-message generation probe after the chat snapshot settles", async () => {
+	test("restores footer actions from rendered-message DOM reconciliation after the chat snapshot settles", async () => {
 		const frame = installAnimationFrameQueue();
-		const eventSource = createEventSourceStub();
 		const contextRef = {
 			current: {
 				chat: [
@@ -548,18 +247,11 @@ describe("createMobileMessageActionsFeature", () => {
 						swipes: ["Pending assistant reply"],
 					},
 				],
-				eventSource,
-				eventTypes: {
-					CHARACTER_MESSAGE_RENDERED: "character_message_rendered",
-					GENERATION_AFTER_COMMANDS: "generation_after_commands",
-					GENERATION_ENDED: "generation_ended",
-				},
 				generate: vi.fn(),
 			},
 		};
 		setSillyTavernContext(contextRef);
 		document.body.innerHTML = `
-            <button id="mes_stop" style="display: none;"></button>
             <div id="chat">
                 <div class="mes" mesid="0">
                     <div class="mes_block"></div>
@@ -596,15 +288,6 @@ describe("createMobileMessageActionsFeature", () => {
 
 			expect(document.querySelector(".astra-mesActions")).toBeNull();
 
-			document
-				.getElementById("mes_stop")
-				?.setAttribute("style", "display: flex;");
-			eventSource.emit("generation_after_commands", "normal", {}, false);
-			eventSource.emit("generation_ended");
-			document
-				.getElementById("mes_stop")
-				?.setAttribute("style", "display: none;");
-			eventSource.emit("character_message_rendered", 0, "normal");
 			contextRef.current = {
 				...contextRef.current,
 				chat: [
@@ -618,6 +301,12 @@ describe("createMobileMessageActionsFeature", () => {
 					},
 				],
 			};
+			const renderedText = document.createElement("div");
+			renderedText.className = "mes_text";
+			renderedText.textContent = "Finished assistant reply";
+			document.querySelector(".mes_block")?.append(renderedText);
+			await Promise.resolve();
+			await Promise.resolve();
 			frame.flushFrames();
 
 			await waitFor(() => {
@@ -636,71 +325,6 @@ describe("createMobileMessageActionsFeature", () => {
 			feature.dispose();
 			frame.restore();
 			delete (globalThis as { SillyTavern?: unknown }).SillyTavern;
-		}
-	});
-
-	test("hides footer actions while streaming is active", async () => {
-		document.body.innerHTML = `
-            <div id="chat">
-                <div class="mes" mesid="0">
-                    <div class="mes_block"></div>
-                </div>
-            </div>
-        `;
-		const generationActivityStore = createGenerationActivityStoreStub({
-			isGenerating: false,
-			isGroupGenerating: false,
-			isStreaming: true,
-			updatedAt: 0,
-		});
-		const swipeStore = createSwipeStoreStub({
-			canSwipeNext: true,
-			canSwipePrevious: false,
-			currentIndex: 0,
-			isNativeSwipeBusy: false,
-			messageId: 0,
-			status: "ready",
-			total: 1,
-			updatedAt: 0,
-		});
-		const revisionStore = createRevisionStoreStub({
-			canContinue: true,
-			canRegenerate: true,
-			canUndo: false,
-			isBusy: false,
-			messageId: 0,
-			status: "ready",
-			updatedAt: 0,
-		});
-		const feature = createMobileMessageActionsFeature({
-			createGenerationActivityStore: () => generationActivityStore.store,
-			createRevisionStore: () => revisionStore.store,
-			createSwipeStore: () => swipeStore.store,
-			documentRef: document,
-		});
-
-		try {
-			feature.mount();
-
-			await waitFor(() => {
-				expect(
-					document.querySelector(
-						'.mes[mesid="0"] > .astra-mesActions',
-					),
-				).toBeInTheDocument();
-			});
-			const blockedHost = document.querySelector(
-				'.mes[mesid="0"] > .astra-mesActions',
-			);
-			expect(blockedHost).toHaveAttribute(
-				"data-astra-generation-blocked",
-				"true",
-			);
-			expect(blockedHost?.childElementCount).toBe(0);
-			expect(document.querySelector(".astra-revisionBar")).toBeNull();
-			expect(document.querySelector(".astra-swipePager")).toBeNull();
-		} finally {
-			feature.dispose();
 		}
 	});
 
