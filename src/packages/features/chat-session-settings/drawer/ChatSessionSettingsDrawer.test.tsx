@@ -212,6 +212,26 @@ describe("ChatSessionSettingsDrawer", () => {
 			"chat-session-settings__dropdown-trigger",
 		);
 		expect(longPressTrigger).toHaveTextContent("Disabled");
+		const longPressTriggerContent = longPressTrigger.querySelector(
+			".chat-session-settings__dropdown-trigger-content",
+		);
+		expect(longPressTriggerContent).toBeInTheDocument();
+		expect(
+			longPressTriggerContent?.querySelector(
+				'[data-icon="inline-start"]',
+			),
+		).toBeInTheDocument();
+		expect(
+			longPressTriggerContent?.querySelector(
+				".chat-session-settings__dropdown-trigger-label",
+			),
+		).toHaveTextContent("Disabled");
+		expect(
+			longPressTriggerContent?.querySelector('[data-icon="inline-end"]'),
+		).toBeNull();
+		expect(
+			longPressTrigger.querySelector(':scope > [data-icon="inline-end"]'),
+		).toBeInTheDocument();
 		expect(
 			longPressTrigger.querySelector(".lucide-ban"),
 		).toBeInTheDocument();
