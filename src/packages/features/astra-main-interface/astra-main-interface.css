@@ -435,7 +435,7 @@
 		inset 0 -20px 36px var(--surface-background-t50);
 	color: var(--color-base);
 	font: inherit;
-	padding: 8px;
+	padding: 10px;
 	text-align: left;
 	transition:
 		transform 140ms ease,
