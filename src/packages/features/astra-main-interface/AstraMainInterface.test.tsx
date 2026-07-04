@@ -816,9 +816,31 @@ describe("AstraMainInterface", () => {
 
 		for (const { name, url } of [
 			{
-				name: "GitHub Source repository",
+				name: "SillyTavern/SillyTavern on GitHub",
 				url: "https://github.com/SillyTavern/SillyTavern",
 			},
+			{
+				name: "RivelleDays/SillyTavern-AstraProjecta on GitHub",
+				url: "https://github.com/RivelleDays/SillyTavern-AstraProjecta",
+			},
+			{
+				name: "Sillyanonymous/SillyTavern-CharacterLibrary on GitHub",
+				url: "https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary#sillytavern-character-library",
+			},
+		]) {
+			const link = screen.getByRole("link", { name });
+			expect(link).toHaveAttribute("href", url);
+			expect(link).toHaveAttribute("target", "_blank");
+			expect(link).toHaveAttribute("rel", "noreferrer");
+			expect(link).toHaveAttribute("data-slot", "repo-card");
+			expect(link).toHaveClass("astra-repo-card");
+			expect(link).not.toHaveClass("astra-main-interface-home__link");
+			expect(
+				link.closest(".astra-main-interface-home__repo-card-list"),
+			).toBeInTheDocument();
+		}
+
+		for (const { name, url } of [
 			{
 				name: "Docs Guides",
 				url: "https://docs.sillytavern.app/",
@@ -832,10 +854,6 @@ describe("AstraMainInterface", () => {
 				url: "https://www.reddit.com/r/SillyTavernAI/",
 			},
 			{
-				name: "GitHub Extension repository",
-				url: "https://github.com/RivelleDays/SillyTavern-AstraProjecta",
-			},
-			{
 				name: "Discord Community server",
 				url: "https://discord.gg/bb35eB5Zgr",
 			},
@@ -843,16 +861,28 @@ describe("AstraMainInterface", () => {
 				name: "Rivelle Author profile",
 				url: "https://bio.site/rivelle",
 			},
-			{
-				name: "Character Library Import characters",
-				url: "https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary#sillytavern-character-library",
-			},
 		]) {
 			const link = screen.getByRole("link", { name });
 			expect(link).toHaveAttribute("href", url);
 			expect(link).toHaveAttribute("target", "_blank");
 			expect(link).toHaveAttribute("rel", "noreferrer");
+			expect(link).toHaveClass("astra-main-interface-home__link");
+			expect(link).not.toHaveAttribute("data-slot", "repo-card");
 		}
+
+		const supportedExtensionsGroup = screen
+			.getByText("Supported Extensions")
+			.closest(".astra-main-interface-home__link-group");
+		expect(
+			supportedExtensionsGroup?.querySelectorAll(
+				'[data-slot="repo-card"]',
+			),
+		).toHaveLength(1);
+		expect(
+			supportedExtensionsGroup?.querySelector(
+				".astra-main-interface-home__link-list",
+			),
+		).not.toBeInTheDocument();
 	});
 
 	test("labels the current section tab from the active chat identity when available", () => {
