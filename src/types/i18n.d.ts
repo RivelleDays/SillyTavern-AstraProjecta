@@ -193,7 +193,6 @@ export interface I18nMessages {
 	"astraMainInterface.global.tabs.label": string;
 	"astraMainInterface.home.carousel.description": string;
 	"astraMainInterface.home.carousel.title": string;
-	"astraMainInterface.home.links.astra.disclaimer": string;
 	"astraMainInterface.home.links.astra.discord": string;
 	"astraMainInterface.home.links.astra.discordDescription": string;
 	"astraMainInterface.home.links.astra.github": string;

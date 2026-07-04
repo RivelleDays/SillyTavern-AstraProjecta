@@ -1,18 +1,19 @@
 import * as React from "react";
 
 import { Separator } from "@/components/ui/shadcn/separator";
+import {
+	DiscordBrand,
+	GithubBrand,
+	RedditBrand,
+} from "@/components/ui/shared/brand-icons";
 import { AstraChatAvatar } from "@/components/ui/shared/chat-avatar";
 import { UiIcon } from "@/components/ui/shared/icon";
 import {
 	BookOpen,
 	ChevronRight,
-	Clock3,
-	ExternalLink,
-	FolderGit2,
-	Globe,
 	LibraryBig,
 	Link,
-	MessageCircle,
+	MessagesSquare,
 	UserRound,
 	type LucideIcon,
 } from "@/components/ui/shared/icons";
@@ -43,7 +44,6 @@ interface GlobalHomeLinkDescriptor {
 }
 
 interface GlobalHomeLinkGroupDescriptor {
-	disclaimerKey?: I18nKey;
 	key: string;
 	links: readonly GlobalHomeLinkDescriptor[];
 	titleKey: I18nKey;
@@ -68,7 +68,7 @@ const HOME_LINK_GROUPS = [
 				descriptionKey:
 					"astraMainInterface.home.links.sillytavern.githubDescription",
 				href: "https://github.com/SillyTavern/SillyTavern",
-				icon: FolderGit2,
+				icon: GithubBrand,
 				labelKey: "astraMainInterface.home.links.sillytavern.github",
 			},
 			{
@@ -83,35 +83,34 @@ const HOME_LINK_GROUPS = [
 				descriptionKey:
 					"astraMainInterface.home.links.sillytavern.discordDescription",
 				href: "https://discord.gg/sillytavern",
-				icon: MessageCircle,
+				icon: DiscordBrand,
 				labelKey: "astraMainInterface.home.links.sillytavern.discord",
 			},
 			{
 				descriptionKey:
 					"astraMainInterface.home.links.sillytavern.redditDescription",
 				href: "https://www.reddit.com/r/SillyTavernAI/",
-				icon: Globe,
+				icon: RedditBrand,
 				labelKey: "astraMainInterface.home.links.sillytavern.reddit",
 			},
 		],
 		titleKey: "astraMainInterface.home.links.sillytavern.title",
 	},
 	{
-		disclaimerKey: "astraMainInterface.home.links.astra.disclaimer",
 		key: "astra-projecta",
 		links: [
 			{
 				descriptionKey:
 					"astraMainInterface.home.links.astra.githubDescription",
 				href: "https://github.com/RivelleDays/SillyTavern-AstraProjecta",
-				icon: FolderGit2,
+				icon: GithubBrand,
 				labelKey: "astraMainInterface.home.links.astra.github",
 			},
 			{
 				descriptionKey:
 					"astraMainInterface.home.links.astra.discordDescription",
 				href: "https://discord.gg/bb35eB5Zgr",
-				icon: MessageCircle,
+				icon: DiscordBrand,
 				labelKey: "astraMainInterface.home.links.astra.discord",
 			},
 			{
@@ -421,7 +420,7 @@ function GlobalHomeRecentChats({
 						/>
 					</button>
 				}
-				icon={Clock3}
+				icon={MessagesSquare}
 				title={translateAstra("astraMainInterface.home.recent.title")}
 			/>
 			{openError ? (
@@ -479,11 +478,6 @@ function GlobalHomeLinks() {
 						<div className="astra-main-interface-home__link-group-title">
 							{translateAstra(group.titleKey)}
 						</div>
-						{group.disclaimerKey ? (
-							<p className="astra-main-interface-home__link-disclaimer">
-								{translateAstra(group.disclaimerKey)}
-							</p>
-						) : null}
 						<div className="astra-main-interface-home__link-list">
 							{group.links.map((link) => {
 								const title = translateAstra(link.labelKey);
@@ -517,11 +511,6 @@ function GlobalHomeLinks() {
 												{description}
 											</span>
 										</span>
-										<UiIcon
-											aria-hidden={true}
-											icon={ExternalLink}
-											size="xs"
-										/>
 									</a>
 								);
 							})}

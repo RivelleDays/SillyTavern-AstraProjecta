@@ -737,16 +737,11 @@ describe("AstraMainInterface", () => {
 		).toHaveAttribute("data-state", "active");
 	});
 
-	test("renders home external resources with safe links and third-party disclaimer", () => {
+	test("renders home external resources with safe links", () => {
 		const storeStub = createStoreStub(createSnapshot());
 
 		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
 
-		expect(
-			screen.getByText(
-				"AstraProjecta is a third-party SillyTavern extension. These AstraProjecta links are not official SillyTavern channels.",
-			),
-		).toBeInTheDocument();
 		for (const { name, url } of [
 			{
 				name: "GitHub Source repository",

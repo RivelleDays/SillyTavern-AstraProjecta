@@ -148,6 +148,7 @@ These projects influenced older AstraProjecta prototypes or feature ideas. Some 
 | ------------------------------------------------------------------- | -------------------------------------------------------- | ---------- |
 | [lucide](https://github.com/lucide-icons/lucide)                    | Icon library                                             | ISC / MIT  |
 | [MingCute Icons](https://github.com/mingcute-design/mingcute-icons) | Source for several SillyTavern interface route SVG icons | Apache 2.0 |
+| [Simple Icons](https://github.com/simple-icons/simple-icons)        | Brand SVG icons (GitHub, Discord, Reddit)                | CC0-1.0    |
 
 ### Frontend Libraries & Utilities
 

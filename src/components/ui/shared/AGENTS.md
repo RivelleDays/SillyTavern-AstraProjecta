@@ -7,6 +7,7 @@
 
 - `icon.tsx`: shared Lucide sizing wrapper for AstraProjecta UI surfaces.
 - `icons.ts`: shared Lucide re-export surface and icon types.
+- `brand-icons/`: bundled brand SVGs (Simple Icons, CC0-1.0) exposed as Lucide-compatible icon components; the `.svg` files are the source of truth and must stay single-path 24x24.
 - `provider-svg-icon.tsx`: shared sanitized SillyTavern provider SVG loader/cache/prefixer for UI surfaces that need `/img/<provider>.svg` icons without duplicating SVG parsing policy.
 - `scroll-area.tsx`: convenience composition over the canonical Astra Scroll Area parts for surfaces that only need the simple wrapper shape.
 - `sliding-tabs.tsx`: shared horizontal tab strip with a single measured sliding indicator for Astra-owned navigation surfaces.

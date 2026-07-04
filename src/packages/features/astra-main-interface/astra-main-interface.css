@@ -397,7 +397,6 @@
 	display: flex;
 	min-width: 0;
 	flex-direction: column;
-	gap: 12px;
 	padding-inline: var(--astra-main-interface-panel-content-padding-inline);
 }
 
@@ -406,7 +405,7 @@
 	grid-template-columns: repeat(4, minmax(0, 1fr) auto) minmax(0, 1fr);
 	align-items: stretch;
 	min-width: 0;
-	padding-block: 4px;
+	padding-block: 6px;
 }
 
 .astra-main-interface-home__shortcut {
@@ -422,9 +421,10 @@
 	background: transparent;
 	color: var(--color-base);
 	font: inherit;
-	padding: 12px 4px 8px;
+	padding: 12px 4px;
 	text-align: center;
-	transition: background-color 150ms ease;
+	opacity: 0.8;
+	transition: opacity 150ms ease;
 }
 
 .astra-main-interface-home__shortcut:not(:disabled) {
@@ -438,7 +438,7 @@
 
 .astra-main-interface-home__shortcut:hover:not(:disabled),
 .astra-main-interface-home__shortcut:focus-visible {
-	background: var(--surface-accent-t20);
+	opacity: 1;
 	outline: none;
 }
 
@@ -457,6 +457,11 @@
 	width: 22px;
 	height: 22px;
 	color: currentColor;
+}
+
+.astra-main-interface-home__shortcut-icon-svg > svg {
+	width: 100%;
+	height: 100%;
 }
 
 .astra-main-interface-home__shortcut-label {
@@ -527,23 +532,24 @@
 }
 
 .astra-main-interface-home__section-header {
-	display: flex;
-	min-width: 0;
-	align-items: center;
-	gap: 8px;
-	padding: 8px 0;
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+    padding-top: 16px;
+    padding-bottom: 8px;
 }
 
 .astra-main-interface-home__section-icon {
-	display: inline-flex;
-	width: 28px;
-	height: 28px;
-	flex: 0 0 auto;
-	align-items: center;
-	justify-content: center;
-	border-radius: var(--radius-sm);
-	background: var(--color-ring-t10);
-	color: var(--ring);
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: var(--surface-muted-t60);
+    color: var(--color-muted);
 }
 
 .astra-main-interface-home__section-title {
@@ -753,11 +759,12 @@
 
 .astra-main-interface-home__recent-entity {
 	flex: 1 1 auto;
+	font-weight: var(--font-weight-semibold);
 }
 
 .astra-main-interface-home__recent-time {
 	flex: 0 0 auto;
-	opacity: 0.72;
+	opacity: 0.6;
 }
 
 .astra-main-interface-home__links {
@@ -781,18 +788,12 @@
 .astra-main-interface-home__link-group-title {
     color: var(--color-muted);
     font-size: var(--text-xs);
-    font-weight: var(--font-weight-bold);
-}
-
-.astra-main-interface-home__link-disclaimer {
-	margin: 0;
-	color: var(--color-muted);
-	font-size: var(--text-xs);
-	line-height: 1.5;
+    font-weight: var(--font-weight-semibold);
 }
 
 .astra-main-interface-home__link-list {
 	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 8px;
 }
 
@@ -800,7 +801,7 @@
     display: flex;
     min-width: 0;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--color-base-t5);
@@ -855,11 +856,6 @@
 .astra-main-interface-home__link-description {
 	color: var(--color-muted);
 	font-size: 0.6875rem;
-}
-
-.astra-main-interface-home__link > svg {
-	flex: 0 0 auto;
-	color: var(--color-muted);
 }
 
 .astra-main-interface__toolbar {
