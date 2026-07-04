@@ -209,7 +209,7 @@ export function MessageEditDrawer({
 	const isMoveDownDisabled =
 		!draft?.canMoveDown || isConfigActionDisabled(actions?.moveDown);
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		setHasReasoning(draft?.hasReasoning === true);
 		setMessageText(draft?.messageText ?? "");
 		setReasoningText(draft?.reasoningText ?? "");
