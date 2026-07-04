@@ -97,6 +97,8 @@ describe("astra-main-interface.css", () => {
 			".astra-main-interface-home__recent-stat",
 			".astra-main-interface-home__recent-view-all",
 			".astra-main-interface-home__links",
+			".astra-main-interface-home__repo-card-list",
+			".astra-repo-card",
 		]) {
 			expect(css).toContain(selector);
 		}

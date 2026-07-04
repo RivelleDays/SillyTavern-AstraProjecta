@@ -1,17 +1,13 @@
 import * as React from "react";
 
-import {
-	DiscordBrand,
-	GithubBrand,
-	RedditBrand,
-} from "@/components/ui/shared/brand-icons";
+import { DiscordBrand, RedditBrand } from "@/components/ui/shared/brand-icons";
 import { AstraChatAvatar } from "@/components/ui/shared/chat-avatar";
 import { UiIcon } from "@/components/ui/shared/icon";
+import { RepoCard } from "@/components/ui/shared/repo-card";
 import {
 	BookOpen,
 	ChevronRight,
 	Dot,
-	LibraryBig,
 	Link,
 	MessageCircleMore,
 	MessagesSquare,
@@ -44,9 +40,22 @@ interface GlobalHomeLinkDescriptor {
 	labelKey: I18nKey;
 }
 
+interface GlobalHomeRepoCardDescriptor {
+	descriptionKey: I18nKey;
+	forks?: number;
+	fullName: string;
+	href: string;
+	language?: string;
+	languageColor?: string;
+	license?: string;
+	stars?: number;
+	topics?: readonly string[];
+}
+
 interface GlobalHomeLinkGroupDescriptor {
 	key: string;
 	links: readonly GlobalHomeLinkDescriptor[];
+	repoCards?: readonly GlobalHomeRepoCardDescriptor[];
 	titleKey: I18nKey;
 }
 
@@ -64,14 +73,21 @@ export interface GlobalHomePageProps {
 const HOME_LINK_GROUPS = [
 	{
 		key: "sillytavern",
-		links: [
+		repoCards: [
 			{
 				descriptionKey:
-					"astraMainInterface.home.links.sillytavern.githubDescription",
+					"astraMainInterface.home.links.sillytavern.repoDescription",
+				forks: 5719,
+				fullName: "SillyTavern/SillyTavern",
 				href: "https://github.com/SillyTavern/SillyTavern",
-				icon: GithubBrand,
-				labelKey: "astraMainInterface.home.links.sillytavern.github",
+				language: "JavaScript",
+				languageColor: "#f1e05a",
+				license: "AGPL-3.0",
+				stars: 30234,
+				topics: ["ai", "chat", "llm"],
 			},
+		],
+		links: [
 			{
 				descriptionKey:
 					"astraMainInterface.home.links.sillytavern.documentationDescription",
@@ -99,14 +115,20 @@ const HOME_LINK_GROUPS = [
 	},
 	{
 		key: "astra-projecta",
-		links: [
+		repoCards: [
 			{
 				descriptionKey:
-					"astraMainInterface.home.links.astra.githubDescription",
+					"astraMainInterface.home.links.astra.repoDescription",
+				forks: 0,
+				fullName: "RivelleDays/SillyTavern-AstraProjecta",
 				href: "https://github.com/RivelleDays/SillyTavern-AstraProjecta",
-				icon: GithubBrand,
-				labelKey: "astraMainInterface.home.links.astra.github",
+				language: "TypeScript",
+				languageColor: "#3178c6",
+				license: "AGPL-3.0",
+				stars: 8,
 			},
+		],
+		links: [
 			{
 				descriptionKey:
 					"astraMainInterface.home.links.astra.discordDescription",
@@ -126,16 +148,20 @@ const HOME_LINK_GROUPS = [
 	},
 	{
 		key: "supported-extensions",
-		links: [
+		repoCards: [
 			{
 				descriptionKey:
-					"astraMainInterface.home.links.supportedExtensions.characterLibraryDescription",
+					"astraMainInterface.home.links.supportedExtensions.characterLibraryRepoDescription",
+				forks: 18,
+				fullName: "Sillyanonymous/SillyTavern-CharacterLibrary",
 				href: "https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary#sillytavern-character-library",
-				icon: LibraryBig,
-				labelKey:
-					"astraMainInterface.home.links.supportedExtensions.characterLibrary",
+				language: "JavaScript",
+				languageColor: "#f1e05a",
+				license: "AGPL-3.0",
+				stars: 84,
 			},
 		],
+		links: [],
 		titleKey: "astraMainInterface.home.links.supportedExtensions.title",
 	},
 ] as const satisfies readonly GlobalHomeLinkGroupDescriptor[];
@@ -513,43 +539,68 @@ function GlobalHomeLinks() {
 						<div className="astra-main-interface-home__link-group-title">
 							{translateAstra(group.titleKey)}
 						</div>
-						<div className="astra-main-interface-home__link-list">
-							{group.links.map((link) => {
-								const title = translateAstra(link.labelKey);
-								const description = translateAstra(
-									link.descriptionKey,
-								);
+						{group.repoCards && group.repoCards.length > 0 ? (
+							<div className="astra-main-interface-home__repo-card-list">
+								{group.repoCards.map((repoCard) => (
+									<RepoCard
+										ariaLabel={`${repoCard.fullName} ${translateAstra(
+											"astraMainInterface.home.links.repoCard.githubLabelSuffix",
+										)}`}
+										description={translateAstra(
+											repoCard.descriptionKey,
+										)}
+										forks={repoCard.forks}
+										fullName={repoCard.fullName}
+										href={repoCard.href}
+										key={repoCard.href}
+										language={repoCard.language}
+										languageColor={repoCard.languageColor}
+										license={repoCard.license}
+										stars={repoCard.stars}
+										topics={repoCard.topics}
+									/>
+								))}
+							</div>
+						) : null}
+						{group.links.length > 0 ? (
+							<div className="astra-main-interface-home__link-list">
+								{group.links.map((link) => {
+									const title = translateAstra(link.labelKey);
+									const description = translateAstra(
+										link.descriptionKey,
+									);
 
-								return (
-									<a
-										aria-label={`${title} ${description}`}
-										className="astra-main-interface-home__link"
-										href={link.href}
-										key={link.href}
-										rel="noreferrer"
-										target="_blank"
-									>
-										<span
-											aria-hidden={true}
-											className="astra-main-interface-home__link-icon"
+									return (
+										<a
+											aria-label={`${title} ${description}`}
+											className="astra-main-interface-home__link"
+											href={link.href}
+											key={link.href}
+											rel="noreferrer"
+											target="_blank"
 										>
-											<UiIcon
-												icon={link.icon}
-												size="sm"
-											/>
-										</span>
-										<span className="astra-main-interface-home__link-text">
-											<span className="astra-main-interface-home__link-title">
-												{title}
+											<span
+												aria-hidden={true}
+												className="astra-main-interface-home__link-icon"
+											>
+												<UiIcon
+													icon={link.icon}
+													size="sm"
+												/>
 											</span>
-											<span className="astra-main-interface-home__link-description">
-												{description}
+											<span className="astra-main-interface-home__link-text">
+												<span className="astra-main-interface-home__link-title">
+													{title}
+												</span>
+												<span className="astra-main-interface-home__link-description">
+													{description}
+												</span>
 											</span>
-										</span>
-									</a>
-								);
-							})}
-						</div>
+										</a>
+									);
+								})}
+							</div>
+						) : null}
 					</section>
 				))}
 			</div>
