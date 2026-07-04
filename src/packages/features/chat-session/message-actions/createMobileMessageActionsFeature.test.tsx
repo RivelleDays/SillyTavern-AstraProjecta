@@ -2790,6 +2790,180 @@ describe("createMobileMessageActionsFeature", () => {
 		}
 	});
 
+	test("restores footer revision and swipe controls after confirming an edit once chat state settles", async () => {
+		resetDefaultLayoutModeStoreForTests();
+		setDefaultLayoutModePreferenceReader(() => "auto");
+		mockMatchMedia(true);
+		ensureAstraProjectaUiInfrastructure({ documentRef: document });
+		const frame = installAnimationFrameQueue();
+		let feature: ReturnType<
+			typeof createMobileMessageActionsFeature
+		> | null = null;
+
+		try {
+			document.body.innerHTML += `
+                <button id="mes_stop" style="display: none;"></button>
+                <div id="chat">
+                    <div class="mes" mesid="0" is_user="false" is_system="false">
+                        <div class="mesAvatarWrapper">
+                            <div class="avatar"><img src="/assistant-avatar.png" /></div>
+                            <div class="mesIDDisplay">#0</div>
+                        </div>
+                        <div class="mes_block">
+                            <div class="ch_name">Assistant</div>
+                            <div class="mes_buttons">
+                                <div class="extraMesButtons">
+                                    <button type="button" class="mes_copy"></button>
+                                </div>
+                            </div>
+                            <div class="mes_text"><p>Original action body</p></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+			const chat = [
+				{
+					extra: {},
+					is_system: false,
+					is_user: false,
+					mes: "Original action body",
+					name: "Assistant",
+					swipe_id: 0,
+					swipes: ["Original action body", "Alternative body"],
+				},
+			];
+			const eventSource = createEventSourceStub();
+			const saveChat = vi.fn(async () => {
+				chat[0].extra = { swipeable: false };
+				window.requestAnimationFrame(() => {
+					chat[0].extra = {};
+				});
+			});
+			const updateMessageBlock = vi.fn((messageId: number) => {
+				const messageText = document.querySelector(
+					`.mes[mesid="${messageId}"] .mes_text`,
+				);
+				if (messageText) {
+					messageText.innerHTML = `<p>${chat[messageId].mes}</p>`;
+				}
+			});
+			setSillyTavernContext({
+				current: {
+					chat,
+					chatMetadata: { tainted: true },
+					eventSource,
+					eventTypes: {
+						CHAT_CHANGED: "chat_changed",
+						CHARACTER_MESSAGE_RENDERED:
+							"character_message_rendered",
+						GENERATION_AFTER_COMMANDS: "generation_after_commands",
+						GENERATION_ENDED: "generation_ended",
+						GENERATION_STOPPED: "generation_stopped",
+						MESSAGE_EDITED: "message_edited",
+						MESSAGE_RECEIVED: "message_received",
+						MESSAGE_SWIPE_DELETED: "message_swipe_deleted",
+						MESSAGE_SWIPED: "message_swiped",
+						MESSAGE_UPDATED: "message_updated",
+						USER_MESSAGE_RENDERED: "user_message_rendered",
+					},
+					generate: vi.fn(),
+					messageFormatting: (value: string) => `<p>${value}</p>`,
+					powerUserSettings: {
+						trim_spaces: true,
+					},
+					saveChat,
+					substituteParams: (value: string) => value,
+					swipe: {
+						isAllowed: () => true,
+						to: vi.fn(),
+					},
+					updateMessageBlock,
+				},
+			});
+			feature = createMobileMessageActionsFeature({
+				documentRef: document,
+			});
+
+			feature.mount();
+
+			await waitFor(() => {
+				expect(
+					document.querySelector(
+						'.mes[mesid="0"] .astra-revisionBar',
+					),
+				).toBeInTheDocument();
+				expect(
+					document.querySelector('.mes[mesid="0"] .astra-swipePager'),
+				).toBeInTheDocument();
+			});
+
+			const message = document.querySelector(
+				'.mes[mesid="0"]',
+			) as HTMLElement;
+			const moreDialog = await openMoreActionsDrawerForMessage(message);
+			fireEvent.click(
+				within(moreDialog).getByRole("button", {
+					name: "Edit message",
+				}),
+			);
+			frame.flushFrames();
+
+			const editDialog = await screen.findByRole("dialog", {
+				name: "Edit Message",
+			});
+			fireEvent.change(
+				within(editDialog).getByLabelText("Message text"),
+				{
+					target: { value: "Edited action body" },
+				},
+			);
+			fireEvent.click(
+				within(editDialog).getByRole("button", {
+					name: "Confirm edit",
+				}),
+			);
+
+			await waitFor(() => {
+				expect(saveChat).toHaveBeenCalledTimes(1);
+			});
+			frame.flushFrames();
+
+			await waitFor(() => {
+				expect(
+					document.querySelector(
+						'.mes[mesid="0"] .astra-revisionBar',
+					),
+				).toBeInTheDocument();
+				expect(
+					document.querySelector('.mes[mesid="0"] .astra-swipePager'),
+				).toBeInTheDocument();
+			});
+			expect(
+				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
+			).not.toHaveAttribute("data-astra-generation-blocked");
+			expect(
+				document
+					.querySelector('.mes[mesid="0"] .astra-revisionBar')
+					?.closest(".astra-mesActions"),
+			).toBe(
+				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
+			);
+			expect(
+				document
+					.querySelector('.mes[mesid="0"] .astra-swipePager')
+					?.closest(".astra-mesActions"),
+			).toBe(
+				document.querySelector('.mes[mesid="0"] > .astra-mesActions'),
+			);
+		} finally {
+			feature?.dispose();
+			frame.restore();
+			delete (globalThis as { SillyTavern?: unknown }).SillyTavern;
+			resetDefaultLayoutModeStoreForTests();
+			setDefaultLayoutModePreferenceReader(() => "auto");
+		}
+	});
+
 	test("runs edit drawer top actions through Astra adapters without native edit clicks", async () => {
 		resetDefaultLayoutModeStoreForTests();
 		setDefaultLayoutModePreferenceReader(() => "auto");
