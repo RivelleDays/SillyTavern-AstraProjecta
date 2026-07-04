@@ -43,15 +43,25 @@ function readMessageAppearance(context: Record<string, unknown>) {
 		| undefined;
 }
 
+function readMessageInteraction(context: Record<string, unknown>) {
+	return (
+		context.extensionSettings as Record<string, Record<string, unknown>>
+	).astra_projecta.chatMessageInteraction as
+		| { longPressAction: string }
+		| undefined;
+}
+
 function setupContextWithAppearance({
 	blurPx = 2,
 	lineHeight = "md",
+	longPressAction = "disabled",
 	opacityPercent = 80,
 	showTimeline = true,
 	textAlign = "start",
 }: {
 	blurPx?: number;
 	lineHeight?: string;
+	longPressAction?: string;
 	opacityPercent?: number;
 	showTimeline?: boolean;
 	textAlign?: string;
@@ -70,11 +80,25 @@ function setupContextWithAppearance({
 					textAlign,
 					version: 1,
 				},
+				chatMessageInteraction: {
+					longPressAction,
+					version: 1,
+				},
 			},
 		},
 	});
 	setSillyTavernContext(context);
 	return context;
+}
+
+function openLongPressActionMenu() {
+	fireEvent.pointerDown(
+		screen.getByRole("button", { name: "Message text long press" }),
+		{
+			button: 0,
+			ctrlKey: false,
+		},
+	);
 }
 
 beforeEach(() => {
@@ -173,11 +197,24 @@ describe("ChatSessionSettingsDrawer", () => {
 		).getByRole("switch", {
 			name: "Show chat timeline",
 		});
+		const longPressTrigger = within(
+			chatMessagesSection as HTMLElement,
+		).getByRole("button", {
+			name: "Message text long press",
+		});
 		const chatMessageControls = Array.from(
 			(chatMessagesSection as HTMLElement).querySelectorAll(
-				".chat-session-settings__button-row, .chat-session-settings__toggle-row",
+				".chat-session-settings__dropdown-row, .chat-session-settings__button-row, .chat-session-settings__toggle-row",
 			),
 		);
+		expect(chatMessageControls.at(0)).toContainElement(longPressTrigger);
+		expect(longPressTrigger).toHaveClass(
+			"chat-session-settings__dropdown-trigger",
+		);
+		expect(longPressTrigger).toHaveTextContent("Disabled");
+		expect(
+			longPressTrigger.querySelector(".lucide-ban"),
+		).toBeInTheDocument();
 		expect(chatMessageControls.at(-1)).toContainElement(timelineToggle);
 		expect(timelineToggle).toHaveAttribute("aria-checked", "true");
 		expect(timelineToggle).toHaveAttribute(
@@ -260,6 +297,39 @@ describe("ChatSessionSettingsDrawer", () => {
 		expect(context.saveSettingsDebounced).toHaveBeenCalledTimes(1);
 	});
 
+	test("persists the message long press action only when Save is clicked", async () => {
+		const context = setupContextWithAppearance();
+		render(
+			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={true} />,
+		);
+
+		openLongPressActionMenu();
+		fireEvent.click(
+			await screen.findByRole("menuitem", { name: "More actions" }),
+		);
+
+		expect(readMessageInteraction(context)).toEqual(
+			expect.objectContaining({
+				longPressAction: "disabled",
+			}),
+		);
+		expect(context.saveSettingsDebounced).not.toHaveBeenCalled();
+		const trigger = screen.getByRole("button", {
+			name: "Message text long press",
+		});
+		expect(trigger).toHaveTextContent("More actions");
+		expect(trigger.querySelector(".lucide-route")).toBeInTheDocument();
+
+		fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+		expect(readMessageInteraction(context)).toEqual(
+			expect.objectContaining({
+				longPressAction: "message-actions",
+			}),
+		);
+		expect(context.saveSettingsDebounced).toHaveBeenCalledTimes(1);
+	});
+
 	test("previews message appearance immediately but persists only when Save is clicked", () => {
 		const context = setupContextWithAppearance();
 		render(
@@ -305,6 +375,7 @@ describe("ChatSessionSettingsDrawer", () => {
 	test("Cancel discards draft edits and reopening reflects persisted settings", () => {
 		const context = setupContextWithAppearance({
 			blurPx: 1,
+			longPressAction: "edit-message",
 			opacityPercent: 60,
 		});
 		const { rerender } = render(
@@ -314,10 +385,15 @@ describe("ChatSessionSettingsDrawer", () => {
 		const sliders = screen.getAllByRole("slider");
 		sliders[0].focus();
 		fireEvent.keyDown(sliders[0], { key: "ArrowRight" });
+		openLongPressActionMenu();
+		fireEvent.click(screen.getByRole("menuitem", { name: "More actions" }));
 		fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
 
 		expect(readAppearance(context)).toEqual(
 			expect.objectContaining({ blurPx: 1, opacityPercent: 60 }),
+		);
+		expect(readMessageInteraction(context)).toEqual(
+			expect.objectContaining({ longPressAction: "edit-message" }),
 		);
 		expect(context.saveSettingsDebounced).not.toHaveBeenCalled();
 		expect(
@@ -337,12 +413,16 @@ describe("ChatSessionSettingsDrawer", () => {
 		const textboxes = screen.getAllByRole("textbox");
 		expect(textboxes[0]).toHaveValue("1");
 		expect(textboxes[1]).toHaveValue("60");
+		expect(
+			screen.getByRole("button", { name: "Message text long press" }),
+		).toHaveTextContent("Edit message");
 	});
 
 	test("closing without Save restores the persisted preview", () => {
 		const context = setupContextWithAppearance({
 			blurPx: 1,
 			lineHeight: "sm",
+			longPressAction: "edit-message",
 			opacityPercent: 60,
 			showTimeline: true,
 			textAlign: "end",
@@ -359,6 +439,8 @@ describe("ChatSessionSettingsDrawer", () => {
 		fireEvent.click(
 			screen.getByRole("switch", { name: "Show chat timeline" }),
 		);
+		openLongPressActionMenu();
+		fireEvent.click(screen.getByRole("menuitem", { name: "More actions" }));
 
 		rerender(
 			<ChatSessionSettingsDrawer onOpenChange={vi.fn()} open={false} />,
@@ -372,6 +454,11 @@ describe("ChatSessionSettingsDrawer", () => {
 				lineHeight: "sm",
 				showTimeline: true,
 				textAlign: "end",
+			}),
+		);
+		expect(readMessageInteraction(context)).toEqual(
+			expect.objectContaining({
+				longPressAction: "edit-message",
 			}),
 		);
 		expect(context.saveSettingsDebounced).not.toHaveBeenCalled();

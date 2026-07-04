@@ -21,11 +21,49 @@ function setupMessageDom() {
 }
 
 describe("createMessageTextGestureController", () => {
-	test("opens More actions after a 240ms long press on message text", async () => {
+	test("does not intercept long press or follow-up clicks when the action is disabled", async () => {
+		const { messageText } = setupMessageDom();
+		const onOpenEdit = vi.fn();
+		const onOpenMore = vi.fn();
+		const nativeClick = vi.fn();
+		document.addEventListener("click", nativeClick);
+		const controller = createMessageTextGestureController({
+			documentRef: document,
+			isClickToEditEnabled: () => false,
+			onOpenEdit,
+			onOpenMore,
+		});
+
+		vi.useFakeTimers();
+		try {
+			controller.attach();
+			fireEvent.pointerDown(messageText, {
+				clientX: 8,
+				clientY: 12,
+				pointerId: 1,
+				pointerType: "touch",
+			});
+			await act(async () => {
+				vi.advanceTimersByTime(360);
+			});
+			fireEvent.click(messageText);
+
+			expect(onOpenEdit).not.toHaveBeenCalled();
+			expect(onOpenMore).not.toHaveBeenCalled();
+			expect(nativeClick).toHaveBeenCalledTimes(1);
+		} finally {
+			controller.detach();
+			document.removeEventListener("click", nativeClick);
+			vi.useRealTimers();
+		}
+	});
+
+	test("opens More actions after a 360ms message-actions long press on message text", async () => {
 		const { messageText } = setupMessageDom();
 		const onOpenMore = vi.fn();
 		const controller = createMessageTextGestureController({
 			documentRef: document,
+			getLongPressAction: () => "message-actions",
 			isClickToEditEnabled: () => false,
 			onOpenEdit: vi.fn(),
 			onOpenMore,
@@ -41,7 +79,7 @@ describe("createMessageTextGestureController", () => {
 				pointerType: "touch",
 			});
 			await act(async () => {
-				vi.advanceTimersByTime(239);
+				vi.advanceTimersByTime(359);
 			});
 			expect(onOpenMore).not.toHaveBeenCalled();
 
@@ -55,11 +93,49 @@ describe("createMessageTextGestureController", () => {
 		}
 	});
 
+	test("opens Edit message after a 360ms edit-message long press on message text", async () => {
+		const { messageText } = setupMessageDom();
+		const onOpenEdit = vi.fn();
+		const onOpenMore = vi.fn();
+		const controller = createMessageTextGestureController({
+			documentRef: document,
+			getLongPressAction: () => "edit-message",
+			isClickToEditEnabled: () => false,
+			onOpenEdit,
+			onOpenMore,
+		});
+
+		vi.useFakeTimers();
+		try {
+			controller.attach();
+			fireEvent.pointerDown(messageText, {
+				clientX: 8,
+				clientY: 12,
+				pointerId: 1,
+				pointerType: "touch",
+			});
+			await act(async () => {
+				vi.advanceTimersByTime(359);
+			});
+			expect(onOpenEdit).not.toHaveBeenCalled();
+
+			await act(async () => {
+				vi.advanceTimersByTime(1);
+			});
+			expect(onOpenEdit).toHaveBeenCalledWith(0);
+			expect(onOpenMore).not.toHaveBeenCalled();
+		} finally {
+			controller.detach();
+			vi.useRealTimers();
+		}
+	});
+
 	test("cancels the long press after meaningful pointer movement", async () => {
 		const { messageText } = setupMessageDom();
 		const onOpenMore = vi.fn();
 		const controller = createMessageTextGestureController({
 			documentRef: document,
+			getLongPressAction: () => "message-actions",
 			isClickToEditEnabled: () => false,
 			onOpenEdit: vi.fn(),
 			onOpenMore,
@@ -81,7 +157,7 @@ describe("createMessageTextGestureController", () => {
 				pointerType: "touch",
 			});
 			await act(async () => {
-				vi.advanceTimersByTime(240);
+				vi.advanceTimersByTime(360);
 			});
 
 			expect(onOpenMore).not.toHaveBeenCalled();
@@ -96,6 +172,7 @@ describe("createMessageTextGestureController", () => {
 		const onOpenMore = vi.fn();
 		const controller = createMessageTextGestureController({
 			documentRef: document,
+			getLongPressAction: () => "message-actions",
 			isClickToEditEnabled: () => false,
 			onOpenEdit: vi.fn(),
 			onOpenMore,
@@ -112,7 +189,7 @@ describe("createMessageTextGestureController", () => {
 			});
 			controller.detach();
 			await act(async () => {
-				vi.advanceTimersByTime(240);
+				vi.advanceTimersByTime(360);
 			});
 
 			expect(onOpenMore).not.toHaveBeenCalled();
@@ -140,6 +217,7 @@ describe("createMessageTextGestureController", () => {
 		editButton.addEventListener("click", nativeEditClick);
 		const controller = createMessageTextGestureController({
 			documentRef: document,
+			getLongPressAction: () => "message-actions",
 			isClickToEditEnabled: () => true,
 			onOpenEdit,
 			onOpenMore,
@@ -161,7 +239,7 @@ describe("createMessageTextGestureController", () => {
 				pointerType: "touch",
 			});
 			await act(async () => {
-				vi.advanceTimersByTime(240);
+				vi.advanceTimersByTime(360);
 			});
 			expect(onOpenMore).toHaveBeenCalledWith(0);
 

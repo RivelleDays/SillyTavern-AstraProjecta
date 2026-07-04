@@ -222,6 +222,10 @@ export interface I18nMessages {
 	"chatSessionSettings.chatMessages.lineHeight.option.md": string;
 	"chatSessionSettings.chatMessages.lineHeight.option.sm": string;
 	"chatSessionSettings.chatMessages.lineHeight.title": string;
+	"chatSessionSettings.chatMessages.longPressAction.option.disabled": string;
+	"chatSessionSettings.chatMessages.longPressAction.option.editMessage": string;
+	"chatSessionSettings.chatMessages.longPressAction.option.messageActions": string;
+	"chatSessionSettings.chatMessages.longPressAction.title": string;
 	"chatSessionSettings.chatMessages.textAlign.option.center": string;
 	"chatSessionSettings.chatMessages.textAlign.option.end": string;
 	"chatSessionSettings.chatMessages.textAlign.option.justify": string;

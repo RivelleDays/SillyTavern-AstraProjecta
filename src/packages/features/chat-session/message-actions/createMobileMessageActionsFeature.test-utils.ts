@@ -1,11 +1,16 @@
 import { act, fireEvent, screen, within } from "@testing-library/react";
 import { vi } from "vitest";
 
+import { CHAT_MESSAGE_INTERACTION_CHANGE_EVENT } from "@/packages/core/st/chat-message-interaction";
 import type { ChatMessageRevisionHistoryStore } from "@/packages/core/st/chatMessageRevisionHistory";
 import type { ChatMessageRevisionStore } from "@/packages/core/st/chatMessageRevision";
 import type { ChatMessageSwipeStore } from "@/packages/core/st/chatMessageSwipe";
 
 const ASTRA_DRAWER_EXIT_MS = 500;
+type TestMessageLongPressAction =
+	| "disabled"
+	| "edit-message"
+	| "message-actions";
 
 export function createSwipeStoreStub(
 	initialSnapshot: ReturnType<ChatMessageSwipeStore["getSnapshot"]>,
@@ -111,7 +116,7 @@ export function getMessageText(message: HTMLElement): HTMLElement {
 export async function fireMessageTextLongPress(
 	message: HTMLElement,
 	{
-		durationMs = 240,
+		durationMs = 360,
 		moveTo,
 	}: {
 		durationMs?: number;
@@ -150,7 +155,52 @@ export async function fireMessageTextLongPress(
 	}
 }
 
+export function setMessageLongPressActionPreferenceForTests(
+	longPressAction: TestMessageLongPressAction,
+) {
+	const getContext = (
+		globalThis as {
+			SillyTavern?: { getContext?: () => unknown };
+		}
+	).SillyTavern?.getContext;
+	const context = getContext?.();
+	if (!context || typeof context !== "object") {
+		return;
+	}
+
+	const contextRecord = context as Record<string, unknown>;
+	if (
+		!contextRecord.extensionSettings ||
+		typeof contextRecord.extensionSettings !== "object"
+	) {
+		contextRecord.extensionSettings = {};
+	}
+
+	const extensionSettings = contextRecord.extensionSettings as Record<
+		string,
+		unknown
+	>;
+	if (
+		!extensionSettings.astra_projecta ||
+		typeof extensionSettings.astra_projecta !== "object"
+	) {
+		extensionSettings.astra_projecta = {};
+	}
+
+	(
+		extensionSettings.astra_projecta as Record<string, unknown>
+	).chatMessageInteraction = {
+		longPressAction,
+		version: 1,
+	};
+
+	window.dispatchEvent(
+		new CustomEvent(CHAT_MESSAGE_INTERACTION_CHANGE_EVENT),
+	);
+}
+
 export async function openMoreActionsDrawerForMessage(message: HTMLElement) {
+	setMessageLongPressActionPreferenceForTests("message-actions");
 	await fireMessageTextLongPress(message);
 
 	return screen.findByRole("dialog", {

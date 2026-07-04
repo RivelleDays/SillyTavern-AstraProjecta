@@ -142,6 +142,7 @@
 	border-top: 1px solid var(--border-color-base);
 }
 
+.chat-session-settings__dropdown-row,
 .chat-session-settings__button-row,
 .chat-session-settings__toggle-row {
 	display: flex;
@@ -149,6 +150,7 @@
 	justify-content: space-between;
 }
 
+.chat-session-settings__dropdown-row,
 .chat-session-settings__button-row {
 	align-items: center;
 	flex-wrap: wrap;
@@ -168,11 +170,56 @@
 	gap: 8px;
 }
 
+.chat-session-settings__dropdown-row-title,
 .chat-session-settings__button-row-title,
 .chat-session-settings__toggle-row-title {
 	min-width: 0;
 	font-size: var(--text-sm);
 	font-weight: var(--font-weight-medium);
+}
+
+.chat-session-settings__dropdown-controls {
+	display: flex;
+	min-width: 0;
+	max-width: 100%;
+}
+
+.chat-session-settings__dropdown-trigger {
+	justify-content: space-between;
+	min-width: 0;
+	max-width: 100%;
+	font-size: var(--text-sm);
+}
+
+.chat-session-settings__dropdown-trigger:not(:disabled) {
+	cursor: pointer;
+}
+
+.chat-session-settings__dropdown-trigger:disabled {
+	cursor: not-allowed;
+}
+
+.chat-session-settings__dropdown-trigger-label {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.chat-session-settings__dropdown {
+	min-width: 12rem;
+}
+
+.chat-session-settings__dropdown-item {
+	gap: 8px;
+}
+
+.chat-session-settings__dropdown-item:not([data-disabled]) {
+	cursor: pointer;
+}
+
+.chat-session-settings__dropdown-item[data-disabled] {
+	cursor: not-allowed;
 }
 
 .chat-session-settings__button-group {

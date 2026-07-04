@@ -2,12 +2,17 @@ import {
 	hasNativeMessageEditTextarea,
 	resolveMessageTextGestureTarget,
 } from "@/packages/features/chat-session/message-actions/contracts/dom";
+import {
+	CHAT_MESSAGE_LONG_PRESS_ACTION_DEFAULT,
+	type ChatMessageLongPressAction,
+} from "@/packages/core/st/chat-message-interaction";
 
-const MESSAGE_TEXT_LONG_PRESS_DURATION_MS = 240;
+const MESSAGE_TEXT_LONG_PRESS_DURATION_MS = 360;
 const MESSAGE_TEXT_LONG_PRESS_MOVE_THRESHOLD_PX = 12;
 const MESSAGE_TEXT_SUPPRESS_ACTIVATION_MS = 500;
 
 interface MessageTextLongPressState {
+	action: Exclude<ChatMessageLongPressAction, "disabled">;
 	clientX: number;
 	clientY: number;
 	messageElement: Element;
@@ -23,11 +28,13 @@ export interface MessageTextGestureController {
 
 export function createMessageTextGestureController({
 	documentRef = document,
+	getLongPressAction = () => CHAT_MESSAGE_LONG_PRESS_ACTION_DEFAULT,
 	isClickToEditEnabled,
 	onOpenEdit,
 	onOpenMore,
 }: {
 	documentRef?: Document;
+	getLongPressAction?: () => ChatMessageLongPressAction;
 	isClickToEditEnabled(): boolean;
 	onOpenEdit(messageId: number): void;
 	onOpenMore(messageId: number): void;
@@ -151,6 +158,12 @@ export function createMessageTextGestureController({
 	}
 
 	function handleMessageTextPointerDown(event: PointerEvent) {
+		const action = getLongPressAction();
+		if (action === "disabled") {
+			clearMessageTextLongPress();
+			return;
+		}
+
 		const target = resolveLongPressMessageTextTarget(event.target);
 		if (!target) {
 			return;
@@ -169,12 +182,19 @@ export function createMessageTextGestureController({
 			}
 
 			const messageId = messageTextLongPress.messageId;
+			const longPressAction = messageTextLongPress.action;
 			messageTextLongPress = null;
 			suppressUpcomingMessageTextActivation();
+			if (longPressAction === "edit-message") {
+				onOpenEdit(messageId);
+				return;
+			}
+
 			onOpenMore(messageId);
 		}, MESSAGE_TEXT_LONG_PRESS_DURATION_MS);
 
 		messageTextLongPress = {
+			action,
 			clientX: event.clientX,
 			clientY: event.clientY,
 			messageElement: target.messageElement,

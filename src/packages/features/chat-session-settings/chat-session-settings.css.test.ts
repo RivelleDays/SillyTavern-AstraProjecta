@@ -46,6 +46,13 @@ describe("chat-session-settings CSS contracts", () => {
 		expect(css).toContain(".chat-session-settings__section-card");
 		expect(css).toContain(".chat-session-settings__section-card >");
 		expect(css).toContain(".chat-session-settings__toggle-row-header");
+		expect(css).toContain(".chat-session-settings__dropdown-row");
+		expect(css).toContain(".chat-session-settings__dropdown-row-title");
+		expect(css).toContain(".chat-session-settings__dropdown-controls");
+		expect(css).toContain(".chat-session-settings__dropdown-trigger");
+		expect(css).toContain(".chat-session-settings__dropdown-trigger-label");
+		expect(css).toContain(".chat-session-settings__dropdown");
+		expect(css).toContain(".chat-session-settings__dropdown-item");
 		expect(css).not.toContain(
 			".chat-session-settings__toggle-row-description",
 		);
@@ -79,6 +86,23 @@ describe("chat-session-settings CSS contracts", () => {
 
 		expect(css).not.toContain(
 			"chat-session-settings__slider-row-description",
+		);
+	});
+
+	test("keeps enabled and disabled cursor affordance contracts explicit", () => {
+		const css = readCss();
+
+		expect(css).toMatch(
+			/\.chat-session-settings__dropdown-trigger:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
+		);
+		expect(css).toMatch(
+			/\.chat-session-settings__dropdown-trigger:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
+		);
+		expect(css).toMatch(
+			/\.chat-session-settings__dropdown-item:not\(\[data-disabled\]\)\s*\{[^}]*cursor:\s*pointer;/,
+		);
+		expect(css).toMatch(
+			/\.chat-session-settings__dropdown-item\[data-disabled\]\s*\{[^}]*cursor:\s*not-allowed;/,
 		);
 	});
 });
