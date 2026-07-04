@@ -1834,7 +1834,7 @@ body.astra-projecta-mobile-layout {
 		height: var(--astra-chat-main-menu-drawer-tile-deco-icon-size);
 		pointer-events: none;
 		color: var(--color-base);
-		opacity: 0.1;
+		opacity: 0.12;
 	}
 
 	.astra-chat-main-menu-drawer__tile-icon.fa-solid {
