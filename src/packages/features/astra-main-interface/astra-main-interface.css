@@ -424,7 +424,7 @@
 	display: flex;
 	width: 100%;
 	min-width: 0;
-	min-height: 72px;
+	min-height: 80px;
 	flex-direction: column;
 	justify-content: space-between;
 	overflow: hidden;
