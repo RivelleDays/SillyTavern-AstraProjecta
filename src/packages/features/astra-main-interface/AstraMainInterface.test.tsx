@@ -750,7 +750,7 @@ describe("AstraMainInterface", () => {
 				".astra-main-interface-home__recent-meta-separator",
 			),
 		).toBeInTheDocument();
-		const messageCountStat = newestRow.querySelector(
+		const messageCountStat = newestRow.querySelector<HTMLElement>(
 			".astra-main-interface-home__recent-stat",
 		);
 		expect(messageCountStat?.tagName).toBe("DIV");
