@@ -2,10 +2,10 @@ const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-const SILLYTAVERN_INTERFACE_ICON_DIR = path.join(
-	__dirname,
-	"src/packages/features/sillytavern-interface/icons",
-);
+const RAW_SVG_ICON_DIRS = [
+	path.join(__dirname, "src/packages/features/sillytavern-interface/icons"),
+	path.join(__dirname, "src/components/ui/shared/brand-icons"),
+];
 
 module.exports = (_, argv) => {
 	const isProduction = argv.mode === "production";
@@ -40,7 +40,7 @@ module.exports = (_, argv) => {
 				},
 				{
 					test: /\.svg$/i,
-					include: SILLYTAVERN_INTERFACE_ICON_DIR,
+					include: RAW_SVG_ICON_DIRS,
 					resourceQuery: /raw/,
 					type: "asset/source",
 				},

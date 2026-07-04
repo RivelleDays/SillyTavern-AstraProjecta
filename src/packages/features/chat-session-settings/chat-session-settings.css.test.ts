@@ -50,6 +50,12 @@ describe("chat-session-settings CSS contracts", () => {
 		expect(css).toContain(".chat-session-settings__dropdown-row-title");
 		expect(css).toContain(".chat-session-settings__dropdown-controls");
 		expect(css).toContain(".chat-session-settings__dropdown-trigger");
+		expect(css).toContain(
+			".chat-session-settings__dropdown-trigger-content",
+		);
+		expect(css).toContain(
+			'.chat-session-settings__dropdown-trigger > [data-icon="inline-end"]',
+		);
 		expect(css).toContain(".chat-session-settings__dropdown-trigger-label");
 		expect(css).toContain(".chat-session-settings__dropdown");
 		expect(css).toContain(".chat-session-settings__dropdown-item");

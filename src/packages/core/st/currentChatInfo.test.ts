@@ -1118,6 +1118,7 @@ describe("current chat info", () => {
 
 	test("refresh resets retry backoff and immediately resynchronizes metadata", async () => {
 		vi.useFakeTimers();
+		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 		const eventSource = createEventSourceStub();
 		const fetchImpl = vi
 			.fn()
@@ -1188,7 +1189,9 @@ describe("current chat info", () => {
 			metadataReason: null,
 			metadataStatus: "ready",
 		});
+		expect(warnSpy).toHaveBeenCalledTimes(1);
 
+		warnSpy.mockRestore();
 		store.dispose();
 	});
 

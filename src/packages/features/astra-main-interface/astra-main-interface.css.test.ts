@@ -71,12 +71,35 @@ describe("astra-main-interface.css", () => {
 		expect(css).toContain(".astra-main-interface__scope-strip");
 		expect(css).toContain(".astra-main-interface__scope-pinned");
 		expect(css).toContain(".astra-main-interface__scope-button");
+		expect(css).toContain(".astra-main-interface__scope-text-mark");
 		expect(css).toContain(".astra-main-interface__scope-favorites");
 		expect(css).toContain(
 			".astra-main-interface__scope-favorites-scrollbar",
 		);
 		expect(css).toContain(".astra-main-interface__secondary-tabs");
 		expect(css).toContain(".astra-main-interface__global-tabs");
+		for (const selector of [
+			".astra-main-interface-home",
+			".astra-main-interface-home__shortcut-row",
+			".astra-main-interface-home__shortcut",
+			".astra-main-interface-home__shortcut-deco-icon",
+			".astra-main-interface-home__carousel-slot",
+			".astra-main-interface-home__section-header",
+			".astra-main-interface-home__recent-list",
+			".astra-main-interface-home__recent-row",
+			".astra-main-interface-home__recent-identity",
+			".astra-main-interface-home__recent-avatar",
+			".astra-main-interface-home__recent-avatar-image",
+			".astra-main-interface-home__recent-avatar--collage",
+			".astra-main-interface-home__recent-avatar-collage-image",
+			".astra-main-interface-home__recent-avatar-fallback",
+			".astra-main-interface-home__recent-meta-separator",
+			".astra-main-interface-home__recent-stat",
+			".astra-main-interface-home__recent-view-all",
+			".astra-main-interface-home__links",
+		]) {
+			expect(css).toContain(selector);
+		}
 		expect(css).toContain(".astra-main-interface__current-context-tabs");
 		expect(css).toContain(".astra-main-interface__favorite-tabs");
 		expect(css).toContain(
@@ -97,6 +120,10 @@ describe("astra-main-interface.css", () => {
 		expect(css).toContain(
 			".astra-main-interface__secondary-tabs .astra-smooth-tabs__panel",
 		);
+		expectStyleContains(
+			css,
+			'.astra-main-interface__secondary-tabs .astra-smooth-tabs__panel[data-route="global-home"]',
+		);
 		expect(css).toContain(".astra-main-interface__category-tab-panel");
 		expect(css).toContain(
 			".astra-main-interface__global-category-tab-panel",
@@ -112,6 +139,9 @@ describe("astra-main-interface.css", () => {
 		);
 		expect(css).not.toContain(
 			".astra-main-interface__global-tabs-panel--chats",
+		);
+		expect(css).not.toContain(
+			".astra-main-interface-home__shortcut-separator",
 		);
 		expect(css).toContain(".astra-main-interface__tab-panel");
 		expect(css).toContain(".astra-main-interface__tab-panel--categories");
@@ -476,6 +506,26 @@ describe("astra-main-interface.css", () => {
 		expect(css).not.toContain(".astra-main-interface__field-label");
 	});
 
+	test("keeps home shortcut tile styles decoupled from chat main menu drawer styles", () => {
+		const css = readFeatureCss();
+
+		expect(css).not.toContain(
+			".astra-chat-main-menu-drawer__shortcut-grid",
+		);
+		expect(css).not.toContain(".astra-chat-main-menu-drawer__tile");
+		expect(css).not.toContain("--astra-chat-main-menu-drawer");
+	});
+
+	test("keeps home shortcut tiles visually layered through local selectors", () => {
+		const css = readFeatureCss();
+
+		expect(css).toContain(".astra-main-interface-home__shortcut::before");
+		expect(css).toContain(".astra-main-interface-home__shortcut::after");
+		expect(css).toContain(
+			".astra-main-interface-home__shortcut-deco-icon-svg",
+		);
+	});
+
 	test("keeps favorite scope scrollbar hidden while preserving scroll structure", () => {
 		const css = readFeatureCss();
 
@@ -707,6 +757,24 @@ describe("astra-main-interface.css", () => {
 		);
 		expect(css).toMatch(
 			/\.astra-main-interface__load-more-button:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__shortcut:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__shortcut:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__recent-view-all:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__recent-view-all:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__recent-row:not\(\[aria-disabled=["']true["']\]\)\s*\{[^}]*cursor:\s*pointer;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__recent-row\[aria-disabled=["']true["']\]\s*\{[^}]*cursor:\s*not-allowed;/,
 		);
 	});
 

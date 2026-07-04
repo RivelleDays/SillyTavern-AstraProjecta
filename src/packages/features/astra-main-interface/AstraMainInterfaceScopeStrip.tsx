@@ -3,7 +3,7 @@ import * as React from "react";
 import { ScrollArea } from "@/components/ui/astra/scroll-area";
 import { AstraChatAvatar } from "@/components/ui/shared/chat-avatar";
 import { UiIcon } from "@/components/ui/shared/icon";
-import { Globe2, UserRound } from "@/components/ui/shared/icons";
+import { UserRound } from "@/components/ui/shared/icons";
 import { cn } from "@/lib/utils";
 import { translateAstra } from "@/packages/core/i18n";
 import type { ActivateChatEntity } from "@/packages/core/st/chat-catalog";
@@ -231,12 +231,12 @@ export function AstraMainInterfaceScopeStrip({
 					value={FAVORITE_CHAT_ENTITY_GLOBAL_SCOPE_VALUE}
 					onSelect={onValueChange}
 				>
-					<UiIcon
+					<span
 						aria-hidden={true}
-						className="astra-main-interface__scope-icon"
-						icon={Globe2}
-						size="sm"
-					/>
+						className="astra-main-interface__scope-text-mark"
+					>
+						ST
+					</span>
 				</ScopeButton>
 				<ScopeButton
 					className="astra-main-interface__scope-button--current"

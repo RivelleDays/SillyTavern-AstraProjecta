@@ -163,16 +163,18 @@ export function ChatMessageSettingsTab({
 								)}
 								type="button"
 							>
-								<UiIcon
-									aria-hidden={true}
-									data-icon="inline-start"
-									icon={activeLongPressAction.icon}
-									size="sm"
-								/>
-								<span className="chat-session-settings__dropdown-trigger-label">
-									{translateAstra(
-										activeLongPressAction.labelKey,
-									)}
+								<span className="chat-session-settings__dropdown-trigger-content">
+									<UiIcon
+										aria-hidden={true}
+										data-icon="inline-start"
+										icon={activeLongPressAction.icon}
+										size="sm"
+									/>
+									<span className="chat-session-settings__dropdown-trigger-label">
+										{translateAstra(
+											activeLongPressAction.labelKey,
+										)}
+									</span>
 								</span>
 								<UiIcon
 									aria-hidden={true}

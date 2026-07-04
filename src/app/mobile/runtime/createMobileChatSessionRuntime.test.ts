@@ -458,6 +458,7 @@ describe("createMobileChatSessionRuntime", () => {
 		expect(topBarFeatureFactory).toHaveBeenCalledWith({
 			chatMessageSearchStore,
 			documentRef: document,
+			sillyTavernInterface,
 		});
 		expect(messageHeaderLayoutFeatureFactory).toHaveBeenCalledTimes(1);
 		expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
