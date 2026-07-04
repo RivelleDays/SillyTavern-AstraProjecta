@@ -10,10 +10,14 @@ function readCss() {
 }
 
 describe("message actions css contract", () => {
-	test("does not keep generation-specific footer reservation selectors", () => {
+	test("keeps generation footer reservation selectors scoped to the footer slot", () => {
 		const css = readCss();
 
-		expect(css).not.toContain("data-astra-generation-blocked");
-		expect(css).not.toContain("data-astra-footer-settling");
+		expect(css).toContain(
+			'.astra-mesActions[data-astra-slot="footer"][data-astra-generation-blocked="true"]',
+		);
+		expect(css).toContain(
+			'.astra-mesActions[data-astra-slot="footer"][data-astra-footer-settling="true"]',
+		);
 	});
 });

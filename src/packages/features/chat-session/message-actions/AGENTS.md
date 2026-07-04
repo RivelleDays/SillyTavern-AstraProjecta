@@ -26,7 +26,8 @@
 - Footer target host: direct Astra-owned `.astra-mesActions[data-astra-component="mes-actions"][data-astra-slot="footer"]` under the target message `.mes`, placed immediately after `.mes_block`.
 - Header target host: direct Astra-owned `.astra-mesHeaderActions[data-astra-component="mes-header-actions"]` inside the target message `.astra-mesHeader`, rendered only when the message header bridge has provided that header node.
 - The revision bar and swipe pager render directly inside the footer action container; do not add per-action wrapper hosts or mount these controls into a top/header action slot.
-- Footer actions are driven by revision, swipe, and inline history snapshots, with generation activity consumed through `packages/core/st/primarySendAction` only to suppress the revision bar, inline history affordance, and swipe pager while a message is generating. Do not reserve or create an empty `.astra-mesActions` footer based only on generation or streaming activity.
+- Footer actions are driven by revision, swipe, and inline history snapshots, with generation activity consumed through `packages/core/st/primarySendAction` only to suppress the revision bar, inline history affordance, and swipe pager while a message is generating. During active generation, keep the footer `.astra-mesActions[data-astra-slot="footer"]` host connected for the last actionable assistant message, render no child controls, and mark it with `data-astra-generation-blocked="true"`.
+- After generation stops, the footer may enter a short post-generation settling state. If generation had already created the footer host, keep that same `.astra-mesActions[data-astra-slot="footer"]` connected with `data-astra-footer-settling="true"` until revision, swipe, or inline history actions render, or until the settle timeout expires.
 - Native swipe behavior must be triggered through `packages/core/st/chatMessageSwipe`; revision/continue behavior must be coordinated through `packages/core/st/chatMessageRevision`; all-message history availability must be read through `packages/core/st/chatMessageRevisionHistory`; feature code must not mutate SillyTavern chat data directly.
 - Generation-in-progress detection must reuse `packages/core/st/primarySendAction`; feature code must not duplicate SillyTavern generation event, stop-button, streaming processor, or group wrapper detection.
 - Missing chat/message nodes must no-op and unmount any stale Astra root.
@@ -36,6 +37,7 @@
 - Keep all inserted nodes Astra-owned and reversible.
 - Do not move, wrap, or remove SillyTavern-owned message nodes.
 - Clean up React roots, subscriptions, and empty Astra-owned containers on unmount/dispose.
+- Clean up post-generation footer settling timers and generation footer attributes whenever actions render, the target message disappears, generation blocks the footer again, or the feature unmounts.
 - Keep portal drawer roots managed through `packages/core/runtime/reactPortalRootManager`; do not add new drawer-specific ensure/unmount copies in the feature factory.
 - Keep `createMobileMessageActionsFeature.tsx` as an orchestration layer. New DOM selectors, gesture timers, observer state, or edit-draft state should belong to the focused helper/controller that owns that concern.
 - Add or revise SillyTavern message selectors only in `contracts/dom.ts`, then update its contract tests and the documented touchpoint list in this file.
