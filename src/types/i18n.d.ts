@@ -221,6 +221,7 @@ export interface I18nMessages {
 	"astraMainInterface.home.recent.viewAll": string;
 	"astraMainInterface.home.recent.viewAllLabel": string;
 	"astraMainInterface.home.shortcuts.aiSettings": string;
+	"astraMainInterface.home.shortcuts.backgrounds": string;
 	"astraMainInterface.home.shortcuts.characterManagement": string;
 	"astraMainInterface.home.shortcuts.extensions": string;
 	"astraMainInterface.home.shortcuts.label": string;

@@ -43,6 +43,13 @@ export const GLOBAL_HOME_SHORTCUTS = [
 		routeKey: SILLYTAVERN_INTERFACE_ROUTES.extensions,
 	},
 	{
+		iconKey: "backgrounds",
+		key: "backgrounds",
+		labelKey: "astraMainInterface.home.shortcuts.backgrounds",
+		labelLines: [1],
+		routeKey: SILLYTAVERN_INTERFACE_ROUTES.backgrounds,
+	},
+	{
 		iconKey: "character-management",
 		key: "character-management",
 		labelKey: "astraMainInterface.home.shortcuts.characterManagement",

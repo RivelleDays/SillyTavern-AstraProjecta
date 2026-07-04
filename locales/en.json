@@ -218,6 +218,7 @@
 	"astraMainInterface.home.recent.viewAll": "View all",
 	"astraMainInterface.home.recent.viewAllLabel": "View all chats",
 	"astraMainInterface.home.shortcuts.aiSettings": "AI Settings",
+	"astraMainInterface.home.shortcuts.backgrounds": "Backgrounds",
 	"astraMainInterface.home.shortcuts.characterManagement": "Character Management",
 	"astraMainInterface.home.shortcuts.extensions": "Extensions",
 	"astraMainInterface.home.shortcuts.label": "SillyTavern shortcuts",

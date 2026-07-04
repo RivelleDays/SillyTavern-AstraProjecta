@@ -1,6 +1,5 @@
 import * as React from "react";
 
-import { Separator } from "@/components/ui/shadcn/separator";
 import {
 	DiscordBrand,
 	GithubBrand,
@@ -194,7 +193,7 @@ function GlobalHomeShortcuts({
 			className="astra-main-interface-home__shortcut-row"
 			role="group"
 		>
-			{GLOBAL_HOME_SHORTCUTS.map((shortcut, index) => {
+			{GLOBAL_HOME_SHORTCUTS.map((shortcut) => {
 				const label = translateAstra(shortcut.labelKey);
 				const labelLines = splitGlobalHomeShortcutLabel(
 					label,
@@ -202,41 +201,43 @@ function GlobalHomeShortcuts({
 				);
 
 				return (
-					<React.Fragment key={shortcut.key}>
-						{index > 0 ? (
-							<Separator
-								aria-hidden={true}
-								className="astra-main-interface-home__shortcut-separator"
-								orientation="vertical"
-							/>
-						) : null}
-						<button
-							aria-label={label}
-							className="astra-main-interface-home__shortcut"
-							type="button"
-							onClick={() => {
-								onRouteOpen?.(shortcut.routeKey);
-							}}
+					<button
+						aria-label={label}
+						className="astra-main-interface-home__shortcut"
+						key={shortcut.key}
+						type="button"
+						onClick={() => {
+							onRouteOpen?.(shortcut.routeKey);
+						}}
+					>
+						<span className="astra-main-interface-home__shortcut-icon">
+							{renderRouteIcon?.({
+								className:
+									"astra-main-interface-home__shortcut-icon-svg",
+								iconKey: shortcut.iconKey,
+							})}
+						</span>
+						<span
+							aria-hidden={true}
+							className="astra-main-interface-home__shortcut-deco-icon"
 						>
-							<span className="astra-main-interface-home__shortcut-icon">
-								{renderRouteIcon?.({
-									className:
-										"astra-main-interface-home__shortcut-icon-svg",
-									iconKey: shortcut.iconKey,
-								})}
-							</span>
-							<span className="astra-main-interface-home__shortcut-label">
-								{labelLines.map((line) => (
-									<span
-										className="astra-main-interface-home__shortcut-label-line"
-										key={line}
-									>
-										{line}
-									</span>
-								))}
-							</span>
-						</button>
-					</React.Fragment>
+							{renderRouteIcon?.({
+								className:
+									"astra-main-interface-home__shortcut-deco-icon-svg",
+								iconKey: shortcut.iconKey,
+							})}
+						</span>
+						<span className="astra-main-interface-home__shortcut-label">
+							{labelLines.map((line) => (
+								<span
+									className="astra-main-interface-home__shortcut-label-line"
+									key={line}
+								>
+									{line}
+								</span>
+							))}
+						</span>
+					</button>
 				);
 			})}
 		</div>

@@ -579,9 +579,9 @@ describe("AstraMainInterface", () => {
 		expect(shortcutRow).toBeInTheDocument();
 		expect(
 			shortcutRow?.querySelectorAll(
-				".astra-main-interface-home__shortcut-separator[data-orientation='vertical']",
+				".astra-main-interface-home__shortcut-separator",
 			),
-		).toHaveLength(4);
+		).toHaveLength(0);
 
 		const shortcuts = [
 			{
@@ -605,11 +605,22 @@ describe("AstraMainInterface", () => {
 				route: SILLYTAVERN_INTERFACE_ROUTES.extensions,
 			},
 			{
+				iconKey: "backgrounds",
+				label: "Backgrounds",
+				route: SILLYTAVERN_INTERFACE_ROUTES.backgrounds,
+			},
+			{
 				iconKey: "character-management",
 				label: "Character Management",
 				route: SILLYTAVERN_INTERFACE_ROUTES.characterManagement,
 			},
 		] as const;
+
+		expect(
+			shortcutRow?.querySelectorAll(
+				".astra-main-interface-home__shortcut-deco-icon[aria-hidden='true']",
+			),
+		).toHaveLength(shortcuts.length);
 
 		for (const shortcut of shortcuts) {
 			const button = screen.getByRole("button", {

@@ -81,7 +81,7 @@ describe("astra-main-interface.css", () => {
 			".astra-main-interface-home",
 			".astra-main-interface-home__shortcut-row",
 			".astra-main-interface-home__shortcut",
-			".astra-main-interface-home__shortcut-separator",
+			".astra-main-interface-home__shortcut-deco-icon",
 			".astra-main-interface-home__carousel-slot",
 			".astra-main-interface-home__section-header",
 			".astra-main-interface-home__recent-list",
@@ -130,6 +130,9 @@ describe("astra-main-interface.css", () => {
 		);
 		expect(css).not.toContain(
 			".astra-main-interface__global-tabs-panel--chats",
+		);
+		expect(css).not.toContain(
+			".astra-main-interface-home__shortcut-separator",
 		);
 		expect(css).toContain(".astra-main-interface__tab-panel");
 		expect(css).toContain(".astra-main-interface__tab-panel--categories");
@@ -492,6 +495,26 @@ describe("astra-main-interface.css", () => {
 		expect(css).toContain(".astra-main-interface__load-more-button");
 		expect(css).toContain(".astra-main-interface__sentinel");
 		expect(css).not.toContain(".astra-main-interface__field-label");
+	});
+
+	test("keeps home shortcut tile styles decoupled from chat main menu drawer styles", () => {
+		const css = readFeatureCss();
+
+		expect(css).not.toContain(
+			".astra-chat-main-menu-drawer__shortcut-grid",
+		);
+		expect(css).not.toContain(".astra-chat-main-menu-drawer__tile");
+		expect(css).not.toContain("--astra-chat-main-menu-drawer");
+	});
+
+	test("keeps home shortcut tiles visually layered through local selectors", () => {
+		const css = readFeatureCss();
+
+		expect(css).toContain(".astra-main-interface-home__shortcut::before");
+		expect(css).toContain(".astra-main-interface-home__shortcut::after");
+		expect(css).toContain(
+			".astra-main-interface-home__shortcut-deco-icon-svg",
+		);
 	});
 
 	test("keeps favorite scope scrollbar hidden while preserving scroll structure", () => {
