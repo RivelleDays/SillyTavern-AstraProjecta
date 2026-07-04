@@ -269,6 +269,12 @@ export function createMobileMessageActionsFeature({
 		},
 		documentRef,
 	});
+	const postEditSettleRefreshScheduler = createFrameScheduler({
+		callback: () => {
+			refreshMessageActionStores({ renderImmediately: true });
+		},
+		documentRef,
+	});
 	const chatDomReconciler = createChatDomReconciler({
 		documentRef,
 		onReconcile: () => {
@@ -800,6 +806,7 @@ export function createMobileMessageActionsFeature({
 		editDrawer.setMutationPending(false);
 		closeEditDrawer();
 		refreshMessageActionStores({ renderImmediately: true });
+		postEditSettleRefreshScheduler.schedule();
 	}
 
 	async function copyEditDraft(submitDraft: MessageEditDrawerSubmitDraft) {
@@ -1318,6 +1325,7 @@ export function createMobileMessageActionsFeature({
 	function stopObservingChatDom() {
 		chatDomReconciler.stop();
 		postGenerationSettleRefreshScheduler.cancel();
+		postEditSettleRefreshScheduler.cancel();
 		cancelScheduledMessageActionsRender();
 	}
 
