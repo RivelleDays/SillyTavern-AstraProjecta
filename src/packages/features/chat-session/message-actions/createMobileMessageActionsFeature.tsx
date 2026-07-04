@@ -118,6 +118,7 @@ type SwipeSnapshot = ReturnType<ChatMessageSwipeStore["getSnapshot"]>;
 
 const MESSAGE_TEXT_LONG_PRESS_ACTION_ATTRIBUTE =
 	"data-astra-message-text-long-press-action";
+const POST_GENERATION_FOOTER_SETTLE_MS = 750;
 
 function MessageHeaderActions({
 	onEdit,
@@ -260,6 +261,11 @@ export function createMobileMessageActionsFeature({
 	let deferredNativeActionFrameId: number | null = null;
 	let selectedExtraActionsTarget: MessageActionsTarget | null = null;
 	let isMoreActionsDrawerOpen = false;
+	let isFooterInPostGenerationSettle = false;
+	let wasFooterBlockedByGeneration = false;
+	let postGenerationFooterSettleTimeoutId: ReturnType<
+		typeof globalThis.setTimeout
+	> | null = null;
 	let unsubscribeHistory: (() => void) | null = null;
 	let unsubscribeMessageInteraction: (() => void) | null = null;
 	let unsubscribePrimarySendAction: (() => void) | null = null;
@@ -1319,6 +1325,7 @@ export function createMobileMessageActionsFeature({
 	function stopObservingChatDom() {
 		chatDomReconciler.stop();
 		postEditSettleRefreshScheduler.cancel();
+		stopPostGenerationFooterSettle();
 		cancelScheduledMessageActionsRender();
 	}
 
@@ -1330,7 +1337,81 @@ export function createMobileMessageActionsFeature({
 		void action().finally(refreshMessageActionStores);
 	}
 
+	function clearPostGenerationFooterSettleTimer() {
+		if (postGenerationFooterSettleTimeoutId === null) {
+			return;
+		}
+
+		globalThis.clearTimeout(postGenerationFooterSettleTimeoutId);
+		postGenerationFooterSettleTimeoutId = null;
+	}
+
+	function stopPostGenerationFooterSettle() {
+		isFooterInPostGenerationSettle = false;
+		clearPostGenerationFooterSettleTimer();
+	}
+
+	function startPostGenerationFooterSettle() {
+		if (isFooterInPostGenerationSettle) {
+			return;
+		}
+
+		isFooterInPostGenerationSettle = true;
+		clearPostGenerationFooterSettleTimer();
+		postGenerationFooterSettleTimeoutId = globalThis.setTimeout(() => {
+			postGenerationFooterSettleTimeoutId = null;
+			if (!isFooterInPostGenerationSettle) {
+				return;
+			}
+
+			isFooterInPostGenerationSettle = false;
+			renderMessageActionsImmediately();
+		}, POST_GENERATION_FOOTER_SETTLE_MS);
+	}
+
+	function setFooterGenerationBlocked(
+		actionHost: HTMLDivElement,
+		isBlocked: boolean,
+	) {
+		if (isBlocked) {
+			actionHost.dataset.astraGenerationBlocked = "true";
+			return;
+		}
+
+		delete actionHost.dataset.astraGenerationBlocked;
+	}
+
+	function setFooterPostGenerationSettling(
+		actionHost: HTMLDivElement,
+		isSettling: boolean,
+	) {
+		if (isSettling) {
+			actionHost.dataset.astraFooterSettling = "true";
+			return;
+		}
+
+		delete actionHost.dataset.astraFooterSettling;
+	}
+
+	function canPreserveFooterDuringPostGenerationSettle({
+		messageElement,
+	}: {
+		messageElement: Element;
+	}): boolean {
+		return Boolean(
+			isFooterInPostGenerationSettle &&
+			footerActionRootHost?.isConnected &&
+			footerActionRootHost.parentElement === messageElement,
+		);
+	}
+
 	function unmountFooterActionRoot() {
+		stopPostGenerationFooterSettle();
+		wasFooterBlockedByGeneration = false;
+		if (footerActionRootHost) {
+			setFooterGenerationBlocked(footerActionRootHost, false);
+			setFooterPostGenerationSettling(footerActionRootHost, false);
+		}
 		footerActionRoot?.unmount();
 		footerActionRoot = null;
 		cleanupMessageActionSlots(footerActionRootHost);
@@ -1375,6 +1456,8 @@ export function createMobileMessageActionsFeature({
 		const historySnapshot = historyStore?.getSnapshot() ?? [];
 		const isGenerating =
 			primarySendActionStore?.getSnapshot().isGenerating === true;
+		const wasFooterBlockedBeforeRender = wasFooterBlockedByGeneration;
+		wasFooterBlockedByGeneration = false;
 		const revisionSnapshot = revisionStore?.getSnapshot();
 		const swipeSnapshot = swipeStore?.getSnapshot();
 		const context = resolveContextSafe();
@@ -1398,8 +1481,25 @@ export function createMobileMessageActionsFeature({
 		}
 
 		const targetMessageId = targetMessage.messageId;
+		if (isGenerating) {
+			stopPostGenerationFooterSettle();
+			const slots = ensureMessageActionSlots(
+				targetMessage.messageElement,
+			);
+			if (!slots) {
+				unmountRoots();
+				return;
+			}
+
+			setFooterPostGenerationSettling(slots.container, false);
+			setFooterGenerationBlocked(slots.container, true);
+			const footerRoot = ensureFooterActionRoot(slots.container);
+			wasFooterBlockedByGeneration = true;
+			footerRoot.render(null);
+			return;
+		}
+
 		const revisionActionsSnapshot =
-			!isGenerating &&
 			revisionSnapshot?.status === "ready" &&
 			revisionSnapshot.messageId === targetMessageId &&
 			(revisionSnapshot.canContinue ||
@@ -1408,7 +1508,6 @@ export function createMobileMessageActionsFeature({
 				? revisionSnapshot
 				: null;
 		const swipeActionsSnapshot =
-			!isGenerating &&
 			swipeSnapshot?.status === "ready" &&
 			swipeSnapshot.messageId === targetMessageId &&
 			(swipeSnapshot.canSwipeNext ||
@@ -1416,28 +1515,52 @@ export function createMobileMessageActionsFeature({
 				swipeSnapshot.isNativeSwipeBusy)
 				? swipeSnapshot
 				: null;
-		const inlineHistoryItem = isGenerating
-			? null
-			: resolveInlineHistoryItem({
-					historySnapshot,
-					messageId: targetMessageId,
-				});
+		const inlineHistoryItem = resolveInlineHistoryItem({
+			historySnapshot,
+			messageId: targetMessageId,
+		});
 
 		if (
 			!revisionActionsSnapshot &&
 			!swipeActionsSnapshot &&
 			!inlineHistoryItem
 		) {
+			if (wasFooterBlockedBeforeRender) {
+				startPostGenerationFooterSettle();
+			}
+
+			if (
+				canPreserveFooterDuringPostGenerationSettle({
+					messageElement: targetMessage.messageElement,
+				})
+			) {
+				const slots = ensureMessageActionSlots(
+					targetMessage.messageElement,
+				);
+				if (!slots) {
+					unmountRoots();
+					return;
+				}
+
+				setFooterGenerationBlocked(slots.container, false);
+				setFooterPostGenerationSettling(slots.container, true);
+				ensureFooterActionRoot(slots.container).render(null);
+				return;
+			}
+
 			unmountFooterActionRoot();
 			return;
 		}
 
+		stopPostGenerationFooterSettle();
 		const slots = ensureMessageActionSlots(targetMessage.messageElement);
 		if (!slots) {
 			unmountRoots();
 			return;
 		}
 
+		setFooterGenerationBlocked(slots.container, false);
+		setFooterPostGenerationSettling(slots.container, false);
 		ensureFooterActionRoot(slots.container).render(
 			withAstraErrorBoundary({
 				children: (
