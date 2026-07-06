@@ -186,6 +186,9 @@ function MobileChatTopBar({
 			{searchSnapshot.isOpen ? (
 				<MobileChatMessageSearchPanel
 					documentRef={documentRef}
+					onClose={() => {
+						chatMessageSearchStore.close();
+					}}
 					snapshot={searchSnapshot}
 				/>
 			) : (

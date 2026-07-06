@@ -230,6 +230,7 @@
 	"astraMainInterface.sections.switching": "Switching chat...",
 	"astraMainInterface.title": "Main UI",
 	"astraMainInterface.title.global": "SillyTavern",
+	"chatMessageSearch.close": "Close search",
 	"chatMessageSearch.done": "Done",
 	"chatMessageSearch.matchCase": "Match case",
 	"chatMessageSearch.next": "Next match",

@@ -696,19 +696,43 @@ describe("createMobileChatTopBarFeature", () => {
 			searchPanel.querySelector(
 				".astra-chat-message-search-panel__mode-close",
 			),
-		).not.toBeInTheDocument();
+		).toBeInTheDocument();
+		const closeSearchButton = within(searchPanel).getByRole("button", {
+			name: "Close search",
+		});
+		expect(
+			closeSearchButton.closest(".astra-chat-message-search-panel__mode"),
+		).toBeInTheDocument();
+		expect(
+			closeSearchButton.querySelector(".lucide-x"),
+		).toBeInTheDocument();
 		expect(searchPanel).toHaveTextContent("Search chat messages");
 
 		act(() => {
 			chatMessageSearchStore.setQuery("searchable");
+			chatMessageSearchStore.setReplaceText("replacement");
 		});
 		expect(chatMessageSearchStore.getSnapshot()).toMatchObject({
 			isOpen: true,
 			matchCount: 2,
 			query: "searchable",
+			replaceText: "replacement",
 			replaceVisible: false,
 		});
 
+		fireEvent.click(closeSearchButton);
+
+		await waitFor(() => {
+			expect(
+				document.getElementById(ASTRA_CHAT_MESSAGE_SEARCH_PANEL_ID),
+			).not.toBeInTheDocument();
+		});
+		expect(chatMessageSearchStore.getSnapshot()).toMatchObject({
+			isOpen: false,
+			matchCount: 0,
+			query: "",
+			replaceText: "",
+		});
 		expect(saveTextEdits).not.toHaveBeenCalled();
 
 		act(() => {
