@@ -7,7 +7,7 @@
 
 - Feature-specific state, composition, controllers, and owned UI behavior.
 - The folder-level documentation pattern that each stable feature must follow.
-- Phase 1 priority features: `astra-main-interface`, `chat-session`, and `sillytavern-interface`.
+- Phase 1 priority features: `astra-main-interface`, `chat-session`, `chat-session-settings`, and `sillytavern-interface`.
 
 ## Structure Tree
 
@@ -68,4 +68,4 @@ src/packages/features/
 - Confirm features remain capability-based.
 - Confirm direct SillyTavern touchpoints must be justified and documented.
 - Confirm features may consume `app/shared` contracts but do not import `app/mobile` or `app/desktop`.
-- Confirm `astra-main-interface`, `chat-session`, and `sillytavern-interface` remain identified as Phase 1 priority features.
+- Confirm `astra-main-interface`, `chat-session`, `chat-session-settings`, and `sillytavern-interface` remain identified as Phase 1 priority features.

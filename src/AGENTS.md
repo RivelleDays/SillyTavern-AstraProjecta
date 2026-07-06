@@ -5,16 +5,18 @@
 
 ## Owned Paths / Responsibilities
 
-- `app/mobile`: Phase 1 product assembly, mobile-owned composition, top-bar, and left Astra main-interface shell.
+- `app/mobile`: Phase 1 product assembly, mobile-owned composition, top-bar, left Astra main-interface shell, and right SillyTavern interface panel.
 - `app/desktop`: reserved product assembly that stays thin during Phase 1.
 - `app/shared`: cross-platform contracts only.
 - `packages/core`: SillyTavern integration, lifecycle, adapter, settings, event, and runtime infrastructure.
   `packages/core/layout-mode` is the source of truth for Astra mobile-layout activation.
-- `packages/features`: feature-owned behavior and view composition, including `astra-main-interface`, `chat-session`, and `sillytavern-interface`.
+- `packages/features`: feature-owned behavior and view composition, including `astra-main-interface`, `chat-session`, `chat-session-settings`, and `sillytavern-interface`.
 - `components/ui`: split UI layer for vendored shadcn components and Astra-owned wrappers.
 - `hooks`: shared client hooks generated or consumed by the local UI layer.
+- `lib`: shared utility helpers, including `cn`.
 - `styles`: shared emitted stylesheet entry and token assembly.
-- `types`: global and shared TypeScript declarations.
+- `test`: Vitest setup and script contract tests.
+- `types`: generated `i18n.d.ts`, `svg.d.ts`, and shared TypeScript declarations.
 
 ## Structure Tree
 
@@ -25,18 +27,21 @@ src/
 ├─ app/
 │  ├─ mobile/                # Phase 1 assembly
 │  │  ├─ top-bar/            # native #sheld wrapper
-│  │  └─ astra-main-interface-panel/ # left-side Astra main-interface shell
+│  │  ├─ astra-main-interface-panel/ # left-side Astra main-interface shell
+│  │  └─ sillytavern-interface-panel/ # right-side SillyTavern interface panel
 │  ├─ desktop/               # reserved assembly
 │  └─ shared/                # cross-platform contracts
 ├─ packages/
 │  ├─ core/                  # ST integration and runtime infrastructure
 │  │  └─ layout-mode/        # mobile-layout activation contract
-│  └─ features/              # feature modules: astra-main-interface, chat-session, sillytavern-interface
+│  └─ features/              # feature modules: astra-main-interface, chat-session, chat-session-settings, sillytavern-interface
 ├─ hooks/                    # shared client hooks
+├─ lib/                      # shared utility helpers
 ├─ components/
 │  └─ ui/                    # shadcn upstream + Astra custom wrappers
 ├─ styles/                   # emitted stylesheet entry and token assembly
-└─ types/                    # reserved declarations
+├─ test/                     # Vitest setup and script tests
+└─ types/                    # generated i18n.d.ts + svg.d.ts
 ```
 
 ## SillyTavern Touchpoints
@@ -71,8 +76,8 @@ src/
 
 ## Update Triggers
 
-- Update this file when source ownership changes, a new top-level source layer is introduced, or stylesheet / type-entry strategy becomes stable enough to warrant dedicated child docs.
-- If `src/styles` or `src/types` gain significant rules, add child `AGENTS.md` files and keep this file as the routing summary.
+- Update this file when source ownership changes, a new top-level source layer is introduced, or stylesheet / type-entry strategy changes.
+- Keep stylesheet-specific rules in `src/styles/AGENTS.md`; add a `src/types/AGENTS.md` only if type declarations gain significant rules.
 
 ## Verification Checklist
 

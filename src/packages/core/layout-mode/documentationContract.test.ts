@@ -19,7 +19,9 @@ describe("layout-mode and wrapper documentation contracts", () => {
 			"src/app/mobile/runtime/AGENTS.md",
 		);
 
-		expect(readme).toContain("mobile shell activates below 1000px");
+		expect(readme).toContain(
+			"mobile shell activates at widths of 1000px and below",
+		);
 		expect(readme).toContain("Supported through the mobile shell range");
 		expect(readme).not.toContain("designed for widths below 600px");
 		expect(rootSourceAgents).toContain("layout-mode");

@@ -21,8 +21,7 @@ src/app/mobile/
 ├─ top-bar/         # native #sheld wrapper and top bar
 ├─ astra-main-interface-panel/ # left-side Astra main-interface shell
 ├─ sillytavern-interface-panel/ # right-side SillyTavern interface assembly
-├─ styles/          # planned mobile-only CSS
-└─ utils/           # planned mobile-only helpers
+└─ styles/          # mobile-only CSS; see child AGENTS.md
 ```
 
 ## SillyTavern Touchpoints
