@@ -91,18 +91,11 @@ describe("favorite chat entity adapter", () => {
 		});
 
 		expect(snapshot.entities.map((entity) => entity.entityName)).toEqual([
-			"Extension Favorite",
 			"Root Favorite",
 			"String Root Favorite",
+			"Extension Favorite",
 		]);
 		expect(snapshot.entities).toEqual([
-			expect.objectContaining({
-				avatarUrl: "/thumbs/avatar/extension.png",
-				entityId: "2",
-				kind: "character",
-				scopeValue: "favorite:character:2",
-				totalMessageCount: 0,
-			}),
 			expect.objectContaining({
 				avatarUrl: "/thumbs/avatar/root.png",
 				entityId: "0",
@@ -115,6 +108,13 @@ describe("favorite chat entity adapter", () => {
 				entityId: "1",
 				kind: "character",
 				scopeValue: "favorite:character:1",
+				totalMessageCount: 0,
+			}),
+			expect.objectContaining({
+				avatarUrl: "/thumbs/avatar/extension.png",
+				entityId: "2",
+				kind: "character",
+				scopeValue: "favorite:character:2",
 				totalMessageCount: 0,
 			}),
 		]);
@@ -168,21 +168,24 @@ describe("favorite chat entity adapter", () => {
 		]);
 	});
 
-	test("aggregates chat counts and sorts favorites by messages, recency, then stable names", () => {
+	test("aggregates chat metadata but sorts favorites by native chat_size", () => {
 		setSillyTavernContext({
 			characters: [
 				{
 					avatar: "alpha.png",
+					chat_size: 200,
 					fav: true,
 					name: "Alpha",
 				},
 				{
 					avatar: "beta.png",
+					chat_size: 50,
 					fav: true,
 					name: "Beta",
 				},
 				{
 					avatar: "gamma.png",
+					chat_size: 200,
 					fav: true,
 					name: "Gamma",
 				},
@@ -192,6 +195,7 @@ describe("favorite chat entity adapter", () => {
 			groups: [
 				{
 					avatar_url: "/img/five.png",
+					chat_size: 300,
 					fav: true,
 					id: "party",
 					members: ["alpha.png"],
@@ -222,7 +226,7 @@ describe("favorite chat entity adapter", () => {
 					entityName: "Beta",
 					key: "character:1:a",
 					lastMessageAt: 900,
-					messageCount: 10,
+					messageCount: 100,
 				}),
 				createEntry({
 					entityId: "2",
@@ -244,23 +248,17 @@ describe("favorite chat entity adapter", () => {
 		});
 
 		expect(snapshot.entities.map((entity) => entity.entityName)).toEqual([
-			"Beta",
-			"Gamma",
-			"Alpha",
 			"Party",
+			"Alpha",
+			"Gamma",
+			"Beta",
 		]);
 		expect(snapshot.entities).toEqual([
 			expect.objectContaining({
 				chatCount: 1,
-				entityName: "Beta",
-				latestMessageAt: 900,
-				totalMessageCount: 10,
-			}),
-			expect.objectContaining({
-				chatCount: 1,
-				entityName: "Gamma",
-				latestMessageAt: 800,
-				totalMessageCount: 10,
+				entityName: "Party",
+				latestMessageAt: 1200,
+				totalMessageCount: 0,
 			}),
 			expect.objectContaining({
 				chatCount: 2,
@@ -270,10 +268,130 @@ describe("favorite chat entity adapter", () => {
 			}),
 			expect.objectContaining({
 				chatCount: 1,
-				entityName: "Party",
-				latestMessageAt: 1200,
-				totalMessageCount: 0,
+				entityName: "Gamma",
+				latestMessageAt: 800,
+				totalMessageCount: 10,
 			}),
+			expect.objectContaining({
+				chatCount: 1,
+				entityName: "Beta",
+				latestMessageAt: 900,
+				totalMessageCount: 100,
+			}),
+		]);
+	});
+
+	test("keeps favorite order stable when full-history catalog stats change", () => {
+		setSillyTavernContext({
+			characters: [
+				{
+					avatar: "alpha.png",
+					chat_size: 100,
+					fav: true,
+					name: "Alpha",
+				},
+				{
+					avatar: "beta.png",
+					chat_size: 90,
+					fav: true,
+					name: "Beta",
+				},
+			],
+			getThumbnailUrl: (type: string, fileName: string) =>
+				`/thumbs/${type}/${fileName}`,
+			groups: [],
+		});
+
+		const cappedSnapshot = readFavoriteChatEntitiesSnapshot({
+			chatCatalogEntries: [
+				createEntry({
+					entityId: "1",
+					entityName: "Beta",
+					key: "character:1:recent",
+					lastMessageAt: 900,
+					messageCount: 200,
+				}),
+			],
+		});
+		const fullHistorySnapshot = readFavoriteChatEntitiesSnapshot({
+			chatCatalogEntries: [
+				createEntry({
+					entityId: "0",
+					entityName: "Alpha",
+					key: "character:0:old",
+					lastMessageAt: 100,
+					messageCount: 10,
+				}),
+				createEntry({
+					entityId: "1",
+					entityName: "Beta",
+					key: "character:1:recent",
+					lastMessageAt: 900,
+					messageCount: 200,
+				}),
+			],
+		});
+
+		expect(
+			cappedSnapshot.entities.map((entity) => entity.entityName),
+		).toEqual(["Alpha", "Beta"]);
+		expect(
+			fullHistorySnapshot.entities.map((entity) => entity.entityName),
+		).toEqual(["Alpha", "Beta"]);
+		expect(fullHistorySnapshot.entities).toEqual([
+			expect.objectContaining({
+				chatCount: 1,
+				entityName: "Alpha",
+				totalMessageCount: 10,
+			}),
+			expect.objectContaining({
+				chatCount: 1,
+				entityName: "Beta",
+				totalMessageCount: 200,
+			}),
+		]);
+	});
+
+	test("treats missing or malformed native chat_size as zero and preserves source order ties", () => {
+		setSillyTavernContext({
+			characters: [
+				{
+					avatar: "missing.png",
+					fav: true,
+					name: "Missing",
+				},
+				{
+					avatar: "malformed.png",
+					chat_size: "many",
+					fav: true,
+					name: "Malformed",
+				},
+				{
+					avatar: "numeric.png",
+					chat_size: "25",
+					fav: true,
+					name: "Numeric String",
+				},
+			],
+			getThumbnailUrl: (type: string, fileName: string) =>
+				`/thumbs/${type}/${fileName}`,
+			groups: [
+				{
+					chat_size: -10,
+					fav: true,
+					id: "negative",
+					name: "Negative",
+				},
+			],
+		});
+
+		const snapshot = readFavoriteChatEntitiesSnapshot();
+
+		expect(snapshot.entities.map((entity) => entity.entityName)).toEqual([
+			"Numeric String",
+			"Missing",
+			"Malformed",
+			"Negative",
 		]);
 	});
 
@@ -283,16 +401,19 @@ describe("favorite chat entity adapter", () => {
 			characters: [
 				{
 					avatar: "current.png",
+					chat_size: 50,
 					fav: true,
 					name: "Current",
 				},
 				{
 					avatar: "one.png",
+					chat_size: 20,
 					fav: true,
 					name: "One",
 				},
 				{
 					avatar: "two.png",
+					chat_size: 10,
 					fav: true,
 					name: "Two",
 				},
@@ -343,16 +464,19 @@ describe("favorite chat entity adapter", () => {
 			characters: [
 				{
 					avatar: "one.png",
+					chat_size: 20,
 					fav: true,
 					name: "One",
 				},
 				{
 					avatar: "two.png",
+					chat_size: 10,
 					fav: true,
 					name: "Two",
 				},
 				{
 					avatar: "current.png",
+					chat_size: 15,
 					fav: true,
 					name: "Current",
 				},

@@ -25,12 +25,14 @@ type Listener = () => void;
 type FavoriteChatEntitiesEventListener = (...args: unknown[]) => void;
 
 type CharacterLike = ChatAvatarCharacterLike & {
+	chat_size?: unknown;
 	data?: unknown;
 	fav?: unknown;
 	name?: unknown;
 };
 
 type GroupLike = ChatAvatarGroupLike & {
+	chat_size?: unknown;
 	fav?: unknown;
 	id?: unknown;
 	name?: unknown;
@@ -53,11 +55,19 @@ type FavoriteChatEntityStats = {
 
 type FavoriteChatEntityCandidate = {
 	characterId?: number | null;
+	chatSize: number;
 	entityId: string;
 	groupAvatarUrls: string[];
 	kind: FavoriteChatEntityKind;
 	name: string;
+	sourceIndex: number;
 	thumbnailUrl: string;
+};
+
+type SortableFavoriteChatEntity = {
+	chatSize: number;
+	entity: FavoriteChatEntity;
+	sourceIndex: number;
 };
 
 export const FAVORITE_CHAT_ENTITIES_DEFAULT_LIMIT = 25;
@@ -202,10 +212,22 @@ function normalizeLimit(value: number | undefined): number {
 	return Math.floor(value);
 }
 
+function normalizeNativeChatSize(value: unknown): number {
+	const numericValue =
+		typeof value === "number"
+			? value
+			: typeof value === "string" && value.trim() !== ""
+				? Number(value)
+				: 0;
+
+	return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : 0;
+}
+
 function collectCharacters(context: StFavoriteChatEntitiesContextLike): Array<{
 	character: CharacterLike;
 	characterId: number | null;
 	entityId: string;
+	sourceIndex: number;
 }> {
 	const characters = context.characters;
 
@@ -217,6 +239,7 @@ function collectCharacters(context: StFavoriteChatEntitiesContextLike): Array<{
 							character: candidate as CharacterLike,
 							characterId: index,
 							entityId: String(index),
+							sourceIndex: index,
 						},
 					]
 				: [],
@@ -227,13 +250,14 @@ function collectCharacters(context: StFavoriteChatEntitiesContextLike): Array<{
 		return [];
 	}
 
-	return Object.entries(characters).flatMap(([entityId, candidate]) =>
+	return Object.entries(characters).flatMap(([entityId, candidate], index) =>
 		isRecord(candidate)
 			? [
 					{
 						character: candidate as CharacterLike,
 						characterId: asNullableInteger(entityId),
 						entityId,
+						sourceIndex: index,
 					},
 				]
 			: [],
@@ -243,18 +267,19 @@ function collectCharacters(context: StFavoriteChatEntitiesContextLike): Array<{
 function collectGroups(context: StFavoriteChatEntitiesContextLike): Array<{
 	entityId: string;
 	group: GroupLike;
+	sourceIndex: number;
 }> {
 	const groups = context.groups;
 
 	if (Array.isArray(groups)) {
-		return groups.flatMap((candidate) => {
+		return groups.flatMap((candidate, index) => {
 			if (!isRecord(candidate)) {
 				return [];
 			}
 
 			const group = candidate as GroupLike;
 			const entityId = asTrimmedIdentifier(group.id);
-			return entityId ? [{ entityId, group }] : [];
+			return entityId ? [{ entityId, group, sourceIndex: index }] : [];
 		});
 	}
 
@@ -262,14 +287,14 @@ function collectGroups(context: StFavoriteChatEntitiesContextLike): Array<{
 		return [];
 	}
 
-	return Object.entries(groups).flatMap(([key, candidate]) => {
+	return Object.entries(groups).flatMap(([key, candidate], index) => {
 		if (!isRecord(candidate)) {
 			return [];
 		}
 
 		const group = candidate as GroupLike;
 		const entityId = asTrimmedIdentifier(group.id) || key;
-		return entityId ? [{ entityId, group }] : [];
+		return entityId ? [{ entityId, group, sourceIndex: index }] : [];
 	});
 }
 
@@ -302,12 +327,16 @@ function collectFavoriteCandidates(
 	}
 
 	const charactersByAvatar = buildCharactersByAvatar(context);
-	const favoriteCharacters = collectCharacters(context)
+	const collectedCharacters = collectCharacters(context);
+	const collectedGroups = collectGroups(context);
+	const groupSourceIndexOffset = collectedCharacters.length;
+	const favoriteCharacters = collectedCharacters
 		.filter(({ character }) => isFavoriteCharacter(character))
-		.map(({ character, characterId, entityId }) => {
+		.map(({ character, characterId, entityId, sourceIndex }) => {
 			const avatar = resolveCharacterChatAvatar(context, character);
 			return {
 				characterId,
+				chatSize: normalizeNativeChatSize(character.chat_size),
 				entityId,
 				groupAvatarUrls: [],
 				kind: "character" as const,
@@ -315,17 +344,19 @@ function collectFavoriteCandidates(
 					asTrimmedString(character.name) ||
 					asTrimmedString(character.avatar) ||
 					entityId,
+				sourceIndex,
 				thumbnailUrl: avatar.avatarUrl,
 			};
 		});
-	const favoriteGroups = collectGroups(context)
+	const favoriteGroups = collectedGroups
 		.filter(({ group }) => isFavoriteGroup(group))
-		.map(({ entityId, group }) => {
+		.map(({ entityId, group, sourceIndex }) => {
 			const avatar = resolveGroupChatAvatar(context, group, {
 				resolveCharacterByAvatarId: (avatarId) =>
 					charactersByAvatar.get(avatarId) ?? null,
 			});
 			return {
+				chatSize: normalizeNativeChatSize(group.chat_size),
 				entityId,
 				groupAvatarUrls: avatar.groupAvatarUrls,
 				kind: "group" as const,
@@ -333,6 +364,7 @@ function collectFavoriteCandidates(
 					asTrimmedString(group.name) ||
 					asTrimmedIdentifier(group.id) ||
 					entityId,
+				sourceIndex: groupSourceIndexOffset + sourceIndex,
 				thumbnailUrl: avatar.avatarUrl,
 			};
 		});
@@ -419,25 +451,14 @@ function toFavoriteChatEntity(
 	};
 }
 
-function compareNullableTimestampDesc(
-	left: number | null,
-	right: number | null,
-): number {
-	return (right ?? 0) - (left ?? 0);
-}
-
-function compareFavoriteChatEntities(
-	left: FavoriteChatEntity,
-	right: FavoriteChatEntity,
+function compareSortableFavoriteChatEntities(
+	left: SortableFavoriteChatEntity,
+	right: SortableFavoriteChatEntity,
 ): number {
 	return (
-		right.totalMessageCount - left.totalMessageCount ||
-		compareNullableTimestampDesc(
-			left.latestMessageAt,
-			right.latestMessageAt,
-		) ||
-		left.entityName.localeCompare(right.entityName) ||
-		left.scopeValue.localeCompare(right.scopeValue)
+		right.chatSize - left.chatSize ||
+		left.sourceIndex - right.sourceIndex ||
+		left.entity.scopeValue.localeCompare(right.entity.scopeValue)
 	);
 }
 
@@ -527,15 +548,18 @@ export function readFavoriteChatEntitiesSnapshot({
 	const statsByEntity = aggregateChatCatalogStats(chatCatalogEntries);
 	const currentScopeValue = resolveCurrentScopeValue(context);
 	const sortedFavorites = collectFavoriteCandidates(context)
-		.map((candidate) =>
-			toFavoriteChatEntity(
+		.map((candidate) => ({
+			chatSize: candidate.chatSize,
+			entity: toFavoriteChatEntity(
 				candidate,
 				statsByEntity.get(
 					getStatsKey(candidate.kind, candidate.entityId),
 				),
 			),
-		)
-		.sort(compareFavoriteChatEntities);
+			sourceIndex: candidate.sourceIndex,
+		}))
+		.sort(compareSortableFavoriteChatEntities)
+		.map(({ entity }) => entity);
 	const visibleEntities = sortedFavorites.slice(0, resolvedLimit);
 
 	return {
