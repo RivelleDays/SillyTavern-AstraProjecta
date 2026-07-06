@@ -9,10 +9,13 @@
 - `MessageExtraActionsDrawer.tsx`: sibling Drawer opened from the More footer pill. It owns the danger zone and Astra-rendered native `.extraMesButtons` rows.
 - `MessageEditDrawer.tsx`: sibling Drawer opened from the More footer edit action. It owns Astra-rendered edit fields, action strip, and footer controls for message editing.
 - `MessageActionsIdentityHeader.tsx`: shared selected-message identity header used by both More and Extra actions drawers.
+- `messageMoreActionsDrawerController.tsx`, `messageExtraActionsDrawerController.tsx`, and `messageDeleteConfirmationDrawerController.tsx`: feature-local Drawer orchestration for selected target state, portal rendering, open/close/unmount behavior, and live target refresh.
+- `messageMoreActionsActionModel.ts`, `messageExtraActionsActionModel.ts`, and `messageEditDrawerActionModel.ts`: action config builders for More, Extra, Delete handoff, native action, and edit top-action behavior; keep them free of raw SillyTavern selectors.
 - `nativeExtraMessageActions.ts`: feature-local adapter that reads the selected message's live SillyTavern `.extraMesButtons` children and dispatches native activation events back to the original elements.
 - `messageContentSnapshot.ts`: rendered `.mes_text` snapshot adapter for the Drawer body and plain-text message preview. It owns cloning, inert scrubbing, and script/style exclusion for preview text copied from the live chat DOM.
 - `MoreActionsDrawer.test.tsx`: component-level contract coverage for the Drawer id, ARIA wiring, header identity, rendered body preview, and close footer.
 - `MessageExtraActionsDrawer.test.tsx` and `nativeExtraMessageActions.test.ts`: component and adapter coverage for the sibling extra-actions Drawer.
+- `messageMoreActionsActionModel.test.ts`, `messageExtraActionsActionModel.test.ts`, and `messageEditDrawerActionModel.test.ts`: action-model coverage for native dispatch handoff, delete support, history/edit/more actions, and edit action routing.
 - `messageContentSnapshot.test.ts`: contract coverage for rendered `.mes_text` cloning, scoped style preservation, inert snapshot scrubbing, and plain preview text extraction.
 - User-facing copy lives in `locales/en.json` under `messageActions.more.*`, `messageActions.extra.*`, and `messageActions.edit.*`; regenerate `src/types/i18n.d.ts` through `npm run i18n`.
 

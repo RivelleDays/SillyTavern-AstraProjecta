@@ -70,7 +70,7 @@ export interface GlobalHomePageProps {
 	renderSillyTavernInterfaceRouteIcon?: SendFormSillyTavernInterfaceAdapter["renderRouteIcon"];
 }
 
-const HOME_LINK_GROUPS = [
+const HOME_LINK_GROUPS: readonly GlobalHomeLinkGroupDescriptor[] = [
 	{
 		key: "sillytavern",
 		repoCards: [
@@ -164,7 +164,7 @@ const HOME_LINK_GROUPS = [
 		links: [],
 		titleKey: "astraMainInterface.home.links.supportedExtensions.title",
 	},
-] as const satisfies readonly GlobalHomeLinkGroupDescriptor[];
+] as const;
 
 function getChatCatalogRowChatId(entry: ChatCatalogEntry) {
 	return (
