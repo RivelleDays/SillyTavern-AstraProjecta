@@ -452,11 +452,12 @@
 }
 
 .astra-dialog-heading {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: calc(var(--drawer-content-padding) - 4px)	var(--drawer-content-padding);
-    border-bottom: 1px solid var(--border-color-base);
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: calc(var(--drawer-content-padding) - 4px)
+		var(--drawer-content-padding);
+	border-bottom: 1px solid var(--border-color-base);
 }
 
 .astra-dialog-headingContent {
@@ -473,9 +474,9 @@
 }
 
 .astra-dialog-title {
-    color: var(--color-base);
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-semibold);
+	color: var(--color-base);
+	font-size: var(--text-base);
+	font-weight: var(--font-weight-semibold);
 }
 
 .astra-dialog-description {
@@ -514,15 +515,15 @@
 }
 
 .astra-dialog-icon {
-    display: inline-flex;
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--color-base-t20);
-    border-radius: var(--radius-full);
-    color: var(--color-base);
+	display: inline-flex;
+	width: 40px;
+	height: 40px;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--color-base-t20);
+	border-radius: var(--radius-full);
+	color: var(--color-base);
 }
 
 .astra-dialog-icon svg {

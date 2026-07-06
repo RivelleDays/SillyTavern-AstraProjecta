@@ -23,10 +23,7 @@ import {
 	type ChatMessageLongPressAction,
 	type ChatMessageInteractionStore,
 } from "@/packages/core/st/chat-message-interaction";
-import {
-	type ChatMessageDeletionKind,
-	readChatMessageDeletionSupport,
-} from "@/packages/core/st/chatMessageDeletion";
+import type { ChatMessageDeletionKind } from "@/packages/core/st/chatMessageDeletion";
 import {
 	copyChatMessageFromDraft,
 	moveChatMessage,
@@ -37,21 +34,12 @@ import {
 import { translateAstra } from "@/packages/core/i18n";
 import { isRecord } from "@/packages/core/st/shared";
 import { UiIcon } from "@/components/ui/shared/icon";
-import {
-	Delete,
-	Ellipsis,
-	Eye,
-	EyeOff,
-	MessageCircleX,
-	PencilLine,
-} from "@/components/ui/shared/icons";
-import type { LucideIcon } from "@/components/ui/shared/icons";
+import { Ellipsis, PencilLine } from "@/components/ui/shared/icons";
 import {
 	cleanupMessageActionSlots,
 	ensureMessageActionSlots,
 } from "@/packages/features/chat-session/message-actions/messageActionSlots";
 import {
-	asOptionalBoolean,
 	resolveChatMessage,
 	resolveContextSafe,
 	resolveInlineHistoryItem,
@@ -66,23 +54,8 @@ import {
 	resolveLoadedMessageElements,
 	resolveMessageElement,
 	resolveNativeMessageActionElement,
-	resolveNativePromptVisibilityState,
-	type NativeMessageAction,
 } from "@/packages/features/chat-session/message-actions/contracts/dom";
-import {
-	MoreActionsDrawer,
-	type MessageActionsTarget,
-	type MoreActionsDrawerActionsConfig,
-} from "@/packages/features/chat-session/message-actions/more-actions/MoreActionsDrawer";
-import {
-	MessageExtraActionsDrawer,
-	type MessageExtraActionsDrawerAction,
-} from "@/packages/features/chat-session/message-actions/more-actions/MessageExtraActionsDrawer";
-import type { MessageExtraActionItem } from "@/packages/features/chat-session/message-actions/more-actions/MessageExtraActionItem";
-import {
-	MessageDeleteConfirmationDrawer,
-	type MessageDeleteConfirmationDrawerState,
-} from "@/packages/features/chat-session/message-actions/more-actions/MessageDeleteConfirmationDrawer";
+import type { MessageActionsTarget } from "@/packages/features/chat-session/message-actions/more-actions/MoreActionsDrawer";
 import {
 	MessageEditDrawer,
 	type MessageEditDrawerDraft,
@@ -91,8 +64,24 @@ import {
 import {
 	resolveNativeExtraMessageActions,
 	triggerNativeExtraMessageAction,
-	type NativeExtraMessageAction,
 } from "@/packages/features/chat-session/message-actions/more-actions/nativeExtraMessageActions";
+import { createEditDrawerActions as createEditDrawerActionConfig } from "@/packages/features/chat-session/message-actions/more-actions/messageEditDrawerActionModel";
+import {
+	createExtraActionsDrawerDangerActions,
+	createNativeExtraDrawerActions,
+	createNativeExtraQuickActions,
+} from "@/packages/features/chat-session/message-actions/more-actions/messageExtraActionsActionModel";
+import {
+	createMoreActionsDrawerActions,
+	createMoreActionsExtraActions,
+	type MoreActionsPromptVisibilityAction,
+} from "@/packages/features/chat-session/message-actions/more-actions/messageMoreActionsActionModel";
+import {
+	cloneMessageActionsTarget,
+	createMessageDeleteConfirmationDrawerController,
+} from "@/packages/features/chat-session/message-actions/more-actions/messageDeleteConfirmationDrawerController";
+import { createMessageExtraActionsDrawerController } from "@/packages/features/chat-session/message-actions/more-actions/messageExtraActionsDrawerController";
+import { createMessageMoreActionsDrawerController } from "@/packages/features/chat-session/message-actions/more-actions/messageMoreActionsDrawerController";
 import { RevisionBar } from "@/packages/features/chat-session/message-actions/RevisionBar";
 import { RevisionHistoryDrawer } from "@/packages/features/chat-session/message-actions/revision-history/RevisionHistoryDrawer";
 import { SwipePager } from "@/packages/features/chat-session/message-actions/SwipePager";
@@ -219,17 +208,9 @@ export function createMobileMessageActionsFeature({
 		id: "astra-message-revision-history-drawer-host",
 	});
 	let historyStore: ChatMessageRevisionHistoryStore | null = null;
-	const deletionConfirmationDrawerRoot = createAstraReactPortalRootManager({
-		documentRef,
-		id: "astra-message-delete-confirmation-drawer-host",
-	});
 	const editDrawerRoot = createAstraReactPortalRootManager({
 		documentRef,
 		id: "astra-message-edit-drawer-host",
-	});
-	const extraActionsDrawerRoot = createAstraReactPortalRootManager({
-		documentRef,
-		id: "astra-message-extra-actions-drawer-host",
 	});
 	const headerActionRoots = createMessageHeaderActionRoots({
 		renderActions: (messageId) => (
@@ -245,22 +226,13 @@ export function createMobileMessageActionsFeature({
 	});
 	let footerActionRoot: Root | null = null;
 	let footerActionRootHost: HTMLDivElement | null = null;
-	const moreActionsDrawerRoot = createAstraReactPortalRootManager({
-		documentRef,
-		id: "astra-message-more-actions-drawer-host",
-	});
 	let messageInteractionStore: ChatMessageInteractionStore | null = null;
 	let primarySendActionStore: PrimarySendActionStore | null = null;
 	let revisionStore: ChatMessageRevisionStore | null = null;
 	let selectedHistoryItem: ChatMessageRevisionHistoryItem | null = null;
-	let selectedDeletionConfirmation: MessageDeleteConfirmationDrawerState | null =
-		null;
 	const editDrawer = createEditDrawerController();
-	let selectedMoreActionsTarget: MessageActionsTarget | null = null;
 	let swipeStore: ChatMessageSwipeStore | null = null;
 	let deferredNativeActionFrameId: number | null = null;
-	let selectedExtraActionsTarget: MessageActionsTarget | null = null;
-	let isMoreActionsDrawerOpen = false;
 	let isFooterInPostGenerationSettle = false;
 	let wasFooterBlockedByGeneration = false;
 	let postGenerationFooterSettleTimeoutId: ReturnType<
@@ -296,6 +268,32 @@ export function createMobileMessageActionsFeature({
 		onOpenEdit: openEditDrawerForMessage,
 		onOpenMore: openMoreActionsForMessage,
 	});
+	const moreActionsDrawer = createMessageMoreActionsDrawerController({
+		createActions: createMoreActionsActionsConfig,
+		createExtraActions: createMoreActionsQuickActionsConfig,
+		documentRef,
+		resolveTargetForMessage,
+	});
+	const extraActionsDrawer = createMessageExtraActionsDrawerController({
+		createDangerActions: (target) =>
+			createExtraActionsDrawerDangerActions({
+				openDeletionConfirmation: openDeletionConfirmationForTarget,
+				target,
+			}),
+		createNativeActions: createExtraActionsNativeActionConfig,
+		documentRef,
+		resolveTargetForMessage,
+	});
+	const deletionConfirmationDrawer =
+		createMessageDeleteConfirmationDrawerController({
+			documentRef,
+			onDeleted: () => {
+				refreshMessageActionStores({
+					renderImmediately: true,
+				});
+			},
+			resolveTargetForMessage,
+		});
 
 	function readMessageTextLongPressAction(): ChatMessageLongPressAction {
 		return (
@@ -348,63 +346,12 @@ export function createMobileMessageActionsFeature({
 		selectedHistoryItem = null;
 	}
 
-	function renderMoreActionsDrawer() {
-		if (!selectedMoreActionsTarget && !moreActionsDrawerRoot.getHost()) {
-			return;
-		}
-
-		const host = moreActionsDrawerRoot.ensure();
-		moreActionsDrawerRoot.render(
-			<MoreActionsDrawer
-				actions={
-					selectedMoreActionsTarget
-						? createMoreActionsDrawerActions(
-								selectedMoreActionsTarget,
-							)
-						: undefined
-				}
-				container={host}
-				extraActions={
-					selectedMoreActionsTarget
-						? createMoreActionsExtraActions(
-								selectedMoreActionsTarget,
-							)
-						: []
-				}
-				open={
-					isMoreActionsDrawerOpen &&
-					Boolean(selectedMoreActionsTarget)
-				}
-				target={selectedMoreActionsTarget}
-				onExitComplete={() => {
-					if (!isMoreActionsDrawerOpen) {
-						unmountMoreActionsDrawer();
-					}
-				}}
-				onOpenChange={(nextValue) => {
-					if (nextValue) {
-						return;
-					}
-
-					unmountMoreActionsDrawer();
-				}}
-			/>,
-		);
-	}
-
 	function unmountMoreActionsDrawer() {
-		moreActionsDrawerRoot.unmount();
-		selectedMoreActionsTarget = null;
-		isMoreActionsDrawerOpen = false;
+		moreActionsDrawer.unmount();
 	}
 
 	function closeMoreActionsDrawer() {
-		if (!selectedMoreActionsTarget && !moreActionsDrawerRoot.getHost()) {
-			return;
-		}
-
-		isMoreActionsDrawerOpen = false;
-		renderMoreActionsDrawer();
+		moreActionsDrawer.close();
 	}
 
 	function readEditDrawerDraft(
@@ -427,9 +374,13 @@ export function createMobileMessageActionsFeature({
 		});
 	}
 
-	function resolveEditTargetForMessageId(
-		messageId: number,
-	): MessageActionsTarget | null {
+	function resolveTargetForMessage({
+		includeRenderedMessage,
+		messageId,
+	}: {
+		includeRenderedMessage: boolean;
+		messageId: number;
+	}): MessageActionsTarget | null {
 		const selectedMessageElement = resolveMessageElement(
 			documentRef,
 			messageId,
@@ -440,8 +391,17 @@ export function createMobileMessageActionsFeature({
 
 		return resolveMoreActionsTarget({
 			context: resolveContextSafe(),
-			includeRenderedMessage: false,
+			includeRenderedMessage,
 			messageElement: selectedMessageElement,
+			messageId,
+		});
+	}
+
+	function resolveEditTargetForMessageId(
+		messageId: number,
+	): MessageActionsTarget | null {
+		return resolveTargetForMessage({
+			includeRenderedMessage: false,
 			messageId,
 		});
 	}
@@ -549,7 +509,7 @@ export function createMobileMessageActionsFeature({
 	}
 
 	function openEditDrawerForTarget(target: MessageActionsTarget) {
-		const nextTarget = cloneDeletionTarget(target);
+		const nextTarget = cloneMessageActionsTarget(target);
 		editDrawer.prepareOpen({
 			messageReference: resolveEditMessageReference(nextTarget.messageId),
 			target: nextTarget,
@@ -577,215 +537,54 @@ export function createMobileMessageActionsFeature({
 		openEditDrawerForTarget(target);
 	}
 
-	function resolveNativePromptVisibilityIcon(
-		action: NativeExtraMessageAction,
-	): LucideIcon | undefined {
-		const state = resolveNativePromptVisibilityState(action.element);
-		if (state === "excluded") {
-			return Eye;
-		}
-
-		if (state === "included") {
-			return EyeOff;
-		}
-
-		return undefined;
-	}
-
-	function createNativeExtraDrawerActions(
-		target: MessageActionsTarget,
-	): MessageExtraActionsDrawerAction[] {
-		return resolveNativeExtraMessageActions({
-			documentRef,
-			messageId: target.messageId,
-		}).map((nativeAction) => ({
-			description: nativeAction.description,
-			icon: resolveNativePromptVisibilityIcon(nativeAction),
-			iconClassName: nativeAction.iconClassName,
-			id: nativeAction.id,
-			label: nativeAction.label,
-			onClick: () => {
-				if (
-					!triggerNativeExtraMessageAction({
-						action: nativeAction,
-						documentRef,
-					})
-				) {
-					return;
-				}
-
-				closeExtraActionsDrawer();
+	function createMoreActionsNativeQuickActions(target: MessageActionsTarget) {
+		return createNativeExtraQuickActions({
+			closeMoreActionsDrawer,
+			nativeActions: resolveNativeExtraMessageActions({
+				documentRef,
+				messageId: target.messageId,
+			}),
+			refreshMessageActionStores: () => {
 				refreshMessageActionStores({ renderImmediately: true });
 			},
-		}));
+			triggerNativeAction: (action) =>
+				triggerNativeExtraMessageAction({
+					action,
+					documentRef,
+				}),
+		});
 	}
 
-	function createNativeExtraQuickActions(
+	function createExtraActionsNativeActionConfig(
 		target: MessageActionsTarget,
-	): MessageExtraActionItem[] {
-		return resolveNativeExtraMessageActions({
-			documentRef,
-			messageId: target.messageId,
-		}).map((nativeAction) => ({
-			description: nativeAction.description,
-			icon: resolveNativePromptVisibilityIcon(nativeAction),
-			iconClassName: nativeAction.iconClassName,
-			id: nativeAction.id,
-			label: nativeAction.label,
-			onClick: () => {
-				if (
-					!triggerNativeExtraMessageAction({
-						action: nativeAction,
-						documentRef,
-					})
-				) {
-					return;
-				}
-
-				closeMoreActionsDrawer();
+	) {
+		return createNativeExtraDrawerActions({
+			closeExtraActionsDrawer,
+			nativeActions: resolveNativeExtraMessageActions({
+				documentRef,
+				messageId: target.messageId,
+			}),
+			refreshMessageActionStores: () => {
 				refreshMessageActionStores({ renderImmediately: true });
 			},
-			variant: "native",
-		}));
-	}
-
-	function renderExtraActionsDrawer() {
-		if (!selectedExtraActionsTarget && !extraActionsDrawerRoot) {
-			return;
-		}
-
-		const host = extraActionsDrawerRoot.ensure();
-		const target = selectedExtraActionsTarget;
-		const deletionSupport = target
-			? readChatMessageDeletionSupport({
-					swipeTotal: target.swipeTotal,
-				})
-			: {
-					canDeleteMessage: false,
-					canDeleteSwipe: false,
-				};
-
-		extraActionsDrawerRoot.render(
-			<MessageExtraActionsDrawer
-				container={host}
-				dangerActions={{
-					deleteMessage: {
-						disabled: !deletionSupport.canDeleteMessage,
-						onClick: () => {
-							if (!target) {
-								return;
-							}
-
-							openDeletionConfirmationForTarget(
-								"message",
-								target,
-							);
-						},
-					},
-					deleteSwipe: {
-						disabled: !deletionSupport.canDeleteSwipe,
-						onClick: () => {
-							if (!target) {
-								return;
-							}
-
-							openDeletionConfirmationForTarget("swipe", target);
-						},
-					},
-				}}
-				nativeActions={
-					target ? createNativeExtraDrawerActions(target) : []
-				}
-				open={Boolean(target)}
-				target={target}
-				onOpenChange={(nextValue) => {
-					if (nextValue) {
-						return;
-					}
-
-					selectedExtraActionsTarget = null;
-					renderExtraActionsDrawer();
-				}}
-			/>,
-		);
+			triggerNativeAction: (action) =>
+				triggerNativeExtraMessageAction({
+					action,
+					documentRef,
+				}),
+		});
 	}
 
 	function unmountExtraActionsDrawer() {
-		extraActionsDrawerRoot.unmount();
-		selectedExtraActionsTarget = null;
+		extraActionsDrawer.unmount();
 	}
 
 	function closeExtraActionsDrawer() {
-		unmountExtraActionsDrawer();
-	}
-
-	function renderDeletionConfirmationDrawer() {
-		if (!selectedDeletionConfirmation) {
-			unmountDeletionConfirmationDrawer();
-			return;
-		}
-
-		const host = deletionConfirmationDrawerRoot.ensure();
-		deletionConfirmationDrawerRoot.render(
-			<MessageDeleteConfirmationDrawer
-				action={selectedDeletionConfirmation}
-				container={host}
-				onDeleted={() => {
-					refreshMessageActionStores({
-						renderImmediately: true,
-					});
-				}}
-				onOpenChange={(nextValue) => {
-					if (nextValue) {
-						return;
-					}
-
-					selectedDeletionConfirmation = null;
-					unmountDeletionConfirmationDrawer();
-				}}
-			/>,
-		);
+		extraActionsDrawer.close();
 	}
 
 	function unmountDeletionConfirmationDrawer() {
-		deletionConfirmationDrawerRoot.unmount();
-		selectedDeletionConfirmation = null;
-	}
-
-	function cloneDeletionTarget(
-		target: MessageActionsTarget,
-	): MessageActionsTarget {
-		return {
-			...target,
-			metadata: {
-				...target.metadata,
-			},
-		};
-	}
-
-	function resolveDeletionConfirmationTarget(
-		target: MessageActionsTarget,
-	): MessageActionsTarget {
-		const fallbackTarget = cloneDeletionTarget(target);
-		const selectedMessageElement = resolveMessageElement(
-			documentRef,
-			target.messageId,
-		);
-		if (!selectedMessageElement) {
-			return fallbackTarget;
-		}
-
-		const renderedTarget = resolveMoreActionsTarget({
-			context: resolveContextSafe(),
-			includeRenderedMessage: true,
-			messageElement: selectedMessageElement,
-			messageId: target.messageId,
-		});
-		if (!renderedTarget.renderedMessageHtml.trim()) {
-			return fallbackTarget;
-		}
-
-		return cloneDeletionTarget(renderedTarget);
+		deletionConfirmationDrawer.unmount();
 	}
 
 	function openDeletionConfirmationForTarget(
@@ -793,11 +592,6 @@ export function createMobileMessageActionsFeature({
 		target: MessageActionsTarget,
 		source: "edit" | "extra" | "more" = "extra",
 	) {
-		const nextDeletionConfirmation: MessageDeleteConfirmationDrawerState = {
-			kind,
-			target: resolveDeletionConfirmationTarget(target),
-		};
-
 		if (source === "more") {
 			closeMoreActionsDrawer();
 		} else if (source === "edit") {
@@ -806,8 +600,7 @@ export function createMobileMessageActionsFeature({
 			closeExtraActionsDrawer();
 		}
 		scheduleDeferredNativeAction(() => {
-			selectedDeletionConfirmation = nextDeletionConfirmation;
-			renderDeletionConfirmationDrawer();
+			deletionConfirmationDrawer.open(kind, target);
 		});
 	}
 
@@ -925,76 +718,26 @@ export function createMobileMessageActionsFeature({
 		target: MessageActionsTarget,
 		draft: MessageEditDrawerDraft,
 	) {
-		const deletionSupport = readChatMessageDeletionSupport({
-			swipeTotal: target.swipeTotal,
+		return createEditDrawerActionConfig({
+			copyEditDraft: (submitDraft) => {
+				void copyEditDraft(submitDraft);
+			},
+			draft,
+			moveEditDraft: ({ direction, submitDraft }) => {
+				void moveEditDraft({
+					direction,
+					submitDraft,
+				});
+			},
+			openDeletionConfirmation: openDeletionConfirmationForTarget,
+			target,
 		});
-
-		return {
-			addReasoning: {
-				disabled: draft.hasReasoning,
-			},
-			copy: {
-				disabled: !draft.canCopy,
-				onClick: (submitDraft: MessageEditDrawerSubmitDraft) => {
-					void copyEditDraft(submitDraft);
-				},
-			},
-			deleteMessage: {
-				disabled: !deletionSupport.canDeleteMessage,
-				onClick: () => {
-					openDeletionConfirmationForTarget(
-						"message",
-						target,
-						"edit",
-					);
-				},
-			},
-			deleteSwipe: {
-				disabled: !deletionSupport.canDeleteSwipe,
-				onClick: () => {
-					openDeletionConfirmationForTarget("swipe", target, "edit");
-				},
-			},
-			moveDown: {
-				disabled: !draft.canMoveDown,
-				onClick: (submitDraft: MessageEditDrawerSubmitDraft) => {
-					void moveEditDraft({
-						direction: "down",
-						submitDraft,
-					});
-				},
-			},
-			moveUp: {
-				disabled: !draft.canMoveUp,
-				onClick: (submitDraft: MessageEditDrawerSubmitDraft) => {
-					void moveEditDraft({
-						direction: "up",
-						submitDraft,
-					});
-				},
-			},
-		};
 	}
 
 	function openExtraActionsForMessage(messageId: number) {
 		closeMoreActionsDrawer();
 		scheduleDeferredNativeAction(() => {
-			const selectedMessageElement = resolveMessageElement(
-				documentRef,
-				messageId,
-			);
-			if (!selectedMessageElement) {
-				unmountExtraActionsDrawer();
-				return;
-			}
-
-			selectedExtraActionsTarget = resolveMoreActionsTarget({
-				context: resolveContextSafe(),
-				includeRenderedMessage: true,
-				messageElement: selectedMessageElement,
-				messageId,
-			});
-			renderExtraActionsDrawer();
+			extraActionsDrawer.openForMessage(messageId);
 		});
 	}
 
@@ -1037,161 +780,95 @@ export function createMobileMessageActionsFeature({
 		callback();
 	}
 
-	function createMoreActionsDrawerActions(
-		target: MessageActionsTarget,
-	): MoreActionsDrawerActionsConfig {
+	function dispatchMoreActionsCopy(messageId: number): boolean {
+		const copyAction = resolveNativeMessageActionElement({
+			action: "copy",
+			documentRef,
+			messageId,
+		});
+
+		if (!copyAction) {
+			return false;
+		}
+
+		dispatchNativePointerUp({
+			documentRef,
+			element: copyAction,
+		});
+		return true;
+	}
+
+	function dispatchMoreActionsPromptVisibility({
+		action,
+		messageId,
+	}: {
+		action: MoreActionsPromptVisibilityAction;
+		messageId: number;
+	}): boolean {
+		const promptVisibilityAction = resolveNativeMessageActionElement({
+			action,
+			documentRef,
+			messageId,
+		});
+
+		if (!promptVisibilityAction) {
+			return false;
+		}
+
+		dispatchNativeClick({
+			documentRef,
+			element: promptVisibilityAction,
+		});
+		return true;
+	}
+
+	function createMoreActionsActionsConfig(target: MessageActionsTarget) {
+		const promptVisibilityActionName: MoreActionsPromptVisibilityAction =
+			target.isSystem ? "unhide" : "hide";
 		const copyAction = resolveNativeMessageActionElement({
 			action: "copy",
 			documentRef,
 			messageId: target.messageId,
 		});
-		const promptVisibilityActionName: NativeMessageAction = target.isSystem
-			? "unhide"
-			: "hide";
 		const promptVisibilityAction = resolveNativeMessageActionElement({
 			action: promptVisibilityActionName,
 			documentRef,
 			messageId: target.messageId,
 		});
-		const historyItem = resolveHistoryItemForMoreActionsTarget(target);
 
-		return {
-			copy: {
-				disabled: !copyAction,
-				onClick: () => {
-					const nextCopyAction = resolveNativeMessageActionElement({
-						action: "copy",
-						documentRef,
-						messageId: target.messageId,
-					});
-					if (!nextCopyAction) {
-						return;
-					}
-
-					dispatchNativePointerUp({
-						documentRef,
-						element: nextCopyAction,
-					});
-					closeMoreActionsDrawer();
-				},
+		return createMoreActionsDrawerActions({
+			canCopy: Boolean(copyAction),
+			canPromptVisibility: Boolean(promptVisibilityAction),
+			closeMoreActionsDrawer,
+			dispatchCopy: dispatchMoreActionsCopy,
+			dispatchPromptVisibility: dispatchMoreActionsPromptVisibility,
+			historyItem: resolveHistoryItemForMoreActionsTarget(target),
+			onEdit: openEditDrawerForTarget,
+			onMore: openExtraActionsForMessage,
+			onOpenHistory: (historyItem) => {
+				scheduleDeferredNativeAction(() => {
+					selectedHistoryItem = historyItem;
+					renderHistoryDrawer();
+				});
 			},
-			edit: {
-				disabled: false,
-				onClick: () => {
-					openEditDrawerForTarget(target);
-				},
+			promptVisibilityActionName,
+			refreshMessageActionStores: () => {
+				refreshMessageActionStores({ renderImmediately: true });
 			},
-			history: {
-				disabled: !historyItem,
-				onClick: () => {
-					if (!historyItem) {
-						return;
-					}
-
-					closeMoreActionsDrawer();
-					scheduleDeferredNativeAction(() => {
-						selectedHistoryItem = historyItem;
-						renderHistoryDrawer();
-					});
-				},
-			},
-			more: {
-				disabled: false,
-				onClick: () => {
-					openExtraActionsForMessage(target.messageId);
-				},
-			},
-			promptVisibility: {
-				disabled: !promptVisibilityAction,
-				isExcluded: target.isSystem,
-				onClick: () => {
-					const nextPromptVisibilityAction =
-						resolveNativeMessageActionElement({
-							action: promptVisibilityActionName,
-							documentRef,
-							messageId: target.messageId,
-						});
-					if (!nextPromptVisibilityAction) {
-						return;
-					}
-
-					dispatchNativeClick({
-						documentRef,
-						element: nextPromptVisibilityAction,
-					});
-					closeMoreActionsDrawer();
-					refreshMessageActionStores({ renderImmediately: true });
-				},
-			},
-		};
+			target,
+		});
 	}
 
-	function createMoreActionsExtraActions(
-		target: MessageActionsTarget,
-	): MessageExtraActionItem[] {
-		const deletionSupport = readChatMessageDeletionSupport({
-			swipeTotal: target.swipeTotal,
+	function createMoreActionsQuickActionsConfig(target: MessageActionsTarget) {
+		return createMoreActionsExtraActions({
+			nativeQuickActions: createMoreActionsNativeQuickActions(target),
+			openDeletionConfirmation: openDeletionConfirmationForTarget,
+			target,
 		});
-		const hasMultipleSwipes =
-			typeof target.swipeTotal === "number" && target.swipeTotal > 1;
-		const deleteMessageLabel = translateAstra(
-			"messageActions.extra.action.deleteMessage.label",
-		);
-		const deleteMessageSingleSwipeLabel = translateAstra(
-			"messageActions.extra.action.deleteMessage.singleSwipeLabel",
-		);
-		const deleteSwipeLabel = translateAstra(
-			"messageActions.extra.action.deleteSwipe.label",
-		);
-		const quickActions: MessageExtraActionItem[] = [];
-
-		if (hasMultipleSwipes) {
-			quickActions.push({
-				disabled: !deletionSupport.canDeleteSwipe,
-				icon: Delete,
-				id: `${target.messageId}:delete-swipe`,
-				label: deleteSwipeLabel,
-				onClick: () => {
-					openDeletionConfirmationForTarget("swipe", target, "more");
-				},
-				variant: "danger",
-			});
-		}
-
-		quickActions.push({
-			disabled: !deletionSupport.canDeleteMessage,
-			icon: MessageCircleX,
-			id: `${target.messageId}:delete-message`,
-			label: hasMultipleSwipes
-				? deleteMessageLabel
-				: deleteMessageSingleSwipeLabel,
-			onClick: () => {
-				openDeletionConfirmationForTarget("message", target, "more");
-			},
-			variant: "danger",
-		});
-
-		return quickActions.concat(createNativeExtraQuickActions(target));
 	}
 
 	function openMoreActionsForMessage(messageId: number) {
-		const selectedMessageElement = resolveMessageElement(
-			documentRef,
-			messageId,
-		);
-		if (!selectedMessageElement) {
-			unmountMoreActionsDrawer();
-			return;
-		}
-
-		selectedMoreActionsTarget = resolveMoreActionsTarget({
-			context: resolveContextSafe(),
-			includeRenderedMessage: true,
-			messageElement: selectedMessageElement,
-			messageId,
-		});
-		isMoreActionsDrawerOpen = true;
-		renderMoreActionsDrawer();
+		moreActionsDrawer.openForMessage(messageId);
 	}
 
 	function isClickToEditEnabled(): boolean {
@@ -1210,62 +887,9 @@ export function createMobileMessageActionsFeature({
 	}
 
 	function syncOpenMessageActionTargets(validMessageIds: Set<number>) {
-		if (selectedMoreActionsTarget) {
-			if (!validMessageIds.has(selectedMoreActionsTarget.messageId)) {
-				unmountMoreActionsDrawer();
-				return;
-			}
-
-			const selectedMessageElement = resolveMessageElement(
-				documentRef,
-				selectedMoreActionsTarget.messageId,
-			);
-			if (!selectedMessageElement) {
-				unmountMoreActionsDrawer();
-				return;
-			}
-
-			if (isMoreActionsDrawerOpen) {
-				selectedMoreActionsTarget = resolveMoreActionsTarget({
-					context: resolveContextSafe(),
-					includeRenderedMessage: true,
-					messageElement: selectedMessageElement,
-					messageId: selectedMoreActionsTarget.messageId,
-				});
-				renderMoreActionsDrawer();
-			}
-		}
-
-		if (selectedExtraActionsTarget) {
-			if (!validMessageIds.has(selectedExtraActionsTarget.messageId)) {
-				unmountExtraActionsDrawer();
-				return;
-			}
-
-			const selectedMessageElement = resolveMessageElement(
-				documentRef,
-				selectedExtraActionsTarget.messageId,
-			);
-			if (!selectedMessageElement) {
-				unmountExtraActionsDrawer();
-				return;
-			}
-
-			selectedExtraActionsTarget = resolveMoreActionsTarget({
-				context: resolveContextSafe(),
-				includeRenderedMessage: false,
-				messageElement: selectedMessageElement,
-				messageId: selectedExtraActionsTarget.messageId,
-			});
-			renderExtraActionsDrawer();
-		}
-
-		if (
-			selectedDeletionConfirmation &&
-			!validMessageIds.has(selectedDeletionConfirmation.target.messageId)
-		) {
-			unmountDeletionConfirmationDrawer();
-		}
+		moreActionsDrawer.sync(validMessageIds);
+		extraActionsDrawer.sync(validMessageIds);
+		deletionConfirmationDrawer.sync(validMessageIds);
 
 		const editState = editDrawer.getState();
 		if (editState.target) {
