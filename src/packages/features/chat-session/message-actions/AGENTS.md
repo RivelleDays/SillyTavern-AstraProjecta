@@ -13,6 +13,7 @@
 - `frameScheduler.ts` and `chatDomReconciler.ts`: requestAnimationFrame coalescing and MutationObserver start/stop/cancel behavior for chat DOM reconciliation.
 - `editDrawerController.ts`: transient edit drawer target, message reference, draft override, mutation-pending, and open-state handling.
 - `messageActionSlots.ts`: creation and cleanup of the direct Astra-owned footer action container under a message `.mes`, immediately after `.mes_block`.
+- `messageDrawerHandoffScheduler.ts`: one-frame replacement scheduler for sibling drawer handoffs; use it when closing one Drawer before opening another on the next frame.
 - `RevisionBar.tsx`: compact revision/continue/history UI for the final actionable assistant message.
 - `revision-history/`: lazy Drawer tree for native SillyTavern swipes plus Astra revision records, opened from More actions footer history affordances. See the child `AGENTS.md` before changing history UI behavior.
 - `SwipePager.tsx`: compact swipe pager UI.

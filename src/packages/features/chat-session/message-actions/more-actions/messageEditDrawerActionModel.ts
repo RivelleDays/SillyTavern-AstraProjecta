@@ -17,12 +17,14 @@ export function createEditDrawerActions({
 	openDeletionConfirmation,
 	target,
 }: {
-	copyEditDraft(submitDraft: MessageEditDrawerSubmitDraft): void;
+	copyEditDraft(
+		submitDraft: MessageEditDrawerSubmitDraft,
+	): void | Promise<void>;
 	draft: MessageEditDrawerDraft;
 	moveEditDraft(args: {
 		direction: ChatMessageMoveDirection;
 		submitDraft: MessageEditDrawerSubmitDraft;
-	}): void;
+	}): void | Promise<void>;
 	openDeletionConfirmation(
 		kind: ChatMessageDeletionKind,
 		target: MessageActionsTarget,

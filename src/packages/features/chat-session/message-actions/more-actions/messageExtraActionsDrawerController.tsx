@@ -1,10 +1,19 @@
 import { createAstraReactPortalRootManager } from "@/packages/core/runtime/reactPortalRootManager";
+import type { ChatMessageDeletionKind } from "@/packages/core/st/chatMessageDeletion";
 import {
 	MessageExtraActionsDrawer,
 	type MessageExtraActionsDrawerAction,
 	type MessageExtraActionsDrawerDangerActions,
 } from "@/packages/features/chat-session/message-actions/more-actions/MessageExtraActionsDrawer";
 import type { MessageActionsTarget } from "@/packages/features/chat-session/message-actions/more-actions/MoreActionsDrawer";
+import {
+	createExtraActionsDrawerDangerActions,
+	createNativeExtraDrawerActions,
+} from "@/packages/features/chat-session/message-actions/more-actions/messageExtraActionsActionModel";
+import {
+	resolveNativeExtraMessageActions,
+	triggerNativeExtraMessageAction,
+} from "@/packages/features/chat-session/message-actions/more-actions/nativeExtraMessageActions";
 
 export interface MessageExtraActionsDrawerController {
 	close(): void;
@@ -15,18 +24,18 @@ export interface MessageExtraActionsDrawerController {
 }
 
 export function createMessageExtraActionsDrawerController({
-	createDangerActions,
-	createNativeActions,
 	documentRef,
+	openDeletionConfirmation,
+	refreshMessageActionStores,
 	resolveTargetForMessage,
 }: {
-	createDangerActions(
-		target: MessageActionsTarget | null,
-	): MessageExtraActionsDrawerDangerActions;
-	createNativeActions(
-		target: MessageActionsTarget,
-	): MessageExtraActionsDrawerAction[];
 	documentRef: Document;
+	openDeletionConfirmation(
+		kind: ChatMessageDeletionKind,
+		target: MessageActionsTarget,
+		source: "extra",
+	): void;
+	refreshMessageActionStores(): void;
 	resolveTargetForMessage(args: {
 		includeRenderedMessage: boolean;
 		messageId: number;
@@ -37,6 +46,35 @@ export function createMessageExtraActionsDrawerController({
 		id: "astra-message-extra-actions-drawer-host",
 	});
 	let selectedTarget: MessageActionsTarget | null = null;
+
+	function createDangerActions(
+		target: MessageActionsTarget | null,
+	): MessageExtraActionsDrawerDangerActions {
+		return createExtraActionsDrawerDangerActions({
+			openDeletionConfirmation: (kind, nextTarget) => {
+				openDeletionConfirmation(kind, nextTarget, "extra");
+			},
+			target,
+		});
+	}
+
+	function createNativeActions(
+		target: MessageActionsTarget,
+	): MessageExtraActionsDrawerAction[] {
+		return createNativeExtraDrawerActions({
+			closeExtraActionsDrawer: unmount,
+			nativeActions: resolveNativeExtraMessageActions({
+				documentRef,
+				messageId: target.messageId,
+			}),
+			refreshMessageActionStores,
+			triggerNativeAction: (action) =>
+				triggerNativeExtraMessageAction({
+					action,
+					documentRef,
+				}),
+		});
+	}
 
 	function render() {
 		if (!selectedTarget && !root.getHost()) {
