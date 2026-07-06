@@ -11975,11 +11975,29 @@ body.astra-projecta-mobile-layout {
   border-radius: var(--radius-full);
   background: var(--surface-muted-t60);
 }
-.astra-chat-message-search-panel__options-trigger, .astra-chat-message-search-panel__replace-action, .astra-chat-message-search-controls__button {
+.astra-chat-message-search-panel__mode-close, .astra-chat-message-search-panel__options-trigger, .astra-chat-message-search-panel__replace-action, .astra-chat-message-search-controls__button {
   flex: 0 0 auto;
   cursor: pointer;
   border-radius: var(--radius-full);
   color: var(--color-base);
+}
+.astra-chat-message-search-panel__mode-close {
+  margin-left: auto;
+  border: 0;
+  box-shadow: none;
+  background: var(--surface-muted-t50);
+  color: var(--muted-foreground);
+  opacity: 0.85;
+}
+.astra-chat-message-search-panel__mode-close[data-slot="button"] {
+  width: var(--astra-button-min-size);
+  height: var(--astra-button-min-size);
+  background: transparent;
+}
+.astra-chat-message-search-panel__mode-close-icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
 }
 .astra-chat-message-search-panel__options-trigger, .astra-chat-message-search-panel__replace-action {
   min-width: 36px;

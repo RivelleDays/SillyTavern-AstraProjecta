@@ -233,6 +233,7 @@ export interface I18nMessages {
 	"astraMainInterface.sections.switching": string;
 	"astraMainInterface.title": string;
 	"astraMainInterface.title.global": string;
+	"chatMessageSearch.close": string;
 	"chatMessageSearch.done": string;
 	"chatMessageSearch.matchCase": string;
 	"chatMessageSearch.next": string;

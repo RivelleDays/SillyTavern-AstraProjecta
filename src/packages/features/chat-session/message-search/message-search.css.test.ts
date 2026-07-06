@@ -17,6 +17,7 @@ describe("chat message search CSS contracts", () => {
 		expect(css).toContain('[data-replace-visible="true"]');
 		expect(css).toContain(".astra-chat-message-search-panel");
 		expect(css).toContain(".astra-chat-message-search-panel__mode");
+		expect(css).toContain(".astra-chat-message-search-panel__mode-close");
 		expect(css).toContain(".astra-chat-message-search-panel__search-row");
 		expect(css).toContain(".astra-chat-message-search-panel__replace-row");
 		expect(css).toContain(".astra-chat-message-search-panel__input-shell");
@@ -46,7 +47,7 @@ describe("chat message search CSS contracts", () => {
 		const css = readCss();
 
 		expect(css).toMatch(
-			/\.astra-chat-message-search-panel__options-trigger,\s*\.astra-chat-message-search-panel__replace-action,\s*\.astra-chat-message-search-controls__button\s*\{[^}]*cursor:\s*pointer;/u,
+			/\.astra-chat-message-search-panel__mode-close,\s*\.astra-chat-message-search-panel__options-trigger,\s*\.astra-chat-message-search-panel__replace-action,\s*\.astra-chat-message-search-controls__button\s*\{[^}]*cursor:\s*pointer;/u,
 		);
 		expect(css).toMatch(
 			/\.astra-chat-message-search-panel__option-checkbox\s*\{[^}]*cursor:\s*pointer;/u,
