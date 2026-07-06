@@ -16,7 +16,8 @@
 - Character favorite status is true only when `character.fav` or `character.data.extensions.fav` is boolean `true` or string `"true"`.
 - Group favorite status is true only when `group.fav` is boolean `true` or string `"true"`.
 - Use existing `src/packages/core/st/chat-avatar` helpers for character thumbnails, custom group avatars, and group member collage URLs.
-- Use existing `ChatCatalogEntry[]` snapshots for chat counts, total message counts, and latest-message timestamps. Do not fetch recent chats here.
+- Read native `chat_size` metadata from character/group context records for HotSwap-aligned favorite ordering.
+- Use existing `ChatCatalogEntry[]` snapshots for chat counts, total message counts, and latest-message timestamps as metadata only. Do not fetch recent chats here.
 - If a `ChatCatalogStore` is supplied to the optional store, subscribe to it and derive ordering from its current snapshot; do not create a second global chat catalog request.
 - Event subscriptions may refresh local metadata on public context events such as character edits, group updates, settings updates, and chat changes, but they must stay coalesced and dispose cleanly.
 
@@ -25,8 +26,10 @@
 - Default visible favorite limit is `25`, matching SillyTavern HotSwap's hard cap rationale without depending on HotSwap DOM or implementation.
 - The visible cap applies only after fixed header entries: Global remains first, Current Character/Group remains second, and scrollable favorites follow.
 - Keep the active character/group in the scrollable favorite list when it qualifies, so the favorite strip content stays stable across current-context changes.
-- Sort visible favorites by total message count descending, then latest message timestamp descending, then entity name, then scope value for stable ties.
-- Missing or null message counts contribute `0`; missing latest-message timestamps sort as older than known timestamps.
+- Sort visible favorites by native `chat_size` descending, matching SillyTavern's "Most chats" character-list sort and avoiding `/api/chats/recent` coverage changes from reshuffling the scope strip.
+- For equal native `chat_size`, preserve original SillyTavern entity order: characters first in context order, then groups in context order. Use scope value only as a final deterministic fallback.
+- Missing, malformed, or negative native `chat_size` values sort as `0`.
+- Missing or null catalog message counts contribute `0`; missing latest-message timestamps remain metadata-only and sort behavior must not depend on them.
 - Favorite body scopes use `favorite:character:<id>` and `favorite:group:<id>` values. These scope values are Astra routing metadata only and must not trigger SillyTavern HotSwap behavior by themselves.
 
 ## Forbidden Patterns
