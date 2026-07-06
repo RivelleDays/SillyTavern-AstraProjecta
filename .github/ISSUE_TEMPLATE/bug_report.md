@@ -3,7 +3,7 @@ name: Bug report
 about: Report a reproducible issue with AstraProjecta
 title: "[Bug] "
 labels: bug
-assignees: ''
+assignees: RivelleDays
 
 ---
 
@@ -17,16 +17,12 @@ Please confirm these before submitting:
 - [ ] I tested the issue in Chrome.
 - [ ] I can reproduce the issue reliably at least twice.
 
----
-
 ## Version / Build Info
 
 - AstraProjecta version:
 - SillyTavern version and branch:
 - AstraProjecta last update date:
 - Anything changed recently? <!-- yes/no + what changed -->
-
----
 
 ## System Info
 
@@ -35,13 +31,9 @@ Please confirm these before submitting:
 - Browser: <!-- Chrome version; include other browsers if tested -->
 - Screen size: <!-- optional, e.g. 1920×1080 / 390px mobile width -->
 
----
-
 ## What happened?
 
 <!-- Give a clear and concise description of the issue. -->
-
----
 
 ## Steps to reproduce
 
@@ -51,25 +43,17 @@ Please confirm these before submitting:
 2.
 3.
 
----
-
 ## Expected result
 
 <!-- What did you expect to happen? -->
-
----
 
 ## Actual result
 
 <!-- What actually happened? Include error messages if any. -->
 
----
-
 ## Screenshots / Recording
 
 <!-- Strongly recommended. Attach images or a short screen recording. Highlight the relevant area if possible. -->
-
----
 
 ## Extra context
 

@@ -2,8 +2,8 @@
 name: Feature request
 about: Suggest an improvement or new behavior for AstraProjecta
 title: "[Feature] "
-labels: ''
-assignees: ''
+labels: enhancement
+assignees: RivelleDays
 
 ---
 
@@ -14,8 +14,6 @@ Why do you want this?
 What is painful, confusing, slow, missing, or hard to use right now?
 -->
 
----
-
 ## Proposed solution / behavior
 
 <!-- Required.
@@ -23,23 +21,17 @@ What should AstraProjecta do?
 Describe the UI, flow, setting, toggle, interaction, or behavior you expect.
 -->
 
----
-
 ## References / inspiration
 
 <!-- Strongly recommended.
 Attach screenshots, mockups, examples from other apps/sites, links, or rough sketches.
 -->
 
----
-
 ## Alternatives / acceptable compromises
 
 <!-- Optional.
 If the ideal version is not possible, what would still help?
 -->
-
----
 
 ## Priority
 
@@ -49,8 +41,6 @@ If the ideal version is not possible, what would still help?
 - Important for my workflow
 - Blocking or very painful
 -->
-
----
 
 ## Additional context
 
