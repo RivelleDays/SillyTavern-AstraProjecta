@@ -1,10 +1,31 @@
 import { createAstraReactPortalRootManager } from "@/packages/core/runtime/reactPortalRootManager";
+import type { ChatMessageRevisionHistoryItem } from "@/packages/core/st/chatMessageRevisionHistory";
+import { type ChatMessageDeletionKind } from "@/packages/core/st/chatMessageDeletion";
+import {
+	dispatchNativeClick,
+	dispatchNativePointerUp,
+	resolveNativeMessageActionElement,
+} from "@/packages/features/chat-session/message-actions/contracts/dom";
+import {
+	createMessageDrawerHandoffScheduler,
+	type MessageDrawerHandoffScheduler,
+} from "@/packages/features/chat-session/message-actions/messageDrawerHandoffScheduler";
 import {
 	MoreActionsDrawer,
 	type MessageActionsTarget,
 	type MoreActionsDrawerActionsConfig,
 } from "@/packages/features/chat-session/message-actions/more-actions/MoreActionsDrawer";
 import type { MessageExtraActionItem } from "@/packages/features/chat-session/message-actions/more-actions/MessageExtraActionItem";
+import { createNativeExtraQuickActions } from "@/packages/features/chat-session/message-actions/more-actions/messageExtraActionsActionModel";
+import {
+	createMoreActionsDrawerActions,
+	createMoreActionsExtraActions,
+	type MoreActionsPromptVisibilityAction,
+} from "@/packages/features/chat-session/message-actions/more-actions/messageMoreActionsActionModel";
+import {
+	resolveNativeExtraMessageActions,
+	triggerNativeExtraMessageAction,
+} from "@/packages/features/chat-session/message-actions/more-actions/nativeExtraMessageActions";
 
 export interface MessageMoreActionsDrawerController {
 	close(): void;
@@ -16,14 +37,30 @@ export interface MessageMoreActionsDrawerController {
 }
 
 export function createMessageMoreActionsDrawerController({
-	createActions,
-	createExtraActions,
 	documentRef,
+	handoffScheduler,
+	openDeletionConfirmation,
+	openEditDrawerForTarget,
+	openExtraActionsForMessage,
+	openHistoryItem,
+	refreshMessageActionStores,
+	resolveHistoryItemForTarget,
 	resolveTargetForMessage,
 }: {
-	createActions(target: MessageActionsTarget): MoreActionsDrawerActionsConfig;
-	createExtraActions(target: MessageActionsTarget): MessageExtraActionItem[];
 	documentRef: Document;
+	handoffScheduler?: MessageDrawerHandoffScheduler;
+	openDeletionConfirmation(
+		kind: ChatMessageDeletionKind,
+		target: MessageActionsTarget,
+		source: "more",
+	): void;
+	openEditDrawerForTarget(target: MessageActionsTarget): void;
+	openExtraActionsForMessage(messageId: number): void;
+	openHistoryItem(item: ChatMessageRevisionHistoryItem): void;
+	refreshMessageActionStores(): void;
+	resolveHistoryItemForTarget(
+		target: MessageActionsTarget,
+	): ChatMessageRevisionHistoryItem | null;
 	resolveTargetForMessage(args: {
 		includeRenderedMessage: boolean;
 		messageId: number;
@@ -33,8 +70,128 @@ export function createMessageMoreActionsDrawerController({
 		documentRef,
 		id: "astra-message-more-actions-drawer-host",
 	});
+	const resolvedHandoffScheduler =
+		handoffScheduler ??
+		createMessageDrawerHandoffScheduler({ documentRef });
 	let selectedTarget: MessageActionsTarget | null = null;
 	let isOpen = false;
+
+	function dispatchCopy(messageId: number): boolean {
+		const copyAction = resolveNativeMessageActionElement({
+			action: "copy",
+			documentRef,
+			messageId,
+		});
+
+		if (!copyAction) {
+			return false;
+		}
+
+		dispatchNativePointerUp({
+			documentRef,
+			element: copyAction,
+		});
+		return true;
+	}
+
+	function dispatchPromptVisibility({
+		action,
+		messageId,
+	}: {
+		action: MoreActionsPromptVisibilityAction;
+		messageId: number;
+	}): boolean {
+		const promptVisibilityAction = resolveNativeMessageActionElement({
+			action,
+			documentRef,
+			messageId,
+		});
+
+		if (!promptVisibilityAction) {
+			return false;
+		}
+
+		dispatchNativeClick({
+			documentRef,
+			element: promptVisibilityAction,
+		});
+		return true;
+	}
+
+	function closeAndScheduleHandoff(callback: () => void) {
+		close();
+		resolvedHandoffScheduler.schedule(callback);
+	}
+
+	function createNativeQuickActions(
+		target: MessageActionsTarget,
+	): MessageExtraActionItem[] {
+		return createNativeExtraQuickActions({
+			closeMoreActionsDrawer: close,
+			nativeActions: resolveNativeExtraMessageActions({
+				documentRef,
+				messageId: target.messageId,
+			}),
+			refreshMessageActionStores,
+			triggerNativeAction: (action) =>
+				triggerNativeExtraMessageAction({
+					action,
+					documentRef,
+				}),
+		});
+	}
+
+	function createActions(
+		target: MessageActionsTarget,
+	): MoreActionsDrawerActionsConfig {
+		const promptVisibilityActionName: MoreActionsPromptVisibilityAction =
+			target.isSystem ? "unhide" : "hide";
+		const copyAction = resolveNativeMessageActionElement({
+			action: "copy",
+			documentRef,
+			messageId: target.messageId,
+		});
+		const promptVisibilityAction = resolveNativeMessageActionElement({
+			action: promptVisibilityActionName,
+			documentRef,
+			messageId: target.messageId,
+		});
+
+		return createMoreActionsDrawerActions({
+			canCopy: Boolean(copyAction),
+			canPromptVisibility: Boolean(promptVisibilityAction),
+			closeMoreActionsDrawer: close,
+			dispatchCopy,
+			dispatchPromptVisibility,
+			historyItem: resolveHistoryItemForTarget(target),
+			onEdit: (nextTarget) => {
+				closeAndScheduleHandoff(() => {
+					openEditDrawerForTarget(nextTarget);
+				});
+			},
+			onMore: (messageId) => {
+				closeAndScheduleHandoff(() => {
+					openExtraActionsForMessage(messageId);
+				});
+			},
+			onOpenHistory: (historyItem) => {
+				closeAndScheduleHandoff(() => {
+					openHistoryItem(historyItem);
+				});
+			},
+			promptVisibilityActionName,
+			refreshMessageActionStores,
+			target,
+		});
+	}
+
+	function createExtraActions(target: MessageActionsTarget) {
+		return createMoreActionsExtraActions({
+			nativeQuickActions: createNativeQuickActions(target),
+			openDeletionConfirmation,
+			target,
+		});
+	}
 
 	function unmount() {
 		root.unmount();

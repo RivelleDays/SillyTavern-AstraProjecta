@@ -9,7 +9,7 @@
 - `MessageExtraActionsDrawer.tsx`: sibling Drawer opened from the More footer pill. It owns the danger zone and Astra-rendered native `.extraMesButtons` rows.
 - `MessageEditDrawer.tsx`: sibling Drawer opened from the More footer edit action. It owns Astra-rendered edit fields, action strip, and footer controls for message editing.
 - `MessageActionsIdentityHeader.tsx`: shared selected-message identity header used by both More and Extra actions drawers.
-- `messageMoreActionsDrawerController.tsx`, `messageExtraActionsDrawerController.tsx`, and `messageDeleteConfirmationDrawerController.tsx`: feature-local Drawer orchestration for selected target state, portal rendering, open/close/unmount behavior, and live target refresh.
+- `messageMoreActionsDrawerController.tsx`, `messageExtraActionsDrawerController.tsx`, and `messageDeleteConfirmationDrawerController.tsx`: feature-local Drawer orchestration for selected target state, portal rendering, open/close/unmount behavior, live target refresh, action config assembly, and sibling Drawer handoffs.
 - `messageMoreActionsActionModel.ts`, `messageExtraActionsActionModel.ts`, and `messageEditDrawerActionModel.ts`: action config builders for More, Extra, Delete handoff, native action, and edit top-action behavior; keep them free of raw SillyTavern selectors.
 - `nativeExtraMessageActions.ts`: feature-local adapter that reads the selected message's live SillyTavern `.extraMesButtons` children and dispatches native activation events back to the original elements.
 - `messageContentSnapshot.ts`: rendered `.mes_text` snapshot adapter for the Drawer body and plain-text message preview. It owns cloning, inert scrubbing, and script/style exclusion for preview text copied from the live chat DOM.

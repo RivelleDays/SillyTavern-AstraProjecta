@@ -1,13 +1,23 @@
 import { type ChatMessageDeletionKind } from "@/packages/core/st/chatMessageDeletion";
 import { createAstraReactPortalRootManager } from "@/packages/core/runtime/reactPortalRootManager";
 import {
+	createMessageDrawerHandoffScheduler,
+	type MessageDrawerHandoffScheduler,
+} from "@/packages/features/chat-session/message-actions/messageDrawerHandoffScheduler";
+import {
 	MessageDeleteConfirmationDrawer,
 	type MessageDeleteConfirmationDrawerState,
 } from "@/packages/features/chat-session/message-actions/more-actions/MessageDeleteConfirmationDrawer";
 import type { MessageActionsTarget } from "@/packages/features/chat-session/message-actions/more-actions/MoreActionsDrawer";
 
+export type MessageDeleteConfirmationSource = "edit" | "extra" | "more";
+
 export interface MessageDeleteConfirmationDrawerController {
-	open(kind: ChatMessageDeletionKind, target: MessageActionsTarget): void;
+	open(
+		kind: ChatMessageDeletionKind,
+		target: MessageActionsTarget,
+		source?: MessageDeleteConfirmationSource,
+	): void;
 	render(): void;
 	sync(validMessageIds: Set<number>): void;
 	unmount(): void;
@@ -25,11 +35,15 @@ export function cloneMessageActionsTarget(
 }
 
 export function createMessageDeleteConfirmationDrawerController({
+	closeSourceDrawer,
 	documentRef,
+	handoffScheduler,
 	onDeleted,
 	resolveTargetForMessage,
 }: {
+	closeSourceDrawer?(source: MessageDeleteConfirmationSource): void;
 	documentRef: Document;
+	handoffScheduler?: MessageDrawerHandoffScheduler;
 	onDeleted(): void;
 	resolveTargetForMessage(args: {
 		includeRenderedMessage: boolean;
@@ -40,10 +54,14 @@ export function createMessageDeleteConfirmationDrawerController({
 		documentRef,
 		id: "astra-message-delete-confirmation-drawer-host",
 	});
+	const resolvedHandoffScheduler =
+		handoffScheduler ??
+		createMessageDrawerHandoffScheduler({ documentRef });
 	let selectedConfirmation: MessageDeleteConfirmationDrawerState | null =
 		null;
 
 	function unmount() {
+		resolvedHandoffScheduler.cancel();
 		root.unmount();
 		selectedConfirmation = null;
 	}
@@ -88,12 +106,15 @@ export function createMessageDeleteConfirmationDrawerController({
 	}
 
 	return {
-		open(kind, target) {
-			selectedConfirmation = {
-				kind,
-				target: resolveConfirmationTarget(target),
-			};
-			render();
+		open(kind, target, source = "extra") {
+			closeSourceDrawer?.(source);
+			resolvedHandoffScheduler.schedule(() => {
+				selectedConfirmation = {
+					kind,
+					target: resolveConfirmationTarget(target),
+				};
+				render();
+			});
 		},
 		render,
 		sync(validMessageIds) {
