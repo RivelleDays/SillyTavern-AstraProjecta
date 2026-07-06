@@ -21,6 +21,7 @@ import {
 	getRevisionGenerationTransactionForMessage,
 	startRevisionGenerationTransaction,
 } from "@/packages/core/st/chat-message-revisions/generationTransaction";
+import { rebaseRevisionRootToNativeSwipeIndex } from "@/packages/core/st/chat-message-revisions/rootRebase";
 
 type Listener = () => void;
 
@@ -1426,47 +1427,6 @@ function handleChatChanged(): void {
 	startMessageText = "";
 }
 
-function rewriteRootPath(path: unknown, rootIndex: number): number[] {
-	const normalizedPath = asPath(path);
-	if (!normalizedPath.length) {
-		return [];
-	}
-
-	return [rootIndex, ...normalizedPath.slice(1)];
-}
-
-function rebaseRevisionNodeRoot(
-	revision: RevisionNode,
-	rootIndex: number,
-): void {
-	const parentPath = asPath(revision.parent);
-	revision.parent = parentPath.length
-		? [rootIndex, ...parentPath.slice(1)]
-		: parentPath;
-
-	const activePath = asPath(revision.active);
-	if (activePath.length) {
-		revision.active = [rootIndex, ...activePath.slice(1)];
-	}
-
-	for (const child of asRevisionList(revision.swipes) ?? []) {
-		rebaseRevisionNodeRoot(child, rootIndex);
-	}
-}
-
-function rebaseRevisionRoot(
-	rootRevision: RevisionNode,
-	rootIndex: number,
-): void {
-	rootRevision.parent = [];
-	const activePath = rewriteRootPath(rootRevision.active, rootIndex);
-	rootRevision.active = activePath.length ? activePath : [rootIndex];
-
-	for (const child of asRevisionList(rootRevision.swipes) ?? []) {
-		rebaseRevisionNodeRoot(child, rootIndex);
-	}
-}
-
 function handleSwipeDeleted(...args: unknown[]): void {
 	const messageId = args.find(
 		(value): value is number =>
@@ -1503,7 +1463,7 @@ function handleSwipeDeleted(...args: unknown[]): void {
 
 	history.splice(deletedSwipeIndex, 1);
 	history.forEach((rootRevision, rootIndex) => {
-		rebaseRevisionRoot(rootRevision, rootIndex);
+		rebaseRevisionRootToNativeSwipeIndex(rootRevision, rootIndex);
 	});
 	cleanupDerivedRevisionFields(message);
 }
