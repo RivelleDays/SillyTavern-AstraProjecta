@@ -8,9 +8,22 @@
 - `context.ts` for safe `SillyTavern.getContext()` access.
 - `shared.ts` for reusable SillyTavern adapter helpers, including event-like shapes, safe context reads, record guards, string/id normalization, chat id normalization, and microtask scheduling.
 - `http/` owns browser-side SillyTavern REST endpoint constants, request execution, response guards, and typed error mapping for Astra-owned `/api/*` calls.
-- Snapshot readers and stores for current-user avatar, current chat identity, shared chat avatar resolution, primary send action, quick shortcuts, message actions, and future chat-session adapters.
+- `chat-catalog/` owns the global `/api/chats/recent` catalog adapter; see its child `AGENTS.md`.
+- `chatMessageSearch.ts` owns current-chat message search preferences, message reads, chat-change subscriptions, and batch text-edit persistence.
+- `chatMessageSwipe.ts` owns last-message native swipe availability snapshots and previous/next swipe actions.
+- `chatMessageRendering.ts` owns message formatting fallback and safe rendered-content writes.
+- `chatContextUsage.ts` owns context-token usage snapshots, prompt budget status, and generation-aware refresh timing.
+- `currentChatDelete.ts` owns active character/group chat deletion with replacement-chat selection and typed failure results.
+- `currentChatInfo.ts` owns active chat metadata snapshots, remote file metadata refresh, model counts, and last-message previews.
+- `currentChatRename.ts` owns active chat filename normalization and public `renameChat` mutation calls.
+- `currentConnectionInfo.ts` owns active API/model connection snapshots and event-driven refresh.
+- `currentPresetProfileControls.ts` owns connection profile option snapshots and profile apply actions.
+- `timestamps.ts` owns SillyTavern timestamp parsing, absolute formatting, time-only formatting, date-divider formatting, and local date keys.
 - `current-chat-catalog/` owns the scoped chat catalog for the currently active character/group and explicit Astra-selected character/group scopes, including per-entity cache and `/api/chats/search` normalization.
 - `chat-categories/` owns extension-settings backed global and owner-scoped chat category persistence, membership maps, and chat key maintenance.
+- `chat-background-appearance/` owns the chat background appearance store and runtime CSS bridge: it persists version `1` state under `extensionSettings.astra_projecta.chatBackgroundAppearance`, defaults to `blurPx: 2` and `opacityPercent: 80`, dispatches `astra-projecta:chat-background-appearance-changed`, and applies `--astra-chat-bg-blur` / `--astra-chat-bg-opacity` variables consumed by the `#bg1` override.
+- `chat-message-appearance/` owns the chat message appearance store and runtime CSS-variable bridge: it persists version `1` state under `extensionSettings.astra_projecta.chatMessageAppearance`, defaults to `lineHeight: "md"`, `textAlign: "start"`, and `showTimeline: true`, dispatches `astra-projecta:chat-message-appearance-changed`, and applies `--astra-mes-line-height` / `--astra-mes-text-align` plus timeline body-class state for `.mes_text` / `.mes_reasoning` styling.
+- `chat-message-interaction/` owns chat message interaction policy for mobile long-press behavior: it persists version `1` state under `extensionSettings.astra_projecta.chatMessageInteraction`, supports `longPressAction` values `disabled`, `message-actions`, and `edit-message`, defaults to `disabled`, and dispatches `astra-projecta:chat-message-interaction-changed` for cross-surface sync.
 - `favorite-chat-entities/` owns the favorite character/group entity snapshot used by future Astra main-interface header navigation, including favorite detection, chat-catalog stat aggregation, current-entity exclusion, default capping, and scope-value helpers.
 - `chat-message-revisions/` owns extracted single-message Revision History helpers and is the migration target for storage, baseline capture, generation transactions, operations, tree reading, and store code.
 - Message Revision History core ownership:
@@ -53,6 +66,7 @@
 - Current chat catalog may call `/api/chats/search` only for the resolved active character/group or an explicit Astra-selected character/group scope. It must not bridge `select_chat_popup`, scan the global `/api/chats/recent` catalog for Current/Favorite views, or introduce a server plugin dependency.
 - Astra-owned REST calls to SillyTavern `/api/*` endpoints should go through `http/`; feature and store modules should not duplicate headers, timeout handling, JSON parsing, or response payload guards.
 - Chat categories may read and write only `extensionSettings.astra_projecta.chatCategories` through `SillyTavern.getContext()` and `saveSettingsDebounced()`. They must not fetch chat lists, add server endpoints, or introduce a server plugin dependency.
+- Features must read and write `chatBackgroundAppearance`, `chatMessageAppearance`, and `chatMessageInteraction` only through their exported store APIs, never by directly reading or mutating raw `extensionSettings`.
 - Favorite chat entities must not call chat APIs, import SillyTavern browser modules, scrape `#HotSwapWrapper`, or reuse `favsToHotswap()`. It may reuse only the stable HotSwap ideas of favorite filtering and the `25`-item cap.
 - SillyTavern native swipe data is canonical for candidate rows: `message.swipes`, `message.swipe_id`, and optional `message.swipe_info`. Astra revision data is additive and namespaced under `message.astra_projecta.revisionHistory.roots`.
 - Legacy `message.continueHistory` remains read-only compatibility input. If an Astra write touches a legacy-only message, clone compatible roots into namespaced storage and leave the original legacy field in place.
@@ -78,6 +92,6 @@
 ## Verification Checklist
 
 - Confirm `core` ST adapters still degrade to a fallback snapshot when ST context or anchors are missing.
-- Confirm `chat-avatar`, `chat-identity`, `favorite-chat-entities`, `current-chat-catalog`, and `chat-categories` still own their documented contracts.
+- Confirm `chat-avatar`, `chat-identity`, `chat-catalog`, `favorite-chat-entities`, `current-chat-catalog`, and `chat-categories` still own their documented contracts.
 - Confirm feature/UI code does not rebuild current-chat identity, chat avatar, group collage, favorite entity, or chat category behavior locally.
 - Confirm reusable ST helper definitions remain centralized in `shared.ts`; run `npm run check:st-shared-helpers` when this boundary changes.

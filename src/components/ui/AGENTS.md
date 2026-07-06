@@ -14,15 +14,13 @@
 ```text
 src/components/ui/
 ├─ AGENTS.md
+├─ dependency-hygiene.test.ts     # enforces vendored-shadcn allowlist
 ├─ shadcn/
 │  └─ AGENTS.md
 ├─ shared/
 │  └─ AGENTS.md
 └─ astra/
-   ├─ AGENTS.md
-   ├─ dropdown-menu.tsx
-   ├─ drawer.tsx
-   └─ smooth-tabs.tsx
+   └─ 8 compatibility wrappers; see astra/AGENTS.md
 ```
 
 ## SillyTavern Touchpoints

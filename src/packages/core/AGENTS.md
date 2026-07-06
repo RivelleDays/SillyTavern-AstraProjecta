@@ -8,19 +8,22 @@
 - `SillyTavern.getContext()` access patterns and typed wrapper contracts.
 - Event bus integration and lifecycle subscriptions.
 - Extension settings access and normalization for `astra_projecta`.
+- `constants.ts` owns shared core constants used across runtime, adapters, and features.
+- `i18n.ts` owns the core SillyTavern-backed translation bridge. Features must use it instead of scattering raw `translate(text, key)` calls across feature files.
 - `layout-mode/` owns the centralized Astra mobile-layout activation contract and future manual override normalization.
-- Runtime lifecycle helpers, selector registries, compatibility guards, and cross-feature infrastructure.
-- Adapters that translate SillyTavern state into AstraProjecta-friendly contracts.
 - `runtime/` owns global body-class contracts, portal/root infrastructure, and runtime bootstrap helpers.
+- `st/` owns SillyTavern state adapters; see `st/AGENTS.md`.
 
 ## Structure Tree
 
 ```text
 src/packages/core/
 ├─ AGENTS.md
+├─ constants.ts                # shared core constants
+├─ i18n.ts                     # translation bridge
 ├─ layout-mode/                # shared mobile-layout activation contract
 ├─ runtime/                    # body-class and UI-root runtime infrastructure
-└─ future adapters, selector registries, settings, and guards
+└─ st/                         # SillyTavern state adapters
 ```
 
 ## SillyTavern Touchpoints

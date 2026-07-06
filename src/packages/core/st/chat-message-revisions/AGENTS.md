@@ -7,6 +7,7 @@
 
 - `baseline.ts`: first-observed message/swipe baseline tracking used to preserve original text before edits or generations mutate SillyTavern message data.
 - `generationTransaction.ts`: pending Astra-triggered regenerate transaction state used to classify render events even when SillyTavern emits generation stop before message render.
+- `rootRebase.ts`: rewrites revision root, active, parent, and descendant child paths when a root index changes, keeping namespaced roots aligned after native swipe deletions.
 - `storage.ts`: public transition point for revision storage helpers. It currently re-exports the legacy adapter while callers migrate into this folder.
 - `tree.ts`: public transition point for selected-message revision tree helpers. It currently re-exports the legacy tree reader while callers migrate into this folder.
 - Future files in this folder should hold extracted single-message revision operations and store code currently exposed through `../chatMessageRevision.ts`.

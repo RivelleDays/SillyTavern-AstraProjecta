@@ -47,47 +47,59 @@
 
 ```text
 SillyTavern-AstraProjecta/
-├─ AGENTS.md                         # repository-wide rules and current architecture
-├─ manifest.json                     # SillyTavern extension manifest, output paths stay stable
+├─ AGENTS.md                         # repository rules
+├─ locales/                          # English catalog source
+├─ manifest.json                     # extension manifest
 ├─ package.json                      # toolchain contract
+├─ scripts/                          # repository automation
 ├─ src/
-│  ├─ AGENTS.md                      # source-tree ownership and routing rules
-│  ├─ index.js                       # runtime bootstrap entry, keep feature logic out of here
+│  ├─ AGENTS.md                      # source-tree rules
+│  ├─ index.js                       # runtime bootstrap
 │  ├─ app/
-│  │  ├─ mobile/                     # Phase 1 product assembly
+│  │  ├─ mobile/                     # mobile assembly
 │  │  │  ├─ AGENTS.md
+│  │  │  ├─ runtime/                 # mobile runtime coordination
+│  │  │  ├─ styles/                  # mobile stylesheet assembly
 │  │  │  ├─ top-bar/                 # mobile wrapper around native #sheld
-│  │  │  ├─ astra-main-interface-panel/ # left-side mobile Astra main interface shell
-│  │  │  └─ sillytavern-interface-panel/ # right-side mobile SillyTavern interface assembly
-│  │  ├─ shared/                     # Phase 1 shared contracts and cross-platform abstractions
+│  │  │  ├─ astra-main-interface-panel/ # Astra panel shell
+│  │  │  └─ sillytavern-interface-panel/ # SillyTavern panel shell
+│  │  ├─ shared/                     # shared app contracts
 │  │  │  ├─ AGENTS.md
-│  │  │  └─ sillytavern-interface/   # portable SillyTavern interface route/icon contracts
-│  │  └─ desktop/                    # reserved formal assembly, kept thin during Phase 1
+│  │  │  └─ sillytavern-interface/   # interface contracts
+│  │  └─ desktop/                    # reserved desktop assembly
 │  │     └─ AGENTS.md
 │  ├─ packages/
-│  │  ├─ core/                       # Phase 1 SillyTavern integration and runtime infrastructure
+│  │  ├─ core/                       # SillyTavern integration
 │  │  │  ├─ AGENTS.md
-│  │  │  ├─ st/chat-categories/    # extension-settings backed chat category store
-│  │  │  ├─ layout-mode/             # shared mobile-layout activation contract
-│  │  │  └─ runtime/                 # runtime bootstrap, body-class contracts, UI scope helpers
+│  │  │  ├─ layout-mode/             # layout activation
+│  │  │  ├─ runtime/                 # runtime contracts
+│  │  │  └─ st/                      # 13 adapter modules, see src/packages/core/st/AGENTS.md
 │  │  └─ features/
-│  │     ├─ AGENTS.md                # feature folder contract
-│  │     ├─ astra-main-interface/    # Astra entry / main interface content root
+│  │     ├─ AGENTS.md                # feature rules
+│  │     ├─ astra-main-interface/    # Astra main interface
 │  │     │  ├─ AGENTS.md
-│  │     │  ├─ chat-list/           # shared Global/Current/Favorite chat-list flow and row adapters
-│  │     │  ├─ chat-categories/     # shared global/current/favorite category UI and assignment drawer
-│  │     │  ├─ global/               # Global tabs, chat list, and global categories
-│  │     │  ├─ current-context/      # Current Character/Group tabs, scoped chats, and categories
-│  │     │  └─ favorite-context/     # Favorite Character/Group tabs, scoped chats, and categories
-│  │     ├─ chat-session/            # Phase 1 chat input/message feature surface
+│  │     │  ├─ chat-list/            # shared chat lists
+│  │     │  ├─ chat-categories/      # category UI
+│  │     │  ├─ global/               # global context
+│  │     │  ├─ current-context/      # current context
+│  │     │  └─ favorite-context/     # favorite context
+│  │     ├─ chat-session/            # chat session surface
 │  │     │  └─ AGENTS.md
-│  │     └─ sillytavern-interface/   # right-side SillyTavern native main interface
+│  │     ├─ chat-session-settings/   # chat settings drawer
+│  │     │  └─ AGENTS.md
+│  │     └─ sillytavern-interface/   # native interface panel
 │  │        └─ AGENTS.md
 │  ├─ components/
-│  │  └─ ui/                         # Phase 1 Shadcn wrapper layer
-│  │     └─ AGENTS.md
-│  ├─ styles/                        # emitted stylesheet entry and token assembly
-│  └─ types/                         # reserved shared type declarations
+│  │  └─ ui/                         # UI wrapper layer
+│  │     ├─ AGENTS.md
+│  │     ├─ shadcn/                  # vendored shadcn sources
+│  │     ├─ shared/                  # neutral shared helpers
+│  │     └─ astra/                   # SillyTavern wrappers
+│  ├─ hooks/                         # shared React hooks
+│  ├─ lib/                           # shared utilities
+│  ├─ styles/                        # stylesheet assembly
+│  ├─ test/                          # test utilities
+│  └─ types/                         # generated i18n.d.ts + shared declarations
 └─ dist/                             # build output only
 ```
 
@@ -152,7 +164,7 @@ SillyTavern-AstraProjecta/
 - Direct feature-layer imports from raw third-party UI primitives when a local wrapper should exist under `src/components/ui`.
 - Letting mobile-specific DOM assumptions leak into shared contracts.
 - Letting desktop requirements block or distort the Phase 1 mobile architecture.
-- Reintroducing a deprecated coss-based UI stack into this repository. The active standard here is Shadcn.
+- Reintroducing the deprecated COSS Origin-based UI stack into this repository. The active standard here is Shadcn.
 - Untracked DOM takeover. Every bridge must be reversible, documented, and owned by a clear module.
 - Expanding `src/index.js` into long-term feature architecture.
 - Adding test-only `documentRef`, `windowRef`, `getContext`, `fetchImpl`, `storage`, or clock parameters to public production exports without a store/cache or documented integration-boundary reason.
@@ -183,6 +195,7 @@ SillyTavern-AstraProjecta/
 
 - Update this file whenever the current architecture, standard stack, naming contract, bridge policy, or SillyTavern boundary rules change.
 - Add or update a child `AGENTS.md` when a folder gains stable ownership, reusable rules, or SillyTavern integration details that would clutter this file.
+- `contracts/` subfolders get their own `AGENTS.md` only for audited native-DOM compatibility contracts; pure constant/id folders are documented by a parent bullet.
 - If a child file conflicts with this file, fix the child file. Root rules win.
 
 ## Verification Checklist

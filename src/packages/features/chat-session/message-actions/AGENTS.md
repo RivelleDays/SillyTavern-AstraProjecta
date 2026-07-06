@@ -1,7 +1,7 @@
 ## Purpose
 
 - Own AstraProjecta single-message action surfaces inside the SillyTavern chat DOM.
-- v1 scope is the last non-user message footer `.astra-mesActions` that renders the revision bar, inline revision-history affordance, and swipe pager directly; the More actions Drawer opened by mobile long-press on live `#chat .mes .mes_text` or by the message header ellipsis button; and the edit Drawer opened by the message header pencil button or mobile `click_to_edit` message clicks.
+- v1 scope is the last non-user message footer `.astra-mesActions` that renders the revision bar, inline revision-history affordance, and swipe pager directly; the More actions Drawer opened by the always-available message header ellipsis button or by mobile long-press on live `#chat .mes .mes_text` when `packages/core/st/chat-message-interaction` sets `chatMessageInteraction.longPressAction` to `message-actions`; and the edit Drawer opened by the message header pencil button, mobile `click_to_edit` message clicks, or mobile long-press when `chatMessageInteraction.longPressAction` is `edit-message`.
 
 ## Owned Paths / Responsibilities
 
@@ -45,7 +45,7 @@
 - Add or revise SillyTavern message selectors only in `contracts/dom.ts`, then update its contract tests and the documented touchpoint list in this file.
 - Do not insert empty top/header `.astra-mesActions` hosts during normal message action rendering; the only production `.astra-mesActions` slot is `data-astra-slot="footer"`. Header buttons use the separate `.astra-mesHeaderActions` host.
 - Production mobile rendering must not create `.astra-mesActions__revisionHost`, `.astra-mesActions__historyHost`, `.astra-mesActions__moreHost`, `.astra-mesActions__leftDefault`, or `.astra-mesActions__rightDefault`; keep those names only as legacy cleanup selectors if needed.
-- The More actions Drawer entry points are mobile long-press on live `#chat .mes .mes_text` and the header ellipsis button. The Drawer still owns history, edit, prompt visibility, and extra action handoffs after the selected message target is resolved.
+- The More actions Drawer's always-available entry point is the header ellipsis button. Mobile long-press on live `#chat .mes .mes_text` is gated by `packages/core/st/chat-message-interaction`: `messageTextGestures.ts` consumes `getLongPressAction`, where `chatMessageInteraction.longPressAction` options are `disabled`, `message-actions`, or `edit-message`, and the default is `disabled`. The Drawer still owns history, edit, prompt visibility, and extra action handoffs after the selected message target is resolved.
 - The header pencil button opens the Astra edit Drawer directly through `packages/core/st/chatMessageEdit`; it must not click or reparent SillyTavern native edit controls.
 - When SillyTavern `powerUserSettings.click_to_edit` is enabled in mobile layout, live `.mes_text` and `.mes_reasoning` clicks must open the Astra edit Drawer directly and must not trigger native `.mes_edit` controls. Preserve SillyTavern's no-op cases for active text selection and existing native edit textareas.
 - Footer revision/swipe controls are shown only for the last loaded message when that message is not user-authored. Non-last message history remains reachable through the More actions Drawer for the selected message.
