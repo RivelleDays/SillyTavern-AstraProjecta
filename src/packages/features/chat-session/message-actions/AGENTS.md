@@ -5,9 +5,10 @@
 
 ## Owned Paths / Responsibilities
 
-- `createMobileMessageActionsFeature.tsx`: mobile orchestration for stores, controllers, and drawer render callbacks. Keep DOM contracts, gesture state, observer scheduling, portal root lifecycle, and edit-draft state in the focused helpers listed below.
+- `createMobileMessageActionsFeature.tsx`: mobile orchestration for stores, controllers, drawer portal roots, and drawer render callbacks. Keep DOM contracts, gesture state, observer scheduling, footer root lifecycle, and edit-draft state in the focused helpers listed below.
 - `contracts/dom.ts`: the single audit point for SillyTavern message selectors, message/template lookup, native message-action lookup and activation, gesture targets, metadata nodes, and legacy Astra action-host cleanup.
 - `messageActionTargetResolver.ts`: feature-local message/context metadata resolution built on the DOM contract; it must not define raw SillyTavern selectors.
+- `messageFooterActionsController.tsx`: lifecycle for the direct last-message footer `.astra-mesActions` React root, generation blocked / post-generation settling attributes, last actionable footer render decisions, and footer cleanup.
 - `messageHeaderActionRoots.tsx`: lifecycle for per-message `.astra-mesHeaderActions` React roots inside bridged message headers.
 - `messageTextGestures.ts`: mobile long-press and `click_to_edit` gesture delegation for live message text/reasoning nodes.
 - `frameScheduler.ts` and `chatDomReconciler.ts`: requestAnimationFrame coalescing and MutationObserver start/stop/cancel behavior for chat DOM reconciliation.

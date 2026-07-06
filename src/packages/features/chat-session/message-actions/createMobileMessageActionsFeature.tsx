@@ -1,6 +1,3 @@
-import type { Root } from "react-dom/client";
-import { createRoot } from "react-dom/client";
-
 import {
 	type ChatMessageRevisionHistoryItem,
 	type ChatMessageRevisionHistoryStore,
@@ -34,15 +31,10 @@ import { translateAstra } from "@/packages/core/i18n";
 import { isRecord } from "@/packages/core/st/shared";
 import { UiIcon } from "@/components/ui/shared/icon";
 import { Ellipsis, PencilLine } from "@/components/ui/shared/icons";
-import {
-	cleanupMessageActionSlots,
-	ensureMessageActionSlots,
-} from "@/packages/features/chat-session/message-actions/messageActionSlots";
+import { cleanupMessageActionSlots } from "@/packages/features/chat-session/message-actions/messageActionSlots";
 import {
 	resolveChatMessage,
 	resolveContextSafe,
-	resolveInlineHistoryItem,
-	resolveLastActionableFooterMessage,
 	resolveMoreActionsTarget,
 	type MessageActionsChatMessageLike,
 } from "@/packages/features/chat-session/message-actions/messageActionTargetResolver";
@@ -65,11 +57,8 @@ import {
 } from "@/packages/features/chat-session/message-actions/more-actions/messageDeleteConfirmationDrawerController";
 import { createMessageExtraActionsDrawerController } from "@/packages/features/chat-session/message-actions/more-actions/messageExtraActionsDrawerController";
 import { createMessageMoreActionsDrawerController } from "@/packages/features/chat-session/message-actions/more-actions/messageMoreActionsDrawerController";
-import { RevisionBar } from "@/packages/features/chat-session/message-actions/RevisionBar";
 import { RevisionHistoryDrawer } from "@/packages/features/chat-session/message-actions/revision-history/RevisionHistoryDrawer";
-import { SwipePager } from "@/packages/features/chat-session/message-actions/SwipePager";
 import { createAstraReactPortalRootManager } from "@/packages/core/runtime/reactPortalRootManager";
-import { withAstraErrorBoundary } from "@/packages/core/runtime/AstraErrorBoundary";
 import { createChatDomReconciler } from "@/packages/features/chat-session/message-actions/chatDomReconciler";
 import {
 	createEditDrawerController,
@@ -77,6 +66,7 @@ import {
 } from "@/packages/features/chat-session/message-actions/editDrawerController";
 import { createMessageDrawerHandoffScheduler } from "@/packages/features/chat-session/message-actions/messageDrawerHandoffScheduler";
 import { createFrameScheduler } from "@/packages/features/chat-session/message-actions/frameScheduler";
+import { createMessageFooterActionsController } from "@/packages/features/chat-session/message-actions/messageFooterActionsController";
 import { createMessageHeaderActionRoots } from "@/packages/features/chat-session/message-actions/messageHeaderActionRoots";
 import { createMessageTextGestureController } from "@/packages/features/chat-session/message-actions/messageTextGestures";
 
@@ -86,12 +76,8 @@ export interface MobileMessageActionsFeature {
 	unmount(): void;
 }
 
-type RevisionSnapshot = ReturnType<ChatMessageRevisionStore["getSnapshot"]>;
-type SwipeSnapshot = ReturnType<ChatMessageSwipeStore["getSnapshot"]>;
-
 const MESSAGE_TEXT_LONG_PRESS_ACTION_ATTRIBUTE =
 	"data-astra-message-text-long-press-action";
-const POST_GENERATION_FOOTER_SETTLE_MS = 750;
 
 function MessageHeaderActions({
 	onEdit,
@@ -118,54 +104,6 @@ function MessageHeaderActions({
 			>
 				<UiIcon aria-hidden={true} icon={Ellipsis} size="sm" />
 			</button>
-		</>
-	);
-}
-
-function MessageFooterActions({
-	historyAction,
-	onContinue,
-	onRegenerate,
-	onSwipeNext,
-	onSwipePrevious,
-	onUndo,
-	revisionSnapshot,
-	swipeSnapshot,
-}: {
-	historyAction: { disabled?: boolean; onClick(): void } | null;
-	onContinue(): void;
-	onRegenerate(): void;
-	onSwipeNext(): void;
-	onSwipePrevious(): void;
-	onUndo(): void;
-	revisionSnapshot: RevisionSnapshot | null;
-	swipeSnapshot: SwipeSnapshot | null;
-}) {
-	return (
-		<>
-			{revisionSnapshot || historyAction ? (
-				<RevisionBar
-					canContinue={revisionSnapshot?.canContinue === true}
-					canRegenerate={revisionSnapshot?.canRegenerate === true}
-					canUndo={revisionSnapshot?.canUndo === true}
-					historyAction={historyAction ?? undefined}
-					isBusy={revisionSnapshot?.isBusy === true}
-					onContinue={onContinue}
-					onRegenerate={onRegenerate}
-					onUndo={onUndo}
-				/>
-			) : null}
-			{swipeSnapshot ? (
-				<SwipePager
-					canSwipeNext={swipeSnapshot.canSwipeNext}
-					canSwipePrevious={swipeSnapshot.canSwipePrevious}
-					currentIndex={swipeSnapshot.currentIndex}
-					isNativeSwipeBusy={swipeSnapshot.isNativeSwipeBusy}
-					onNext={onSwipeNext}
-					onPrevious={onSwipePrevious}
-					total={swipeSnapshot.total}
-				/>
-			) : null}
 		</>
 	);
 }
@@ -208,19 +146,12 @@ export function createMobileMessageActionsFeature({
 			/>
 		),
 	});
-	let footerActionRoot: Root | null = null;
-	let footerActionRootHost: HTMLDivElement | null = null;
 	let messageInteractionStore: ChatMessageInteractionStore | null = null;
 	let primarySendActionStore: PrimarySendActionStore | null = null;
 	let revisionStore: ChatMessageRevisionStore | null = null;
 	let selectedHistoryItem: ChatMessageRevisionHistoryItem | null = null;
 	const editDrawer = createEditDrawerController();
 	let swipeStore: ChatMessageSwipeStore | null = null;
-	let isFooterInPostGenerationSettle = false;
-	let wasFooterBlockedByGeneration = false;
-	let postGenerationFooterSettleTimeoutId: ReturnType<
-		typeof globalThis.setTimeout
-	> | null = null;
 	let unsubscribeHistory: (() => void) | null = null;
 	let unsubscribeMessageInteraction: (() => void) | null = null;
 	let unsubscribePrimarySendAction: (() => void) | null = null;
@@ -296,6 +227,39 @@ export function createMobileMessageActionsFeature({
 			},
 			resolveTargetForMessage,
 		});
+	const footerActionsController = createMessageFooterActionsController({
+		onContinue: () => {
+			runRevisionAction(
+				() =>
+					revisionStore?.continueLastMessage() ??
+					Promise.resolve(false),
+			);
+		},
+		onOpenHistory: (historyItem) => {
+			selectedHistoryItem = historyItem;
+			renderHistoryDrawer();
+		},
+		onRegenerate: () => {
+			runRevisionAction(
+				() =>
+					revisionStore?.regenerateLastRevision() ??
+					Promise.resolve(false),
+			);
+		},
+		onSwipeNext: () => {
+			void swipeStore?.swipeNext();
+		},
+		onSwipePrevious: () => {
+			void swipeStore?.swipePrevious();
+		},
+		onUndo: () => {
+			runRevisionAction(
+				() =>
+					revisionStore?.undoLastRevision() ?? Promise.resolve(false),
+			);
+		},
+		renderImmediately: renderMessageActionsImmediately,
+	});
 
 	function readMessageTextLongPressAction(): ChatMessageLongPressAction {
 		return (
@@ -779,7 +743,7 @@ export function createMobileMessageActionsFeature({
 	function stopObservingChatDom() {
 		chatDomReconciler.stop();
 		postEditSettleRefreshScheduler.cancel();
-		stopPostGenerationFooterSettle();
+		footerActionsController.stopPostGenerationSettle();
 		cancelScheduledMessageActionsRender();
 	}
 
@@ -791,97 +755,6 @@ export function createMobileMessageActionsFeature({
 		void action().finally(refreshMessageActionStores);
 	}
 
-	function clearPostGenerationFooterSettleTimer() {
-		if (postGenerationFooterSettleTimeoutId === null) {
-			return;
-		}
-
-		globalThis.clearTimeout(postGenerationFooterSettleTimeoutId);
-		postGenerationFooterSettleTimeoutId = null;
-	}
-
-	function stopPostGenerationFooterSettle() {
-		isFooterInPostGenerationSettle = false;
-		clearPostGenerationFooterSettleTimer();
-	}
-
-	function startPostGenerationFooterSettle() {
-		if (isFooterInPostGenerationSettle) {
-			return;
-		}
-
-		isFooterInPostGenerationSettle = true;
-		clearPostGenerationFooterSettleTimer();
-		postGenerationFooterSettleTimeoutId = globalThis.setTimeout(() => {
-			postGenerationFooterSettleTimeoutId = null;
-			if (!isFooterInPostGenerationSettle) {
-				return;
-			}
-
-			isFooterInPostGenerationSettle = false;
-			renderMessageActionsImmediately();
-		}, POST_GENERATION_FOOTER_SETTLE_MS);
-	}
-
-	function setFooterGenerationBlocked(
-		actionHost: HTMLDivElement,
-		isBlocked: boolean,
-	) {
-		if (isBlocked) {
-			actionHost.dataset.astraGenerationBlocked = "true";
-			return;
-		}
-
-		delete actionHost.dataset.astraGenerationBlocked;
-	}
-
-	function setFooterPostGenerationSettling(
-		actionHost: HTMLDivElement,
-		isSettling: boolean,
-	) {
-		if (isSettling) {
-			actionHost.dataset.astraFooterSettling = "true";
-			return;
-		}
-
-		delete actionHost.dataset.astraFooterSettling;
-	}
-
-	function canPreserveFooterDuringPostGenerationSettle({
-		messageElement,
-	}: {
-		messageElement: Element;
-	}): boolean {
-		return Boolean(
-			isFooterInPostGenerationSettle &&
-			footerActionRootHost?.isConnected &&
-			footerActionRootHost.parentElement === messageElement,
-		);
-	}
-
-	function unmountFooterActionRoot() {
-		stopPostGenerationFooterSettle();
-		wasFooterBlockedByGeneration = false;
-		if (footerActionRootHost) {
-			setFooterGenerationBlocked(footerActionRootHost, false);
-			setFooterPostGenerationSettling(footerActionRootHost, false);
-		}
-		footerActionRoot?.unmount();
-		footerActionRoot = null;
-		cleanupMessageActionSlots(footerActionRootHost);
-		footerActionRootHost = null;
-	}
-
-	function ensureFooterActionRoot(actionHost: HTMLDivElement): Root {
-		if (!footerActionRoot || footerActionRootHost !== actionHost) {
-			unmountFooterActionRoot();
-			footerActionRoot = createRoot(actionHost);
-			footerActionRootHost = actionHost;
-		}
-
-		return footerActionRoot;
-	}
-
 	function unmountRoots() {
 		headerActionRoots.unmountAll();
 		unmountMoreActionsDrawer();
@@ -889,7 +762,7 @@ export function createMobileMessageActionsFeature({
 		unmountExtraActionsDrawer();
 		unmountDeletionConfirmationDrawer();
 		unmountHistoryDrawer();
-		unmountFooterActionRoot();
+		footerActionsController.unmount();
 	}
 
 	function syncHistoryDrawerSelection(
@@ -910,8 +783,6 @@ export function createMobileMessageActionsFeature({
 		const historySnapshot = historyStore?.getSnapshot() ?? [];
 		const isGenerating =
 			primarySendActionStore?.getSnapshot().isGenerating === true;
-		const wasFooterBlockedBeforeRender = wasFooterBlockedByGeneration;
-		wasFooterBlockedByGeneration = false;
 		const revisionSnapshot = revisionStore?.getSnapshot();
 		const swipeSnapshot = swipeStore?.getSnapshot();
 		const context = resolveContextSafe();
@@ -925,148 +796,14 @@ export function createMobileMessageActionsFeature({
 		syncOpenMessageActionTargets(validMessageIds);
 		syncHistoryDrawerSelection(historySnapshot);
 
-		const targetMessage = resolveLastActionableFooterMessage({
+		footerActionsController.render({
 			context,
-			loadedMessages,
-		});
-		if (!targetMessage) {
-			unmountFooterActionRoot();
-			return;
-		}
-
-		const targetMessageId = targetMessage.messageId;
-		if (isGenerating) {
-			stopPostGenerationFooterSettle();
-			const slots = ensureMessageActionSlots(
-				targetMessage.messageElement,
-			);
-			if (!slots) {
-				unmountRoots();
-				return;
-			}
-
-			setFooterPostGenerationSettling(slots.container, false);
-			setFooterGenerationBlocked(slots.container, true);
-			const footerRoot = ensureFooterActionRoot(slots.container);
-			wasFooterBlockedByGeneration = true;
-			footerRoot.render(null);
-			return;
-		}
-
-		const revisionActionsSnapshot =
-			revisionSnapshot?.status === "ready" &&
-			revisionSnapshot.messageId === targetMessageId &&
-			(revisionSnapshot.canContinue ||
-				revisionSnapshot.canRegenerate ||
-				revisionSnapshot.canUndo)
-				? revisionSnapshot
-				: null;
-		const swipeActionsSnapshot =
-			swipeSnapshot?.status === "ready" &&
-			swipeSnapshot.messageId === targetMessageId &&
-			(swipeSnapshot.canSwipeNext ||
-				swipeSnapshot.canSwipePrevious ||
-				swipeSnapshot.isNativeSwipeBusy)
-				? swipeSnapshot
-				: null;
-		const inlineHistoryItem = resolveInlineHistoryItem({
 			historySnapshot,
-			messageId: targetMessageId,
+			isGenerating,
+			loadedMessages,
+			revisionSnapshot,
+			swipeSnapshot,
 		});
-
-		if (
-			!revisionActionsSnapshot &&
-			!swipeActionsSnapshot &&
-			!inlineHistoryItem
-		) {
-			if (wasFooterBlockedBeforeRender) {
-				startPostGenerationFooterSettle();
-			}
-
-			if (
-				canPreserveFooterDuringPostGenerationSettle({
-					messageElement: targetMessage.messageElement,
-				})
-			) {
-				const slots = ensureMessageActionSlots(
-					targetMessage.messageElement,
-				);
-				if (!slots) {
-					unmountRoots();
-					return;
-				}
-
-				setFooterGenerationBlocked(slots.container, false);
-				setFooterPostGenerationSettling(slots.container, true);
-				ensureFooterActionRoot(slots.container).render(null);
-				return;
-			}
-
-			unmountFooterActionRoot();
-			return;
-		}
-
-		stopPostGenerationFooterSettle();
-		const slots = ensureMessageActionSlots(targetMessage.messageElement);
-		if (!slots) {
-			unmountRoots();
-			return;
-		}
-
-		setFooterGenerationBlocked(slots.container, false);
-		setFooterPostGenerationSettling(slots.container, false);
-		ensureFooterActionRoot(slots.container).render(
-			withAstraErrorBoundary({
-				children: (
-					<MessageFooterActions
-						historyAction={
-							inlineHistoryItem
-								? {
-										disabled:
-											revisionActionsSnapshot?.isBusy ===
-											true,
-										onClick: () => {
-											selectedHistoryItem =
-												inlineHistoryItem;
-											renderHistoryDrawer();
-										},
-									}
-								: null
-						}
-						revisionSnapshot={revisionActionsSnapshot}
-						swipeSnapshot={swipeActionsSnapshot}
-						onContinue={() => {
-							runRevisionAction(
-								() =>
-									revisionStore?.continueLastMessage() ??
-									Promise.resolve(false),
-							);
-						}}
-						onRegenerate={() => {
-							runRevisionAction(
-								() =>
-									revisionStore?.regenerateLastRevision() ??
-									Promise.resolve(false),
-							);
-						}}
-						onSwipeNext={() => {
-							void swipeStore?.swipeNext();
-						}}
-						onSwipePrevious={() => {
-							void swipeStore?.swipePrevious();
-						}}
-						onUndo={() => {
-							runRevisionAction(
-								() =>
-									revisionStore?.undoLastRevision() ??
-									Promise.resolve(false),
-							);
-						}}
-					/>
-				),
-				source: "message-footer-actions",
-			}),
-		);
 	}
 
 	function mount() {
