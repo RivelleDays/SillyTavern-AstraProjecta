@@ -17,6 +17,27 @@ AstraProjecta is mobile-first by design—smaller screens surface the hardest la
 >
 > Please **do not rely on the current alpha for daily use yet**. Note that auto-update is enabled by default, so breaking alpha changes may be applied automatically when SillyTavern updates extensions.
 
+### Preview
+
+<table width="100%">
+  <tr>
+    <th width="33.33%">Chat View</th>
+    <th width="33.33%">Main Drawer</th>
+    <th width="33.33%">Backgrounds</th>
+  </tr>
+  <tr>
+    <td width="33.33%">
+      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-chat-view.png?raw=true" alt="AstraProjecta mobile chat view with message layout, message actions, swipe controls, and the bottom input bar" width="100%">
+    </td>
+    <td width="33.33%">
+      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-main-drawer.png?raw=true" alt="AstraProjecta mobile main drawer with API status, model information, settings shortcuts, and connection profile controls" width="100%">
+    </td>
+    <td width="33.33%">
+      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-background-manager.png?raw=true" alt="AstraProjecta mobile Backgrounds manager inside the SillyTavern interface panel, with sorting, search, Global/Chat scope tabs, and a background thumbnail grid" width="100%">
+    </td>
+  </tr>
+</table>
+
 ## Highlights ✨
 
 AstraProjecta currently focuses on refining SillyTavern’s core chat experience, with an emphasis on mobile interaction, message readability, and frequently used chat workflows. The following are already implemented or available in the current alpha preview:
@@ -45,30 +66,6 @@ AstraProjecta currently focuses on refining SillyTavern’s core chat experience
 ### Session Settings
 
 - **Chat session settings drawer**: Per-session controls for chat background blur and opacity, message display options, and message input behavior.
-
-### Preview
-
-> [!NOTE]
-> These screenshots are temporary previews of the current mobile-first alpha UI and may change without notice.
-
-<table width="100%">
-  <tr>
-    <th width="33.33%">Chat View</th>
-    <th width="33.33%">Main Drawer</th>
-    <th width="33.33%">Backgrounds</th>
-  </tr>
-  <tr>
-    <td width="33.33%">
-      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-chat-view.png?raw=true" alt="AstraProjecta mobile chat view with message layout, message actions, swipe controls, and the bottom input bar" width="100%">
-    </td>
-    <td width="33.33%">
-      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-main-drawer.png?raw=true" alt="AstraProjecta mobile main drawer with API status, model information, settings shortcuts, and connection profile controls" width="100%">
-    </td>
-    <td width="33.33%">
-      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-background-manager.png?raw=true" alt="AstraProjecta mobile Backgrounds manager inside the SillyTavern interface panel, with sorting, search, Global/Chat scope tabs, and a background thumbnail grid" width="100%">
-    </td>
-  </tr>
-</table>
 
 ## Requirements
 
@@ -130,7 +127,7 @@ Supporting third-party SillyTavern extensions is **not a priority during the alp
 
 | Extension                                                                                                       | Status              |
 | --------------------------------------------------------------------------------------------------------------- | ------------------- |
-| [Sillyanonymous / SillyTavern-CharacterLibrary](https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary) | Confirmed supported |
+| [Sillyanonymous / SillyTavern-CharacterLibrary](https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary) | ✅ Supported |
 
 Astra reserves the right to decline support for extensions of uncertain quality or from developers we can't reasonably trust, and isn't responsible for conflicts caused by using other extensions. That said, if a third-party extension's developer wants to add their own compatibility with AstraProjecta, that's entirely welcome and won't conflict with this policy.
 
