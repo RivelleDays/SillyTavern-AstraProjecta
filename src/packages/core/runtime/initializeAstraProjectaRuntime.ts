@@ -1,4 +1,3 @@
-import { THEME_BODY_CLASS } from "@/packages/core/constants";
 import { ensureAstraProjectaUiInfrastructure } from "@/packages/core/runtime/uiScope";
 import {
 	cleanupAstraRuntimeSurface,
@@ -67,7 +66,6 @@ export function initializeAstraProjectaRuntime({
 		| undefined;
 
 	try {
-		documentRef.body?.classList.add(THEME_BODY_CLASS);
 		ensureUiInfrastructure({ documentRef });
 		chatBackgroundAppearanceBridge =
 			createChatBackgroundAppearanceRuntimeBridge({
