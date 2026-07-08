@@ -4,7 +4,6 @@ about: Suggest an improvement or new behavior for AstraProjecta
 title: "[Feature] "
 labels: enhancement
 assignees: RivelleDays
-
 ---
 
 ## What problem does this solve?

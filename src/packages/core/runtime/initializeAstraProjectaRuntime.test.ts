@@ -13,7 +13,7 @@ import {
 } from "@/packages/core/constants";
 
 describe("initializeAstraProjectaRuntime", () => {
-	test("applies global runtime infrastructure and disposes an injected child runtime", () => {
+	test("applies global runtime infrastructure without taking over the active SillyTavern theme", () => {
 		const firstChildDispose = vi.fn();
 		const secondChildDispose = vi.fn();
 		const createRuntime = vi
@@ -30,7 +30,7 @@ describe("initializeAstraProjectaRuntime", () => {
 			windowRef: windowRef as never,
 		});
 
-		expect(document.body).toHaveClass(THEME_BODY_CLASS);
+		expect(document.body).not.toHaveClass(THEME_BODY_CLASS);
 		expect(
 			document.querySelectorAll(`#${ASTRA_PROJECTA_ROOT_ID}`),
 		).toHaveLength(1);
@@ -52,7 +52,7 @@ describe("initializeAstraProjectaRuntime", () => {
 			windowRef: windowRef as never,
 		});
 
-		expect(document.body).toHaveClass(THEME_BODY_CLASS);
+		expect(document.body).not.toHaveClass(THEME_BODY_CLASS);
 		expect(
 			document.querySelectorAll(`#${ASTRA_PROJECTA_ROOT_ID}`),
 		).toHaveLength(1);

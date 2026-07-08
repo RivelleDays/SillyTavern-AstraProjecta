@@ -1,139 +1,149 @@
 /* Restyles SillyTavern *native* elements (not Astra components, not shadcn
-	components) to align with the shadcn visual language. Applies globally
-	(mobile and desktop) by default; nest mobile-only rules inside
-   	body.astra-projecta-mobile-layout instead of adding a second file. */
+	components) to align with the shadcn visual language while Astra mobile
+	layout is active. */
 
-/* Shared native SillyTavern element polish. */
+body.astra-projecta-mobile-layout {
+	/* Shared native SillyTavern element polish. */
 
-.text_muted {
-	font-size: var(--text-xs);
-	color: var(--color-base);
-	opacity: 0.7;
-}
+	& .text_muted {
+		font-size: var(--text-xs);
+		color: var(--color-base);
+		opacity: 0.7;
+	}
 
-.gap3px {
-	gap: 4px !important;
-}
+	& .gap3px {
+		gap: 4px !important;
+	}
 
-textarea,
-select,
-.menu_button,
-.menu_button.fa-fw,
-.text_pole,
-.range-block-counter input {
-	margin: 4px 0;
-	min-width: 36px;
-	min-height: 36px;
-	border-radius: calc(var(--radius) * 0.8);
-	box-sizing: border-box;
-	color: var(--color-base);
-	background-color: color-mix(in oklab, var(--input) 30%, transparent);
-	border: 1px solid var(--border);
-}
+	& textarea,
+	& select,
+	& .menu_button,
+	& .menu_button.fa-fw,
+	& .text_pole,
+	& .range-block-counter input {
+		margin: 4px 0;
+		min-width: 36px;
+		min-height: 36px;
+		border-radius: calc(var(--radius) * 0.8);
+		box-sizing: border-box;
+		color: var(--color-base);
+		background-color: color-mix(in oklab, var(--input) 30%, transparent);
+		border: 1px solid var(--border);
+	}
 
-textarea:focus-visible,
-select:focus-visible,
-.text_pole:focus-visible,
-.range-block-counter input:focus-visible {
-	outline: none !important;
-	border-color: color-mix(in oklab, var(--ring) 5%, var(--border));
-	box-shadow: inset 0 0 0 2px var(--color-ring-t20);
-}
+	& textarea:focus-visible,
+	& select:focus-visible,
+	& .text_pole:focus-visible,
+	& .range-block-counter input:focus-visible {
+		outline: none !important;
+		border-color: color-mix(in oklab, var(--ring) 5%, var(--border));
+		box-shadow: inset 0 0 0 2px var(--color-ring-t20);
+	}
 
-.menu_button,
-.menu_button_icon {
-	display: flex;
-	align-items: center;
-	font-size: var(--text-sm);
-	font-weight: var(--font-weight-medium);
-	padding-inline: 8px;
-	gap: 8px;
-}
+	& .menu_button,
+	& .menu_button_icon {
+		display: flex;
+		align-items: center;
+		font-size: var(--text-sm);
+		font-weight: var(--font-weight-medium);
+		padding-inline: 8px;
+		gap: 8px;
+	}
 
-select,
-textarea,
-.text_pole {
-	padding: 4px 12px;
-	width: 100%;
-}
+	& select,
+	& textarea,
+	& .text_pole {
+		padding: 4px 12px;
+		width: 100%;
+	}
 
-.textarea_compact {
-	border-radius: calc(var(--radius) * 0.8);
-	border: 1px solid var(--border);
-	box-sizing: border-box;
-}
+	& textarea {
+		resize: vertical;
+		display: block;
+		outline: none;
+		font-size: var(--mainFontSize);
+		font-family: var(--mainFontFamily);
+		max-height: 90vh;
+		max-height: 90dvh;
+	}
 
-#extensions_settings .inline-drawer-toggle.inline-drawer-header,
-#extensions_settings2 .inline-drawer-toggle.inline-drawer-header,
-#user-settings-block h4,
-.standoutHeader,
-.openai_restorable,
-.title_restorable,
-.inline-drawer-header {
-	display: flex;
-	background-image: none;
-	margin-bottom: 0;
-	border-radius: 0;
-	padding: 0;
-	border: none;
-	transition: 0;
-}
+	& .textarea_compact {
+		border-radius: calc(var(--radius) * 0.8);
+		border: 1px solid var(--border);
+		box-sizing: border-box;
+	}
 
-.range-block-range-and-counter {
-	flex: 1;
-	flex-wrap: wrap;
-	display: flex;
-	align-content: center;
-	align-items: center;
-}
+	& #extensions_settings .inline-drawer-toggle.inline-drawer-header,
+	& #extensions_settings2 .inline-drawer-toggle.inline-drawer-header,
+	& #user-settings-block h4,
+	& .standoutHeader,
+	& .openai_restorable,
+	& .title_restorable,
+	& .inline-drawer-header {
+		display: flex;
+		background-image: none;
+		margin-bottom: 0;
+		border-radius: 0;
+		padding: 0;
+		border: none;
+		transition: 0;
+	}
 
-.toggle-description {
-	margin-right: 0;
-}
+	& .range-block-range-and-counter {
+		flex: 1;
+		flex-wrap: wrap;
+		display: flex;
+		align-content: center;
+		align-items: center;
+	}
 
-/* AI settings. */
+	& .toggle-description {
+		margin-right: 0;
+	}
 
-#completion_prompt_manager .completion_prompt_manager_footer a {
-	font-size: 16px;
-}
+	/* AI settings. */
 
-#completion_prompt_manager .completion_prompt_manager_footer {
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	gap: 4px;
-	padding: 0;
-	width: 100%;
-	flex-wrap: wrap;
-}
+	& #completion_prompt_manager .completion_prompt_manager_footer a {
+		font-size: 16px;
+	}
 
-/* Hide noisy native status affordances. */
-.editable-slider-notification,
-.topRightInset {
-	display: none !important;
-}
+	& #completion_prompt_manager .completion_prompt_manager_footer {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		gap: 4px;
+		padding: 0;
+		width: 100%;
+		flex-wrap: wrap;
+	}
 
-/* Chat messages. */
+	/* Hide noisy native status affordances. */
+	& .editable-slider-notification,
+	& .topRightInset {
+		display: none !important;
+	}
 
-.mes {
-	padding: 12px 4px;
-	padding-bottom: 0;
-}
+	/* Chat messages. */
 
-.mes_text,
-.mes_reasoning {
-	line-height: var(
-		--astra-mes-line-height,
-		calc(var(--mainFontSize) + 0.6rem)
-	);
-	text-align: var(--astra-mes-text-align, start);
-}
+	& .mes {
+		padding: 12px 4px;
+		padding-bottom: 0;
+	}
 
-/* Chat background appearance (Astra chat-session-settings: blur/opacity).
-   Static, user-controlled values from settings, not a motion/animation
-   surface, so prefers-reduced-motion does not apply here. */
+	& .mes_text {
+		line-height: var(
+			--astra-mes-line-height,
+			calc(var(--mainFontSize) + 0.6rem)
+		);
+		text-align: var(--astra-mes-text-align, start);
+	}
 
-#bg1 {
-	filter: blur(var(--astra-chat-bg-blur, 2px));
-	opacity: var(--astra-chat-bg-opacity, 0.8);
+	/* Chat background appearance (Astra chat-session-settings: blur/opacity).
+		Static, user-controlled values from settings, not a motion/animation
+		surface, so prefers-reduced-motion does not apply here. */
+
+	& #bg1 {
+		filter: blur(var(--astra-chat-bg-blur, 2px));
+		opacity: var(--astra-chat-bg-opacity, 0.8);
+	}
 }

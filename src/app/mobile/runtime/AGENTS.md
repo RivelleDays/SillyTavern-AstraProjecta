@@ -15,9 +15,9 @@
 
 - Keep feature factories injectable when practical for testing.
 - Do not move SillyTavern bridge logic here; runtime only decides when to mount feature-owned code.
-- Mobile runtime owns `body.astra-projecta-base-ui-body` and `body.astra-projecta-mobile-layout` while the mobile layout is active.
+- Mobile runtime owns `body.astra-projecta-theme`, `body.astra-projecta-base-ui-body`, and `body.astra-projecta-mobile-layout` while the mobile layout is active.
 - Message header layout must mount only while the shared layout-mode contract resolves mobile and must unmount when it resolves desktop.
 - Mobile keyboard viewport bridge listeners must mount only while the resolved mobile layout is active and must remove body attributes, inline CSS variables, and scheduled animation-frame work on deactivation.
-- Mobile runtime must remove its body classes whenever the shared layout-mode contract resolves desktop or the runtime is disposed.
+- Mobile runtime must remove its active body classes whenever the shared layout-mode contract resolves desktop or the runtime is disposed.
 - The 1000px `screen and (max-width: 1000px)` auto-mode query belongs to `src/packages/core/layout-mode`, not to this folder.
 - Media-query changes only matter here when the shared layout-mode contract is in `auto`.

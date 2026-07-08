@@ -642,19 +642,3 @@ body.astra-projecta-base-ui-body {
 		@apply border-border outline-ring/50;
 	}
 }
-
-textarea {
-	width: 100%;
-	resize: vertical;
-	display: block;
-	background-color: var(--color-base-t5);
-	outline: none;
-	border: 1px solid var(--color-base-t20);
-	border-radius: var(--radius);
-	color: var(--color-base);
-	font-size: var(--mainFontSize);
-	font-family: var(--mainFontFamily);
-	padding: 8px 10px;
-	max-height: 90vh;
-	max-height: 90dvh;
-}

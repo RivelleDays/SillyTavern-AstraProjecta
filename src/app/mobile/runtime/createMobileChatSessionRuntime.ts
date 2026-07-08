@@ -2,6 +2,7 @@ import {
 	BASE_UI_BODY_CLASS,
 	EXTENSION_LOG_PREFIX,
 	MOBILE_LAYOUT_CLASS,
+	THEME_BODY_CLASS,
 } from "@/packages/core/constants";
 import {
 	getDefaultLayoutModeStore,
@@ -187,6 +188,7 @@ export function createMobileChatSessionRuntime({
 
 	const deactivateMobileLayout = () => {
 		unmountFeaturesSafely(mobileLayoutFeatures, { onCleanupError });
+		documentRef.body?.classList.remove(THEME_BODY_CLASS);
 		chatMessageSearchStore.close();
 		documentRef.body?.classList.remove(BASE_UI_BODY_CLASS);
 		documentRef.body?.classList.remove(MOBILE_LAYOUT_CLASS);
@@ -194,6 +196,7 @@ export function createMobileChatSessionRuntime({
 
 	const syncFeatureMount = (matches: boolean) => {
 		if (matches) {
+			documentRef.body?.classList.add(THEME_BODY_CLASS);
 			documentRef.body?.classList.add(BASE_UI_BODY_CLASS);
 			documentRef.body?.classList.add(MOBILE_LAYOUT_CLASS);
 			try {
@@ -201,6 +204,7 @@ export function createMobileChatSessionRuntime({
 					onCleanupError,
 				});
 			} catch (error) {
+				documentRef.body?.classList.remove(THEME_BODY_CLASS);
 				documentRef.body?.classList.remove(BASE_UI_BODY_CLASS);
 				documentRef.body?.classList.remove(MOBILE_LAYOUT_CLASS);
 				throw error;

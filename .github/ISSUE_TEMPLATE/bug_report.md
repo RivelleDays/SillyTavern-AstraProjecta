@@ -4,7 +4,6 @@ about: Report a reproducible issue with AstraProjecta
 title: "[Bug] "
 labels: bug
 assignees: RivelleDays
-
 ---
 
 ## Self-check

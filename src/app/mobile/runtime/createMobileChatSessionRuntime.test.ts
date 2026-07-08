@@ -4,6 +4,7 @@ import { createMobileChatSessionRuntime } from "@/app/mobile/runtime/createMobil
 import {
 	BASE_UI_BODY_CLASS,
 	MOBILE_LAYOUT_CLASS,
+	THEME_BODY_CLASS,
 } from "@/packages/core/constants";
 import {
 	createLayoutModeStore,
@@ -299,6 +300,7 @@ describe("createMobileChatSessionRuntime", () => {
 				preference: "force-desktop",
 				resolvedMode: "desktop",
 			});
+			expect(document.body).not.toHaveClass(THEME_BODY_CLASS);
 			expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
 			expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
 			expect(sendFormFeature.mount).not.toHaveBeenCalled();
@@ -321,6 +323,7 @@ describe("createMobileChatSessionRuntime", () => {
 				preference: "force-mobile",
 				resolvedMode: "mobile",
 			});
+			expect(document.body).toHaveClass(THEME_BODY_CLASS);
 			expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
 			expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
 			expect(sendFormFeature.mount).toHaveBeenCalledTimes(1);
@@ -461,6 +464,7 @@ describe("createMobileChatSessionRuntime", () => {
 			sillyTavernInterface,
 		});
 		expect(messageHeaderLayoutFeatureFactory).toHaveBeenCalledTimes(1);
+		expect(document.body).toHaveClass(THEME_BODY_CLASS);
 		expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
 		expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
 		expect(messageHeaderMount).toHaveBeenCalledTimes(1);
@@ -481,6 +485,7 @@ describe("createMobileChatSessionRuntime", () => {
 
 		layoutModeStore.dispatch("desktop");
 
+		expect(document.body).not.toHaveClass(THEME_BODY_CLASS);
 		expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
 		expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
 		expect(messageHeaderUnmount).toHaveBeenCalledTimes(1);
@@ -493,6 +498,7 @@ describe("createMobileChatSessionRuntime", () => {
 
 		layoutModeStore.dispatch("mobile");
 
+		expect(document.body).toHaveClass(THEME_BODY_CLASS);
 		expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
 		expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
 		expect(messageHeaderMount).toHaveBeenCalledTimes(2);
@@ -505,6 +511,7 @@ describe("createMobileChatSessionRuntime", () => {
 
 		runtime.dispose();
 
+		expect(document.body).not.toHaveClass(THEME_BODY_CLASS);
 		expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
 		expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
 		expect(messageHeaderDispose).toHaveBeenCalledTimes(1);
@@ -624,6 +631,7 @@ describe("createMobileChatSessionRuntime", () => {
 		expect(sillyTavernInterfacePanelFeature.unmount).not.toHaveBeenCalled();
 		expect(sendFormFeature.unmount).not.toHaveBeenCalled();
 		expect(chatScrollFeature.unmount).not.toHaveBeenCalled();
+		expect(document.body).not.toHaveClass(THEME_BODY_CLASS);
 		expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
 		expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
 	});
@@ -796,6 +804,7 @@ describe("createMobileChatSessionRuntime", () => {
 			getLayoutModeStore: () => layoutModeStore.store,
 		});
 
+		expect(document.body).not.toHaveClass(THEME_BODY_CLASS);
 		expect(document.body).not.toHaveClass(BASE_UI_BODY_CLASS);
 		expect(document.body).not.toHaveClass(MOBILE_LAYOUT_CLASS);
 		expect(mount).not.toHaveBeenCalled();
@@ -805,6 +814,7 @@ describe("createMobileChatSessionRuntime", () => {
 
 		layoutModeStore.dispatch("mobile");
 
+		expect(document.body).toHaveClass(THEME_BODY_CLASS);
 		expect(document.body).toHaveClass(BASE_UI_BODY_CLASS);
 		expect(document.body).toHaveClass(MOBILE_LAYOUT_CLASS);
 		expect(mount).toHaveBeenCalledTimes(1);

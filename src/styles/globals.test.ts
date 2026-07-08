@@ -15,8 +15,16 @@ const MOBILE_CSS_SCOPE_PATHS = [
 	"src/styles/shadcn-overrides.css",
 ];
 
-const MOBILE_NATIVE_SELECTOR_PATTERN =
+const NATIVE_OVERRIDE_CSS_SCOPE_PATHS = [
+	"src/styles/globals.css",
+	"src/styles/sillytavern-overrides.css",
+];
+
+const MOBILE_LAYOUT_NATIVE_SELECTOR_PATTERN =
 	/(^|[^\w-])#(?:sheld|send_form|chat|top-bar|top-settings-holder)\b/u;
+
+const SILLYTAVERN_NATIVE_OVERRIDE_SELECTOR_PATTERN =
+	/(^|[\s,&])(?:textarea|select|#(?:sheld|send_form|chat|top-bar|top-settings-holder|bg1)\b|\.(?:editable-slider-notification|menu_button|menu_button_icon|mes|mes_reasoning|mes_text|text_pole|textarea_compact|topRightInset)\b)/u;
 
 function normalizeStyleSource(source: string): string {
 	return source
@@ -34,15 +42,18 @@ function countOccurrences(source: string, value: string): number {
 function findUnscopedMobileNativeSelectors({
 	css,
 	path,
+	selectorPattern,
 }: {
 	css: string;
 	path: string;
+	selectorPattern: RegExp;
 }): string[] {
 	const offenders: string[] = [];
 	const scopedBlockDepths: number[] = [];
 	let depth = 0;
 
 	for (const [index, line] of css.split("\n").entries()) {
+		const trimmedLine = line.trim();
 		const opens = countOccurrences(line, "{");
 		const closes = countOccurrences(line, "}");
 		if (
@@ -55,7 +66,15 @@ function findUnscopedMobileNativeSelectors({
 		const isInsideMobileScope =
 			scopedBlockDepths.length > 0 ||
 			line.includes("body.astra-projecta-mobile-layout");
-		if (!isInsideMobileScope && MOBILE_NATIVE_SELECTOR_PATTERN.test(line)) {
+		const isCommentLine =
+			trimmedLine.startsWith("/*") ||
+			trimmedLine.startsWith("*") ||
+			trimmedLine.startsWith("*/");
+		if (
+			!isInsideMobileScope &&
+			!isCommentLine &&
+			selectorPattern.test(line)
+		) {
 			offenders.push(`${path}:${index + 1}: ${line.trim()}`);
 		}
 
@@ -103,7 +122,22 @@ describe("globals.css", () => {
 			findUnscopedMobileNativeSelectors({
 				css: readFileSync(resolve(process.cwd(), path), "utf8"),
 				path,
+				selectorPattern: MOBILE_LAYOUT_NATIVE_SELECTOR_PATTERN,
 			}),
+		);
+
+		expect(unscopedSelectors).toEqual([]);
+	});
+
+	test("keeps native SillyTavern override selectors behind the resolved body class", () => {
+		const unscopedSelectors = NATIVE_OVERRIDE_CSS_SCOPE_PATHS.flatMap(
+			(path) =>
+				findUnscopedMobileNativeSelectors({
+					css: readFileSync(resolve(process.cwd(), path), "utf8"),
+					path,
+					selectorPattern:
+						SILLYTAVERN_NATIVE_OVERRIDE_SELECTOR_PATTERN,
+				}),
 		);
 
 		expect(unscopedSelectors).toEqual([]);
