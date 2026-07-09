@@ -35,6 +35,7 @@ import {
 import { translateAstra } from "@/packages/core/i18n";
 import {
 	ASTRA_MAIN_INTERFACE_PANEL_ID,
+	ASTRA_MAIN_INTERFACE_SECONDARY_TABS_AFTER_FRAME_ID,
 	ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
 	ASTRA_MAIN_INTERFACE_TRIGGER_ID,
 	MobileAstraMainInterfacePanel,
@@ -62,6 +63,7 @@ interface MainInterfaceStores {
 
 export {
 	ASTRA_MAIN_INTERFACE_PANEL_ID,
+	ASTRA_MAIN_INTERFACE_SECONDARY_TABS_AFTER_FRAME_ID,
 	ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID,
 	ASTRA_MAIN_INTERFACE_TRIGGER_ID,
 } from "@/app/mobile/astra-main-interface-panel";
@@ -120,6 +122,8 @@ function MobileChatTopBar({
 		secondaryTabsListFramePortalTarget,
 		setSecondaryTabsListFramePortalTarget,
 	] = React.useState<HTMLDivElement | null>(null);
+	const [secondaryTabsAfterPortalTarget, setSecondaryTabsAfterPortalTarget] =
+		React.useState<HTMLDivElement | null>(null);
 	const mainInterfaceStores =
 		React.useMemo<MainInterfaceStores | null>(() => {
 			if (!hasMainInterfaceOpened) {
@@ -268,13 +272,22 @@ function MobileChatTopBar({
 			<MobileAstraMainInterfacePanel
 				bodyStart={
 					showSecondaryTabsListFrame ? (
-						<div
-							id={
-								ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID
-							}
-							className="astra-smooth-tabs__list-frame"
-							ref={setSecondaryTabsListFramePortalTarget}
-						/>
+						<>
+							<div
+								id={
+									ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID
+								}
+								className="astra-smooth-tabs__list-frame"
+								ref={setSecondaryTabsListFramePortalTarget}
+							/>
+							<div
+								id={
+									ASTRA_MAIN_INTERFACE_SECONDARY_TABS_AFTER_FRAME_ID
+								}
+								className="astra-main-interface__secondary-tabs-after-frame"
+								ref={setSecondaryTabsAfterPortalTarget}
+							/>
+						</>
 					) : null
 				}
 				contentScrollMode="children"
@@ -299,6 +312,11 @@ function MobileChatTopBar({
 						currentChatIdentityStore={currentChatIdentityStore}
 						favoriteChatEntitiesStore={
 							mainInterfaceStores?.favoriteChatEntitiesStore
+						}
+						secondaryTabsAfterPortalTarget={
+							showSecondaryTabsListFrame
+								? secondaryTabsAfterPortalTarget
+								: null
 						}
 						secondaryTabsListFramePortalTarget={
 							showSecondaryTabsListFrame

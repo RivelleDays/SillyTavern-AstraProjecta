@@ -17,6 +17,7 @@ import {
 	type GlobalChatListPageProps,
 } from "@/packages/features/astra-main-interface/global/GlobalChatListPage";
 import {
+	GlobalHomeCarouselSlot,
 	GlobalHomePage,
 	type GlobalHomePageProps,
 } from "@/packages/features/astra-main-interface/global/GlobalHomePage";
@@ -51,6 +52,7 @@ const GLOBAL_ASTRA_MAIN_INTERFACE_ROUTE_DESCRIPTORS = [
 export interface GlobalAstraMainInterfaceProps extends GlobalChatListPageProps {
 	activeTab: GlobalAstraMainInterfaceTabValue;
 	chatCategoryStore: ChatCategoryStore;
+	listFrameAfterPortalTarget?: HTMLElement | null;
 	listFramePortalTarget?: HTMLElement | null;
 	onSillyTavernInterfaceRouteOpen?: GlobalHomePageProps["onSillyTavernInterfaceRouteOpen"];
 	renderSillyTavernInterfaceRouteIcon?: GlobalHomePageProps["renderSillyTavernInterfaceRouteIcon"];
@@ -190,6 +192,7 @@ function useGlobalCategoriesFullHistoryRefresh({
 export function GlobalAstraMainInterface({
 	activeTab,
 	chatCategoryStore,
+	listFrameAfterPortalTarget,
 	listFramePortalTarget,
 	onSillyTavernInterfaceRouteOpen,
 	renderSillyTavernInterfaceRouteIcon,
@@ -299,6 +302,10 @@ export function GlobalAstraMainInterface({
 			ariaLabel={translateAstra("astraMainInterface.global.tabs.label")}
 			className="astra-main-interface__secondary-tabs astra-main-interface__global-tabs"
 			items={items}
+			listFrameAfter={
+				activeTab === "home" ? <GlobalHomeCarouselSlot /> : null
+			}
+			listFrameAfterPortalTarget={listFrameAfterPortalTarget}
 			listFramePortalTarget={listFramePortalTarget}
 			value={activeTab}
 			viewportMode="fill"

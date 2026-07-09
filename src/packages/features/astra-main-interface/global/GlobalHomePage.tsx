@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import { Button } from "@/components/ui/shadcn/button";
 import { DiscordBrand, RedditBrand } from "@/components/ui/shared/brand-icons";
 import { AstraChatAvatar } from "@/components/ui/shared/chat-avatar";
 import { UiIcon } from "@/components/ui/shared/icon";
@@ -8,10 +9,12 @@ import {
 	BookOpen,
 	ChevronRight,
 	Dot,
+	HeartHandshake,
 	Link,
 	MessageCircleMore,
 	MessagesSquare,
 	UserRound,
+	XIcon,
 	type LucideIcon,
 } from "@/components/ui/shared/icons";
 import { translateAstra } from "@/packages/core/i18n";
@@ -32,6 +35,9 @@ import {
 import type { I18nKey } from "@/types/i18n";
 
 const RECENT_CHAT_LIMIT = 3;
+const ASTRA_ALPHA_SURVEY_FORM_URL = "https://forms.gle/6ABTAkkbXdU32jfu6";
+const ASTRA_ALPHA_SURVEY_DISMISSED_STORAGE_KEY =
+	"astra_projecta.astra_main_interface.home.carousel.alpha_survey.dismissed";
 
 interface GlobalHomeLinkDescriptor {
 	descriptionKey: I18nKey;
@@ -276,23 +282,100 @@ function GlobalHomeShortcuts({
 	);
 }
 
-function GlobalHomeCarouselSlot() {
+function readAlphaSurveyDismissed() {
+	try {
+		return (
+			globalThis.window?.localStorage.getItem(
+				ASTRA_ALPHA_SURVEY_DISMISSED_STORAGE_KEY,
+			) === "true"
+		);
+	} catch {
+		return false;
+	}
+}
+
+function persistAlphaSurveyDismissed() {
+	try {
+		globalThis.window?.localStorage.setItem(
+			ASTRA_ALPHA_SURVEY_DISMISSED_STORAGE_KEY,
+			"true",
+		);
+	} catch {
+		// Keep the current in-memory dismissal when browser storage is blocked.
+	}
+}
+
+export function GlobalHomeCarouselSlot() {
+	const [isVisible, setIsVisible] = React.useState(
+		() => !readAlphaSurveyDismissed(),
+	);
+	const handleDismiss = React.useCallback(() => {
+		setIsVisible(false);
+		persistAlphaSurveyDismissed();
+	}, []);
+
+	if (!isVisible) {
+		return null;
+	}
+
 	return (
 		<section
 			aria-label={translateAstra(
 				"astraMainInterface.home.carousel.title",
 			)}
-			className="astra-main-interface-home__carousel-slot"
+			className="astra-main-interface-home__carousel-slot dark bg-muted px-4 py-3 text-foreground"
 		>
-			<div className="astra-main-interface-home__carousel-copy">
-				<span className="astra-main-interface-home__carousel-title">
-					{translateAstra("astraMainInterface.home.carousel.title")}
-				</span>
-				<span className="astra-main-interface-home__carousel-description">
-					{translateAstra(
-						"astraMainInterface.home.carousel.description",
-					)}
-				</span>
+			<div className="astra-main-interface-home__carousel-layout flex gap-2 md:items-center">
+				<div className="astra-main-interface-home__carousel-main flex grow gap-3 md:items-center md:justify-center">
+					<span
+						aria-hidden={true}
+						className="astra-main-interface-home__carousel-icon shrink-0 opacity-60 max-md:mt-0.5"
+					>
+						<HeartHandshake size={16} />
+					</span>
+					<div className="astra-main-interface-home__carousel-copy flex flex-col justify-between gap-3 md:flex-row md:items-center">
+						<p className="astra-main-interface-home__carousel-message min-w-0 grow text-sm">
+							<span className="astra-main-interface-home__carousel-title">
+								{translateAstra(
+									"astraMainInterface.home.carousel.title",
+								)}
+							</span>
+						</p>
+					</div>
+				</div>
+				<div className="astra-main-interface-home__carousel-actions flex shrink-0 items-center gap-2">
+					<Button
+						asChild={true}
+						className="astra-main-interface-home__carousel-action rounded-full whitespace-nowrap"
+						size="sm"
+					>
+						<a
+							href={ASTRA_ALPHA_SURVEY_FORM_URL}
+							rel="noreferrer"
+							target="_blank"
+						>
+							{translateAstra(
+								"astraMainInterface.home.carousel.action",
+							)}
+						</a>
+					</Button>
+					<Button
+						aria-label={translateAstra(
+							"astraMainInterface.home.carousel.dismiss",
+						)}
+						className="astra-main-interface-home__carousel-dismiss group -my-1.5 -me-2 size-8 shrink-0 p-0 hover:bg-transparent"
+						size="icon-sm"
+						type="button"
+						variant="ghost"
+						onClick={handleDismiss}
+					>
+						<XIcon
+							aria-hidden={true}
+							className="opacity-60 transition-opacity group-hover:opacity-100"
+							size={16}
+						/>
+					</Button>
+				</div>
 			</div>
 		</section>
 	);
@@ -628,7 +711,6 @@ export function GlobalHomePage({
 				renderRouteIcon={renderSillyTavernInterfaceRouteIcon}
 				onRouteOpen={onSillyTavernInterfaceRouteOpen}
 			/>
-			<GlobalHomeCarouselSlot />
 			<GlobalHomeRecentChats
 				entries={snapshot.entries}
 				openChat={openChat}

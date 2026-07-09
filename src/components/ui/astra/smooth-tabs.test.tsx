@@ -255,6 +255,11 @@ describe("AstraSmoothTabs", () => {
 			<AstraSmoothTabs
 				ariaLabel="Global sections"
 				items={SMOOTH_TAB_ITEMS}
+				listFrameAfter={
+					<div data-testid="smooth-tabs-after-list">
+						After list frame
+					</div>
+				}
 				value="chats"
 				onValueChange={vi.fn()}
 			/>,
@@ -262,6 +267,8 @@ describe("AstraSmoothTabs", () => {
 		const tablist = screen.getByRole("tablist", {
 			name: "Global sections",
 		});
+		const listFrame = tablist.closest(".astra-smooth-tabs__list-frame");
+		const afterList = screen.getByTestId("smooth-tabs-after-list");
 		const chatsTab = within(tablist).getByRole("tab", { name: "Chats" });
 		const categoriesTab = within(tablist).getByRole("tab", {
 			name: "Categories",
@@ -270,9 +277,8 @@ describe("AstraSmoothTabs", () => {
 			".astra-smooth-tabs__indicator",
 		) as HTMLElement;
 
-		expect(
-			tablist.closest(".astra-smooth-tabs__list-frame"),
-		).toBeInTheDocument();
+		expect(listFrame).toBeInTheDocument();
+		expect(listFrame?.nextElementSibling).toBe(afterList);
 		expect(
 			tablist.querySelector(".astra-sliding-tabs__indicator"),
 		).not.toBeInTheDocument();
@@ -302,6 +308,8 @@ describe("AstraSmoothTabs", () => {
 			const [target, setTarget] = React.useState<HTMLDivElement | null>(
 				null,
 			);
+			const [afterTarget, setAfterTarget] =
+				React.useState<HTMLDivElement | null>(null);
 
 			return (
 				<>
@@ -310,9 +318,19 @@ describe("AstraSmoothTabs", () => {
 						data-testid="smooth-tabs-list-frame-target"
 						ref={setTarget}
 					/>
+					<div
+						data-testid="smooth-tabs-list-frame-after-target"
+						ref={setAfterTarget}
+					/>
 					<AstraSmoothTabs
 						ariaLabel="Global sections"
 						items={SMOOTH_TAB_ITEMS}
+						listFrameAfter={
+							<div data-testid="smooth-tabs-after-list">
+								After list frame
+							</div>
+						}
+						listFrameAfterPortalTarget={afterTarget}
 						listFramePortalTarget={target}
 						value={value}
 						onValueChange={vi.fn()}
@@ -323,9 +341,13 @@ describe("AstraSmoothTabs", () => {
 
 		const { container, rerender } = render(<PortalHarness value="chats" />);
 		const target = screen.getByTestId("smooth-tabs-list-frame-target");
+		const afterTarget = screen.getByTestId(
+			"smooth-tabs-list-frame-after-target",
+		);
 		const tablist = await screen.findByRole("tablist", {
 			name: "Global sections",
 		});
+		const afterList = await screen.findByTestId("smooth-tabs-after-list");
 		const chatsTab = within(tablist).getByRole("tab", { name: "Chats" });
 		const categoriesTab = within(tablist).getByRole("tab", {
 			name: "Categories",
@@ -335,10 +357,16 @@ describe("AstraSmoothTabs", () => {
 		) as HTMLElement;
 
 		expect(target).toContainElement(tablist);
+		expect(afterTarget).toContainElement(afterList);
 		expect(tablist.closest(".astra-smooth-tabs__list-frame")).toBe(target);
 		expect(
 			container.querySelector(
 				".astra-smooth-tabs > .astra-smooth-tabs__list-frame",
+			),
+		).not.toBeInTheDocument();
+		expect(
+			container.querySelector(
+				".astra-smooth-tabs > [data-testid='smooth-tabs-after-list']",
 			),
 		).not.toBeInTheDocument();
 

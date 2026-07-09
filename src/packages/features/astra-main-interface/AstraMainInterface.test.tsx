@@ -641,6 +641,136 @@ describe("AstraMainInterface", () => {
 		expect(openRoute).toHaveBeenCalledTimes(shortcuts.length);
 	});
 
+	test("renders the Alpha survey carousel banner directly below the global tabs frame", () => {
+		const storeStub = createStoreStub(createSnapshot());
+
+		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+		const carouselSlot = document.querySelector(
+			".astra-main-interface-home__carousel-slot",
+		);
+		const globalTabs = screen.getByRole("tablist", {
+			name: "Global sections",
+		});
+		const globalTabsListFrame = globalTabs.closest(
+			".astra-smooth-tabs__list-frame",
+		);
+		expect(carouselSlot).toBeInTheDocument();
+		expect(globalTabsListFrame?.nextElementSibling).toBe(carouselSlot);
+		expect(carouselSlot?.closest(".astra-smooth-tabs__panel")).toBeNull();
+		expect(
+			carouselSlot?.querySelector(
+				".astra-main-interface-home__carousel-message",
+			),
+		).toBeInTheDocument();
+		expect(
+			carouselSlot?.querySelector(
+				".astra-main-interface-home__carousel-actions",
+			),
+		).toBeInTheDocument();
+		expect(
+			carouselSlot?.querySelector(
+				".astra-main-interface-home__carousel-icon .lucide-heart-handshake",
+			),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText("Help shape AstraProjecta Alpha"),
+		).toBeInTheDocument();
+		expect(
+			screen.queryByText(
+				"Share quick feedback through the Alpha Google Form.",
+			),
+		).not.toBeInTheDocument();
+
+		const surveyLink = screen.getByRole("link", {
+			name: "Survey",
+		});
+		expect(surveyLink).toHaveAttribute(
+			"href",
+			"https://forms.gle/6ABTAkkbXdU32jfu6",
+		);
+		expect(surveyLink).toHaveAttribute("target", "_blank");
+		expect(surveyLink).toHaveAttribute("rel", "noreferrer");
+		expect(surveyLink).toHaveClass(
+			"astra-main-interface-home__carousel-action",
+		);
+		expect(surveyLink).toHaveAttribute("data-slot", "button");
+		expect(surveyLink).toHaveAttribute("data-variant", "default");
+		expect(surveyLink).toHaveAttribute("data-size", "sm");
+		expect(surveyLink).toHaveClass("rounded-full");
+		expect(surveyLink).toHaveClass("whitespace-nowrap");
+
+		const dismissButton = screen.getByRole("button", {
+			name: "Dismiss Alpha survey banner",
+		});
+		expect(dismissButton).toHaveClass(
+			"astra-main-interface-home__carousel-dismiss",
+		);
+		const carouselActions = carouselSlot?.querySelector(
+			".astra-main-interface-home__carousel-actions",
+		);
+		expect(
+			surveyLink.closest(".astra-main-interface-home__carousel-actions"),
+		).toBe(carouselActions);
+		expect(
+			dismissButton.closest(
+				".astra-main-interface-home__carousel-actions",
+			),
+		).toBe(carouselActions);
+		expect(surveyLink.compareDocumentPosition(dismissButton)).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING,
+		);
+		expect(dismissButton.querySelector(".lucide-x")).toBeInTheDocument();
+	});
+
+	test("shows the Alpha survey carousel banner only on Global Home", () => {
+		const storeStub = createStoreStub(createSnapshot());
+
+		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+		expect(
+			document.querySelector(".astra-main-interface-home__carousel-slot"),
+		).toBeInTheDocument();
+
+		fireEvent.click(screen.getByRole("tab", { name: "Chats" }));
+
+		expect(
+			document.querySelector(".astra-main-interface-home__carousel-slot"),
+		).not.toBeInTheDocument();
+
+		fireEvent.click(screen.getByRole("tab", { name: "Home" }));
+
+		expect(
+			document.querySelector(".astra-main-interface-home__carousel-slot"),
+		).toBeInTheDocument();
+	});
+
+	test("persists Alpha survey carousel dismissal in browser storage", () => {
+		const storageKey =
+			"astra_projecta.astra_main_interface.home.carousel.alpha_survey.dismissed";
+		const storeStub = createStoreStub(createSnapshot());
+
+		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+		fireEvent.click(
+			screen.getByRole("button", {
+				name: "Dismiss Alpha survey banner",
+			}),
+		);
+
+		expect(window.localStorage.getItem(storageKey)).toBe("true");
+		expect(
+			document.querySelector(".astra-main-interface-home__carousel-slot"),
+		).not.toBeInTheDocument();
+
+		cleanup();
+		render(<AstraMainInterface chatCatalogStore={storeStub.store} />);
+
+		expect(
+			document.querySelector(".astra-main-interface-home__carousel-slot"),
+		).not.toBeInTheDocument();
+	});
+
 	test("shows at most three recent chats in most-recent order and opens through the global chat contract", async () => {
 		const entries = [
 			createEntry({
@@ -1279,7 +1409,7 @@ describe("AstraMainInterface", () => {
 			);
 		}
 		const globalHomePanel = screen
-			.getByText("Carousel reserved")
+			.getByRole("group", { name: "SillyTavern shortcuts" })
 			.closest(".astra-smooth-tabs__panel");
 		const globalChatsPanel = document.querySelector(
 			".astra-smooth-tabs__panel[data-route='global-chats']",
