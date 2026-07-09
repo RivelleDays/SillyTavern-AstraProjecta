@@ -7,7 +7,7 @@
 	"js": "dist/index.js",
 	"css": "dist/style.css",
 	"author": "RivelleDays",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"homePage": "https://github.com/RivelleDays/SillyTavern-AstraProjecta",
 	"license": "AGPL-3.0",
 	"auto_update": true

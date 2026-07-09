@@ -256,6 +256,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for bug-report guidelines, development se
 
 ## License
 
-[AGPL-3.0](LICENSE.txt) © RivelleDays
-
-In plain terms: derivative works—including modified versions served to users over a network—must remain under AGPLv3 with source available.
+AGPL-3.0
