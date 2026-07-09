@@ -66,6 +66,7 @@ export interface AstraMainInterfaceProps
 		routeKey: SillyTavernInterfaceRouteKey,
 	) => void;
 	renderSillyTavernInterfaceRouteIcon?: SendFormSillyTavernInterfaceAdapter["renderRouteIcon"];
+	secondaryTabsAfterPortalTarget?: HTMLElement | null;
 	secondaryTabsListFramePortalTarget?: HTMLElement | null;
 	showSectionTabs?: boolean;
 	scopedChatCatalogStore?: ScopedChatCatalogStore | null;
@@ -240,6 +241,7 @@ export function AstraMainInterface({
 	openCurrentChat,
 	onActiveSectionChange,
 	renameCurrentChat,
+	secondaryTabsAfterPortalTarget,
 	secondaryTabsListFramePortalTarget,
 	showSectionTabs = true,
 	scopedChatCatalogStore,
@@ -315,6 +317,7 @@ export function AstraMainInterface({
 					{...globalProps}
 					activeTab={activeGlobalTab}
 					chatCategoryStore={chatCategoryStore}
+					listFrameAfterPortalTarget={secondaryTabsAfterPortalTarget}
 					listFramePortalTarget={secondaryTabsListFramePortalTarget}
 					onRequestClose={onRequestClose}
 					onActiveTabChange={setActiveGlobalTab}

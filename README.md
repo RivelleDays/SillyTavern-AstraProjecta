@@ -145,8 +145,8 @@ Contributor rules live in the `AGENTS.md` files; start with the root [`AGENTS.md
 
 Supporting third-party SillyTavern extensions is **not a priority during the alpha phase**. The list below reflects extensions Astra has specifically tested and is committed to keeping compatible going forward — it is not a general compatibility guarantee.
 
-| Extension                                                                                                       | Status              |
-| --------------------------------------------------------------------------------------------------------------- | ------------------- |
+| Extension                                                                                                       | Status       |
+| --------------------------------------------------------------------------------------------------------------- | ------------ |
 | [Sillyanonymous / SillyTavern-CharacterLibrary](https://github.com/Sillyanonymous/SillyTavern-CharacterLibrary) | ✅ Supported |
 
 Astra reserves the right to decline support for extensions of uncertain quality or from developers we can't reasonably trust, and isn't responsible for conflicts caused by using other extensions. That said, if a third-party extension's developer wants to add their own compatibility with AstraProjecta, that's entirely welcome and won't conflict with this policy.

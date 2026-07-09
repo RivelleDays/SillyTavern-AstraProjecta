@@ -5,6 +5,8 @@ export const ASTRA_MAIN_INTERFACE_PANEL_CONTENT_ID =
 	"astra-main-interface-content";
 export const ASTRA_MAIN_INTERFACE_SECONDARY_TABS_LIST_FRAME_ID =
 	"astra-main-interface-secondary-tabs-list-frame";
+export const ASTRA_MAIN_INTERFACE_SECONDARY_TABS_AFTER_FRAME_ID =
+	"astra-main-interface-secondary-tabs-after-frame";
 export const ASTRA_MAIN_INTERFACE_CLOSE_BUTTON_ID =
 	"astra-main-interface-close-button";
 export const ASTRA_MAIN_INTERFACE_CLOSE_BUTTON_WRAPPER_ID =

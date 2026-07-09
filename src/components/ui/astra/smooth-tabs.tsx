@@ -25,6 +25,8 @@ export interface AstraSmoothTabsProps<TValue extends string = string> {
 	className?: string;
 	items: readonly AstraSmoothTabItem<TValue>[];
 	listClassName?: string;
+	listFrameAfter?: React.ReactNode;
+	listFrameAfterPortalTarget?: HTMLElement | null;
 	listFramePortalTarget?: HTMLElement | null;
 	onValueChange(value: TValue): void;
 	panelClassName?: string;
@@ -147,6 +149,8 @@ export function AstraSmoothTabs<TValue extends string = string>({
 	className,
 	items,
 	listClassName,
+	listFrameAfter,
+	listFrameAfterPortalTarget,
 	listFramePortalTarget,
 	onValueChange,
 	panelClassName,
@@ -643,6 +647,14 @@ export function AstraSmoothTabs<TValue extends string = string>({
 		) : listFramePortalTarget ? (
 			createPortal(tabList, listFramePortalTarget)
 		) : null;
+	const listFrameAfterNode =
+		listFrameAfter === null || listFrameAfter === undefined
+			? null
+			: listFrameAfterPortalTarget === undefined
+				? listFrameAfter
+				: listFrameAfterPortalTarget
+					? createPortal(listFrameAfter, listFrameAfterPortalTarget)
+					: null;
 
 	return (
 		<div
@@ -652,6 +664,7 @@ export function AstraSmoothTabs<TValue extends string = string>({
 			data-viewport-mode={viewportMode}
 		>
 			{listFrame}
+			{listFrameAfterNode}
 			<div
 				className={cn("astra-smooth-tabs__viewport", viewportClassName)}
 				ref={viewportRef}

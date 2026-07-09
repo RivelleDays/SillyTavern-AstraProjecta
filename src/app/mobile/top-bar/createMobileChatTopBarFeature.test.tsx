@@ -460,6 +460,26 @@ describe("createMobileChatTopBarFeature", () => {
 		expect(globalTabsListFrame?.parentElement).toBe(panelBody);
 		expect(panelBody?.firstElementChild).toBe(globalTabsListFrame);
 		expect(content).not.toContainElement(globalTabsListFrame);
+		const carouselFrame = document.getElementById(
+			"astra-main-interface-secondary-tabs-after-frame",
+		);
+		expect(carouselFrame).toHaveClass(
+			"astra-main-interface__secondary-tabs-after-frame",
+		);
+		expect(carouselFrame?.parentElement).toBe(panelBody);
+		expect(globalTabsListFrame?.nextElementSibling).toBe(carouselFrame);
+		expect(carouselFrame?.nextElementSibling).toBe(content);
+		expect(carouselFrame).toHaveTextContent(
+			"Help shape AstraProjecta Alpha",
+		);
+		expect(
+			carouselFrame?.querySelector(
+				".astra-main-interface-home__carousel-slot",
+			),
+		).toBeInTheDocument();
+		expect(
+			content?.querySelector(".astra-main-interface-home__carousel-slot"),
+		).not.toBeInTheDocument();
 
 		const sectionTabs = within(mainInterfacePanel).getByRole("tablist", {
 			name: "Main UI sections",

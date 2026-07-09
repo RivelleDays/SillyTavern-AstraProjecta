@@ -78,12 +78,20 @@ describe("astra-main-interface.css", () => {
 		);
 		expect(css).toContain(".astra-main-interface__secondary-tabs");
 		expect(css).toContain(".astra-main-interface__global-tabs");
+		expect(css).toContain(
+			".astra-main-interface__secondary-tabs-after-frame",
+		);
 		for (const selector of [
 			".astra-main-interface-home",
 			".astra-main-interface-home__shortcut-row",
 			".astra-main-interface-home__shortcut",
 			".astra-main-interface-home__shortcut-deco-icon",
 			".astra-main-interface-home__carousel-slot",
+			".astra-main-interface-home__carousel-icon",
+			".astra-main-interface-home__carousel-message",
+			".astra-main-interface-home__carousel-actions",
+			".astra-main-interface-home__carousel-action",
+			".astra-main-interface-home__carousel-dismiss",
 			".astra-main-interface-home__section-header",
 			".astra-main-interface-home__recent-list",
 			".astra-main-interface-home__recent-row",
@@ -765,6 +773,12 @@ describe("astra-main-interface.css", () => {
 		);
 		expect(css).toMatch(
 			/\.astra-main-interface-home__shortcut:disabled\s*\{[^}]*cursor:\s*not-allowed;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__carousel-action\s*\{[^}]*cursor:\s*pointer;/,
+		);
+		expect(css).toMatch(
+			/\.astra-main-interface-home__carousel-dismiss:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
 		);
 		expect(css).toMatch(
 			/\.astra-main-interface-home__recent-view-all:not\(:disabled\)\s*\{[^}]*cursor:\s*pointer;/,
