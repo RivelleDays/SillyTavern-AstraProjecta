@@ -2911,11 +2911,6 @@
       margin-top: calc(var(--spacing) * 0.5);
     }
   }
-  .max-md\:flex-wrap {
-    @media (width < 48rem) {
-      flex-wrap: wrap;
-    }
-  }
   .sm\:max-w-sm {
     @media (width >= 40rem) {
       max-width: var(--container-sm);
@@ -7768,7 +7763,7 @@ body.astra-projecta-mobile-layout {
   overflow: hidden;
   min-width: 0;
   height: 40px;
-  background: var(--surface-accent-t50);
+  background: var(--surface-accent-t40);
   padding: 0 16px;
   align-items: center;
 }
@@ -7791,6 +7786,7 @@ body.astra-projecta-mobile-layout {
   align-items: center;
   justify-content: center;
   color: var(--color-muted);
+  margin: 0;
 }
 .astra-main-interface-home__carousel-message {
   display: block;
@@ -7809,7 +7805,10 @@ body.astra-projecta-mobile-layout {
   line-height: 1.35;
 }
 .astra-main-interface-home__carousel-actions {
+  display: flex;
   flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
 }
 .astra-main-interface-home__carousel-action {
   display: inline-flex;

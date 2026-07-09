@@ -607,30 +607,30 @@
 }
 
 .astra-main-interface-home__carousel-slot {
-    display: flex;
-    overflow: hidden;
-    min-width: 0;
-    height: 40px;
-	background: var(--surface-accent-t50);
-    padding: 0 16px;
-    align-items: center;
+	display: flex;
+	overflow: hidden;
+	min-width: 0;
+	height: 40px;
+	background: var(--surface-accent-t40);
+	padding: 0 16px;
+	align-items: center;
 }
 
 .astra-main-interface-home__carousel-layout {
-    display: flex;
-    width: 100%;
-    min-width: 0;
-    align-items: center;
+	display: flex;
+	width: 100%;
+	min-width: 0;
+	align-items: center;
 }
 
 .astra-main-interface-home__carousel-main,
 .astra-main-interface-home__carousel-copy {
 	display: flex;
 	min-width: 0;
-    flex-direction: row;
-    align-content: center;
-    justify-content: flex-start;
-    align-items: center;
+	flex-direction: row;
+	align-content: center;
+	justify-content: flex-start;
+	align-items: center;
 }
 
 .astra-main-interface-home__carousel-icon {
@@ -638,18 +638,19 @@
 	align-items: center;
 	justify-content: center;
 	color: var(--color-muted);
+	margin: 0;
 }
 
 .astra-main-interface-home__carousel-message {
-    display: block;
-    overflow: hidden;
-    min-width: 0;
-    flex: 1 1 auto;
-    margin: 0;
-    color: var(--color-base);
-    font-size: var(--text-xs);
-    text-overflow: ellipsis;
-    white-space: nowrap;
+	display: block;
+	overflow: hidden;
+	min-width: 0;
+	flex: 1 1 auto;
+	margin: 0;
+	color: var(--color-base);
+	font-size: var(--text-xs);
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .astra-main-interface-home__carousel-title {
@@ -659,17 +660,20 @@
 }
 
 .astra-main-interface-home__carousel-actions {
+	display: flex;
 	flex: 0 0 auto;
+	align-items: center;
+	gap: 8px;
 }
 
 .astra-main-interface-home__carousel-action {
-    display: inline-flex;
-    align-items: center;
-    max-width: 100%;
-    height: 28px;
-    cursor: pointer;
-    font-size: var(--text-xs);
-    text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	max-width: 100%;
+	height: 28px;
+	cursor: pointer;
+	font-size: var(--text-xs);
+	text-decoration: none;
 }
 
 .astra-main-interface-home__carousel-dismiss:not(:disabled) {

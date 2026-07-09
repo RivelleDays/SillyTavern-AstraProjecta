@@ -9,7 +9,7 @@ import {
 	BookOpen,
 	ChevronRight,
 	Dot,
-	Eclipse,
+	HeartHandshake,
 	Link,
 	MessageCircleMore,
 	MessagesSquare,
@@ -331,7 +331,7 @@ export function GlobalHomeCarouselSlot() {
 						aria-hidden={true}
 						className="astra-main-interface-home__carousel-icon shrink-0 opacity-60 max-md:mt-0.5"
 					>
-						<Eclipse size={16} />
+						<HeartHandshake size={16} />
 					</span>
 					<div className="astra-main-interface-home__carousel-copy flex flex-col justify-between gap-3 md:flex-row md:items-center">
 						<p className="astra-main-interface-home__carousel-message min-w-0 grow text-sm">
@@ -341,41 +341,41 @@ export function GlobalHomeCarouselSlot() {
 								)}
 							</span>
 						</p>
-						<div className="astra-main-interface-home__carousel-actions flex gap-2 max-md:flex-wrap">
-							<Button
-								asChild={true}
-								className="astra-main-interface-home__carousel-action rounded-full whitespace-nowrap"
-								size="sm"
-							>
-								<a
-									href={ASTRA_ALPHA_SURVEY_FORM_URL}
-									rel="noreferrer"
-									target="_blank"
-								>
-									{translateAstra(
-										"astraMainInterface.home.carousel.action",
-									)}
-								</a>
-							</Button>
-						</div>
 					</div>
 				</div>
-				<Button
-					aria-label={translateAstra(
-						"astraMainInterface.home.carousel.dismiss",
-					)}
-					className="astra-main-interface-home__carousel-dismiss group -my-1.5 -me-2 size-8 shrink-0 p-0 hover:bg-transparent"
-					size="icon-sm"
-					type="button"
-					variant="ghost"
-					onClick={handleDismiss}
-				>
-					<XIcon
-						aria-hidden={true}
-						className="opacity-60 transition-opacity group-hover:opacity-100"
-						size={16}
-					/>
-				</Button>
+				<div className="astra-main-interface-home__carousel-actions flex shrink-0 items-center gap-2">
+					<Button
+						asChild={true}
+						className="astra-main-interface-home__carousel-action rounded-full whitespace-nowrap"
+						size="sm"
+					>
+						<a
+							href={ASTRA_ALPHA_SURVEY_FORM_URL}
+							rel="noreferrer"
+							target="_blank"
+						>
+							{translateAstra(
+								"astraMainInterface.home.carousel.action",
+							)}
+						</a>
+					</Button>
+					<Button
+						aria-label={translateAstra(
+							"astraMainInterface.home.carousel.dismiss",
+						)}
+						className="astra-main-interface-home__carousel-dismiss group -my-1.5 -me-2 size-8 shrink-0 p-0 hover:bg-transparent"
+						size="icon-sm"
+						type="button"
+						variant="ghost"
+						onClick={handleDismiss}
+					>
+						<XIcon
+							aria-hidden={true}
+							className="opacity-60 transition-opacity group-hover:opacity-100"
+							size={16}
+						/>
+					</Button>
+				</div>
 			</div>
 		</section>
 	);

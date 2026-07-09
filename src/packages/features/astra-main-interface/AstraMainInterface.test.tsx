@@ -670,7 +670,7 @@ describe("AstraMainInterface", () => {
 		).toBeInTheDocument();
 		expect(
 			carouselSlot?.querySelector(
-				".astra-main-interface-home__carousel-icon .lucide-eclipse",
+				".astra-main-interface-home__carousel-icon .lucide-heart-handshake",
 			),
 		).toBeInTheDocument();
 		expect(
@@ -705,6 +705,20 @@ describe("AstraMainInterface", () => {
 		});
 		expect(dismissButton).toHaveClass(
 			"astra-main-interface-home__carousel-dismiss",
+		);
+		const carouselActions = carouselSlot?.querySelector(
+			".astra-main-interface-home__carousel-actions",
+		);
+		expect(
+			surveyLink.closest(".astra-main-interface-home__carousel-actions"),
+		).toBe(carouselActions);
+		expect(
+			dismissButton.closest(
+				".astra-main-interface-home__carousel-actions",
+			),
+		).toBe(carouselActions);
+		expect(surveyLink.compareDocumentPosition(dismissButton)).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING,
 		);
 		expect(dismissButton.querySelector(".lucide-x")).toBeInTheDocument();
 	});
