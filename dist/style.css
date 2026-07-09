@@ -10833,8 +10833,9 @@ body.astra-projecta-mobile-layout {
   align-items: center;
   gap: 8px;
   width: 100%;
-  height: 40px;
+  min-height: 40px;
   flex-wrap: wrap;
+  padding-bottom: 8px;
 }
 .astra-mesHeaderActions {
   grid-area: actions;
@@ -11269,7 +11270,7 @@ body.astra-projecta-mobile-layout {
 .astra-messageMoreActionsDrawer__messagePreview.mes {
   display: block;
   width: 100%;
-  padding: 0;
+  padding: 0 !important;
 }
 .astra-messageMoreActionsDrawer__messagePreview .mes_text {
   padding: 0;
