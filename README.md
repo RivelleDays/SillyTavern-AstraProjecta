@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/astra-banner.png?raw=true" alt="AstraProjecta banner" width="100%">
+</p>
+
 # SillyTavern-AstraProjecta
 
 <p align="left">
@@ -17,23 +21,39 @@ AstraProjecta is mobile-first by design—smaller screens surface the hardest la
 >
 > Please **do not rely on the current alpha for daily use yet**. Note that auto-update is enabled by default, so breaking alpha changes may be applied automatically when SillyTavern updates extensions.
 
-### Preview
+### Screenshots
 
 <table width="100%">
   <tr>
     <th width="33.33%">Chat View</th>
+    <th width="33.33%">Search & Replace</th>
     <th width="33.33%">Main Drawer</th>
-    <th width="33.33%">Backgrounds</th>
   </tr>
   <tr>
     <td width="33.33%">
       <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-chat-view.png?raw=true" alt="AstraProjecta mobile chat view with message layout, message actions, swipe controls, and the bottom input bar" width="100%">
     </td>
     <td width="33.33%">
-      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-main-drawer.png?raw=true" alt="AstraProjecta mobile main drawer with API status, model information, settings shortcuts, and connection profile controls" width="100%">
+      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-search-replace.png?raw=true" alt="AstraProjecta mobile in-chat search with find and replace controls" width="100%">
     </td>
     <td width="33.33%">
-      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-background-manager.png?raw=true" alt="AstraProjecta mobile Backgrounds manager inside the SillyTavern interface panel, with sorting, search, Global/Chat scope tabs, and a background thumbnail grid" width="100%">
+      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-main-drawer.png?raw=true" alt="AstraProjecta mobile main drawer with API status, model information, settings shortcuts, and connection profile controls" width="100%">
+    </td>
+  </tr>
+  <tr>
+    <th width="33.33%">Context Usage</th>
+    <th width="33.33%">ST Main Menu</th>
+    <th width="33.33%">Revision History</th>
+  </tr>
+  <tr>
+    <td width="33.33%">
+      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-context-usage.png?raw=true" alt="AstraProjecta mobile context usage breakdown showing token budget and prompt composition" width="100%">
+    </td>
+    <td width="33.33%">
+      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-st-main-menu.png?raw=true" alt="AstraProjecta mobile SillyTavern main menu with feature shortcuts" width="100%">
+    </td>
+    <td width="33.33%">
+      <img src="https://github.com/RivelleDays/SillyTavern-AstraProjecta/blob/main/.github/assets/preview/alpha-mobile-revision-history.png?raw=true" alt="AstraProjecta mobile message revision history showing previous edits of a message" width="100%">
     </td>
   </tr>
 </table>
