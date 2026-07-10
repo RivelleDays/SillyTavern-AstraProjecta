@@ -12,9 +12,10 @@
   </a>
 </p>
 
-**AstraProjecta** ("Astra") is a mobile-first third-party UI extension for SillyTavern. It reimagines SillyTavern’s frontend into a more cohesive, modern, and easier-to-navigate experience while keeping SillyTavern as the underlying runtime.
+**AstraProjecta** ("Astra") is a mobile-first third-party UI extension for SillyTavern. It reimagines SillyTavern’s frontend into a more cohesive, modern, and easier-to-navigate experience while keeping SillyTavern as the underlying runtime. It’s mobile-first by design—smaller screens surface the hardest layout and navigation problems first—so the mobile core comes first, with desktop support **definitely planned** once that core is stable enough to expand safely.
 
-AstraProjecta is mobile-first by design—smaller screens surface the hardest layout, navigation, and customization problems first, so building a solid mobile foundation now reduces architectural pain later. Desktop support is **definitely planned** and will follow once the mobile core becomes stable enough to expand safely.
+> [!NOTE]
+> **Alpha user experience survey** — share how the alpha feels to use: [take the survey](https://forms.gle/6ABTAkkbXdU32jfu6).
 
 > [!WARNING]
 > AstraProjecta is currently an **alpha project for internal testing and early preview only**. Core functionality is still incomplete, major UI refactors are expected, and breaking changes may happen at any time—including to layouts, interaction patterns, settings, and feature boundaries.
