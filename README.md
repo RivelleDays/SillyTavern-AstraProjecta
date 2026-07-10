@@ -15,10 +15,10 @@
 **AstraProjecta** ("Astra") is a mobile-first UI extension for SillyTavern. It gives the frontend a cleaner, more modern look while SillyTavern keeps running underneath. Mobile comes first because small screens surface the hardest layout problems; desktop support is planned once the mobile core is stable.
 
 > [!NOTE]
-> **Alpha user experience survey** — share how the alpha feels to use: [take the survey](https://forms.gle/6ABTAkkbXdU32jfu6).
+> **Alpha user experience survey.** Share how the alpha feels to use in this [Google Form](https://forms.gle/6ABTAkkbXdU32jfu6).
 
 > [!WARNING]
-> AstraProjecta is an **early alpha** for testing and preview. Features are incomplete, and layouts, settings, and interactions can change at any time. Please **don't rely on it for daily use yet** — auto-update is on by default, so these changes may arrive automatically when SillyTavern updates extensions.
+> AstraProjecta is an **early alpha** for testing and preview. Features are incomplete, and layouts, settings, and interactions can change at any time. Please **don't rely on it for daily use yet**. Auto-update is on by default, so these changes may arrive automatically when SillyTavern updates extensions.
 
 ### Screenshots
 
@@ -59,36 +59,36 @@
 
 ## Highlights ✨
 
-Astra currently focuses on the core chat experience — mobile interaction, readability, and the actions you use most. Here's what's in the current alpha:
+Astra currently focuses on the core chat experience: mobile interaction, readability, and the actions you use most. Here's what's in the current alpha:
 
 ### Chat Experience
 
-- **Cleaner chat layout** — redesigned messages built on shadcn/ui; easier to read and tap, consistent across devices.
-- **Revision history** — see each message's past versions (regenerations and continues) and compare them quickly.
-- **Quick actions** — Revert, Regenerate, and Continue right on the latest message.
-- **Find & replace in chat** — match-case and whole-word search, jump between hits, replace with undo/redo.
-- **Context usage at a glance** — prompt / reserve / usage tokens on the input bar, with a per-source breakdown (character, history, persona, world info) for Chat Completion.
+- **Cleaner chat layout**: redesigned messages built on shadcn/ui; easier to read and tap, consistent across devices.
+- **Revision history**: see each message's past versions (regenerations and continues) and compare them quickly.
+- **Quick actions**: Revert, Regenerate, and Continue right on the latest message.
+- **Find & replace in chat**: match-case and whole-word search, jump between hits, replace with undo/redo.
+- **Context usage at a glance**: prompt / reserve / usage tokens on the input bar, with a per-source breakdown (character, history, persona, world info) for Chat Completion.
 
 ### Chat Organization
 
-- **Chat categories** — sort chats into categories, globally or per character/group, from a dedicated drawer.
-- **Favorites** — keep favorite characters and groups in their own scope for faster access.
-- **Home tab** — recent chats, SillyTavern shortcuts (AI Settings, Backgrounds, Character Management, Extensions, Lorebook, User Settings), and project links.
+- **Chat categories**: sort chats into categories, globally or per character/group, from a dedicated drawer.
+- **Favorites**: keep favorite characters and groups in their own scope for faster access.
+- **Home tab**: recent chats, SillyTavern shortcuts (AI Settings, Backgrounds, Character Management, Extensions, Lorebook, User Settings), and project links.
 
 ### Navigation & Panels
 
-- **Main drawer** — API and model status, connection profile switching, persona shortcuts, and chat actions (rename, delete, categorize) in one place.
-- **SillyTavern interface panel** — native pages (AI settings, character and persona management, backgrounds, extensions, and more) reorganized into mobile-friendly panels.
-- **Quick Reply integration** — show or hide SillyTavern Quick Replies from the input bar.
-- **Mobile-first interactions** — message details, drawer navigation, the bottom input bar, and common buttons reworked for small screens and touch.
+- **Main drawer**: API and model status, connection profile switching, persona shortcuts, and chat actions (rename, delete, categorize) in one place.
+- **SillyTavern interface panel**: native pages (AI settings, character and persona management, backgrounds, extensions, and more) reorganized into mobile-friendly panels.
+- **Quick Reply integration**: show or hide SillyTavern Quick Replies from the input bar.
+- **Mobile-first interactions**: message details, drawer navigation, the bottom input bar, and common buttons reworked for small screens and touch.
 
 ### Session Settings
 
-- **Session settings drawer** — per-session controls for chat background blur and opacity, message display, and input behavior.
+- **Session settings drawer**: per-session controls for chat background blur and opacity, message display, and input behavior.
 
 ## Requirements
 
-AstraProjecta needs **SillyTavern `1.18.0` or later**. During alpha, use the `staging` branch — fixes and compatibility updates land there first.
+AstraProjecta needs **SillyTavern `1.18.0` or later**. During alpha, use the `staging` branch. Fixes and compatibility updates land there first.
 
 For the smoothest test run, also:
 
@@ -108,27 +108,14 @@ Outside this baseline, things may not work as expected, and during alpha I may n
 https://github.com/RivelleDays/SillyTavern-AstraProjecta
 ```
 
+> [!IMPORTANT]
+> Every time you install or update AstraProjecta, reload the SillyTavern page so the latest code takes effect.
+
 Before testing, make sure your setup matches the [Requirements](#requirements) above.
 
 ### Disabling / Uninstalling
 
 If the UI becomes unusable, open SillyTavern's **Extensions** manager, then disable or delete **AstraProjecta** under "Manage extensions" and reload the page. The native SillyTavern UI returns immediately.
-
-## Development
-
-Building from source requires **Node.js 22+** and a SillyTavern `1.18.0+` checkout, with this repository cloned under `public/scripts/extensions/third-party/`.
-
-```bash
-npm ci           # install dependencies
-npm run dev      # watch build
-npm run build    # production build
-npm run test:run # tests (one-shot)
-npm run typecheck
-```
-
-Generated files (`dist/`, `src/types/i18n.d.ts`, and the scoped Tailwind preflight) are committed, and CI fails if they drift from source. Always regenerate them with a build rather than editing by hand — including `dist/` merge conflicts, which you resolve by rebuilding, not hand-merging.
-
-Contributor rules live in the `AGENTS.md` files; start with the root [`AGENTS.md`](AGENTS.md).
 
 ## Compatibility
 
@@ -142,7 +129,7 @@ Contributor rules live in the `AGENTS.md` files; start with the root [`AGENTS.md
 
 ## Supported Third-Party Extensions
 
-Supporting third-party SillyTavern extensions is **not a priority during alpha**. The list below is what Astra has tested and commits to keeping compatible — not a general compatibility guarantee.
+Supporting third-party SillyTavern extensions is **not a priority during alpha**. The list below is what Astra has tested and commits to keeping compatible, not a general compatibility guarantee.
 
 | Extension                                                                                                       | Status       |
 | --------------------------------------------------------------------------------------------------------------- | ------------ |
@@ -154,9 +141,9 @@ Astra may decline support for extensions of uncertain quality or from developers
 
 AstraProjecta is for preview, testing, and early feedback. The planned phases are:
 
-- **Alpha** _(current)_ — core UI, chat interaction logic, and selected Astra-owned features.
-- **Beta** — wider device and browser support, more Astra modules, desktop expansion, and selective third-party extension support.
-- **Release** — stable public release once core workflows, compatibility boundaries, and maintenance expectations are settled.
+- **Alpha** _(current)_: core UI, chat interaction logic, and selected Astra-owned features.
+- **Beta**: wider device and browser support, more Astra modules, desktop expansion, and selective third-party extension support.
+- **Release**: stable public release once core workflows, compatibility boundaries, and maintenance expectations are settled.
 
 UI copy is **English-only during alpha**. The codebase is already i18n-ready (all Astra-owned copy uses typed keys in `locales/en.json`), and community localization opens later. Please hold off on locale PRs for now, or open an issue first.
 
@@ -172,7 +159,7 @@ For informal discussion and quick questions, join the [Discord server](https://d
 
 ## Scope & Boundaries
 
-AstraProjecta is an alternative UI, not a replacement for SillyTavern. It reuses SillyTavern's runtime and backend and rethinks how the frontend is organized — focusing on making core workflows feel modern and pleasant, with a few Astra-owned features on top.
+AstraProjecta is an alternative UI, not a replacement for SillyTavern. It reuses SillyTavern's runtime and backend and rethinks how the frontend is organized, focusing on making core workflows feel modern and pleasant, with a few Astra-owned features on top.
 
 What AstraProjecta is **not**:
 
@@ -181,15 +168,15 @@ What AstraProjecta is **not**:
 - Not a general compatibility layer for third-party extensions during alpha (see [Supported Third-Party Extensions](#supported-third-party-extensions)).
 - Not a Moonlit Echoes skin or a continuation of its styling.
 
-Avoid deep customization during alpha — structure and selectors may still change. Some features also wait on stable SillyTavern extension APIs.
+Avoid deep customization during alpha, since structure and selectors may still change. Some features also wait on stable SillyTavern extension APIs.
 
 ### Data & Settings
 
-AstraProjecta stores a little user-owned state — chat category assignments, per-session appearance overrides, and UI preferences — in SillyTavern's extension settings under the `astra_projecta` key, plus message revision metadata inside your chat files. It runs no backend and stores nothing anywhere else. During alpha, structural changes may reset this state without migration.
+AstraProjecta stores a little user-owned state (chat category assignments, per-session appearance overrides, and UI preferences) in SillyTavern's extension settings under the `astra_projecta` key, plus message revision metadata inside your chat files. It runs no backend and stores nothing anywhere else. During alpha, structural changes may reset this state without migration.
 
 ## AI Usage
 
-AstraProjecta is built with AI coding agents as **a semi-autonomous engineer, with human curation**. AI handles much of the implementation, especially backend-facing logic; Rivelle reviews and directs it, and leads the frontend — CSS, visual style, and UI/UX. AI agents sometimes borrow patterns from other SillyTavern extensions without attribution, so if you spot a missing credit, please open an issue or PR.
+AstraProjecta is built with AI coding agents as **a semi-autonomous engineer, with human curation**. AI handles much of the implementation, especially backend-facing logic; Rivelle reviews and directs it, and leads the frontend: CSS, visual style, and UI/UX. AI agents sometimes borrow patterns from other SillyTavern extensions without attribution, so if you spot a missing credit, please open an issue or PR.
 
 ## Credits
 
@@ -238,7 +225,7 @@ For full dependency details, see `package.json`.
 
 ## Acknowledgements
 
-Thank you to the SillyTavern developers, contributors, and community — AstraProjecta exists because SillyTavern offers a flexible foundation and an active community around it.
+Thank you to the SillyTavern developers, contributors, and community. AstraProjecta exists because SillyTavern offers a flexible foundation and an active community around it.
 
 Thank you, too, to everyone who tested early builds, discussed Moonlit Echoes, shared feedback, or helped picture what a more cohesive SillyTavern mobile experience could be.
 
