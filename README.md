@@ -18,9 +18,7 @@
 > **Alpha user experience survey** — share how the alpha feels to use: [take the survey](https://forms.gle/6ABTAkkbXdU32jfu6).
 
 > [!WARNING]
-> AstraProjecta is currently an **alpha project for internal testing and early preview only**. Core functionality is still incomplete, major UI refactors are expected, and breaking changes may happen at any time—including to layouts, interaction patterns, settings, and feature boundaries.
->
-> Please **do not rely on the current alpha for daily use yet**. Note that auto-update is enabled by default, so breaking alpha changes may be applied automatically when SillyTavern updates extensions.
+> AstraProjecta is an **alpha for internal testing and early preview only**. Core features are incomplete and breaking changes—to layouts, interactions, settings, and feature boundaries—may land at any time. Please **don’t rely on it for daily use yet**; auto-update is on by default, so these changes may apply automatically when SillyTavern updates extensions.
 
 ### Screenshots
 
