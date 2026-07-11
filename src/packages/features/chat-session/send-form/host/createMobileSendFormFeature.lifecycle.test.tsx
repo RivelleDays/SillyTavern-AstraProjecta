@@ -2,6 +2,7 @@ import { waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ensureAstraProjectaUiInfrastructure } from "@/packages/core/runtime/uiScope";
+import { createMobileSendFormFeature } from "@/packages/features/chat-session/send-form/host/createMobileSendFormFeature";
 
 const {
 	avatarStoreFactory,
@@ -65,8 +66,6 @@ vi.mock("@/packages/core/st/currentPresetProfileControls", () => {
 			currentPresetProfileControlsStoreFactory,
 	};
 });
-
-import { createMobileSendFormFeature } from "@/packages/features/chat-session/send-form/host/createMobileSendFormFeature";
 
 function createAvatarStoreStub() {
 	const snapshot = {
