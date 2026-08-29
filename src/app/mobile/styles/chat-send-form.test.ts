@@ -115,6 +115,16 @@ describe("chat-send-form.css", () => {
 		expect(overlayBlock).toContain("mask-image:");
 	});
 
+	test("keeps the Astra composer as the sole bottom-inset owner", () => {
+		const css = readCss();
+		const formSheldBlock = readBlock(
+			css,
+			"#astra-chat-composer-shell > #form_sheld",
+		);
+
+		expect(formSheldBlock).toMatch(/padding-bottom:\s*[^;]+!important;/u);
+	});
+
 	test("keeps mobile send-form input row selector and token contracts addressable", () => {
 		const css = readCss();
 

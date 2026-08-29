@@ -693,6 +693,14 @@
 	gap: 16px;
 	min-width: 0;
 }
+#astra-message-edit-drawer-reasoning-textarea {
+	max-height: 10vh;
+	max-height: 10dvh;
+}
+#astra-message-edit-drawer-message-textarea {
+	max-height: 20vh;
+	max-height: 20dvh;
+}
 
 .astra-messageEditDrawer__fieldGroup {
 	gap: 14px;

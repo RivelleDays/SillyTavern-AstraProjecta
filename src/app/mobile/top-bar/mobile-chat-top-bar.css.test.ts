@@ -17,6 +17,12 @@ function readBlock(css: string, selector: string): string {
 	return match?.groups?.body ?? "";
 }
 
+function expectImportantDeclaration(block: string, property: string) {
+	expect(block).toMatch(
+		new RegExp(`(?:^|\\s)${property}:\\s*[^;]+!important;`, "u"),
+	);
+}
+
 describe("mobile chat top-bar CSS contracts", () => {
 	test("keeps the shell and top-bar selector contracts addressable", () => {
 		const css = readCss();
@@ -58,6 +64,25 @@ describe("mobile chat top-bar CSS contracts", () => {
 		expect(block).toContain("max-height:");
 		expect(block).toContain("min-height:");
 		expect(block).toContain("width:");
+		for (const property of ["height", "min-height", "max-height"]) {
+			expectImportantDeclaration(block, property);
+		}
+	});
+
+	test("resolves the mobile chat shell from host viewport and safe-area contracts", () => {
+		const css = readCss();
+		const shellBlock = readBlock(css, "#astra-chat-session-shell");
+		const topBarBlock = readBlock(css, ".astra-chat-top-bar");
+
+		expect(shellBlock).toContain(
+			"--astra-chat-top-bar-content-block-size:",
+		);
+		expect(shellBlock).toContain("--astra-mobile-safe-block-start:");
+		expect(shellBlock).toMatch(
+			/var\(\s*--tt-inset-top,\s*env\(safe-area-inset-top/u,
+		);
+		expect(shellBlock).toMatch(/var\(\s*--tt-base-viewport-height/u);
+		expect(topBarBlock).toContain("var(--astra-mobile-safe-block-start)");
 	});
 
 	test("hides native SillyTavern top bars only under Astra mobile layout", () => {

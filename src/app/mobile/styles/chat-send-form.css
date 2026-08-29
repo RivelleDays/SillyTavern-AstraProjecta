@@ -171,6 +171,7 @@ body.astra-projecta-mobile-layout {
 		max-width: 100%;
 		min-width: 0;
 		margin: 0;
+		padding-bottom: 0 !important;
 		background: transparent;
 		border-top: none;
 	}

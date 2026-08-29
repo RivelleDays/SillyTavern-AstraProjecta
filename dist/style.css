@@ -5009,6 +5009,7 @@ body.astra-projecta-mobile-layout {
     max-width: 100%;
     min-width: 0;
     margin: 0;
+    padding-bottom: 0 !important;
     background: transparent;
     border-top: none;
   }
@@ -7054,23 +7055,31 @@ body.astra-projecta-mobile-layout {
     right: auto !important;
     margin: 0;
     flex: 1 1 0;
-    min-height: 0;
+    min-height: 0 !important;
     min-width: 0;
     width: 100%;
     max-width: 100%;
-    height: auto;
-    max-height: none;
+    height: auto !important;
+    max-height: none !important;
   }
 }
 #astra-chat-session-shell {
-  --astra-chat-top-bar-block-size: 52px;
+  --astra-chat-top-bar-content-block-size: 52px;
+  --astra-mobile-safe-block-start: var(
+		--tt-inset-top,
+		env(safe-area-inset-top, 0px)
+	);
+  --astra-chat-top-bar-block-size: calc(
+		var(--astra-chat-top-bar-content-block-size) +
+			var(--astra-mobile-safe-block-start)
+	);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   min-width: 0;
   width: 100%;
   height: 100vh;
-  height: var(--astra-mobile-visual-viewport-bottom, 100dvh);
+  height: var(	--tt-base-viewport-height,	var(--astra-mobile-visual-viewport-bottom, 100dvh)	);
   background: transparent;
 }
 #astra-chat-top-bar-host {
@@ -7120,7 +7129,7 @@ body.astra-projecta-mobile-layout {
   min-width: 0;
   min-height: var(--astra-chat-top-bar-block-size);
   padding: 0 8px;
-  padding-top: calc(env(safe-area-inset-top, 0px));
+  padding-top: var(--astra-mobile-safe-block-start);
 }
 .astra-chat-top-bar__astra-main-trigger {
   flex: 0 0 auto;
@@ -11452,6 +11461,14 @@ body.astra-projecta-mobile-layout {
   gap: 16px;
   min-width: 0;
 }
+#astra-message-edit-drawer-reasoning-textarea {
+  max-height: 10vh;
+  max-height: 10dvh;
+}
+#astra-message-edit-drawer-message-textarea {
+  max-height: 20vh;
+  max-height: 20dvh;
+}
 .astra-messageEditDrawer__fieldGroup {
   gap: 14px;
   min-width: 0;
@@ -12655,7 +12672,9 @@ body.astra-projecta-base-ui-body {
   --surface-primary-t90: color-mix(in srgb, var(--primary) 90%, transparent);
   --tw-shadow-color: var(--astra-projecta-theme-shadow);
   --tw-inset-shadow-color: var(--astra-projecta-theme-shadow);
-  --safe-bottom: calc(env(safe-area-inset-bottom, 0px) / 2);
+  --safe-bottom: calc(
+		var(--tt-inset-bottom, env(safe-area-inset-bottom, 0px)) / 2
+	);
   --astra-mobile-visual-viewport-bottom: 100vh;
   --astra-mobile-safe-bottom-effective: var(--safe-bottom);
   --astra-mobile-glass-blur: 8px;
