@@ -282,6 +282,7 @@ describe("shadcn-overrides.css", () => {
 
 	test("keeps dialog, sheet, and mobile page-panel primitive hooks addressable", () => {
 		const css = readCss();
+		const mobilePagePanelBlock = readBlock(css, ".astra-mobile-page-panel");
 
 		expectSelectors(css, [
 			".astra-dialog-current-chat-file-name",
@@ -304,6 +305,9 @@ describe("shadcn-overrides.css", () => {
 		]);
 		expect(css).not.toContain(
 			"--astra-mobile-page-panel-subheader-height:",
+		);
+		expect(mobilePagePanelBlock).toContain(
+			"var(--astra-mobile-safe-block-start)",
 		);
 		expect(css).not.toContain(".astra-mobile-page-panel__header");
 		expect(css).not.toContain(".astra-mobile-page-panel__body-header");

@@ -69,7 +69,7 @@ describe("mobile chat top-bar CSS contracts", () => {
 		}
 	});
 
-	test("resolves the mobile chat shell from host viewport and safe-area contracts", () => {
+	test("consumes shared safe-area and host viewport contracts", () => {
 		const css = readCss();
 		const shellBlock = readBlock(css, "#astra-chat-session-shell");
 		const topBarBlock = readBlock(css, ".astra-chat-top-bar");
@@ -77,10 +77,7 @@ describe("mobile chat top-bar CSS contracts", () => {
 		expect(shellBlock).toContain(
 			"--astra-chat-top-bar-content-block-size:",
 		);
-		expect(shellBlock).toContain("--astra-mobile-safe-block-start:");
-		expect(shellBlock).toMatch(
-			/var\(\s*--tt-inset-top,\s*env\(safe-area-inset-top/u,
-		);
+		expect(shellBlock).not.toContain("--astra-mobile-safe-block-start:");
 		expect(shellBlock).toMatch(/var\(\s*--tt-base-viewport-height/u);
 		expect(topBarBlock).toContain("var(--astra-mobile-safe-block-start)");
 	});

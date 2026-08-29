@@ -608,6 +608,7 @@
 }
 
 .astra-mobile-page-panel {
+	box-sizing: border-box;
 	position: fixed;
 	inset: 0;
 	z-index: 7210;
@@ -618,6 +619,7 @@
 	min-height: 0;
 	flex-direction: column;
 	overflow: hidden;
+	padding-block-start: var(--astra-mobile-safe-block-start);
 	color: var(--color-base);
 	background-color: var(--surface-base);
 	outline: none;

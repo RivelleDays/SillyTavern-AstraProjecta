@@ -879,6 +879,10 @@ describe("globals.css", () => {
 		}
 		expect(css).toContain("--popover:");
 		expect(css).toContain("--popover-foreground:");
+		expect(css).toContain("--astra-mobile-safe-block-start:");
+		expect(css).toMatch(
+			/var\(\s*--tt-inset-top,\s*env\(safe-area-inset-top/u,
+		);
 		expect(css).toContain("--safe-bottom:");
 		expect(css).toMatch(
 			/var\(\s*--tt-inset-bottom,\s*env\(safe-area-inset-bottom/u,

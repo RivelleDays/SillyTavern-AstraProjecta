@@ -23,10 +23,6 @@ body.astra-projecta-mobile-layout {
 
 #astra-chat-session-shell {
 	--astra-chat-top-bar-content-block-size: 52px;
-	--astra-mobile-safe-block-start: var(
-		--tt-inset-top,
-		env(safe-area-inset-top, 0px)
-	);
 	--astra-chat-top-bar-block-size: calc(
 		var(--astra-chat-top-bar-content-block-size) +
 			var(--astra-mobile-safe-block-start)

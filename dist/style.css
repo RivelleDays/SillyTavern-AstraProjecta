@@ -3862,6 +3862,7 @@
   overflow: hidden;
 }
 .astra-mobile-page-panel {
+  box-sizing: border-box;
   position: fixed;
   inset: 0;
   z-index: 7210;
@@ -3872,6 +3873,7 @@
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
+  padding-block-start: var(--astra-mobile-safe-block-start);
   color: var(--color-base);
   background-color: var(--surface-base);
   outline: none;
@@ -7065,10 +7067,6 @@ body.astra-projecta-mobile-layout {
 }
 #astra-chat-session-shell {
   --astra-chat-top-bar-content-block-size: 52px;
-  --astra-mobile-safe-block-start: var(
-		--tt-inset-top,
-		env(safe-area-inset-top, 0px)
-	);
   --astra-chat-top-bar-block-size: calc(
 		var(--astra-chat-top-bar-content-block-size) +
 			var(--astra-mobile-safe-block-start)
@@ -12672,6 +12670,10 @@ body.astra-projecta-base-ui-body {
   --surface-primary-t90: color-mix(in srgb, var(--primary) 90%, transparent);
   --tw-shadow-color: var(--astra-projecta-theme-shadow);
   --tw-inset-shadow-color: var(--astra-projecta-theme-shadow);
+  --astra-mobile-safe-block-start: var(
+		--tt-inset-top,
+		env(safe-area-inset-top, 0px)
+	);
   --safe-bottom: calc(
 		var(--tt-inset-bottom, env(safe-area-inset-bottom, 0px)) / 2
 	);
